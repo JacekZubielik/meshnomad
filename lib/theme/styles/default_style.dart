@@ -11,7 +11,5 @@ final MeshStyle defaultStyle = MeshStyle(
   light: MeshTheme.light().copyWith(
     extensions: const [MeshTokens.defaultTokens],
   ),
-  dark: MeshTheme.dark().copyWith(
-    extensions: const [MeshTokens.defaultTokens],
-  ),
+  dark: MeshTheme.dark().copyWith(extensions: const [MeshTokens.defaultTokens]),
 );

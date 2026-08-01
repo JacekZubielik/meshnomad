@@ -22,7 +22,8 @@ class _FakeStorageService extends StorageService {
     ContactPathHistory history,
   ) async {}
   @override
-  Future<ContactPathHistory?> loadPathHistory(String contactPubKeyHex) async => null;
+  Future<ContactPathHistory?> loadPathHistory(String contactPubKeyHex) async =>
+      null;
   @override
   Future<void> clearPathHistory(String contactPubKeyHex) async {}
 }
@@ -77,7 +78,10 @@ Widget _buildTestApp({
       ChangeNotifierProvider<AppSettingsService>(
         create: (_) => AppSettingsService(),
       ),
-      Provider<MapTileCacheService>(create: (_) => MapTileCacheService()),
+      ChangeNotifierProvider<MapTileCacheService>(
+        create: (_) =>
+            MapTileCacheService(appSettingsService: AppSettingsService()),
+      ),
       ChangeNotifierProvider<PathHistoryService>(
         create: (_) => PathHistoryService(_FakeStorageService()),
       ),
