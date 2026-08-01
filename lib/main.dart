@@ -24,7 +24,7 @@ import 'services/translation_service.dart';
 import 'services/ui_view_state_service.dart';
 import 'services/timeout_prediction_service.dart';
 import 'storage/prefs_manager.dart';
-import 'theme/mesh_theme.dart';
+import 'theme/styles/style_registry.dart';
 import 'utils/app_logger.dart';
 
 void main() async {
@@ -203,8 +203,8 @@ class MeshCoreApp extends StatelessWidget {
             locale: _localeFromSetting(
               settingsService.settings.languageOverride,
             ),
-            theme: MeshTheme.light(),
-            darkTheme: MeshTheme.dark(),
+            theme: StyleRegistry.byId(settingsService.settings.styleId).light,
+            darkTheme: StyleRegistry.byId(settingsService.settings.styleId).dark,
             themeMode: _themeModeFromSetting(
               settingsService.settings.themeMode,
             ),

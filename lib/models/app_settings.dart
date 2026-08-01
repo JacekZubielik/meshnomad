@@ -109,6 +109,7 @@ class AppSettings {
   final double routeWeightFailureDecrement;
   final int maxMessageRetries;
   final String themeMode;
+  final String styleId;
   final String? languageOverride; // null = system default
   final bool appDebugLogEnabled;
   final Map<String, String> batteryChemistryByDeviceId;
@@ -179,6 +180,7 @@ class AppSettings {
     this.routeWeightFailureDecrement = 0.2,
     this.maxMessageRetries = 5,
     this.themeMode = 'system',
+    this.styleId = 'default',
     this.languageOverride,
     this.appDebugLogEnabled = false,
     Map<String, String>? batteryChemistryByDeviceId,
@@ -246,6 +248,7 @@ class AppSettings {
       'route_weight_failure_decrement': routeWeightFailureDecrement,
       'max_message_retries': maxMessageRetries,
       'theme_mode': themeMode,
+      'style_id': styleId,
       'language_override': languageOverride,
       'app_debug_log_enabled': appDebugLogEnabled,
       'battery_chemistry_by_device_id': batteryChemistryByDeviceId,
@@ -322,6 +325,7 @@ class AppSettings {
           (json['route_weight_failure_decrement'] as num?)?.toDouble() ?? 0.2,
       maxMessageRetries: json['max_message_retries'] as int? ?? 5,
       themeMode: json['theme_mode'] as String? ?? 'system',
+      styleId: json['style_id'] as String? ?? 'default',
       languageOverride: json['language_override'] as String?,
       appDebugLogEnabled: json['app_debug_log_enabled'] as bool? ?? false,
       batteryChemistryByDeviceId:
@@ -431,6 +435,7 @@ class AppSettings {
     double? routeWeightFailureDecrement,
     int? maxMessageRetries,
     String? themeMode,
+    String? styleId,
     Object? languageOverride = _unset,
     bool? appDebugLogEnabled,
     Map<String, String>? batteryChemistryByDeviceId,
@@ -493,6 +498,7 @@ class AppSettings {
           routeWeightFailureDecrement ?? this.routeWeightFailureDecrement,
       maxMessageRetries: maxMessageRetries ?? this.maxMessageRetries,
       themeMode: themeMode ?? this.themeMode,
+      styleId: styleId ?? this.styleId,
       languageOverride: languageOverride == _unset
           ? this.languageOverride
           : languageOverride as String?,
