@@ -5,7 +5,7 @@ import 'package:latlong2/latlong.dart';
 import '../l10n/l10n.dart';
 import '../models/display_path.dart';
 import '../models/path_playback.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 
 /// Shared UI for the path map screens (live path trace and received-message
 /// path map): packet-flow animation overlays, single/combined view toggle,
@@ -14,11 +14,15 @@ import '../theme/mesh_theme.dart';
 enum PathViewMode { single, combined }
 
 const Color kPrimaryPathColor = Colors.blueAccent;
-const List<Color> kAlternatePathColors = [
-  Color(0xFF8B5CF6), // purple
-  MeshPalette.signal, // green
-  MeshPalette.warn, // amber
-  MeshPalette.magenta,
+
+/// Alternate-path color coding — the first color stays fixed (not part of
+/// the switchable style), the rest are theme-aware since they double as the
+/// app's signal/warn/accent colors elsewhere.
+List<Color> alternatePathColors(BuildContext context) => [
+  const Color(0xFF8B5CF6), // purple
+  MeshTokens.of(context).signal, // green
+  MeshTokens.of(context).warn, // amber
+  MeshTokens.of(context).magenta,
 ];
 
 double getPathDistanceMeters(List<LatLng> points) {
@@ -237,10 +241,10 @@ void showSharedNodeSheet(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
             child: Text(
               title,
-              style: MeshTheme.mono(
+              style: MeshTokens.of(context).mono(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: MeshPalette.ink,
+                color: MeshTokens.of(context).ink,
               ),
             ),
           ),
@@ -248,7 +252,10 @@ void showSharedNodeSheet(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               l10n.pathMap_sharedNodeCount(paths.length),
-              style: TextStyle(fontSize: 12, color: MeshPalette.ink3),
+              style: TextStyle(
+                fontSize: 12,
+                color: MeshTokens.of(context).ink3,
+              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -258,11 +265,15 @@ void showSharedNodeSheet(
               leading: _colorDot(path.color),
               title: Text(
                 path.label,
-                style: MeshTheme.mono(fontSize: 13, color: MeshPalette.ink),
+                style: MeshTokens.of(
+                  context,
+                ).mono(fontSize: 13, color: MeshTokens.of(context).ink),
               ),
               trailing: Text(
                 l10n.pathMap_hopCount(path.totalTransmissions),
-                style: MeshTheme.mono(fontSize: 11, color: MeshPalette.ink3),
+                style: MeshTokens.of(
+                  context,
+                ).mono(fontSize: 11, color: MeshTokens.of(context).ink3),
               ),
               onTap: () {
                 Navigator.pop(sheetContext);
@@ -303,8 +314,8 @@ class PathViewModeToggle extends StatelessWidget {
       child: Center(
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: MeshPalette.bg1.withValues(alpha: 0.92),
-            borderRadius: BorderRadius.circular(MeshRadii.pill),
+            color: MeshTokens.of(context).bg1.withValues(alpha: 0.92),
+            borderRadius: BorderRadius.circular(MeshTokens.of(context).pill),
           ),
           child: SegmentedButton<PathViewMode>(
             style: const ButtonStyle(
@@ -397,7 +408,9 @@ class PathAnimationControls extends StatelessWidget {
                 tooltip: animationEnabled
                     ? l10n.pathMap_animationOff
                     : l10n.pathMap_animationOn,
-                color: animationEnabled ? MeshPalette.blue : MeshPalette.ink4,
+                color: animationEnabled
+                    ? MeshTokens.of(context).blue
+                    : MeshTokens.of(context).ink4,
                 onPressed: onToggleAnimation,
               ),
               controlButton(
@@ -429,7 +442,7 @@ class PathAnimationControls extends StatelessWidget {
                 tooltip: followEnabled
                     ? l10n.pathMap_unfollowPacket
                     : l10n.pathMap_followPacket,
-                color: followEnabled ? MeshPalette.blue : null,
+                color: followEnabled ? MeshTokens.of(context).blue : null,
                 onPressed: enabled ? onToggleFollow : null,
               ),
               TextButton(
@@ -441,7 +454,7 @@ class PathAnimationControls extends StatelessWidget {
                 ),
                 child: Text(
                   playback.speed == 0.5 ? '0.5×' : '${playback.speed.toInt()}×',
-                  style: MeshTheme.mono(fontSize: 12),
+                  style: MeshTokens.of(context).mono(fontSize: 12),
                 ),
               ),
               Expanded(
@@ -450,10 +463,9 @@ class PathAnimationControls extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.right,
-                  style: MeshTheme.mono(
-                    fontSize: 10.5,
-                    color: MeshPalette.ink2,
-                  ),
+                  style: MeshTokens.of(
+                    context,
+                  ).mono(fontSize: 10.5, color: MeshTokens.of(context).ink2),
                 ),
               ),
             ],
@@ -483,7 +495,10 @@ class PathMiniLegend extends StatelessWidget {
       children: [
         swatch,
         const SizedBox(width: 4),
-        Text(text, style: TextStyle(fontSize: 11, color: MeshPalette.ink3)),
+        Text(
+          text,
+          style: TextStyle(fontSize: 11, color: MeshTokens.of(context).ink3),
+        ),
       ],
     );
     Widget dashSample() => Row(
@@ -494,7 +509,7 @@ class PathMiniLegend extends StatelessWidget {
             width: 5,
             height: 3,
             margin: const EdgeInsets.only(right: 2),
-            color: MeshPalette.ink3,
+            color: MeshTokens.of(context).ink3,
           ),
       ],
     );
@@ -502,9 +517,15 @@ class PathMiniLegend extends StatelessWidget {
       spacing: 12,
       runSpacing: 2,
       children: [
-        item(_colorDot(MeshPalette.signal), l10n.pathTrace_legendGpsConfirmed),
+        item(
+          _colorDot(MeshTokens.of(context).signal),
+          l10n.pathTrace_legendGpsConfirmed,
+        ),
         if (showInferred)
-          item(_colorDot(MeshPalette.warn), l10n.pathTrace_legendInferred),
+          item(
+            _colorDot(MeshTokens.of(context).warn),
+            l10n.pathTrace_legendInferred,
+          ),
         if (combined) ...[
           item(
             Container(
@@ -559,7 +580,9 @@ class PathSummaryList extends StatelessWidget {
             children: [
               Text(
                 l10n.pathMap_observedPaths(paths.length),
-                style: MeshTheme.accentLabel(color: MeshPalette.ink3),
+                style: MeshTokens.of(
+                  context,
+                ).accentLabel(color: MeshTokens.of(context).ink3),
               ),
               const Spacer(),
               if (hiddenIds.isNotEmpty)
@@ -601,8 +624,8 @@ class PathSummaryList extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
-          color: isSelected ? MeshPalette.bg3 : Colors.transparent,
-          borderRadius: BorderRadius.circular(MeshRadii.sm),
+          color: isSelected ? MeshTokens.of(context).bg3 : Colors.transparent,
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).sm),
         ),
         child: Row(
           children: [
@@ -615,12 +638,12 @@ class PathSummaryList extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     path.label,
-                    style: MeshTheme.mono(
+                    style: MeshTokens.of(context).mono(
                       fontSize: 12,
                       fontWeight: isSelected
                           ? FontWeight.w700
                           : FontWeight.w500,
-                      color: MeshPalette.ink,
+                      color: MeshTokens.of(context).ink,
                     ),
                   ),
                 ],
@@ -634,10 +657,9 @@ class PathSummaryList extends StatelessWidget {
                   parts.join(' · '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: MeshTheme.mono(
-                    fontSize: 10.5,
-                    color: MeshPalette.ink3,
-                  ),
+                  style: MeshTokens.of(
+                    context,
+                  ).mono(fontSize: 10.5, color: MeshTokens.of(context).ink3),
                 ),
               ),
             ),
@@ -645,7 +667,9 @@ class PathSummaryList extends StatelessWidget {
               icon: Icon(
                 hidden ? Icons.visibility_off : Icons.visibility,
                 size: 16,
-                color: hidden ? MeshPalette.ink4 : MeshPalette.ink3,
+                color: hidden
+                    ? MeshTokens.of(context).ink4
+                    : MeshTokens.of(context).ink3,
               ),
               tooltip: hidden ? l10n.pathMap_showPath : l10n.pathMap_hidePath,
               visualDensity: VisualDensity.compact,

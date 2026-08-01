@@ -14,6 +14,7 @@ import 'package:meshcore_open/l10n/app_localizations.dart';
 import 'package:meshcore_open/services/path_history_service.dart';
 import 'package:meshcore_open/services/storage_service.dart';
 import 'package:meshcore_open/models/path_history.dart';
+import 'package:meshcore_open/theme/styles/style_registry.dart';
 
 class _FakeStorageService extends StorageService {
   @override
@@ -87,6 +88,7 @@ Widget _buildTestApp({
       ),
     ],
     child: MaterialApp(
+      theme: StyleRegistry.byId('default').light,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: child,

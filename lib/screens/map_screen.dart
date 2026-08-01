@@ -30,7 +30,7 @@ import '../icons/los_icon.dart';
 import 'channels_screen.dart';
 import 'chat_screen.dart';
 import 'contacts_screen.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/repeater_login_dialog.dart';
 import '../widgets/room_login_dialog.dart';
@@ -113,24 +113,27 @@ class _MapScreenState extends State<MapScreen> {
   bool get _useDarkOverlay => Theme.of(context).brightness == Brightness.dark;
 
   Color get _overlayPanelColor => _useDarkOverlay
-      ? MapPalette.panelDark
+      ? MeshTokens.of(context).mapPanelDark
       : _overlayScheme.surfaceContainerLow.withValues(alpha: 0.96);
 
-  Color get _overlayPrimaryTextColor =>
-      _useDarkOverlay ? MapPalette.textPrimary : _overlayScheme.onSurface;
+  Color get _overlayPrimaryTextColor => _useDarkOverlay
+      ? MeshTokens.of(context).mapTextPrimary
+      : _overlayScheme.onSurface;
 
   Color get _overlaySecondaryTextColor => _useDarkOverlay
-      ? MapPalette.textSecondary
+      ? MeshTokens.of(context).mapTextSecondary
       : _overlayScheme.onSurfaceVariant;
 
-  Color get _overlayMutedTextColor =>
-      _useDarkOverlay ? MapPalette.textMuted : _overlayScheme.onSurfaceVariant;
+  Color get _overlayMutedTextColor => _useDarkOverlay
+      ? MeshTokens.of(context).mapTextMuted
+      : _overlayScheme.onSurfaceVariant;
 
-  Color get _overlayBorderColor =>
-      _useDarkOverlay ? MapPalette.border : _overlayScheme.outlineVariant;
+  Color get _overlayBorderColor => _useDarkOverlay
+      ? MeshTokens.of(context).mapBorder
+      : _overlayScheme.outlineVariant;
 
   Color get _overlayShadowColor => _useDarkOverlay
-      ? MapPalette.markerShadow
+      ? MeshTokens.of(context).mapMarkerShadow
       : Colors.black.withValues(alpha: 0.18);
 
   _NodeAge _ageOf(Contact contact) {
@@ -260,7 +263,7 @@ class _MapScreenState extends State<MapScreen> {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: _overlayPanelColor,
-          borderRadius: BorderRadius.circular(MeshRadii.md),
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
           border: Border.all(color: _overlayBorderColor),
           boxShadow: [
             BoxShadow(
@@ -271,7 +274,7 @@ class _MapScreenState extends State<MapScreen> {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(MeshRadii.md),
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -296,7 +299,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
               if (hasSelf)
                 IconButton(
-                  color: MapPalette.selected,
+                  color: MeshTokens.of(context).mapSelected,
                   icon: const Icon(Icons.my_location),
                   tooltip: context.l10n.map_setAsMyLocation,
                   onPressed: () => _mapController.move(
@@ -465,7 +468,7 @@ class _MapScreenState extends State<MapScreen> {
                   Polyline(
                     points: _points,
                     strokeWidth: 4,
-                    color: MapPalette.selected,
+                    color: MeshTokens.of(context).mapSelected,
                   ),
                 ]
               : <Polyline>[],
@@ -482,9 +485,9 @@ class _MapScreenState extends State<MapScreen> {
                 points: points,
                 color: marker.isChannel
                     ? (marker.isPublicChannel
-                          ? MapPalette.cluster
-                          : MapPalette.router)
-                    : MapPalette.shared,
+                          ? MeshTokens.of(context).mapCluster
+                          : MeshTokens.of(context).mapRouter)
+                    : MeshTokens.of(context).mapShared,
                 strokeWidth: 3,
               ),
             );
@@ -657,7 +660,7 @@ class _MapScreenState extends State<MapScreen> {
                                   connector.selfLatitude!,
                                   connector.selfLongitude!,
                                 ),
-                                color: MapPalette.selected,
+                                color: MeshTokens.of(context).mapSelected,
                                 icon: Icons.person_pin_circle,
                               ),
                             );
@@ -800,14 +803,18 @@ class _MapScreenState extends State<MapScreen> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: MapPalette.batteryLow,
+                                  color: MeshTokens.of(context).mapBatteryLow,
                                   border: Border.all(
-                                    color: MapPalette.markerOutline,
+                                    color: MeshTokens.of(
+                                      context,
+                                    ).mapMarkerOutline,
                                     width: 3,
                                   ),
-                                  boxShadow: const [
+                                  boxShadow: [
                                     BoxShadow(
-                                      color: MapPalette.markerShadow,
+                                      color: MeshTokens.of(
+                                        context,
+                                      ).mapMarkerShadow,
                                       blurRadius: 8,
                                       offset: Offset(0, 3),
                                     ),
@@ -863,23 +870,27 @@ class _MapScreenState extends State<MapScreen> {
                                 height: 36,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: MapPalette.panelDark,
+                                  color: MeshTokens.of(context).mapPanelDark,
                                   border: Border.all(
-                                    color: MapPalette.markerOutline,
+                                    color: MeshTokens.of(
+                                      context,
+                                    ).mapMarkerOutline,
                                     width: 2.5,
                                   ),
                                   boxShadow: [
-                                    const BoxShadow(
-                                      color: MapPalette.markerShadow,
+                                    BoxShadow(
+                                      color: MeshTokens.of(
+                                        context,
+                                      ).mapMarkerShadow,
                                       blurRadius: 8,
                                       offset: Offset(0, 2),
                                     ),
                                   ],
                                 ),
                                 alignment: Alignment.center,
-                                child: const Icon(
+                                child: Icon(
                                   Icons.person_pin_circle,
-                                  color: MapPalette.selected,
+                                  color: MeshTokens.of(context).mapSelected,
                                   size: 22,
                                 ),
                               ),
@@ -1432,7 +1443,7 @@ class _MapScreenState extends State<MapScreen> {
   }) {
     final age = _ageOf(contact);
     final baseColor = overlapsMode
-        ? MapPalette.batteryLow
+        ? MeshTokens.of(context).mapBatteryLow
         : _markerColor(contact);
     final stale = age == _NodeAge.stale;
     final online = age == _NodeAge.online;
@@ -1462,12 +1473,12 @@ class _MapScreenState extends State<MapScreen> {
                     shape: BoxShape.circle,
                     color: baseColor,
                     border: Border.all(
-                      color: MapPalette.markerOutline,
+                      color: MeshTokens.of(context).mapMarkerOutline,
                       width: 2,
                     ),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: MapPalette.markerShadow,
+                        color: MeshTokens.of(context).mapMarkerShadow,
                         blurRadius: 6,
                         offset: Offset(0, 2),
                       ),
@@ -1514,11 +1525,14 @@ class _MapScreenState extends State<MapScreen> {
         child: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: MapPalette.cluster,
-            border: Border.all(color: MapPalette.markerOutline, width: 3),
-            boxShadow: const [
+            color: MeshTokens.of(context).mapCluster,
+            border: Border.all(
+              color: MeshTokens.of(context).mapMarkerOutline,
+              width: 3,
+            ),
+            boxShadow: [
               BoxShadow(
-                color: MapPalette.markerShadow,
+                color: MeshTokens.of(context).mapMarkerShadow,
                 blurRadius: 8,
                 offset: Offset(0, 3),
               ),
@@ -1531,7 +1545,7 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               Text(
                 '$count',
-                style: MeshTheme.mono(
+                style: MeshTokens.of(context).mono(
                   fontSize: count >= 100 ? 11.5 : 13.5,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -1544,7 +1558,7 @@ class _MapScreenState extends State<MapScreen> {
                   margin: const EdgeInsets.only(top: 1),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: MapPalette.online,
+                    color: MeshTokens.of(context).mapOnline,
                     border: Border.all(color: Colors.white, width: 1),
                   ),
                 ),
@@ -1589,7 +1603,7 @@ class _MapScreenState extends State<MapScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: _overlayPanelColor,
-                borderRadius: BorderRadius.circular(MeshRadii.xs),
+                borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
                 border: Border.all(color: _overlayBorderColor),
                 boxShadow: [
                   BoxShadow(
@@ -1604,7 +1618,7 @@ class _MapScreenState extends State<MapScreen> {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: MeshTheme.mono(
+                style: MeshTokens.of(context).mono(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   color: _overlayPrimaryTextColor,
@@ -1620,26 +1634,26 @@ class _MapScreenState extends State<MapScreen> {
   Color _getNodeColor(int type) {
     switch (type) {
       case advTypeChat:
-        return MapPalette.selected;
+        return MeshTokens.of(context).mapSelected;
       case advTypeRepeater:
-        return MapPalette.repeater;
+        return MeshTokens.of(context).mapRepeater;
       case advTypeRoom:
-        return MapPalette.router;
+        return MeshTokens.of(context).mapRouter;
       case advTypeSensor:
-        return MapPalette.sensor;
+        return MeshTokens.of(context).mapSensor;
       default:
-        return MapPalette.offline;
+        return MeshTokens.of(context).mapOffline;
     }
   }
 
   Color _markerColor(Contact contact) {
     switch (contact.type) {
       case advTypeRepeater:
-        return MapPalette.repeater;
+        return MeshTokens.of(context).mapRepeater;
       case advTypeRoom:
-        return MapPalette.router;
+        return MeshTokens.of(context).mapRouter;
       case advTypeSensor:
-        return MapPalette.sensor;
+        return MeshTokens.of(context).mapSensor;
       default:
         return _ageColor(_ageOf(contact));
     }
@@ -1682,12 +1696,12 @@ class _MapScreenState extends State<MapScreen> {
     bool batteryLow = false,
   }) {
     final statusColor = batteryLow
-        ? MapPalette.batteryLow
+        ? MeshTokens.of(context).mapBatteryLow
         : online
-        ? MapPalette.online
+        ? MeshTokens.of(context).mapOnline
         : stale
-        ? MapPalette.offline
-        : MapPalette.stale;
+        ? MeshTokens.of(context).mapOffline
+        : MeshTokens.of(context).mapStale;
     return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.center,
@@ -1697,20 +1711,22 @@ class _MapScreenState extends State<MapScreen> {
           height: selected ? 44 : 36,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: selected ? MapPalette.selected : color,
+            color: selected ? MeshTokens.of(context).mapSelected : color,
             border: Border.all(
-              color: MapPalette.markerOutline,
+              color: MeshTokens.of(context).mapMarkerOutline,
               width: selected ? 3 : 2.5,
             ),
             boxShadow: [
-              const BoxShadow(
-                color: MapPalette.markerShadow,
+              BoxShadow(
+                color: MeshTokens.of(context).mapMarkerShadow,
                 blurRadius: 8,
                 offset: Offset(0, 3),
               ),
               if (selected)
                 BoxShadow(
-                  color: MapPalette.selected.withValues(alpha: 0.75),
+                  color: MeshTokens.of(
+                    context,
+                  ).mapSelected.withValues(alpha: 0.75),
                   blurRadius: 14,
                   spreadRadius: 3,
                 ),
@@ -1767,11 +1783,11 @@ class _MapScreenState extends State<MapScreen> {
   Color _ageColor(_NodeAge age) {
     switch (age) {
       case _NodeAge.online:
-        return MapPalette.online;
+        return MeshTokens.of(context).mapOnline;
       case _NodeAge.recent:
-        return MapPalette.stale;
+        return MeshTokens.of(context).mapStale;
       case _NodeAge.stale:
-        return MapPalette.textMuted;
+        return MeshTokens.of(context).mapTextMuted;
     }
   }
 
@@ -1855,7 +1871,7 @@ class _MapScreenState extends State<MapScreen> {
                       color: _overlayPrimaryTextColor,
                       fontWeight: FontWeight.w600,
                     ),
-                    cursorColor: MapPalette.selected,
+                    cursorColor: MeshTokens.of(context).mapSelected,
                     onChanged: (value) {
                       setState(() => _searchQuery = value);
                     },
@@ -1879,15 +1895,15 @@ class _MapScreenState extends State<MapScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.hub,
                           size: 15,
-                          color: MapPalette.selected,
+                          color: MeshTokens.of(context).mapSelected,
                         ),
                         const SizedBox(width: 6),
                         Text(
                           '$visibleCount',
-                          style: MeshTheme.mono(
+                          style: MeshTokens.of(context).mono(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: _overlayPrimaryTextColor,
@@ -1922,25 +1938,25 @@ class _MapScreenState extends State<MapScreen> {
                 _mapChip(
                   label: context.l10n.map_online,
                   selected: _freshness == _Freshness.online,
-                  color: MapPalette.online,
+                  color: MeshTokens.of(context).mapOnline,
                   onTap: () => setState(() => _freshness = _Freshness.online),
                 ),
                 _mapChip(
                   label: context.l10n.map_recent,
                   selected: _freshness == _Freshness.recent,
-                  color: MapPalette.stale,
+                  color: MeshTokens.of(context).mapStale,
                   onTap: () => setState(() => _freshness = _Freshness.recent),
                 ),
                 _mapChip(
                   label: context.l10n.map_stale,
                   selected: _freshness == _Freshness.stale,
-                  color: MapPalette.offline,
+                  color: MeshTokens.of(context).mapOffline,
                   onTap: () => setState(() => _freshness = _Freshness.stale),
                 ),
                 _mapChip(
                   label: context.l10n.map_repeaters,
                   selected: settings.mapShowRepeaters,
-                  color: MapPalette.repeater,
+                  color: MeshTokens.of(context).mapRepeater,
                   onTap: () => settingsService.setMapShowRepeaters(
                     !settings.mapShowRepeaters,
                   ),
@@ -1948,7 +1964,7 @@ class _MapScreenState extends State<MapScreen> {
                 _mapChip(
                   label: context.l10n.map_chatNodes,
                   selected: settings.mapShowChatNodes,
-                  color: MapPalette.selected,
+                  color: MeshTokens.of(context).mapSelected,
                   onTap: () => settingsService.setMapShowChatNodes(
                     !settings.mapShowChatNodes,
                   ),
@@ -1992,7 +2008,7 @@ class _MapScreenState extends State<MapScreen> {
     required VoidCallback onTap,
     Color? color,
   }) {
-    final accent = color ?? MapPalette.selected;
+    final accent = color ?? MeshTokens.of(context).mapSelected;
     return Padding(
       padding: const EdgeInsets.only(right: 6),
       child: Material(
@@ -2061,7 +2077,7 @@ class _MapScreenState extends State<MapScreen> {
       constraints: const BoxConstraints(maxHeight: 300),
       decoration: BoxDecoration(
         color: _overlayPanelColor,
-        borderRadius: BorderRadius.circular(MeshRadii.md),
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
         border: Border.all(color: _overlayBorderColor),
         boxShadow: [
           BoxShadow(
@@ -2117,7 +2133,7 @@ class _MapScreenState extends State<MapScreen> {
                               ),
                               Text(
                                 c.publicKeyHex.substring(0, 12),
-                                style: MeshTheme.mono(
+                                style: MeshTokens.of(context).mono(
                                   fontSize: 10.5,
                                   color: _overlaySecondaryTextColor,
                                 ),
@@ -2134,7 +2150,7 @@ class _MapScreenState extends State<MapScreen> {
                         else
                           Text(
                             context.l10n.map_noGps.toUpperCase(),
-                            style: MeshTheme.accentLabel(
+                            style: MeshTokens.of(context).accentLabel(
                               color: _overlayMutedTextColor,
                               fontSize: 8.5,
                             ),
@@ -2196,7 +2212,7 @@ class _MapScreenState extends State<MapScreen> {
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
         color: _overlayPanelColor,
-        borderRadius: BorderRadius.circular(MeshRadii.md),
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
         border: Border.all(color: _overlayBorderColor),
         boxShadow: [
           BoxShadow(
@@ -2210,40 +2226,56 @@ class _MapScreenState extends State<MapScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          _statRow(context.l10n.map_visible, visibleCount, MapPalette.selected),
-          _statRow(context.l10n.map_online, onlineCount, MapPalette.online),
+          _statRow(
+            context.l10n.map_visible,
+            visibleCount,
+            MeshTokens.of(context).mapSelected,
+          ),
+          _statRow(
+            context.l10n.map_online,
+            onlineCount,
+            MeshTokens.of(context).mapOnline,
+          ),
           _statRow(
             context.l10n.map_repeaters,
             repeaterCount,
-            MapPalette.repeater,
+            MeshTokens.of(context).mapRepeater,
           ),
-          _statRow(context.l10n.map_hidden, hiddenCount, MapPalette.offline),
-          _statRow(context.l10n.map_markers, pinCount, MapPalette.shared),
+          _statRow(
+            context.l10n.map_hidden,
+            hiddenCount,
+            MeshTokens.of(context).mapOffline,
+          ),
+          _statRow(
+            context.l10n.map_markers,
+            pinCount,
+            MeshTokens.of(context).mapShared,
+          ),
           Divider(height: 16, color: _overlayBorderColor),
           _buildLegendItem(
             Icons.person,
             context.l10n.map_chat,
-            MapPalette.selected,
+            MeshTokens.of(context).mapSelected,
           ),
           _buildLegendItem(
             Icons.router,
             context.l10n.map_repeater,
-            MapPalette.repeater,
+            MeshTokens.of(context).mapRepeater,
           ),
           _buildLegendItem(
             Icons.meeting_room,
             context.l10n.map_room,
-            MapPalette.router,
+            MeshTokens.of(context).mapRouter,
           ),
           _buildLegendItem(
             Icons.sensors,
             context.l10n.map_sensor,
-            MapPalette.sensor,
+            MeshTokens.of(context).mapSensor,
           ),
           _buildLegendItem(
             Icons.flag,
             context.l10n.map_pinDm,
-            MapPalette.shared,
+            MeshTokens.of(context).mapShared,
           ),
           if (settings.mapShowGuessedLocations && guessedCount > 0)
             _buildLegendItem(
@@ -2279,7 +2311,7 @@ class _MapScreenState extends State<MapScreen> {
           ),
           Text(
             '$value',
-            style: MeshTheme.mono(
+            style: MeshTokens.of(context).mono(
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: _overlayPrimaryTextColor,
@@ -2349,10 +2381,10 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                             if (contact.isFavorite) ...[
                               const SizedBox(width: 4),
-                              const Icon(
+                              Icon(
                                 Icons.star,
                                 size: 14,
-                                color: MapPalette.stale,
+                                color: MeshTokens.of(context).mapStale,
                               ),
                             ],
                           ],
@@ -2426,7 +2458,7 @@ class _MapScreenState extends State<MapScreen> {
                   ..._selectedNodeActions(context, contact, connector),
                   TextButton(
                     style: TextButton.styleFrom(
-                      foregroundColor: MapPalette.selected,
+                      foregroundColor: MeshTokens.of(context).mapSelected,
                     ),
                     onPressed: () => _showNodeInfo(
                       context,
@@ -2453,18 +2485,16 @@ class _MapScreenState extends State<MapScreen> {
       children: [
         Text(
           label.toUpperCase(),
-          style: MeshTheme.accentLabel(
-            color: _overlayMutedTextColor,
-            fontSize: 8,
-          ),
+          style: MeshTokens.of(
+            context,
+          ).accentLabel(color: _overlayMutedTextColor, fontSize: 8),
         ),
         const SizedBox(height: 1),
         Text(
           value,
-          style: MeshTheme.mono(
-            fontSize: 11.5,
-            color: _overlayPrimaryTextColor,
-          ),
+          style: MeshTokens.of(
+            context,
+          ).mono(fontSize: 11.5, color: _overlayPrimaryTextColor),
         ),
       ],
     );
@@ -2641,8 +2671,10 @@ class _MapScreenState extends State<MapScreen> {
 
   Marker _buildSharedMarker(_SharedMarker marker) {
     final markerColor = marker.isChannel
-        ? (marker.isPublicChannel ? MapPalette.cluster : MapPalette.router)
-        : MapPalette.shared;
+        ? (marker.isPublicChannel
+              ? MeshTokens.of(context).mapCluster
+              : MeshTokens.of(context).mapRouter)
+        : MeshTokens.of(context).mapShared;
     return Marker(
       point: marker.position,
       width: 60,
@@ -2665,10 +2697,13 @@ class _MapScreenState extends State<MapScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: markerColor,
-                border: Border.all(color: MapPalette.markerOutline, width: 2.5),
-                boxShadow: const [
+                border: Border.all(
+                  color: MeshTokens.of(context).mapMarkerOutline,
+                  width: 2.5,
+                ),
+                boxShadow: [
                   BoxShadow(
-                    color: MapPalette.markerShadow,
+                    color: MeshTokens.of(context).mapMarkerShadow,
                     blurRadius: 8,
                     offset: Offset(0, 3),
                   ),
@@ -2972,7 +3007,7 @@ class _MapScreenState extends State<MapScreen> {
           const SizedBox(height: 2),
           SelectableText(
             value,
-            style: MeshTheme.mono(
+            style: MeshTokens.of(context).mono(
               fontSize: 13,
               color: Theme.of(context).colorScheme.onSurface,
             ),
@@ -3236,8 +3271,8 @@ class _MapScreenState extends State<MapScreen> {
                             leading: Icon(
                               isPublic ? Icons.public : Icons.tag,
                               color: isPublic
-                                  ? MapPalette.cluster
-                                  : MapPalette.repeater,
+                                  ? MeshTokens.of(context).mapCluster
+                                  : MeshTokens.of(context).mapRepeater,
                             ),
                             title: Text(label),
                             onTap: () async {
@@ -3311,10 +3346,10 @@ class _MapScreenState extends State<MapScreen> {
               Widget freshnessChip(_Freshness value, String label) {
                 final selected = _freshness == value;
                 final accent = switch (value) {
-                  _Freshness.all => MapPalette.selected,
-                  _Freshness.online => MapPalette.online,
-                  _Freshness.recent => MapPalette.stale,
-                  _Freshness.stale => MapPalette.offline,
+                  _Freshness.all => MeshTokens.of(context).mapSelected,
+                  _Freshness.online => MeshTokens.of(context).mapOnline,
+                  _Freshness.recent => MeshTokens.of(context).mapStale,
+                  _Freshness.stale => MeshTokens.of(context).mapOffline,
                 };
                 return FilterChip(
                   label: Text(label),
@@ -3386,7 +3421,7 @@ class _MapScreenState extends State<MapScreen> {
                           sheetContext.l10n.map_lastSeenTime,
                           trailing: Text(
                             _getTimeFilterLabel(settings.mapTimeFilterHours),
-                            style: MeshTheme.mono(
+                            style: MeshTokens.of(context).mono(
                               fontSize: 11,
                               color: scheme.onSurfaceVariant,
                             ),
@@ -3481,7 +3516,7 @@ class _MapScreenState extends State<MapScreen> {
                                   sheetContext.l10n.map_publicKeyPrefixHint,
                               isDense: true,
                             ),
-                            style: MeshTheme.mono(fontSize: 13),
+                            style: MeshTokens.of(context).mono(fontSize: 13),
                             onChanged: (value) =>
                                 service.setMapKeyPrefix(value),
                           ),
@@ -3634,7 +3669,7 @@ class _MapScreenState extends State<MapScreen> {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: _overlayPanelColor,
-          borderRadius: BorderRadius.circular(MeshRadii.md),
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
           border: Border.all(color: _overlayBorderColor),
           boxShadow: [
             BoxShadow(
@@ -3645,7 +3680,7 @@ class _MapScreenState extends State<MapScreen> {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(MeshRadii.md),
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
@@ -3671,20 +3706,19 @@ class _MapScreenState extends State<MapScreen> {
                 if (_pathTrace.isNotEmpty)
                   Text(
                     "${l10n.path_currentPathLabel} ${formatDistance(getPathDistanceMeters(_points), isImperial: isImperial)}",
-                    style: MeshTheme.mono(
-                      fontSize: 12,
-                      color: _overlaySecondaryTextColor,
-                    ),
+                    style: MeshTokens.of(
+                      context,
+                    ).mono(fontSize: 12, color: _overlaySecondaryTextColor),
                   ),
                 SelectableText(
                   PathHelper.splitPathBytes(
                     _pathTrace,
                     context.read<MeshCoreConnector>().pathHashByteWidth,
                   ).map(PathHelper.formatHopHex).join(','),
-                  style: MeshTheme.mono(
+                  style: MeshTokens.of(context).mono(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: MapPalette.selected,
+                    color: MeshTokens.of(context).mapSelected,
                   ),
                 ),
                 // const SizedBox(height: 6),

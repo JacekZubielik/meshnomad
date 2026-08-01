@@ -21,7 +21,7 @@ import 'package:meshcore_open/utils/app_logger.dart';
 import 'package:meshcore_open/widgets/path_map_ui.dart';
 import 'package:meshcore_open/widgets/snr_indicator.dart';
 import 'package:provider/provider.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 
 export 'package:meshcore_open/widgets/path_map_ui.dart'
     show formatDistance, getPathDistanceMeters;
@@ -282,12 +282,12 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
       left: 16,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: MeshPalette.bg1.withValues(alpha: 0.90),
-          borderRadius: BorderRadius.circular(MeshRadii.md),
-          border: Border.all(color: MeshPalette.line2),
+          color: MeshTokens.of(context).bg1.withValues(alpha: 0.90),
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
+          border: Border.all(color: MeshTokens.of(context).line2),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(MeshRadii.md),
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -840,11 +840,12 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
           widget.pathHashByteWidth,
         );
         if (!seen.add(_pathKeyForHops(recordHops))) continue;
-        if (altIndex >= kAlternatePathColors.length) break;
+        final colors = alternatePathColors(context);
+        if (altIndex >= colors.length) break;
         final alt = _buildDisplayPath(
           id: 'alt-${_pathKeyForHops(recordHops)}',
           label: context.l10n.pathMap_alternate(altIndex + 1),
-          color: kAlternatePathColors[altIndex],
+          color: colors[altIndex],
           isPrimary: false,
           hops: recordHops,
           record: record,
@@ -1055,7 +1056,9 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (_isLoading)
-                          CircularProgressIndicator(color: MeshPalette.blue),
+                          CircularProgressIndicator(
+                            color: MeshTokens.of(context).blue,
+                          ),
                         const SizedBox(height: 16),
                         if (!_isLoading && _failed2Loaded)
                           Text(
@@ -1082,7 +1085,9 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: scheme.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(MeshRadii.md),
+                        borderRadius: BorderRadius.circular(
+                          MeshTokens.of(context).md,
+                        ),
                         border: Border.all(color: scheme.outlineVariant),
                       ),
                       child: Padding(
@@ -1146,19 +1151,19 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: hasGps
-                    ? MeshPalette.signal.withValues(alpha: 0.18)
-                    : MeshPalette.warn.withValues(alpha: 0.18),
+                    ? MeshTokens.of(context).signal.withValues(alpha: 0.18)
+                    : MeshTokens.of(context).warn.withValues(alpha: 0.18),
                 border: Border.all(
                   color: hasGps
-                      ? MeshPalette.signal.withValues(alpha: 0.7)
-                      : MeshPalette.warn.withValues(alpha: 0.7),
+                      ? MeshTokens.of(context).signal.withValues(alpha: 0.7)
+                      : MeshTokens.of(context).warn.withValues(alpha: 0.7),
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: hasGps
-                        ? MeshPalette.signal.withValues(alpha: 0.3)
-                        : MeshPalette.warn.withValues(alpha: 0.3),
+                        ? MeshTokens.of(context).signal.withValues(alpha: 0.3)
+                        : MeshTokens.of(context).warn.withValues(alpha: 0.3),
                     blurRadius: 5,
                   ),
                 ],
@@ -1166,10 +1171,12 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               alignment: Alignment.center,
               child: Text(
                 shortLabel,
-                style: MeshTheme.mono(
+                style: MeshTokens.of(context).mono(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: hasGps ? MeshPalette.signal : MeshPalette.warn,
+                  color: hasGps
+                      ? MeshTokens.of(context).signal
+                      : MeshTokens.of(context).warn,
                 ),
               ),
             ),
@@ -1209,14 +1216,14 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               height: 35,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: MeshPalette.blue.withValues(alpha: 0.18),
+                color: MeshTokens.of(context).blue.withValues(alpha: 0.18),
                 border: Border.all(
-                  color: MeshPalette.blue.withValues(alpha: 0.7),
+                  color: MeshTokens.of(context).blue.withValues(alpha: 0.7),
                   width: 2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: MeshPalette.blue.withValues(alpha: 0.35),
+                    color: MeshTokens.of(context).blue.withValues(alpha: 0.35),
                     blurRadius: 6,
                   ),
                 ],
@@ -1224,10 +1231,10 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               alignment: Alignment.center,
               child: Text(
                 context.l10n.pathTrace_you,
-                style: MeshTheme.mono(
+                style: MeshTokens.of(context).mono(
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
-                  color: MeshPalette.blue,
+                  color: MeshTokens.of(context).blue,
                 ),
               ),
             ),
@@ -1261,19 +1268,19 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isGuessed
-                    ? MeshPalette.magenta.withValues(alpha: 0.18)
-                    : MeshPalette.alert.withValues(alpha: 0.18),
+                    ? MeshTokens.of(context).magenta.withValues(alpha: 0.18)
+                    : MeshTokens.of(context).alert.withValues(alpha: 0.18),
                 border: Border.all(
                   color: isGuessed
-                      ? MeshPalette.magenta.withValues(alpha: 0.7)
-                      : MeshPalette.alert.withValues(alpha: 0.7),
+                      ? MeshTokens.of(context).magenta.withValues(alpha: 0.7)
+                      : MeshTokens.of(context).alert.withValues(alpha: 0.7),
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: isGuessed
-                        ? MeshPalette.magenta.withValues(alpha: 0.3)
-                        : MeshPalette.alert.withValues(alpha: 0.3),
+                        ? MeshTokens.of(context).magenta.withValues(alpha: 0.3)
+                        : MeshTokens.of(context).alert.withValues(alpha: 0.3),
                     blurRadius: 5,
                   ),
                 ],
@@ -1281,7 +1288,9 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               alignment: Alignment.center,
               child: Icon(
                 Icons.person,
-                color: isGuessed ? MeshPalette.magenta : MeshPalette.alert,
+                color: isGuessed
+                    ? MeshTokens.of(context).magenta
+                    : MeshTokens.of(context).alert,
                 size: 18,
               ),
             ),
@@ -1332,7 +1341,9 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
           : _inferredPositionForHop(hop, connector);
       if (point == null) continue;
       final label = PathHelper.formatHopHex(hop);
-      final baseColor = hasGps ? MeshPalette.signal : MeshPalette.warn;
+      final baseColor = hasGps
+          ? MeshTokens.of(context).signal
+          : MeshTokens.of(context).warn;
       final shared = paths.length > 1;
 
       markers.add(
@@ -1365,7 +1376,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                   alignment: Alignment.center,
                   child: Text(
                     hasGps ? label : '~$label',
-                    style: MeshTheme.mono(
+                    style: MeshTokens.of(context).mono(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: baseColor,
@@ -1381,16 +1392,16 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                       height: 17,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: MeshPalette.bg1,
-                        border: Border.all(color: MeshPalette.line3),
+                        color: MeshTokens.of(context).bg1,
+                        border: Border.all(color: MeshTokens.of(context).line3),
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         '${paths.length}',
-                        style: MeshTheme.mono(
+                        style: MeshTokens.of(context).mono(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
-                          color: MeshPalette.ink,
+                          color: MeshTokens.of(context).ink,
                         ),
                       ),
                     ),
@@ -1444,19 +1455,22 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: MeshPalette.bg.withValues(alpha: 0.82),
-                borderRadius: BorderRadius.circular(MeshRadii.xs),
-                border: Border.all(color: MeshPalette.line, width: 0.5),
+                color: MeshTokens.of(context).bg.withValues(alpha: 0.82),
+                borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
+                border: Border.all(
+                  color: MeshTokens.of(context).line,
+                  width: 0.5,
+                ),
               ),
               alignment: Alignment.center,
               child: Text(
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: MeshTheme.mono(
+                style: MeshTokens.of(context).mono(
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
-                  color: MeshPalette.ink2,
+                  color: MeshTokens.of(context).ink2,
                 ),
               ),
             ),
@@ -1672,12 +1686,12 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
         height: cardHeight,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: MeshPalette.bg1.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(MeshRadii.md),
-            border: Border.all(color: MeshPalette.line2),
+            color: MeshTokens.of(context).bg1.withValues(alpha: 0.95),
+            borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
+            border: Border.all(color: MeshTokens.of(context).line2),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(MeshRadii.md),
+            borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1692,10 +1706,10 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                           children: [
                             Text(
                               '${l10n.channelPath_repeaterHops} ${formatDistance(selected?.distanceMeters ?? _pathDistanceMeters, isImperial: isImperial)}',
-                              style: MeshTheme.mono(
+                              style: MeshTokens.of(context).mono(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: MeshPalette.ink,
+                                color: MeshTokens.of(context).ink,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -1739,7 +1753,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                         l10n.pathMap_partialAnimation(selected.unresolvedHops),
                         style: TextStyle(
                           fontSize: 10.5,
-                          color: MeshPalette.warn,
+                          color: MeshTokens.of(context).warn,
                         ),
                       ),
                     ),
@@ -1816,11 +1830,15 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                 : Icon(Icons.call_made),
             title: Text(
               formatDirectionText(pathTraceData, index),
-              style: MeshTheme.mono(fontSize: 13, color: MeshPalette.ink),
+              style: MeshTokens.of(
+                context,
+              ).mono(fontSize: 13, color: MeshTokens.of(context).ink),
             ),
             subtitle: Text(
               formatDirectionSubText(pathTraceData, index),
-              style: MeshTheme.mono(fontSize: 12, color: MeshPalette.ink3),
+              style: MeshTokens.of(
+                context,
+              ).mono(fontSize: 12, color: MeshTokens.of(context).ink3),
             ),
             trailing: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1828,7 +1846,9 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                 Icon(snrUi.icon, color: snrUi.color, size: 18.0),
                 Text(
                   snrUi.text,
-                  style: MeshTheme.mono(fontSize: 10, color: snrUi.color),
+                  style: MeshTokens.of(
+                    context,
+                  ).mono(fontSize: 10, color: snrUi.color),
                 ),
               ],
             ),
@@ -1894,7 +1914,9 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                   Icon(snrUi.icon, color: snrUi.color, size: 18.0),
                   Text(
                     snrUi.text,
-                    style: MeshTheme.mono(fontSize: 10, color: snrUi.color),
+                    style: MeshTokens.of(
+                      context,
+                    ).mono(fontSize: 10, color: snrUi.color),
                   ),
                 ],
               );
@@ -1920,7 +1942,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               alignment: Alignment.center,
               child: Text(
                 '${index + 1}',
-                style: MeshTheme.mono(
+                style: MeshTokens.of(context).mono(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: path.color,
@@ -1929,11 +1951,15 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
             ),
             title: Text(
               title,
-              style: MeshTheme.mono(fontSize: 13, color: MeshPalette.ink),
+              style: MeshTokens.of(
+                context,
+              ).mono(fontSize: 13, color: MeshTokens.of(context).ink),
             ),
             subtitle: Text(
               subtitle,
-              style: MeshTheme.mono(fontSize: 11, color: MeshPalette.ink3),
+              style: MeshTokens.of(
+                context,
+              ).mono(fontSize: 11, color: MeshTokens.of(context).ink3),
             ),
             trailing: trailing,
           );

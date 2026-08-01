@@ -10,7 +10,7 @@ import '../services/app_settings_service.dart';
 import '../services/map_tile_cache_service.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../helpers/snack_bar_builder.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 
 class MapCacheScreen extends StatefulWidget {
@@ -85,12 +85,12 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
       left: 12,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: MeshPalette.bg1.withValues(alpha: 0.90),
-          borderRadius: BorderRadius.circular(MeshRadii.md),
-          border: Border.all(color: MeshPalette.line2),
+          color: MeshTokens.of(context).bg1.withValues(alpha: 0.90),
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
+          border: Border.all(color: MeshTokens.of(context).line2),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(MeshRadii.md),
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -442,9 +442,11 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                   right: 12,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: MeshPalette.bg1.withValues(alpha: 0.93),
-                      borderRadius: BorderRadius.circular(MeshRadii.md),
-                      border: Border.all(color: MeshPalette.line2),
+                      color: MeshTokens.of(context).bg1.withValues(alpha: 0.93),
+                      borderRadius: BorderRadius.circular(
+                        MeshTokens.of(context).md,
+                      ),
+                      border: Border.all(color: MeshTokens.of(context).line2),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -455,9 +457,9 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                         selectedBounds == null
                             ? l10n.mapCache_noAreaSelected
                             : _formatBounds(selectedBounds, l10n),
-                        style: MeshTheme.mono(
+                        style: MeshTokens.of(context).mono(
                           fontSize: 11,
-                          color: MeshPalette.ink2,
+                          color: MeshTokens.of(context).ink2,
                         ),
                       ),
                     ),
@@ -533,10 +535,9 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                     ),
                     Text(
                       l10n.mapCache_estimatedTiles(_estimatedTiles),
-                      style: MeshTheme.mono(
-                        fontSize: 12,
-                        color: scheme.onSurfaceVariant,
-                      ),
+                      style: MeshTokens.of(
+                        context,
+                      ).mono(fontSize: 12, color: scheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -560,9 +561,9 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                         l10n.mapCache_bulkDownloadDisabledForSource(
                           source.label,
                         ),
-                        style: MeshTheme.mono(
+                        style: MeshTokens.of(context).mono(
                           fontSize: 12,
-                          color: MeshPalette.alert,
+                          color: MeshTokens.of(context).alert,
                         ),
                       ),
                     ],
@@ -570,7 +571,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                       const SizedBox(height: 8),
                       LinearProgressIndicator(
                         value: progressValue,
-                        color: MeshPalette.blue,
+                        color: MeshTokens.of(context).blue,
                         backgroundColor: scheme.surfaceContainerHighest,
                       ),
                       const SizedBox(height: 4),
@@ -579,10 +580,9 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                           _completedTiles,
                           _estimatedTiles,
                         ),
-                        style: MeshTheme.mono(
-                          fontSize: 12,
-                          color: scheme.onSurfaceVariant,
-                        ),
+                        style: MeshTokens.of(
+                          context,
+                        ).mono(fontSize: 12, color: scheme.onSurfaceVariant),
                       ),
                     ],
                     const SizedBox(height: 12),
@@ -603,9 +603,9 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                         const SizedBox(width: 12),
                         OutlinedButton(
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: MeshPalette.alert,
-                            side: const BorderSide(
-                              color: MeshPalette.alertLine,
+                            foregroundColor: MeshTokens.of(context).alert,
+                            side: BorderSide(
+                              color: MeshTokens.of(context).alertLine,
                             ),
                           ),
                           onPressed: _isDownloading ? null : _clearCache,
@@ -618,9 +618,9 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           l10n.mapCache_failedDownloads(_failedTiles),
-                          style: MeshTheme.mono(
+                          style: MeshTokens.of(context).mono(
                             fontSize: 12,
-                            color: MeshPalette.alert,
+                            color: MeshTokens.of(context).alert,
                           ),
                         ),
                       ),
