@@ -16,7 +16,7 @@ import '../services/ui_view_state_service.dart';
 import '../models/channel.dart';
 import '../models/community.dart';
 import '../storage/community_store.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../utils/dialog_utils.dart';
 import '../utils/disconnect_navigation_mixin.dart';
 import '../utils/route_transitions.dart';
@@ -385,27 +385,27 @@ class _ChannelsScreenState extends State<ChannelsScreen>
     switch (channelType) {
       case ChannelType.communityPublic:
         icon = Icons.groups;
-        iconColor = MeshPalette.magenta;
+        iconColor = MeshTokens.of(context).magenta;
         if (community != null) {
           subtitle =
               '${context.l10n.community_publicChannel} • ${community.name}';
         }
       case ChannelType.communityHashtag:
         icon = Icons.groups;
-        iconColor = MeshPalette.magenta;
+        iconColor = MeshTokens.of(context).magenta;
         if (community != null) {
           subtitle =
               '${context.l10n.community_hashtagChannel} • ${community.name}';
         }
       case ChannelType.public:
         icon = Icons.public;
-        iconColor = MeshPalette.signal;
+        iconColor = MeshTokens.of(context).signal;
       case ChannelType.hashtag:
         icon = Icons.tag;
-        iconColor = MeshPalette.blue;
+        iconColor = MeshTokens.of(context).blue;
       case ChannelType.private:
         icon = Icons.lock;
-        iconColor = MeshPalette.blue;
+        iconColor = MeshTokens.of(context).blue;
     }
 
     // Last message preview
@@ -479,7 +479,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       width: 16,
                       height: 16,
                       decoration: BoxDecoration(
-                        color: MeshPalette.magenta,
+                        color: MeshTokens.of(context).magenta,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Theme.of(
@@ -519,7 +519,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       const SizedBox(width: 6),
                       Text(
                         'CH ${channel.index}',
-                        style: MeshTheme.mono(
+                        style: MeshTokens.of(context).mono(
                           fontSize: 11,
                           color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
                         ),
@@ -541,10 +541,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     const SizedBox(height: 2),
                     Text(
                       lastPreview,
-                      style: MeshTheme.mono(
-                        fontSize: 11.5,
-                        color: scheme.onSurfaceVariant,
-                      ),
+                      style: MeshTokens.of(
+                        context,
+                      ).mono(fontSize: 11.5, color: scheme.onSurfaceVariant),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -561,10 +560,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 if (lastTime != null)
                   Text(
                     _relativeTime(lastTime),
-                    style: MeshTheme.mono(
-                      fontSize: 11,
-                      color: scheme.onSurfaceVariant,
-                    ),
+                    style: MeshTokens.of(
+                      context,
+                    ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
                   ),
                 const SizedBox(height: 4),
                 Row(
@@ -841,8 +839,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
             return MeshCard(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              borderColor: isSelected && enabled ? MeshPalette.blueLine : null,
-              color: isSelected && enabled ? MeshPalette.blueBg : null,
+              borderColor: isSelected && enabled
+                  ? MeshTokens.of(sheetContext).blueLine
+                  : null,
+              color: isSelected && enabled
+                  ? MeshTokens.of(sheetContext).blueBg
+                  : null,
               onTap: enabled
                   ? () {
                       setSheetState(() {
@@ -860,7 +862,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     size: 38,
                     color: enabled
                         ? (isSelected
-                              ? MeshPalette.blue
+                              ? MeshTokens.of(sheetContext).blue
                               : cardScheme.onSurfaceVariant)
                         : cardScheme.outline,
                     icon: icon,
@@ -898,7 +900,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     Icon(
                       Icons.chevron_right,
                       color: isSelected
-                          ? MeshPalette.blue
+                          ? MeshTokens.of(sheetContext).blue
                           : cardScheme.onSurfaceVariant,
                       size: 20,
                     ),
@@ -1856,10 +1858,10 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         final community = _communities[index];
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: MeshPalette.magentaBg,
-                            child: const Icon(
+                            backgroundColor: MeshTokens.of(context).magentaBg,
+                            child: Icon(
                               Icons.groups,
-                              color: MeshPalette.magenta,
+                              color: MeshTokens.of(context).magenta,
                             ),
                           ),
                           title: Text(community.name),

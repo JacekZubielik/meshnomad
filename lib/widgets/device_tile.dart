@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import '../l10n/l10n.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import 'mesh_ui.dart';
 import 'signal_ui.dart';
 
@@ -45,7 +45,7 @@ class DeviceTile extends StatelessWidget {
         : rssi >= -90
         ? 3
         : 4;
-    final signalUi = signalUiForStrengthTier(tier);
+    final signalUi = signalUiForStrengthTier(context, tier);
 
     return MeshCard(
       onTap: onTap == null
@@ -76,10 +76,9 @@ class DeviceTile extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   mac,
-                  style: MeshTheme.mono(
-                    fontSize: 11,
-                    color: scheme.onSurfaceVariant,
-                  ),
+                  style: MeshTokens.of(
+                    context,
+                  ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -105,7 +104,9 @@ class DeviceTile extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   '$rssi dBm',
-                  style: MeshTheme.mono(fontSize: 10, color: signalUi.color),
+                  style: MeshTokens.of(
+                    context,
+                  ).mono(fontSize: 10, color: signalUi.color),
                 ),
               ],
             ),

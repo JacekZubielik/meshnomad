@@ -39,7 +39,7 @@ import '../widgets/radio_stats_entry.dart';
 import '../widgets/sync_progress_overlay.dart';
 import '../widgets/translated_message_content.dart';
 import '../widgets/unread_divider.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 import 'channel_message_path_screen.dart';
 import 'map_screen.dart';
@@ -540,30 +540,32 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       message.pathLength,
     );
 
-    // Bubble colors — outgoing uses MeshPalette.me / meBorder / meInk.
+    // Bubble colors — outgoing uses MeshTokens.me / meBorder / meInk.
     final bubbleColor = isOutgoing
-        ? MeshPalette.me
+        ? MeshTokens.of(context).me
         : scheme.surfaceContainerLow;
     final bubbleBorder = isOutgoing
-        ? MeshPalette.meBorder
+        ? MeshTokens.of(context).meBorder
         : scheme.outlineVariant;
-    final textColor = isOutgoing ? MeshPalette.meInk : scheme.onSurface;
+    final textColor = isOutgoing
+        ? MeshTokens.of(context).meInk
+        : scheme.onSurface;
     final metaColor = textColor.withValues(alpha: 0.65);
     const bodyFontSize = 14.0;
 
     // Asymmetric radius matching chat_screen bubbles.
     final borderRadius = isOutgoing
-        ? const BorderRadius.only(
-            topLeft: Radius.circular(MeshRadii.lg),
-            topRight: Radius.circular(MeshRadii.lg),
-            bottomLeft: Radius.circular(MeshRadii.lg),
-            bottomRight: Radius.circular(MeshRadii.xs),
+        ? BorderRadius.only(
+            topLeft: Radius.circular(MeshTokens.of(context).lg),
+            topRight: Radius.circular(MeshTokens.of(context).lg),
+            bottomLeft: Radius.circular(MeshTokens.of(context).lg),
+            bottomRight: Radius.circular(MeshTokens.of(context).xs),
           )
-        : const BorderRadius.only(
-            topLeft: Radius.circular(MeshRadii.xs),
-            topRight: Radius.circular(MeshRadii.lg),
-            bottomLeft: Radius.circular(MeshRadii.lg),
-            bottomRight: Radius.circular(MeshRadii.lg),
+        : BorderRadius.only(
+            topLeft: Radius.circular(MeshTokens.of(context).xs),
+            topRight: Radius.circular(MeshTokens.of(context).lg),
+            bottomLeft: Radius.circular(MeshTokens.of(context).lg),
+            bottomRight: Radius.circular(MeshTokens.of(context).lg),
           );
 
     const maxSwipeOffset = 64.0;
@@ -704,7 +706,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                         displayPathHashWidth,
                                       ),
                                     ),
-                                    style: MeshTheme.mono(
+                                    style: MeshTokens.of(context).mono(
                                       fontSize: 9.5 * textScale,
                                       color: metaColor,
                                     ),
@@ -728,7 +730,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                             children: [
                               Text(
                                 _formatTime(context, message.timestamp),
-                                style: MeshTheme.mono(
+                                style: MeshTokens.of(context).mono(
                                   fontSize: 10 * textScale,
                                   color: metaColor,
                                 ),
@@ -743,7 +745,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                 const SizedBox(width: 2),
                                 Text(
                                   '${message.repeatCount}',
-                                  style: MeshTheme.mono(
+                                  style: MeshTokens.of(context).mono(
                                     fontSize: 10 * textScale,
                                     color: metaColor,
                                   ),
@@ -897,7 +899,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(MeshRadii.sm),
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).sm),
           border: Border(
             left: BorderSide(color: colorScheme.primary, width: 3),
           ),
@@ -934,7 +936,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: scheme.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(MeshRadii.pill),
+            borderRadius: BorderRadius.circular(MeshTokens.of(context).pill),
             border: Border.all(color: scheme.outlineVariant, width: 1),
           ),
           child: Row(
@@ -942,7 +944,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             children: [
               Text(
                 emoji,
-                style: MeshTheme.emoji(fontSize: 16),
+                style: MeshTokens.of(context).emoji(fontSize: 16),
                 textHeightBehavior: const TextHeightBehavior(
                   applyHeightToFirstAscent: false,
                   applyHeightToLastDescent: false,
@@ -952,7 +954,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                 const SizedBox(width: 4),
                 Text(
                   '$count',
-                  style: MeshTheme.mono(
+                  style: MeshTokens.of(context).mono(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: scheme.onSurface,
@@ -975,7 +977,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     Widget? trailing,
   }) {
     final scheme = Theme.of(context).colorScheme;
-    final textColor = isOutgoing ? MeshPalette.meInk : scheme.onSurface;
+    final textColor = isOutgoing
+        ? MeshTokens.of(context).meInk
+        : scheme.onSurface;
     final metaColor = textColor.withValues(alpha: 0.7);
 
     return Row(
@@ -1076,7 +1080,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
               children: [
                 Text(
                   context.l10n.chat_replyingTo(message.senderName),
-                  style: MeshTheme.mono(
+                  style: MeshTokens.of(context).mono(
                     fontSize: 11 * textScale,
                     fontWeight: FontWeight.w700,
                     color: scheme.primary,
@@ -1214,19 +1218,25 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                           decoration: InputDecoration(
                             hintText: context.l10n.chat_typeMessage,
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(MeshRadii.md),
+                              borderRadius: BorderRadius.circular(
+                                MeshTokens.of(context).md,
+                              ),
                               borderSide: BorderSide(
                                 color: scheme.outlineVariant,
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(MeshRadii.md),
+                              borderRadius: BorderRadius.circular(
+                                MeshTokens.of(context).md,
+                              ),
                               borderSide: BorderSide(
                                 color: scheme.outlineVariant,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(MeshRadii.md),
+                              borderRadius: BorderRadius.circular(
+                                MeshTokens.of(context).md,
+                              ),
                               borderSide: BorderSide(
                                 color: scheme.primary,
                                 width: 1.5,
@@ -1686,13 +1696,13 @@ class _RegionSelectDialogState extends State<_RegionSelectDialog> {
                   return ListTile(
                     leading: Icon(
                       Icons.landscape,
-                      color: selected ? MeshPalette.blue : null,
+                      color: selected ? MeshTokens.of(context).blue : null,
                     ),
                     title: Text(regions[index]),
                     trailing: selected
-                        ? const Icon(Icons.check, color: MeshPalette.blue)
+                        ? Icon(Icons.check, color: MeshTokens.of(context).blue)
                         : null,
-                    tileColor: selected ? MeshPalette.blueBg : null,
+                    tileColor: selected ? MeshTokens.of(context).blueBg : null,
                     onTap: () {
                       // Tapping the already-selected region clears it.
                       context.read<MeshCoreConnector>().setChannelRegion(

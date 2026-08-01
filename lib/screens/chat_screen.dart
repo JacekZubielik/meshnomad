@@ -43,7 +43,7 @@ import '../widgets/translated_message_content.dart';
 import '../l10n/l10n.dart';
 import '../helpers/snack_bar_builder.dart';
 import '../widgets/unread_divider.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 import 'telemetry_screen.dart';
 
@@ -547,15 +547,21 @@ class _ChatScreenState extends State<ChatScreen> {
                       decoration: InputDecoration(
                         hintText: context.l10n.chat_typeMessage,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(MeshRadii.md),
+                          borderRadius: BorderRadius.circular(
+                            MeshTokens.of(context).md,
+                          ),
                           borderSide: BorderSide(color: scheme.outlineVariant),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(MeshRadii.md),
+                          borderRadius: BorderRadius.circular(
+                            MeshTokens.of(context).md,
+                          ),
                           borderSide: BorderSide(color: scheme.outlineVariant),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(MeshRadii.md),
+                          borderRadius: BorderRadius.circular(
+                            MeshTokens.of(context).md,
+                          ),
                           borderSide: BorderSide(
                             color: scheme.primary,
                             width: 1.5,
@@ -1307,38 +1313,38 @@ class _MessageBubble extends StatelessWidget {
     final poi = parseMarkerText(message.text);
     final isFailed = message.status == MessageStatus.failed;
 
-    // Bubble colors — outgoing uses MeshPalette.me / meBorder / meInk.
+    // Bubble colors — outgoing uses MeshTokens.me / meBorder / meInk.
     final bubbleColor = isFailed
         ? scheme.errorContainer
         : isOutgoing
-        ? MeshPalette.me
+        ? MeshTokens.of(context).me
         : scheme.surfaceContainerLow;
     final bubbleBorder = isFailed
         ? scheme.error
         : isOutgoing
-        ? MeshPalette.meBorder
+        ? MeshTokens.of(context).meBorder
         : scheme.outlineVariant;
     final textColor = isFailed
         ? scheme.onErrorContainer
         : isOutgoing
-        ? MeshPalette.meInk
+        ? MeshTokens.of(context).meInk
         : scheme.onSurface;
     final metaColor = textColor.withValues(alpha: 0.65);
     const bodyFontSize = 14.0;
 
     // Asymmetric radius: outgoing — top-left large, others also large; outgoing bottom-right tight.
     final borderRadius = isOutgoing
-        ? const BorderRadius.only(
-            topLeft: Radius.circular(MeshRadii.lg),
-            topRight: Radius.circular(MeshRadii.lg),
-            bottomLeft: Radius.circular(MeshRadii.lg),
-            bottomRight: Radius.circular(MeshRadii.xs),
+        ? BorderRadius.only(
+            topLeft: Radius.circular(MeshTokens.of(context).lg),
+            topRight: Radius.circular(MeshTokens.of(context).lg),
+            bottomLeft: Radius.circular(MeshTokens.of(context).lg),
+            bottomRight: Radius.circular(MeshTokens.of(context).xs),
           )
-        : const BorderRadius.only(
-            topLeft: Radius.circular(MeshRadii.xs),
-            topRight: Radius.circular(MeshRadii.lg),
-            bottomLeft: Radius.circular(MeshRadii.lg),
-            bottomRight: Radius.circular(MeshRadii.lg),
+        : BorderRadius.only(
+            topLeft: Radius.circular(MeshTokens.of(context).xs),
+            topRight: Radius.circular(MeshTokens.of(context).lg),
+            bottomLeft: Radius.circular(MeshTokens.of(context).lg),
+            bottomRight: Radius.circular(MeshTokens.of(context).lg),
           );
 
     // Do not strip room-server author bytes here: the parser stores them in
@@ -1406,10 +1412,10 @@ class _MessageBubble extends StatelessWidget {
                                   : EdgeInsets.zero,
                               child: Text(
                                 senderName,
-                                style: MeshTheme.mono(
+                                style: MeshTokens.of(context).mono(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
-                                  color: _colorForName(senderName),
+                                  color: _colorForName(context, senderName),
                                 ),
                               ),
                             ),
@@ -1480,7 +1486,7 @@ class _MessageBubble extends StatelessWidget {
                                       .settings
                                       .maxMessageRetries,
                                 ),
-                                style: MeshTheme.mono(
+                                style: MeshTokens.of(context).mono(
                                   fontSize: 9.5 * textScale,
                                   color: metaColor,
                                 ),
@@ -1503,7 +1509,7 @@ class _MessageBubble extends StatelessWidget {
                               children: [
                                 Text(
                                   _formatTime(message.timestamp),
-                                  style: MeshTheme.mono(
+                                  style: MeshTokens.of(context).mono(
                                     fontSize: 10 * textScale,
                                     color: metaColor,
                                   ),
@@ -1536,7 +1542,7 @@ class _MessageBubble extends StatelessWidget {
                                   ),
                                   Text(
                                     '${(message.tripTimeMs! / 1000).toStringAsFixed(1)}s',
-                                    style: MeshTheme.mono(
+                                    style: MeshTokens.of(context).mono(
                                       fontSize: 9 * textScale,
                                       color: isOutgoing
                                           ? metaColor
@@ -1661,7 +1667,9 @@ class _MessageBubble extends StatelessWidget {
                 color: isFailed
                     ? scheme.errorContainer
                     : scheme.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(MeshRadii.pill),
+                borderRadius: BorderRadius.circular(
+                  MeshTokens.of(context).pill,
+                ),
                 border: Border.all(
                   color: isFailed ? scheme.error : scheme.outlineVariant,
                   width: 1,
@@ -1672,7 +1680,7 @@ class _MessageBubble extends StatelessWidget {
                 children: [
                   Text(
                     emoji,
-                    style: MeshTheme.emoji(fontSize: 16),
+                    style: MeshTokens.of(context).emoji(fontSize: 16),
                     textHeightBehavior: const TextHeightBehavior(
                       applyHeightToFirstAscent: false,
                       applyHeightToLastDescent: false,
@@ -1682,7 +1690,7 @@ class _MessageBubble extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       '$count',
-                      style: MeshTheme.mono(
+                      style: MeshTokens.of(context).mono(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: scheme.onSurface,
@@ -1725,14 +1733,15 @@ class _MessageBubble extends StatelessWidget {
 }
 
 /// Deterministic name-to-hue mapping consistent with [AvatarCircle].
-Color _colorForName(String name) {
-  const hues = [
-    MeshPalette.blue,
-    MeshPalette.magenta,
-    MeshPalette.signal,
-    MeshPalette.warn,
-    Color(0xFF8FA8F0),
-    Color(0xFF6FD9CE),
+Color _colorForName(BuildContext context, String name) {
+  final tokens = MeshTokens.of(context);
+  final hues = [
+    tokens.blue,
+    tokens.magenta,
+    tokens.signal,
+    tokens.warn,
+    const Color(0xFF8FA8F0),
+    const Color(0xFF6FD9CE),
   ];
   var h = 0;
   for (final c in name.codeUnits) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../connector/meshcore_connector.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 
 class BatteryUi {
   final IconData icon;
@@ -9,7 +9,7 @@ class BatteryUi {
   const BatteryUi(this.icon, this.color);
 }
 
-BatteryUi batteryUiForPercent(int? percent) {
+BatteryUi batteryUiForPercent(BuildContext context, int? percent) {
   if (percent == null) {
     return const BatteryUi(Icons.battery_unknown, null);
   }
@@ -17,13 +17,13 @@ BatteryUi batteryUiForPercent(int? percent) {
   final p = percent.clamp(0, 100);
 
   return switch (p) {
-    <= 5 => const BatteryUi(Icons.battery_alert, MeshPalette.alert),
-    <= 15 => const BatteryUi(Icons.battery_0_bar, MeshPalette.alert),
-    <= 30 => const BatteryUi(Icons.battery_1_bar, MeshPalette.warn),
-    <= 45 => const BatteryUi(Icons.battery_2_bar, MeshPalette.warn),
+    <= 5 => BatteryUi(Icons.battery_alert, MeshTokens.of(context).alert),
+    <= 15 => BatteryUi(Icons.battery_0_bar, MeshTokens.of(context).alert),
+    <= 30 => BatteryUi(Icons.battery_1_bar, MeshTokens.of(context).warn),
+    <= 45 => BatteryUi(Icons.battery_2_bar, MeshTokens.of(context).warn),
     <= 60 => const BatteryUi(Icons.battery_3_bar, null),
     <= 80 => const BatteryUi(Icons.battery_5_bar, null),
-    _ => const BatteryUi(Icons.battery_full, MeshPalette.signal),
+    _ => BatteryUi(Icons.battery_full, MeshTokens.of(context).signal),
   };
 }
 
@@ -55,7 +55,7 @@ class _BatteryIndicatorState extends State<BatteryIndicator> {
       displayText = percent != null ? '$percent%' : '—';
     }
 
-    final batteryUi = batteryUiForPercent(percent);
+    final batteryUi = batteryUiForPercent(context, percent);
 
     return InkWell(
       onTap: () {
@@ -77,7 +77,7 @@ class _BatteryIndicatorState extends State<BatteryIndicator> {
                 Flexible(
                   child: Text(
                     displayText,
-                    style: MeshTheme.mono(
+                    style: MeshTokens.of(context).mono(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: batteryUi.color,

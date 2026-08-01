@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 
 class UnreadBadge extends StatelessWidget {
   final int count;
@@ -15,16 +15,14 @@ class UnreadBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: MeshPalette.alert,
-        borderRadius: BorderRadius.circular(MeshRadii.pill),
+        color: MeshTokens.of(context).alert,
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).pill),
       ),
       child: Text(
         display,
-        style: MeshTheme.mono(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-        ),
+        style: MeshTokens.of(
+          context,
+        ).mono(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
       ),
     );
   }
