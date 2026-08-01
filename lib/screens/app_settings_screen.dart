@@ -12,6 +12,7 @@ import '../services/map_tile_cache_service.dart';
 import '../services/notification_service.dart';
 import '../services/translation_service.dart';
 import '../theme/mesh_theme.dart';
+import '../theme/styles/style_registry.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/sync_progress_overlay.dart';
@@ -182,6 +183,36 @@ class AppSettingsScreen extends StatelessWidget {
                 onSelectionChanged: (selection) {
                   settingsService.setThemeMode(selection.first);
                 },
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Icon(
+                    Icons.palette_outlined,
+                    size: 20,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Style',
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final style in StyleRegistry.all)
+                    ChoiceChip(
+                      label: Text(style.displayName),
+                      selected: settingsService.settings.styleId == style.id,
+                      onSelected: (_) => settingsService.setStyleId(style.id),
+                    ),
+                ],
               ),
             ],
           ),
