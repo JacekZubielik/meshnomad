@@ -4,7 +4,15 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'documentation/**'
+      - 'docs/**'
+      - '**.md'
   pull_request:
+    paths-ignore:
+      - 'documentation/**'
+      - 'docs/**'
+      - '**.md'
 
 jobs:
   android:
