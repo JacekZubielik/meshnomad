@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../helpers/chat_scroll_controller.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 
 class JumpToBottomButton extends StatelessWidget {
   final ChatScrollController scrollController;
@@ -22,7 +22,7 @@ class JumpToBottomButton extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: scrollController.jumpToBottom,
-              borderRadius: BorderRadius.circular(MeshRadii.pill),
+              borderRadius: BorderRadius.circular(MeshTokens.of(context).pill),
               child: Container(
                 width: 40,
                 height: 40,

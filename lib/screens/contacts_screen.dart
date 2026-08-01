@@ -16,7 +16,7 @@ import '../models/contact.dart';
 import '../l10n/contact_localization.dart';
 import '../models/contact_group.dart';
 import '../services/ui_view_state_service.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../utils/contact_search.dart';
 import '../storage/contact_group_store.dart';
 import '../utils/dialog_utils.dart';
@@ -1360,7 +1360,10 @@ class _ContactsScreenState extends State<ContactsScreen>
             ),
             if (isRepeater) ...[
               ListTile(
-                leading: Icon(Icons.radar, color: MeshPalette.signal),
+                leading: Icon(
+                  Icons.radar,
+                  color: MeshTokens.of(context).signal,
+                ),
                 title: Text(context.l10n.contacts_ping),
                 onTap: () {
                   Navigator.pop(sheetContext);
@@ -1384,7 +1387,10 @@ class _ContactsScreenState extends State<ContactsScreen>
                 },
               ),
               ListTile(
-                leading: Icon(Icons.cell_tower, color: MeshPalette.warn),
+                leading: Icon(
+                  Icons.cell_tower,
+                  color: MeshTokens.of(context).warn,
+                ),
                 title: Text(context.l10n.contacts_manageRepeater),
                 onTap: () {
                   Navigator.pop(sheetContext);
@@ -1393,7 +1399,10 @@ class _ContactsScreenState extends State<ContactsScreen>
               ),
             ] else if (isRoom) ...[
               ListTile(
-                leading: Icon(Icons.radar, color: MeshPalette.signal),
+                leading: Icon(
+                  Icons.radar,
+                  color: MeshTokens.of(context).signal,
+                ),
                 title: Text(context.l10n.contacts_pathTrace),
                 onTap: () {
                   Navigator.pop(sheetContext);
@@ -1419,7 +1428,10 @@ class _ContactsScreenState extends State<ContactsScreen>
                 },
               ),
               ListTile(
-                leading: Icon(Icons.meeting_room, color: MeshPalette.blue),
+                leading: Icon(
+                  Icons.meeting_room,
+                  color: MeshTokens.of(context).blue,
+                ),
                 title: Text(context.l10n.contacts_roomLogin),
                 onTap: () {
                   Navigator.pop(sheetContext);
@@ -1427,7 +1439,10 @@ class _ContactsScreenState extends State<ContactsScreen>
                 },
               ),
               ListTile(
-                leading: Icon(Icons.room_preferences, color: MeshPalette.warn),
+                leading: Icon(
+                  Icons.room_preferences,
+                  color: MeshTokens.of(context).warn,
+                ),
                 title: Text(context.l10n.room_management),
                 onTap: () {
                   Navigator.pop(sheetContext);
@@ -1441,7 +1456,10 @@ class _ContactsScreenState extends State<ContactsScreen>
             ] else ...[
               if (contact.pathLength > 0)
                 ListTile(
-                  leading: Icon(Icons.radar, color: MeshPalette.signal),
+                  leading: Icon(
+                    Icons.radar,
+                    color: MeshTokens.of(context).signal,
+                  ),
                   title: Text(context.l10n.contacts_chatTraceRoute),
                   onTap: () {
                     Navigator.pop(sheetContext);
@@ -1468,7 +1486,7 @@ class _ContactsScreenState extends State<ContactsScreen>
             ListTile(
               leading: Icon(
                 isFavorite ? Icons.star : Icons.star_border,
-                color: MeshPalette.warn,
+                color: MeshTokens.of(context).warn,
               ),
               title: Text(
                 isFavorite
@@ -1581,17 +1599,18 @@ class _ContactTile extends StatelessWidget {
   });
 
   /// Node-type avatar color per design language.
-  Color _avatarColor() {
+  Color _avatarColor(BuildContext context) {
     switch (contact.type) {
       case advTypeRepeater:
-        return MeshPalette.warn;
+        return MeshTokens.of(context).warn;
       case advTypeRoom:
-        return MeshPalette.magenta;
+        return MeshTokens.of(context).magenta;
       case advTypeSensor:
         return const Color(0xFF4ACCC4); // teal
       default:
-        return MeshPalette
-            .blue; // chat — AvatarCircle handles deterministic hue
+        return MeshTokens.of(
+          context,
+        ).blue; // chat — AvatarCircle handles deterministic hue
     }
   }
 
@@ -1643,7 +1662,7 @@ class _ContactTile extends StatelessWidget {
               AvatarCircle(
                 name: contact.name,
                 size: 42,
-                color: isChat ? null : _avatarColor(),
+                color: isChat ? null : _avatarColor(context),
                 icon: _avatarIcon(),
               ),
             const SizedBox(width: 12),
@@ -1672,7 +1691,11 @@ class _ContactTile extends StatelessWidget {
                       ),
                       if (isFavorite) ...[
                         const SizedBox(width: 4),
-                        Icon(Icons.star, size: 13, color: MeshPalette.warn),
+                        Icon(
+                          Icons.star,
+                          size: 13,
+                          color: MeshTokens.of(context).warn,
+                        ),
                       ],
                       if (contact.hasLocation) ...[
                         const SizedBox(width: 4),
@@ -1739,10 +1762,10 @@ class _ContactTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.right,
-                    style: MeshTheme.mono(
+                    style: MeshTokens.of(context).mono(
                       fontSize: 11,
                       color: unreadCount > 0
-                          ? MeshPalette.blue
+                          ? MeshTokens.of(context).blue
                           : scheme.onSurfaceVariant,
                     ),
                   ),

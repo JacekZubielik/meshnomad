@@ -7,6 +7,7 @@ import 'package:meshcore_open/connector/meshcore_connector.dart';
 import 'package:meshcore_open/l10n/app_localizations.dart';
 import 'package:meshcore_open/screens/scanner_screen.dart';
 import 'package:meshcore_open/screens/usb_screen.dart';
+import 'package:meshcore_open/theme/styles/style_registry.dart';
 import 'package:meshcore_open/utils/platform_info.dart';
 
 class _FakeMeshCoreConnector extends MeshCoreConnector {
@@ -82,6 +83,7 @@ Widget _buildTestApp({
   return ChangeNotifierProvider<MeshCoreConnector>.value(
     value: connector,
     child: MaterialApp(
+      theme: StyleRegistry.byId('default').light,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: child,

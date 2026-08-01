@@ -7,7 +7,7 @@ import '../connector/meshcore_protocol.dart';
 import '../helpers/path_helper.dart';
 import '../l10n/l10n.dart';
 import '../models/contact.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import 'mesh_ui.dart';
 import 'signal_ui.dart';
 
@@ -101,7 +101,7 @@ List<double> getSNRfromSF(int spreadingFactor) {
   }
 }
 
-SNRUi snrUiFromSNR(double? snr, int? spreadingFactor) {
+SNRUi snrUiFromSNR(BuildContext context, double? snr, int? spreadingFactor) {
   if (snr == null ||
       spreadingFactor == null ||
       spreadingFactor < 7 ||
@@ -121,7 +121,7 @@ SNRUi snrUiFromSNR(double? snr, int? spreadingFactor) {
       : snr >= snrLevels[3]
       ? 3
       : 4;
-  final signalUi = signalUiForStrengthTier(tier);
+  final signalUi = signalUiForStrengthTier(context, tier);
 
   return SNRUi(signalUi.icon, signalUi.color, text);
 }
@@ -155,6 +155,7 @@ class _SNRIndicatorState extends State<SNRIndicator> {
         : directBestRepeaters.first;
 
     final snrUi = snrUiFromSNR(
+      context,
       directBestRepeaters.isNotEmpty ? directRepeater!.snr : null,
       widget.connector.currentSf,
     );
@@ -258,10 +259,9 @@ class _SNRIndicatorState extends State<SNRIndicator> {
                 final prefixLabel = PathHelper.formatHopHex(
                   repeater.pubkeyPrefix,
                 );
-                final snrColor = MeshTheme.snrColor(
-                  repeater.snr,
-                  blocked: false,
-                );
+                final snrColor = MeshTokens.of(
+                  context,
+                ).snrColor(repeater.snr, blocked: false);
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(
@@ -286,10 +286,9 @@ class _SNRIndicatorState extends State<SNRIndicator> {
                             ),
                             Text(
                               '${repeater.snr.toStringAsFixed(1)} dB • ${_formatLastUpdated(repeater.lastUpdated)}',
-                              style: MeshTheme.mono(
-                                fontSize: 11,
-                                color: snrColor,
-                              ),
+                              style: MeshTokens.of(
+                                context,
+                              ).mono(fontSize: 11, color: snrColor),
                             ),
                           ],
                         ),

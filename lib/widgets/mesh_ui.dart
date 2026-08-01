@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 
 /// MeshCore shared design kit.
 ///
@@ -33,7 +33,9 @@ class SectionHeader extends StatelessWidget {
           Expanded(
             child: Text(
               label.toUpperCase(),
-              style: MeshTheme.accentLabel(color: scheme.onSurfaceVariant),
+              style: MeshTokens.of(
+                context,
+              ).accentLabel(color: scheme.onSurfaceVariant),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -55,7 +57,7 @@ class MeshCard extends StatelessWidget {
   final EdgeInsetsGeometry margin;
   final Color? color;
   final Color? borderColor;
-  final double radius;
+  final double? radius;
 
   const MeshCard({
     super.key,
@@ -67,14 +69,15 @@ class MeshCard extends StatelessWidget {
     this.margin = const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     this.color,
     this.borderColor,
-    this.radius = MeshRadii.md,
+    this.radius,
   });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final effectiveRadius = radius ?? MeshTokens.of(context).md;
     final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(radius),
+      borderRadius: BorderRadius.circular(effectiveRadius),
       side: BorderSide(color: borderColor ?? scheme.outlineVariant),
     );
     return Padding(
@@ -122,7 +125,7 @@ class StatusChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(MeshRadii.pill),
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).pill),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -138,7 +141,7 @@ class StatusChip extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: MeshTheme.mono(
+              style: MeshTokens.of(context).mono(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w600,
                 color: color,
@@ -189,10 +192,9 @@ class StatTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   label.toUpperCase(),
-                  style: MeshTheme.accentLabel(
-                    color: scheme.onSurfaceVariant,
-                    fontSize: 9,
-                  ),
+                  style: MeshTokens.of(
+                    context,
+                  ).accentLabel(color: scheme.onSurfaceVariant, fontSize: 9),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -202,7 +204,7 @@ class StatTile extends StatelessWidget {
           Text.rich(
             TextSpan(
               text: value,
-              style: MeshTheme.mono(
+              style: MeshTokens.of(context).mono(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
                 color: scheme.onSurface,
@@ -211,10 +213,9 @@ class StatTile extends StatelessWidget {
                 if (unit != null)
                   TextSpan(
                     text: ' $unit',
-                    style: MeshTheme.mono(
-                      fontSize: 11,
-                      color: scheme.onSurfaceVariant,
-                    ),
+                    style: MeshTokens.of(
+                      context,
+                    ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
                   ),
               ],
             ),
@@ -243,26 +244,26 @@ class AvatarCircle extends StatelessWidget {
     this.icon,
   });
 
-  static const _hues = [
-    MeshPalette.blue,
-    MeshPalette.magenta,
-    MeshPalette.signal,
-    MeshPalette.warn,
-    Color(0xFF8FA8F0),
-    Color(0xFF6FD9CE),
-  ];
-
-  Color _colorFor(String s) {
+  Color _colorFor(BuildContext context, String s) {
+    final tokens = MeshTokens.of(context);
+    final hues = [
+      tokens.blue,
+      tokens.magenta,
+      tokens.signal,
+      tokens.warn,
+      const Color(0xFF8FA8F0),
+      const Color(0xFF6FD9CE),
+    ];
     var h = 0;
     for (final c in s.codeUnits) {
       h = (h * 31 + c) & 0x7fffffff;
     }
-    return _hues[h % _hues.length];
+    return hues[h % hues.length];
   }
 
   @override
   Widget build(BuildContext context) {
-    final accent = color ?? _colorFor(name);
+    final accent = color ?? _colorFor(context, name);
     final initials = _initials(name);
     return Container(
       width: size,
@@ -277,7 +278,7 @@ class AvatarCircle extends StatelessWidget {
           ? Icon(icon, size: size * 0.5, color: accent)
           : Text(
               initials,
-              style: MeshTheme.mono(
+              style: MeshTokens.of(context).mono(
                 fontSize: size * 0.36,
                 fontWeight: FontWeight.w700,
                 color: accent,
@@ -303,7 +304,7 @@ class AvatarCircle extends StatelessWidget {
 }
 
 /// Four-bar signal strength indicator driven by an SNR value (dB), colored
-/// with the shared [MeshTheme.snrColor] ramp.
+/// with the shared [MeshTokens.snrColor] ramp.
 class SignalBars extends StatelessWidget {
   final double? snr;
   final double height;
@@ -313,7 +314,7 @@ class SignalBars extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final color = MeshTheme.snrColor(snr, blocked: false);
+    final color = MeshTokens.of(context).snrColor(snr, blocked: false);
     final active = snr == null
         ? 0
         : snr! > 0
@@ -361,7 +362,7 @@ class RouteChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(MeshRadii.xs),
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Row(
@@ -375,10 +376,9 @@ class RouteChip extends StatelessWidget {
           const SizedBox(width: 3),
           Text(
             label,
-            style: MeshTheme.accentLabel(
-              color: scheme.onSurfaceVariant,
-              fontSize: 8.5,
-            ),
+            style: MeshTokens.of(
+              context,
+            ).accentLabel(color: scheme.onSurfaceVariant, fontSize: 8.5),
           ),
         ],
       ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 
 class UnreadDivider extends StatelessWidget {
   const UnreadDivider({super.key});
@@ -22,16 +22,14 @@ class UnreadDivider extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(MeshRadii.pill),
+              borderRadius: BorderRadius.circular(MeshTokens.of(context).pill),
               border: Border.all(color: color.withValues(alpha: 0.35)),
             ),
             child: Text(
               context.l10n.chat_newMessages,
-              style: MeshTheme.mono(
-                fontSize: 10.5,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
+              style: MeshTokens.of(
+                context,
+              ).mono(fontSize: 10.5, fontWeight: FontWeight.w600, color: color),
             ),
           ),
           const SizedBox(width: 10),

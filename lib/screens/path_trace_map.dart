@@ -1816,6 +1816,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
         separatorBuilder: (_, _) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final snrUi = snrUiFromSNR(
+            context,
             index < pathTraceData.snrData.length
                 ? pathTraceData.snrData[index]
                 : null,
@@ -1905,6 +1906,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                 : status;
             if (path.isPrimary && index < pathTraceData.snrData.length) {
               final snrUi = snrUiFromSNR(
+                context,
                 pathTraceData.snrData[index],
                 connector.currentSf,
               );

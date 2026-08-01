@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 
 class SignalUi {
   final IconData icon;
@@ -8,32 +8,32 @@ class SignalUi {
   const SignalUi({required this.icon, required this.color});
 }
 
-SignalUi signalUiForStrengthTier(int tier) {
+SignalUi signalUiForStrengthTier(BuildContext context, int tier) {
   switch (tier) {
     case 0:
-      return const SignalUi(
+      return SignalUi(
         icon: Icons.signal_cellular_4_bar,
-        color: MeshPalette.signal,
+        color: MeshTokens.of(context).signal,
       );
     case 1:
-      return const SignalUi(
+      return SignalUi(
         icon: Icons.signal_cellular_alt,
-        color: MeshPalette.signalDim,
+        color: MeshTokens.of(context).signalDim,
       );
     case 2:
-      return const SignalUi(
+      return SignalUi(
         icon: Icons.signal_cellular_alt_2_bar,
-        color: MeshPalette.warn,
+        color: MeshTokens.of(context).warn,
       );
     case 3:
-      return const SignalUi(
+      return SignalUi(
         icon: Icons.signal_cellular_alt_1_bar,
-        color: MeshPalette.warnDim,
+        color: MeshTokens.of(context).warnDim,
       );
     default:
-      return const SignalUi(
+      return SignalUi(
         icon: Icons.signal_cellular_alt_1_bar,
-        color: MeshPalette.alert,
+        color: MeshTokens.of(context).alert,
       );
   }
 }
