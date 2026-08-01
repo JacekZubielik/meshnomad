@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 
 class QuickSwitchBar extends StatelessWidget {
   final int selectedIndex;
@@ -25,21 +25,25 @@ class QuickSwitchBar extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final labelStyle = theme.textTheme.labelMedium ?? const TextStyle();
-    final background = highContrast ? MapPalette.panelDark : Colors.transparent;
+    final background = highContrast
+        ? MeshTokens.of(context).mapPanelDark
+        : Colors.transparent;
     // The selected icon sits on the primary indicator pill, so it uses
     // onPrimary. The label sits below on the bar background, so it must use a
     // foreground color that contrasts with the surface (not onPrimary, which
     // is white-on-white in the light theme).
     final selectedIconColor = highContrast
-        ? MapPalette.textPrimary
+        ? MeshTokens.of(context).mapTextPrimary
         : colorScheme.onPrimary;
     final selectedLabelColor = highContrast
-        ? MapPalette.textPrimary
+        ? MeshTokens.of(context).mapTextPrimary
         : colorScheme.onSurface;
     final unselectedColor = highContrast
-        ? MapPalette.textSecondary
+        ? MeshTokens.of(context).mapTextSecondary
         : colorScheme.onSurfaceVariant;
-    final indicator = highContrast ? MapPalette.selected : colorScheme.primary;
+    final indicator = highContrast
+        ? MeshTokens.of(context).mapSelected
+        : colorScheme.primary;
 
     return SizedBox(
       width: double.infinity,
@@ -52,7 +56,7 @@ class QuickSwitchBar extends StatelessWidget {
               color: background,
               border: Border.all(
                 color: highContrast
-                    ? MapPalette.border
+                    ? MeshTokens.of(context).mapBorder
                     : colorScheme.outlineVariant.withValues(alpha: 0.4),
               ),
             ),

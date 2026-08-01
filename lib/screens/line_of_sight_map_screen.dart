@@ -20,6 +20,7 @@ import '../widgets/app_bar.dart';
 import '../widgets/quick_switch_bar.dart';
 import '../icons/los_icon.dart';
 import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 
 class LineOfSightEndpoint {
   final String label;
@@ -31,7 +32,7 @@ class LineOfSightEndpoint {
   const LineOfSightEndpoint({
     required this.label,
     required this.point,
-    this.color = LosPalette.clear,
+    required this.color,
     this.icon = Icons.location_on,
     this.isCustom = false,
   });
@@ -252,7 +253,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
     final endpoint = LineOfSightEndpoint(
       label: context.l10n.losCustomPointLabel(_customEndpoints.length + 1),
       point: point,
-      color: LosPalette.marginal,
+      color: MeshTokens.of(context).losMarginal,
       icon: Icons.push_pin,
       isCustom: true,
     );
@@ -469,7 +470,9 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               snap: true,
               snapSizes: const [0.14, 0.43, 0.88],
               builder: (context, scrollController) => Theme(
-                data: MeshTheme.dark(),
+                data: MeshTheme.dark().copyWith(
+                  extensions: [MeshTokens.of(context)],
+                ),
                 child: _buildControlPanel(isImperial, scrollController),
               ),
             ),
@@ -479,8 +482,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               right: 0,
               top: 0,
               child: LinearProgressIndicator(
-                color: LosPalette.selected,
-                backgroundColor: LosPalette.chartBackground,
+                color: MeshTokens.of(context).losSelected,
+                backgroundColor: MeshTokens.of(context).losChartBackground,
               ),
             ),
         ],
@@ -515,9 +518,9 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
       child: IgnorePointer(
         ignoring: false,
         child: Material(
-          color: LosPalette.panelDark,
-          borderRadius: BorderRadius.circular(MeshRadii.md),
-          shadowColor: LosPalette.shadow,
+          color: MeshTokens.of(context).losPanelDark,
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
+          shadowColor: MeshTokens.of(context).losShadow,
           elevation: 4,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -546,8 +549,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                         '${_start?.label ?? 'A'}  →  ${_end?.label ?? 'B'}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: LosPalette.text,
+                        style: TextStyle(
+                          color: MeshTokens.of(context).losText,
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                         ),
@@ -561,8 +564,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                                   '${isImperial ? 'mi' : 'km'}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: LosPalette.textMuted,
+                        style: TextStyle(
+                          color: MeshTokens.of(context).losTextMuted,
                           fontSize: 11.5,
                           fontWeight: FontWeight.w600,
                         ),
@@ -591,12 +594,12 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: LosPalette.textMuted, size: 16),
+        Icon(icon, color: MeshTokens.of(context).losTextMuted, size: 16),
         const SizedBox(height: 2),
         Text(
           value,
-          style: MeshTheme.mono(
-            color: LosPalette.text,
+          style: MeshTokens.of(context).mono(
+            color: MeshTokens.of(context).losText,
             fontSize: 10,
             fontWeight: FontWeight.w700,
           ),
@@ -615,28 +618,28 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
       right: 12,
       top: 92,
       child: Material(
-        color: LosPalette.panelDark,
-        borderRadius: BorderRadius.circular(MeshRadii.md),
+        color: MeshTokens.of(context).losPanelDark,
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
         clipBehavior: Clip.antiAlias,
         elevation: 4,
-        shadowColor: LosPalette.shadow,
+        shadowColor: MeshTokens.of(context).losShadow,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              color: LosPalette.text,
+              color: MeshTokens.of(context).losText,
               icon: const Icon(Icons.add),
               tooltip: context.l10n.map_zoomIn,
               onPressed: () => _zoomMapBy(1),
             ),
             IconButton(
-              color: LosPalette.text,
+              color: MeshTokens.of(context).losText,
               icon: const Icon(Icons.remove),
               tooltip: context.l10n.map_zoomOut,
               onPressed: () => _zoomMapBy(-1),
             ),
             IconButton(
-              color: LosPalette.text,
+              color: MeshTokens.of(context).losText,
               icon: const Icon(Icons.center_focus_strong),
               tooltip: context.l10n.map_centerMap,
               onPressed: () => _resetMapView(
@@ -647,19 +650,19 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             ),
             IconButton(
               color: _showTerrainLayer
-                  ? LosPalette.selected
-                  : LosPalette.textMuted,
+                  ? MeshTokens.of(context).losSelected
+                  : MeshTokens.of(context).losTextMuted,
               icon: const Icon(Icons.layers_outlined),
               tooltip: 'Map detail',
               onPressed: () =>
                   setState(() => _showTerrainLayer = !_showTerrainLayer),
             ),
             IconButton(
-              color: LosPalette.text,
+              color: MeshTokens.of(context).losText,
               icon: Text(
                 isImperial ? 'ft' : 'm',
-                style: const TextStyle(
-                  color: LosPalette.text,
+                style: TextStyle(
+                  color: MeshTokens.of(context).losText,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
@@ -670,7 +673,9 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               ),
             ),
             IconButton(
-              color: _showHud ? LosPalette.selected : LosPalette.text,
+              color: _showHud
+                  ? MeshTokens.of(context).losSelected
+                  : MeshTokens.of(context).losText,
               icon: Icon(
                 _showHud ? Icons.keyboard_arrow_down : Icons.analytics_outlined,
               ),
@@ -705,7 +710,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(MeshRadii.md),
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
         border: Border.all(color: color.withValues(alpha: 0.8)),
       ),
       child: Column(
@@ -768,8 +773,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
           children: [
             Text(
               label.toUpperCase(),
-              style: const TextStyle(
-                color: LosPalette.textMuted,
+              style: TextStyle(
+                color: MeshTokens.of(context).losTextMuted,
                 fontSize: 9,
                 fontWeight: FontWeight.w700,
               ),
@@ -779,8 +784,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               value,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: MeshTheme.mono(
-                color: valueColor ?? LosPalette.text,
+              style: MeshTokens.of(context).mono(
+                color: valueColor ?? MeshTokens.of(context).losText,
                 fontSize: 11.5,
                 fontWeight: FontWeight.w800,
               ),
@@ -802,17 +807,19 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
     final heightUnit = isImperial ? 'ft' : 'm';
     return InkWell(
       onTap: () => _centerOnObstruction(obstruction),
-      borderRadius: BorderRadius.circular(MeshRadii.sm),
+      borderRadius: BorderRadius.circular(MeshTokens.of(context).sm),
       child: Container(
         width: 154,
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: selected
-              ? LosPalette.selected.withValues(alpha: 0.18)
-              : LosPalette.chartBackground,
-          borderRadius: BorderRadius.circular(MeshRadii.sm),
+              ? MeshTokens.of(context).losSelected.withValues(alpha: 0.18)
+              : MeshTokens.of(context).losChartBackground,
+          borderRadius: BorderRadius.circular(MeshTokens.of(context).sm),
           border: Border.all(
-            color: selected ? LosPalette.selected : LosPalette.border,
+            color: selected
+                ? MeshTokens.of(context).losSelected
+                : MeshTokens.of(context).losBorder,
             width: selected ? 2 : 1,
           ),
         ),
@@ -821,17 +828,17 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
           children: [
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.warning_amber_rounded,
-                  color: LosPalette.blocked,
+                  color: MeshTokens.of(context).losBlocked,
                   size: 17,
                 ),
                 const SizedBox(width: 5),
                 Expanded(
                   child: Text(
                     '${_formatDistanceValue(obstruction.distanceMeters, isImperial)} $distanceUnit',
-                    style: const TextStyle(
-                      color: LosPalette.text,
+                    style: TextStyle(
+                      color: MeshTokens.of(context).losText,
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
                     ),
@@ -844,7 +851,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: LosPalette.blocked,
+                      color: MeshTokens.of(context).losBlocked,
                       borderRadius: BorderRadius.circular(99),
                     ),
                     child: const Text(
@@ -861,8 +868,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             const Spacer(),
             Text(
               'Blocked ${_formatHeightValue(obstruction.obstructionMeters, isImperial)} $heightUnit',
-              style: const TextStyle(
-                color: LosPalette.textMuted,
+              style: TextStyle(
+                color: MeshTokens.of(context).losTextMuted,
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
@@ -883,17 +890,17 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: LosPalette.selected.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(MeshRadii.md),
-        border: Border.all(color: LosPalette.selected),
+        color: MeshTokens.of(context).losSelected.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
+        border: Border.all(color: MeshTokens.of(context).losSelected),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Selected obstruction',
             style: TextStyle(
-              color: LosPalette.text,
+              color: MeshTokens.of(context).losText,
               fontSize: 14,
               fontWeight: FontWeight.w800,
             ),
@@ -943,8 +950,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
         children: [
           Text(
             label.toUpperCase(),
-            style: const TextStyle(
-              color: LosPalette.textMuted,
+            style: TextStyle(
+              color: MeshTokens.of(context).losTextMuted,
               fontSize: 9,
               fontWeight: FontWeight.w700,
             ),
@@ -952,8 +959,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
           const SizedBox(height: 2),
           Text(
             value,
-            style: MeshTheme.mono(
-              color: LosPalette.text,
+            style: MeshTokens.of(context).mono(
+              color: MeshTokens.of(context).losText,
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -988,9 +995,9 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
     final antennaSliderDivisions = isImperial ? 400 : 122;
     final worst = _defaultObstructionFor(_result);
     return Material(
-      color: LosPalette.panelDark,
-      borderRadius: const BorderRadius.vertical(
-        top: Radius.circular(MeshRadii.lg),
+      color: MeshTokens.of(context).losPanelDark,
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(MeshTokens.of(context).lg),
       ),
       clipBehavior: Clip.antiAlias,
       child: ListView(
@@ -1002,7 +1009,9 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               width: 44,
               height: 5,
               decoration: BoxDecoration(
-                color: LosPalette.textMuted.withValues(alpha: 0.55),
+                color: MeshTokens.of(
+                  context,
+                ).losTextMuted.withValues(alpha: 0.55),
                 borderRadius: BorderRadius.circular(99),
               ),
             ),
@@ -1023,8 +1032,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             const SizedBox(height: 18),
             Text(
               context.l10n.losBlockedSpotsTitle,
-              style: const TextStyle(
-                color: LosPalette.text,
+              style: TextStyle(
+                color: MeshTokens.of(context).losText,
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
               ),
@@ -1032,7 +1041,10 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             const SizedBox(height: 4),
             Text(
               context.l10n.losBlockedSpotsHint,
-              style: const TextStyle(color: LosPalette.textMuted, fontSize: 12),
+              style: TextStyle(
+                color: MeshTokens.of(context).losTextMuted,
+                fontSize: 12,
+              ),
             ),
             const SizedBox(height: 10),
             SizedBox(
@@ -1067,19 +1079,22 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                 setState(() => _menuExpanded = value),
             tilePadding: EdgeInsets.zero,
             childrenPadding: EdgeInsets.zero,
-            iconColor: LosPalette.text,
-            collapsedIconColor: LosPalette.textMuted,
+            iconColor: MeshTokens.of(context).losText,
+            collapsedIconColor: MeshTokens.of(context).losTextMuted,
             title: Text(
               context.l10n.losMenuTitle,
-              style: const TextStyle(
-                color: LosPalette.text,
+              style: TextStyle(
+                color: MeshTokens.of(context).losText,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
             ),
             subtitle: Text(
               context.l10n.losMenuSubtitle,
-              style: const TextStyle(color: LosPalette.textMuted, fontSize: 11),
+              style: TextStyle(
+                color: MeshTokens.of(context).losTextMuted,
+                fontSize: 11,
+              ),
             ),
             children: [
               SwitchListTile(
@@ -1221,15 +1236,15 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                   '${context.l10n.losFrequencyLabel}: '
                   '${displayFrequencyMHz.toStringAsFixed(3)} MHz'
                   '${kFactorUsed == null ? '' : '  k=${kFactorUsed.toStringAsFixed(3)}'}',
-                  style: const TextStyle(
-                    color: LosPalette.textMuted,
+                  style: TextStyle(
+                    color: MeshTokens.of(context).losTextMuted,
                     fontSize: 11,
                   ),
                 ),
                 if (kFactorUsed != null)
                   IconButton(
                     icon: const Icon(Icons.info_outline, size: 17),
-                    color: LosPalette.textMuted,
+                    color: MeshTokens.of(context).losTextMuted,
                     tooltip: context.l10n.losFrequencyInfoTooltip,
                     onPressed: () => _showFrequencyInfoDialog(
                       context,
@@ -1242,7 +1257,10 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
           ],
           Text(
             context.l10n.losElevationAttribution,
-            style: const TextStyle(color: LosPalette.textMuted, fontSize: 10),
+            style: TextStyle(
+              color: MeshTokens.of(context).losTextMuted,
+              fontSize: 10,
+            ),
           ),
         ],
       ),
@@ -1356,12 +1374,12 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             heightUnit: heightUnit,
             badgeTextStyle:
                 Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: LosPalette.textMuted,
+                  color: MeshTokens.of(context).losTextMuted,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ) ??
-                const TextStyle(
-                  color: LosPalette.textMuted,
+                TextStyle(
+                  color: MeshTokens.of(context).losTextMuted,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1369,6 +1387,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             losBeamLabel: context.l10n.losLegendLosBeam,
             radioHorizonLabel: context.l10n.losLegendRadioHorizon,
             selectedSampleIndex: _selectedObstruction?.sampleIndex,
+            tokens: MeshTokens.of(context),
           ),
         ),
       );
@@ -1394,12 +1413,12 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                     heightUnit: heightUnit,
                     badgeTextStyle:
                         Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: LosPalette.textMuted,
+                          color: MeshTokens.of(context).losTextMuted,
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                         ) ??
-                        const TextStyle(
-                          color: LosPalette.textMuted,
+                        TextStyle(
+                          color: MeshTokens.of(context).losTextMuted,
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1407,6 +1426,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                     losBeamLabel: context.l10n.losLegendLosBeam,
                     radioHorizonLabel: context.l10n.losLegendRadioHorizon,
                     selectedSampleIndex: _selectedObstruction?.sampleIndex,
+                    tokens: MeshTokens.of(context),
                   ),
                 ),
               ),
@@ -1440,18 +1460,18 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                             height: markerSize,
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? LosPalette.selected
-                                  : LosPalette.blocked,
+                                  ? MeshTokens.of(context).losSelected
+                                  : MeshTokens.of(context).losBlocked,
                               shape: BoxShape.circle,
                               border: Border.all(
                                 color: isSelected
-                                    ? LosPalette.text
-                                    : LosPalette.chartBackground,
+                                    ? MeshTokens.of(context).losText
+                                    : MeshTokens.of(context).losChartBackground,
                                 width: isSelected ? 2 : 1.5,
                               ),
-                              boxShadow: const [
+                              boxShadow: [
                                 BoxShadow(
-                                  color: LosPalette.shadow,
+                                  color: MeshTokens.of(context).losShadow,
                                   blurRadius: 4,
                                 ),
                               ],
@@ -1473,7 +1493,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
     final polylines = <Polyline>[];
     for (final segment in result.segments) {
       final color = !segment.result.hasData
-          ? LosPalette.textMuted
+          ? MeshTokens.of(context).losTextMuted
           : _statusColorFor(_losStatusFor(segment.result));
       polylines.add(
         Polyline(
@@ -1517,8 +1537,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                     color:
                         _selectedObstruction?.sampleIndex ==
                             obstruction.sampleIndex
-                        ? LosPalette.selected
-                        : LosPalette.blocked,
+                        ? MeshTokens.of(context).losSelected
+                        : MeshTokens.of(context).losBlocked,
                     width:
                         _selectedObstruction?.sampleIndex ==
                             obstruction.sampleIndex
@@ -1526,8 +1546,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                         : 3,
                   ),
                   boxShadow: [
-                    const BoxShadow(
-                      color: LosPalette.shadow,
+                    BoxShadow(
+                      color: MeshTokens.of(context).losShadow,
                       blurRadius: 8,
                       offset: Offset(0, 2),
                     ),
@@ -1549,16 +1569,16 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                 shape: BoxShape.circle,
                 color: (endpoint == _start || endpoint == _end)
                     ? endpoint.color
-                    : LosPalette.panelDark,
+                    : MeshTokens.of(context).losPanelDark,
                 border: Border.all(
                   color: (endpoint == _start || endpoint == _end)
                       ? Colors.white
                       : endpoint.color.withValues(alpha: 0.75),
                   width: (endpoint == _start || endpoint == _end) ? 2.5 : 1.5,
                 ),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: LosPalette.shadow,
+                    color: MeshTokens.of(context).losShadow,
                     blurRadius: 7,
                     offset: Offset(0, 2),
                   ),
@@ -1583,14 +1603,14 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                         width: 14,
                         height: 14,
                         decoration: BoxDecoration(
-                          color: LosPalette.chartBackground,
+                          color: MeshTokens.of(context).losChartBackground,
                           borderRadius: BorderRadius.circular(7),
                           border: Border.all(color: endpoint.color, width: 1),
                         ),
                         alignment: Alignment.center,
                         child: Text(
                           endpoint == _start ? 'A' : 'B',
-                          style: MeshTheme.mono(
+                          style: MeshTokens.of(context).mono(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
                             color: endpoint.color,
@@ -1621,19 +1641,23 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: LosPalette.panelDark,
-                      borderRadius: BorderRadius.circular(MeshRadii.xs),
-                      border: Border.all(color: LosPalette.border),
+                      color: MeshTokens.of(context).losPanelDark,
+                      borderRadius: BorderRadius.circular(
+                        MeshTokens.of(context).xs,
+                      ),
+                      border: Border.all(
+                        color: MeshTokens.of(context).losBorder,
+                      ),
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       endpoint.label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: MeshTheme.mono(
+                      style: MeshTokens.of(context).mono(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: LosPalette.text,
+                        color: MeshTokens.of(context).losText,
                       ),
                     ),
                   ),
@@ -1688,13 +1712,13 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
   Color _statusColorFor(_LosDisplayStatus status) {
     switch (status) {
       case _LosDisplayStatus.clear:
-        return LosPalette.clear;
+        return MeshTokens.of(context).losClear;
       case _LosDisplayStatus.marginal:
-        return LosPalette.marginal;
+        return MeshTokens.of(context).losMarginal;
       case _LosDisplayStatus.blocked:
-        return LosPalette.blocked;
+        return MeshTokens.of(context).losBlocked;
       case _LosDisplayStatus.unknown:
-        return LosPalette.textMuted;
+        return MeshTokens.of(context).losTextMuted;
     }
   }
 
@@ -1833,6 +1857,7 @@ class _LosProfilePainter extends CustomPainter {
   final String losBeamLabel;
   final String radioHorizonLabel;
   final int? selectedSampleIndex;
+  final MeshTokens tokens;
 
   const _LosProfilePainter({
     required this.samples,
@@ -1843,11 +1868,12 @@ class _LosProfilePainter extends CustomPainter {
     required this.losBeamLabel,
     required this.radioHorizonLabel,
     this.selectedSampleIndex,
+    required this.tokens,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final bg = Paint()..color = LosPalette.chartBackground;
+    final bg = Paint()..color = tokens.losChartBackground;
     canvas.drawRect(Offset.zero & size, bg);
     _drawUnitBadge(canvas, size);
 
@@ -1886,7 +1912,7 @@ class _LosProfilePainter extends CustomPainter {
     }
 
     final gridPaint = Paint()
-      ..color = LosPalette.textMuted.withValues(alpha: 0.16)
+      ..color = tokens.losTextMuted.withValues(alpha: 0.16)
       ..strokeWidth = 1;
     for (var i = 0; i <= 4; i++) {
       final x = leftPadding + chartWidth * i / 4;
@@ -1977,7 +2003,7 @@ class _LosProfilePainter extends CustomPainter {
 
     canvas.drawPath(
       terrainPath,
-      Paint()..color = LosPalette.terrain.withValues(alpha: 0.18),
+      Paint()..color = tokens.losTerrain.withValues(alpha: 0.18),
     );
 
     final terrainLine = ui.Path()..moveTo(leftEdgePoint.dx, leftEdgePoint.dy);
@@ -1989,7 +2015,7 @@ class _LosProfilePainter extends CustomPainter {
     canvas.drawPath(
       terrainLine,
       Paint()
-        ..color = LosPalette.terrain
+        ..color = tokens.losTerrain
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.5,
     );
@@ -2009,7 +2035,7 @@ class _LosProfilePainter extends CustomPainter {
     canvas.drawPath(
       losLine,
       Paint()
-        ..color = LosPalette.beam
+        ..color = tokens.losBeam
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.5,
     );
@@ -2029,7 +2055,7 @@ class _LosProfilePainter extends CustomPainter {
     canvas.drawPath(
       refractedLine,
       Paint()
-        ..color = LosPalette.horizon
+        ..color = tokens.losHorizon
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5,
     );
@@ -2057,7 +2083,7 @@ class _LosProfilePainter extends CustomPainter {
     canvas.drawPath(
       capPath,
       Paint()
-        ..color = LosPalette.horizon.withValues(alpha: 0.10)
+        ..color = tokens.losHorizon.withValues(alpha: 0.10)
         ..style = PaintingStyle.fill,
     );
 
@@ -2090,7 +2116,7 @@ class _LosProfilePainter extends CustomPainter {
         ..close();
       canvas.drawPath(
         blockedArea,
-        Paint()..color = LosPalette.blocked.withValues(alpha: 0.42),
+        Paint()..color = tokens.losBlocked.withValues(alpha: 0.42),
       );
     }
 
@@ -2113,15 +2139,15 @@ class _LosProfilePainter extends CustomPainter {
         Offset(selectedPoint.dx, topPadding),
         Offset(selectedPoint.dx, size.height - bottomPadding),
         Paint()
-          ..color = LosPalette.selected
+          ..color = tokens.losSelected
           ..strokeWidth = 2,
       );
-      canvas.drawCircle(selectedPoint, 7, Paint()..color = LosPalette.selected);
+      canvas.drawCircle(selectedPoint, 7, Paint()..color = tokens.losSelected);
       canvas.drawCircle(
         selectedPoint,
         8.5,
         Paint()
-          ..color = LosPalette.text
+          ..color = tokens.losText
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.5,
       );
@@ -2157,8 +2183,8 @@ class _LosProfilePainter extends CustomPainter {
     final painter = TextPainter(
       text: TextSpan(
         text: text,
-        style: const TextStyle(
-          color: LosPalette.textMuted,
+        style: TextStyle(
+          color: tokens.losTextMuted,
           fontSize: 9,
           fontWeight: FontWeight.w600,
         ),
@@ -2172,12 +2198,12 @@ class _LosProfilePainter extends CustomPainter {
   }
 
   void _paintEndpoint(Canvas canvas, Offset point, String label) {
-    canvas.drawCircle(point, 9, Paint()..color = LosPalette.chartBackground);
+    canvas.drawCircle(point, 9, Paint()..color = tokens.losChartBackground);
     canvas.drawCircle(
       point,
       9,
       Paint()
-        ..color = LosPalette.beam
+        ..color = tokens.losBeam
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2,
     );
@@ -2188,8 +2214,8 @@ class _LosProfilePainter extends CustomPainter {
     final painter = TextPainter(
       text: TextSpan(
         text: text,
-        style: const TextStyle(
-          color: LosPalette.text,
+        style: TextStyle(
+          color: tokens.losText,
           fontSize: 9,
           fontWeight: FontWeight.w800,
         ),
@@ -2200,7 +2226,7 @@ class _LosProfilePainter extends CustomPainter {
       Rect.fromCenter(center: center, width: painter.width + 12, height: 20),
       const Radius.circular(10),
     );
-    canvas.drawRRect(rect, Paint()..color = LosPalette.selected);
+    canvas.drawRRect(rect, Paint()..color = tokens.losSelected);
     painter.paint(
       canvas,
       Offset(center.dx - painter.width / 2, center.dy - painter.height / 2),
@@ -2216,7 +2242,8 @@ class _LosProfilePainter extends CustomPainter {
         oldDelegate.terrainLabel != terrainLabel ||
         oldDelegate.losBeamLabel != losBeamLabel ||
         oldDelegate.radioHorizonLabel != radioHorizonLabel ||
-        oldDelegate.selectedSampleIndex != selectedSampleIndex;
+        oldDelegate.selectedSampleIndex != selectedSampleIndex ||
+        oldDelegate.tokens != tokens;
   }
 
   void _drawUnitBadge(Canvas canvas, Size size) {
@@ -2245,21 +2272,21 @@ class _LosLegend extends StatelessWidget {
   Widget build(BuildContext context) {
     final textStyle =
         Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: LosPalette.text,
+          color: MeshTokens.of(context).losText,
           fontSize: 12,
           fontWeight: FontWeight.w700,
         ) ??
-        const TextStyle(
-          color: LosPalette.text,
+        TextStyle(
+          color: MeshTokens.of(context).losText,
           fontSize: 12,
           fontWeight: FontWeight.w700,
         );
 
     final entries = [
-      _LegendEntry(terrainLabel, LosPalette.terrain),
-      _LegendEntry(losBeamLabel, LosPalette.beam),
-      _LegendEntry(radioHorizonLabel, LosPalette.horizon),
-      const _LegendEntry('Blocked', LosPalette.blocked),
+      _LegendEntry(terrainLabel, MeshTokens.of(context).losTerrain),
+      _LegendEntry(losBeamLabel, MeshTokens.of(context).losBeam),
+      _LegendEntry(radioHorizonLabel, MeshTokens.of(context).losHorizon),
+      _LegendEntry('Blocked', MeshTokens.of(context).losBlocked),
     ];
 
     const swatchSize = 12.0;

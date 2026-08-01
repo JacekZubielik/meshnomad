@@ -19,7 +19,7 @@ import '../models/app_settings.dart';
 import '../models/contact.dart';
 import '../models/display_path.dart';
 import '../models/path_playback.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/path_map_ui.dart';
@@ -256,7 +256,7 @@ class ChannelMessagePathScreen extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         _formatPathPrefixes(variants[i], hashByteWidth),
-                        style: MeshTheme.mono(
+                        style: MeshTokens.of(context).mono(
                           fontSize: 11,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -354,7 +354,7 @@ class ChannelMessagePathScreen extends StatelessWidget {
                         width: 18,
                         height: 18,
                         decoration: BoxDecoration(
-                          color: MeshPalette.blueDim,
+                          color: MeshTokens.of(context).blueDim,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: scheme.surfaceContainerLow,
@@ -379,7 +379,7 @@ class ChannelMessagePathScreen extends StatelessWidget {
                     child: Container(
                       width: 2,
                       margin: const EdgeInsets.symmetric(vertical: 4),
-                      color: MeshPalette.blueLine,
+                      color: MeshTokens.of(context).blueLine,
                     ),
                   )
                 else
@@ -403,18 +403,16 @@ class ChannelMessagePathScreen extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     hexPrefix,
-                    style: MeshTheme.mono(
-                      fontSize: 11,
-                      color: scheme.onSurfaceVariant,
-                    ),
+                    style: MeshTokens.of(
+                      context,
+                    ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     locationText,
-                    style: MeshTheme.mono(
-                      fontSize: 11,
-                      color: scheme.onSurfaceVariant,
-                    ),
+                    style: MeshTokens.of(
+                      context,
+                    ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -481,7 +479,9 @@ class ChannelMessagePathScreen extends StatelessWidget {
             width: 72,
             child: Text(
               label.toUpperCase(),
-              style: MeshTheme.accentLabel(color: scheme.onSurfaceVariant),
+              style: MeshTokens.of(
+                context,
+              ).accentLabel(color: scheme.onSurfaceVariant),
             ),
           ),
           const SizedBox(width: 8),
@@ -658,7 +658,8 @@ class _ChannelMessagePathMapScreenState
       label: isPrimary ? l10n.pathMap_primary : l10n.pathMap_alternate(index),
       color: isPrimary
           ? kPrimaryPathColor
-          : kAlternatePathColors[(index - 1) % kAlternatePathColors.length],
+          : alternatePathColors(context)[(index - 1) %
+                alternatePathColors(context).length],
       isPrimary: isPrimary,
       hopBytes: [
         for (final hop in hops)
@@ -938,7 +939,7 @@ class _ChannelMessagePathMapScreenState
                 Polyline(
                   points: points,
                   strokeWidth: 4,
-                  color: MeshPalette.blue,
+                  color: MeshTokens.of(context).blue,
                 ),
               ]
             : <Polyline>[];
@@ -1107,7 +1108,9 @@ class _ChannelMessagePathMapScreenState
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: mapScheme.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(MeshRadii.md),
+                        borderRadius: BorderRadius.circular(
+                          MeshTokens.of(context).md,
+                        ),
                         border: Border.all(color: mapScheme.outlineVariant),
                       ),
                       child: Text(context.l10n.channelPath_noRepeaterLocations),
@@ -1216,7 +1219,7 @@ class _ChannelMessagePathMapScreenState
               width: 35,
               height: 35,
               decoration: BoxDecoration(
-                color: MeshPalette.blue,
+                color: MeshTokens.of(context).blue,
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
@@ -1271,7 +1274,7 @@ class _ChannelMessagePathMapScreenState
             width: 35,
             height: 35,
             decoration: BoxDecoration(
-              color: MeshPalette.signal,
+              color: MeshTokens.of(context).signal,
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 2),
               boxShadow: [
@@ -1359,7 +1362,7 @@ class _ChannelMessagePathMapScreenState
                   width: 35,
                   height: 35,
                   decoration: BoxDecoration(
-                    color: MeshPalette.blue,
+                    color: MeshTokens.of(context).blue,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: Colors.white,
@@ -1392,16 +1395,16 @@ class _ChannelMessagePathMapScreenState
                       height: 17,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: MeshPalette.bg1,
-                        border: Border.all(color: MeshPalette.line3),
+                        color: MeshTokens.of(context).bg1,
+                        border: Border.all(color: MeshTokens.of(context).line3),
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         '${node.paths.length}',
-                        style: MeshTheme.mono(
+                        style: MeshTokens.of(context).mono(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
-                          color: MeshPalette.ink,
+                          color: MeshTokens.of(context).ink,
                         ),
                       ),
                     ),
@@ -1510,18 +1513,20 @@ class _ChannelMessagePathMapScreenState
         height: cardHeight,
         child: Container(
           decoration: BoxDecoration(
-            color: MeshPalette.bg1,
-            borderRadius: BorderRadius.circular(MeshRadii.md),
-            border: Border.all(color: MeshPalette.line2),
+            color: MeshTokens.of(context).bg1,
+            borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
+            border: Border.all(color: MeshTokens.of(context).line2),
           ),
           clipBehavior: Clip.antiAlias,
           child: DefaultTextStyle(
-            style: const TextStyle(color: MeshPalette.ink),
+            style: TextStyle(color: MeshTokens.of(context).ink),
             child: IconTheme(
-              data: const IconThemeData(color: MeshPalette.ink),
+              data: IconThemeData(color: MeshTokens.of(context).ink),
               child: TextButtonTheme(
                 data: TextButtonThemeData(
-                  style: TextButton.styleFrom(foregroundColor: MeshPalette.ink),
+                  style: TextButton.styleFrom(
+                    foregroundColor: MeshTokens.of(context).ink,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1551,9 +1556,9 @@ class _ChannelMessagePathMapScreenState
                                             _pathDistance,
                                         isImperial: isImperial,
                                       ),
-                                      style: MeshTheme.mono(
+                                      style: MeshTokens.of(context).mono(
                                         fontSize: 12,
-                                        color: MeshPalette.ink2,
+                                        color: MeshTokens.of(context).ink2,
                                       ),
                                     ),
                                   ],
@@ -1606,7 +1611,7 @@ class _ChannelMessagePathMapScreenState
                             ),
                             style: TextStyle(
                               fontSize: 10.5,
-                              color: MeshPalette.warn,
+                              color: MeshTokens.of(context).warn,
                             ),
                           ),
                         ),
@@ -1670,8 +1675,10 @@ class _ChannelMessagePathMapScreenState
             activeSegment < selectedDisplay.rowForSegment.length) {
           highlightRow = selectedDisplay.rowForSegment[activeSegment];
         }
-        final highlightColor = (selectedDisplay?.color ?? MeshPalette.blue)
-            .withValues(alpha: 0.14);
+        final highlightColor =
+            (selectedDisplay?.color ?? MeshTokens.of(context).blue).withValues(
+              alpha: 0.14,
+            );
         return ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 4),
           itemCount: hops.length,
@@ -1686,7 +1693,7 @@ class _ChannelMessagePathMapScreenState
                 color: index == highlightRow
                     ? highlightColor
                     : isFocused
-                    ? MeshPalette.blueBg
+                    ? MeshTokens.of(context).blueBg
                     : Colors.transparent,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -1698,10 +1705,14 @@ class _ChannelMessagePathMapScreenState
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: MeshPalette.blueDim.withValues(alpha: 0.3),
+                        color: MeshTokens.of(
+                          context,
+                        ).blueDim.withValues(alpha: 0.3),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: MeshPalette.blueDim.withValues(alpha: 0.5),
+                          color: MeshTokens.of(
+                            context,
+                          ).blueDim.withValues(alpha: 0.5),
                         ),
                       ),
                       alignment: Alignment.center,
@@ -1738,9 +1749,9 @@ class _ChannelMessagePathMapScreenState
                                   sharedCount,
                                 ),
                             ].join(' · '),
-                            style: MeshTheme.mono(
+                            style: MeshTokens.of(context).mono(
                               fontSize: 10,
-                              color: MeshPalette.ink3,
+                              color: MeshTokens.of(context).ink3,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
