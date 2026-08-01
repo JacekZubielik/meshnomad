@@ -19,7 +19,7 @@ import '../utils/battery_utils.dart';
 import '../helpers/snack_bar_builder.dart';
 import '../widgets/sync_progress_overlay.dart';
 import '../widgets/telemetry_location_map.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 
 class TelemetryScreen extends StatefulWidget {
@@ -914,7 +914,9 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
           const SizedBox(width: 8),
           Text(
             value,
-            style: MeshTheme.mono(fontSize: 13, color: scheme.onSurface),
+            style: MeshTokens.of(
+              context,
+            ).mono(fontSize: 13, color: scheme.onSurface),
             textAlign: TextAlign.end,
           ),
         ],

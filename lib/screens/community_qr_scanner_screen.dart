@@ -9,7 +9,7 @@ import '../helpers/snack_bar_builder.dart';
 import '../l10n/l10n.dart';
 import '../models/community.dart';
 import '../storage/community_store.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/qr_scanner_widget.dart';
@@ -86,9 +86,9 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
           ),
         ),
         // Corner brackets on top
-        const ScannerCornerOverlay(
+        ScannerCornerOverlay(
           scanWindowSize: 250,
-          borderColor: MeshPalette.blue,
+          borderColor: MeshTokens.of(context).blue,
           borderWidth: 2,
           cornerLength: 24,
         ),
@@ -105,11 +105,16 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.72),
-                  borderRadius: BorderRadius.circular(MeshRadii.pill),
+                  borderRadius: BorderRadius.circular(
+                    MeshTokens.of(context).pill,
+                  ),
                 ),
                 child: Text(
                   context.l10n.community_scanInstructions,
-                  style: const TextStyle(color: MeshPalette.ink2, fontSize: 13),
+                  style: TextStyle(
+                    color: MeshTokens.of(context).ink2,
+                    fontSize: 13,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -155,7 +160,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
         showDismissibleSnackBar(
           context,
           content: Text(context.l10n.community_invalidQrCode),
-          backgroundColor: MeshPalette.alert,
+          backgroundColor: MeshTokens.of(context).alert,
         );
       }
     } finally {
@@ -171,7 +176,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
     showDismissibleSnackBar(
       context,
       content: Text(context.l10n.community_invalidQrCode),
-      backgroundColor: MeshPalette.warn,
+      backgroundColor: MeshTokens.of(context).warn,
       duration: const Duration(seconds: 2),
     );
   }
@@ -196,9 +201,9 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
             MeshCard(
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.groups,
-                    color: MeshPalette.magenta,
+                    color: MeshTokens.of(sheetContext).magenta,
                     size: 32,
                   ),
                   const SizedBox(width: 14),
@@ -215,7 +220,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                         ),
                         Text(
                           'ID: ${community.shortCommunityId}...',
-                          style: MeshTheme.mono(
+                          style: MeshTokens.of(sheetContext).mono(
                             fontSize: 11.5,
                             color: sheetScheme.onSurfaceVariant,
                           ),
@@ -272,7 +277,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                     AvatarCircle(
                       name: community.name,
                       icon: Icons.groups,
-                      color: MeshPalette.magenta,
+                      color: MeshTokens.of(sheetContext).magenta,
                       size: 44,
                     ),
                     const SizedBox(width: 14),
@@ -289,7 +294,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                           ),
                           Text(
                             'ID: ${community.shortCommunityId}...',
-                            style: MeshTheme.mono(
+                            style: MeshTokens.of(sheetContext).mono(
                               fontSize: 11.5,
                               color: joinScheme.onSurfaceVariant,
                             ),
@@ -385,7 +390,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
       showDismissibleSnackBar(
         context,
         content: Text(context.l10n.community_joined(community.name)),
-        backgroundColor: MeshPalette.signal,
+        backgroundColor: MeshTokens.of(context).signal,
       );
 
       // Return to previous screen

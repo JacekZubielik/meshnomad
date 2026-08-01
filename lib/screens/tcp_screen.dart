@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../connector/meshcore_connector.dart';
 import '../l10n/l10n.dart';
 import '../services/app_settings_service.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../utils/platform_info.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/mesh_ui.dart';
@@ -195,7 +195,7 @@ class _TcpScreenState extends State<TcpScreen> {
                         Expanded(
                           child: Text(
                             connector.activeTcpEndpoint!,
-                            style: MeshTheme.mono(
+                            style: MeshTokens.of(context).mono(
                               fontSize: 13,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
@@ -221,7 +221,7 @@ class _TcpScreenState extends State<TcpScreen> {
     if (connector.isTcpTransportConnected) {
       return StatusChip(
         label: l10n.scanner_connectedTo(connector.activeTcpEndpoint ?? 'TCP'),
-        color: MeshPalette.signal,
+        color: MeshTokens.of(context).signal,
       );
     } else if (connector.state == MeshCoreConnectionState.connecting &&
         connector.activeTransport == MeshCoreTransportType.tcp) {
@@ -229,14 +229,14 @@ class _TcpScreenState extends State<TcpScreen> {
         label: l10n.tcpStatus_connectingTo(
           '${_hostController.text}:${_portController.text}',
         ),
-        color: MeshPalette.warn,
+        color: MeshTokens.of(context).warn,
         pulse: true,
       );
     } else if (connector.state == MeshCoreConnectionState.disconnecting &&
         connector.activeTransport == MeshCoreTransportType.tcp) {
       return StatusChip(
         label: l10n.scanner_disconnecting,
-        color: MeshPalette.warn,
+        color: MeshTokens.of(context).warn,
         pulse: true,
       );
     } else {

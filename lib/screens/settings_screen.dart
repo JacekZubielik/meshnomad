@@ -11,7 +11,7 @@ import '../l10n/l10n.dart';
 import '../models/radio_settings.dart';
 import '../services/app_settings_service.dart';
 import '../services/app_debug_log_service.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/app_bar.dart';
 import '../helpers/snack_bar_builder.dart';
 import '../widgets/mesh_ui.dart';
@@ -230,7 +230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       Text(
                         connector.deviceDisplayName,
-                        style: MeshTheme.mono(
+                        style: MeshTokens.of(context).mono(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: scheme.onSurface,
@@ -242,7 +242,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ? l10n.common_connected
                             : l10n.common_disconnected,
                         color: connector.isConnected
-                            ? MeshPalette.blue
+                            ? MeshTokens.of(context).blue
                             : scheme.onSurfaceVariant,
                         pulse: connector.isConnected,
                       ),
@@ -346,7 +346,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mono
               ? Text(
                   value,
-                  style: MeshTheme.mono(
+                  style: MeshTokens.of(context).mono(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: valueColor ?? scheme.onSurface,
@@ -365,7 +365,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (onTap != null) {
       return InkWell(
-        borderRadius: BorderRadius.circular(MeshRadii.xs),
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
         onTap: onTap,
         child: content,
       );
@@ -554,8 +554,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           icon: Icons.restart_alt,
           title: l10n.settings_rebootDevice,
           subtitle: l10n.settings_rebootDeviceSubtitle,
-          titleColor: MeshPalette.warn,
-          iconColor: MeshPalette.warn,
+          titleColor: MeshTokens.of(context).warn,
+          iconColor: MeshTokens.of(context).warn,
           onTap: () => _confirmReboot(context, connector),
         ),
         const Divider(height: 1, indent: 16),
@@ -564,8 +564,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           icon: Icons.delete_outline,
           title: l10n.settings_deleteAllPaths,
           subtitle: l10n.settings_deleteAllPathsSubtitle,
-          titleColor: MeshPalette.alert,
-          iconColor: MeshPalette.alert,
+          titleColor: MeshTokens.of(context).alert,
+          iconColor: MeshTokens.of(context).alert,
           onTap: () => _confirmDeleteAllPaths(context, connector),
         ),
       ],

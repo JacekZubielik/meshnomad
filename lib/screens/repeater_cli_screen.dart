@@ -6,7 +6,7 @@ import '../l10n/l10n.dart';
 import '../models/contact.dart';
 import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/debug_frame_viewer.dart';
 import '../services/repeater_command_service.dart';
 import '../widgets/routing_sheet.dart';
@@ -261,9 +261,9 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
     final isFloodMode = repeater.pathOverride == -1;
 
     return Scaffold(
-      backgroundColor: MeshPalette.bg,
+      backgroundColor: MeshTokens.of(context).bg,
       appBar: AppBar(
-        backgroundColor: MeshPalette.bg1,
+        backgroundColor: MeshTokens.of(context).bg1,
         title: Text(l10n.repeater_cliTitle),
         centerTitle: true,
         actions: [
@@ -316,7 +316,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
         children: [
           // Quick commands bar
           Container(
-            color: MeshPalette.bg1,
+            color: MeshTokens.of(context).bg1,
             padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -328,14 +328,14 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                     child: ActionChip(
                       label: Text(
                         label,
-                        style: MeshTheme.mono(
+                        style: MeshTokens.of(context).mono(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: MeshPalette.blue,
+                          color: MeshTokens.of(context).blue,
                         ),
                       ),
-                      backgroundColor: MeshPalette.blueBg,
-                      side: const BorderSide(color: MeshPalette.blueLine),
+                      backgroundColor: MeshTokens.of(context).blueBg,
+                      side: BorderSide(color: MeshTokens.of(context).blueLine),
                       visualDensity: VisualDensity.compact,
                       onPressed: () => _useQuickCommand(cmd['command']!),
                     ),
@@ -344,7 +344,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
               ),
             ),
           ),
-          Divider(height: 1, color: MeshPalette.line),
+          Divider(height: 1, color: MeshTokens.of(context).line),
 
           // Output area
           Expanded(
@@ -353,11 +353,11 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                 : _buildCommandHistory(),
           ),
 
-          Divider(height: 1, color: MeshPalette.line),
+          Divider(height: 1, color: MeshTokens.of(context).line),
 
           // Command input
           Container(
-            color: MeshPalette.bg1,
+            color: MeshTokens.of(context).bg1,
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
             child: SafeArea(
               child: Row(
@@ -387,44 +387,49 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                     child: TextField(
                       controller: _commandController,
                       focusNode: _commandFocusNode,
-                      style: MeshTheme.mono(
-                        fontSize: 13,
-                        color: MeshPalette.ink,
-                      ),
+                      style: MeshTokens.of(
+                        context,
+                      ).mono(fontSize: 13, color: MeshTokens.of(context).ink),
                       decoration: InputDecoration(
                         hintText: context.l10n.repeater_enterCommandHint,
-                        hintStyle: MeshTheme.mono(
+                        hintStyle: MeshTokens.of(context).mono(
                           fontSize: 13,
-                          color: MeshPalette.ink4,
+                          color: MeshTokens.of(context).ink4,
                         ),
                         prefixText: '> ',
-                        prefixStyle: MeshTheme.mono(
+                        prefixStyle: MeshTokens.of(context).mono(
                           fontSize: 13,
-                          color: MeshPalette.blue,
+                          color: MeshTokens.of(context).blue,
                           fontWeight: FontWeight.w700,
                         ),
                         filled: true,
-                        fillColor: MeshPalette.bg2,
+                        fillColor: MeshTokens.of(context).bg2,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 10,
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(MeshRadii.pill),
-                          borderSide: const BorderSide(
-                            color: MeshPalette.line2,
+                          borderRadius: BorderRadius.circular(
+                            MeshTokens.of(context).pill,
+                          ),
+                          borderSide: BorderSide(
+                            color: MeshTokens.of(context).line2,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(MeshRadii.pill),
-                          borderSide: const BorderSide(
-                            color: MeshPalette.line2,
+                          borderRadius: BorderRadius.circular(
+                            MeshTokens.of(context).pill,
+                          ),
+                          borderSide: BorderSide(
+                            color: MeshTokens.of(context).line2,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(MeshRadii.pill),
-                          borderSide: const BorderSide(
-                            color: MeshPalette.blue,
+                          borderRadius: BorderRadius.circular(
+                            MeshTokens.of(context).pill,
+                          ),
+                          borderSide: BorderSide(
+                            color: MeshTokens.of(context).blue,
                             width: 1.5,
                           ),
                         ),
@@ -435,9 +440,9 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                   ),
                   const SizedBox(width: 6),
                   Material(
-                    color: MeshPalette.blue.withValues(alpha: 0.15),
-                    shape: const CircleBorder(
-                      side: BorderSide(color: MeshPalette.blueLine),
+                    color: MeshTokens.of(context).blue.withValues(alpha: 0.15),
+                    shape: CircleBorder(
+                      side: BorderSide(color: MeshTokens.of(context).blueLine),
                     ),
                     child: InkWell(
                       customBorder: const CircleBorder(),
@@ -445,12 +450,12 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                         HapticFeedback.lightImpact();
                         _sendCommand();
                       },
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
                         child: Icon(
                           Icons.send,
                           size: 18,
-                          color: MeshPalette.blue,
+                          color: MeshTokens.of(context).blue,
                         ),
                       ),
                     ),
@@ -470,16 +475,18 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.terminal, size: 48, color: MeshPalette.ink4),
+          Icon(Icons.terminal, size: 48, color: MeshTokens.of(context).ink4),
           const SizedBox(height: 12),
           Text(
             l10n.repeater_noCommandsSent,
-            style: MeshTheme.mono(fontSize: 13, color: MeshPalette.ink3),
+            style: MeshTokens.of(
+              context,
+            ).mono(fontSize: 13, color: MeshTokens.of(context).ink3),
           ),
           const SizedBox(height: 4),
           Text(
             l10n.repeater_typeCommandOrUseQuick,
-            style: const TextStyle(fontSize: 12, color: MeshPalette.ink4),
+            style: TextStyle(fontSize: 12, color: MeshTokens.of(context).ink4),
           ),
         ],
       ),
@@ -505,10 +512,12 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                 width: 20,
                 child: Text(
                   isCommand ? '>' : ' ',
-                  style: MeshTheme.mono(
+                  style: MeshTokens.of(context).mono(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: isCommand ? MeshPalette.blue : MeshPalette.ink3,
+                    color: isCommand
+                        ? MeshTokens.of(context).blue
+                        : MeshTokens.of(context).ink3,
                   ),
                 ),
               ),
@@ -516,9 +525,11 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
               Expanded(
                 child: SelectableText(
                   entry['text']!,
-                  style: MeshTheme.mono(
+                  style: MeshTokens.of(context).mono(
                     fontSize: 12.5,
-                    color: isCommand ? MeshPalette.blue : MeshPalette.ink,
+                    color: isCommand
+                        ? MeshTokens.of(context).blue
+                        : MeshTokens.of(context).ink,
                   ),
                 ),
               ),
@@ -1177,11 +1188,11 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
       margin: const EdgeInsets.only(bottom: 6),
       color: scheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(MeshRadii.sm),
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).sm),
         side: BorderSide(color: scheme.outlineVariant),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(MeshRadii.sm),
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).sm),
         onTap: () => _applyHelpCommand(entry.command),
         child: Padding(
           padding: const EdgeInsets.all(10),
@@ -1190,10 +1201,10 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
             children: [
               Text(
                 entry.command,
-                style: MeshTheme.mono(
+                style: MeshTokens.of(context).mono(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: MeshPalette.blue,
+                  color: MeshTokens.of(context).blue,
                 ),
               ),
               const SizedBox(height: 4),

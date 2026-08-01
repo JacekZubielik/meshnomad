@@ -9,7 +9,7 @@ import '../l10n/contact_localization.dart';
 import '../services/storage_service.dart';
 import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 import '../utils/app_logger.dart';
 import 'routing_sheet.dart';
@@ -281,7 +281,7 @@ class _RepeaterLoginDialogState extends State<RepeaterLoginDialog> {
           AvatarCircle(
             name: repeater.name,
             size: 40,
-            color: MeshPalette.warn,
+            color: MeshTokens.of(context).warn,
             icon: Icons.cell_tower,
           ),
           const SizedBox(width: 12),
@@ -398,7 +398,7 @@ class _RepeaterLoginDialogState extends State<RepeaterLoginDialog> {
                     children: [
                       Text(
                         l10n.login_routing,
-                        style: MeshTheme.accentLabel(
+                        style: MeshTokens.of(context).accentLabel(
                           color: scheme.onSurfaceVariant,
                           fontSize: 11,
                         ),
