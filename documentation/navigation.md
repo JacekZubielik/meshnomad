@@ -31,6 +31,7 @@ Tapping a tab replaces the current screen with a subtle fade + slight horizontal
 ## Theme and Locale
 
 - **Theme mode** is user-configurable in App Settings (System / Light / Dark) — not locked to system
+- **Style** is user-configurable in App Settings (currently only "Default"; more selectable styles can be added later via `StyleRegistry` without screen-level changes)
 - **Language** can be overridden to one of 18 supported languages, or follow the system locale
 - On web, if a non-Chromium browser is detected, the app shows a `ChromeRequiredScreen` instead of the Scanner (Web Bluetooth requires Chromium)
 

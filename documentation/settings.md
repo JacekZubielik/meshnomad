@@ -101,6 +101,7 @@ A dedicated sub-screen for app-level preferences (nothing here is sent to the de
 
 ### Appearance
 - **Theme**: System / Light / Dark
+- **Style**: Visual style/palette for the app UI, selected via chips (currently only "Default"; the underlying `StyleRegistry` architecture supports adding further selectable styles in future releases without touching screen code)
 - **Language**: System default or one of 18 languages (English, French, Spanish, German, Polish, Slovenian, Portuguese, Italian, Chinese, Swedish, Dutch, Slovak, Bulgarian, Russian, Ukrainian, Hungarian, Japanese, Korean)
 
 ### Notifications
