@@ -204,7 +204,9 @@ class MeshCoreApp extends StatelessWidget {
               settingsService.settings.languageOverride,
             ),
             theme: StyleRegistry.byId(settingsService.settings.styleId).light,
-            darkTheme: StyleRegistry.byId(settingsService.settings.styleId).dark,
+            darkTheme: StyleRegistry.byId(
+              settingsService.settings.styleId,
+            ).dark,
             themeMode: _themeModeFromSetting(
               settingsService.settings.themeMode,
             ),
