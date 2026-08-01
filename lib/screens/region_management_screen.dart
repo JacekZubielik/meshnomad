@@ -8,7 +8,7 @@ import 'package:meshcore_open/connector/meshcore_protocol.dart';
 import 'package:meshcore_open/l10n/l10n.dart';
 import 'package:meshcore_open/models/contact.dart';
 import 'package:meshcore_open/storage/region_store.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
 import 'package:meshcore_open/widgets/mesh_ui.dart';
 import 'package:provider/provider.dart';
 
@@ -166,9 +166,9 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
                           padding: const EdgeInsets.only(left: 14, right: 4),
                           child: Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.landscape,
-                                color: MeshPalette.blue,
+                                color: MeshTokens.of(context).blue,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -468,7 +468,7 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
       padding: const EdgeInsets.only(left: 14, right: 4),
       child: Row(
         children: [
-          const Icon(Icons.landscape, color: MeshPalette.blue),
+          Icon(Icons.landscape, color: MeshTokens.of(context).blue),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

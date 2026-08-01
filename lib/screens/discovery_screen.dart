@@ -9,7 +9,7 @@ import '../connector/meshcore_protocol.dart';
 import '../l10n/l10n.dart';
 import '../l10n/contact_localization.dart';
 import '../models/contact.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../utils/contact_search.dart';
 import '../utils/platform_info.dart';
 import '../widgets/app_bar.dart';
@@ -53,13 +53,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   Color _avatarColor(int type) {
     switch (type) {
       case advTypeRepeater:
-        return MeshPalette.warn;
+        return MeshTokens.of(context).warn;
       case advTypeRoom:
-        return MeshPalette.magenta;
+        return MeshTokens.of(context).magenta;
       case advTypeSensor:
         return const Color(0xFF4ACCC4); // teal
       default:
-        return MeshPalette.blue;
+        return MeshTokens.of(context).blue;
     }
   }
 
@@ -246,10 +246,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                           contact.shortPubKeyHex,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: MeshTheme.mono(
-                            fontSize: 11,
-                            color: scheme.onSurfaceVariant,
-                          ),
+                          style: MeshTokens.of(
+                            context,
+                          ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
                         ),
                       ),
                       if (contact.hasLocation) ...[
@@ -290,10 +289,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.right,
-                style: MeshTheme.mono(
-                  fontSize: 11,
-                  color: scheme.onSurfaceVariant,
-                ),
+                style: MeshTokens.of(
+                  context,
+                ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
               ),
             ),
           ],

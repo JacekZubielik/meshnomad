@@ -9,7 +9,7 @@ import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
 import '../services/repeater_command_service.dart';
 import '../services/storage_service.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/routing_sheet.dart';
 import '../utils/keys.dart';
@@ -2159,36 +2159,36 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
   Widget _buildDangerZoneCard() {
     final l10n = context.l10n;
     return MeshCard(
-      color: MeshPalette.alertBg,
-      borderColor: MeshPalette.alertLine,
+      color: MeshTokens.of(context).alertBg,
+      borderColor: MeshTokens.of(context).alertLine,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.warning, color: MeshPalette.alert),
+              Icon(Icons.warning, color: MeshTokens.of(context).alert),
               const SizedBox(width: 8),
               Text(
                 l10n.repeater_dangerZone,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: MeshPalette.alert,
+                  color: MeshTokens.of(context).alert,
                 ),
               ),
             ],
           ),
-          const Divider(height: 20, color: MeshPalette.alertLine),
+          Divider(height: 20, color: MeshTokens.of(context).alertLine),
           ListTile(
-            leading: const Icon(Icons.refresh, color: MeshPalette.alert),
+            leading: Icon(Icons.refresh, color: MeshTokens.of(context).alert),
             title: Text(
               l10n.repeater_rebootRepeater,
-              style: const TextStyle(color: MeshPalette.alert),
+              style: TextStyle(color: MeshTokens.of(context).alert),
             ),
             subtitle: Text(
               l10n.repeater_rebootRepeaterSubtitle,
-              style: const TextStyle(color: MeshPalette.warnDim),
+              style: TextStyle(color: MeshTokens.of(context).warnDim),
             ),
             onTap: () => _confirmAction(
               l10n.repeater_rebootRepeater,
@@ -2199,14 +2199,17 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
           ),
           // Regenerate identity key - hidden until fully implemented
           ListTile(
-            leading: const Icon(Icons.delete_forever, color: MeshPalette.alert),
+            leading: Icon(
+              Icons.delete_forever,
+              color: MeshTokens.of(context).alert,
+            ),
             title: Text(
               l10n.repeater_eraseFileSystem,
-              style: const TextStyle(color: MeshPalette.alert),
+              style: TextStyle(color: MeshTokens.of(context).alert),
             ),
             subtitle: Text(
               l10n.repeater_eraseFileSystemSubtitle,
-              style: const TextStyle(color: MeshPalette.warnDim),
+              style: TextStyle(color: MeshTokens.of(context).warnDim),
             ),
             onTap: () => _confirmAction(
               l10n.repeater_eraseFileSystem,

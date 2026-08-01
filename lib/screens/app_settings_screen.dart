@@ -11,7 +11,7 @@ import '../services/app_settings_service.dart';
 import '../services/map_tile_cache_service.dart';
 import '../services/notification_service.dart';
 import '../services/translation_service.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../theme/styles/style_registry.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/mesh_ui.dart';
@@ -1464,10 +1464,9 @@ class AppSettingsScreen extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     _downloadProgressLabel(context, translationService),
-                    style: MeshTheme.mono(
-                      fontSize: 12,
-                      color: scheme.onSurfaceVariant,
-                    ),
+                    style: MeshTokens.of(
+                      context,
+                    ).mono(fontSize: 12, color: scheme.onSurfaceVariant),
                   ),
                 ),
               ],
@@ -1498,7 +1497,9 @@ class AppSettingsScreen extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(MeshRadii.xs),
+                            borderRadius: BorderRadius.circular(
+                              MeshTokens.of(context).xs,
+                            ),
                             onTap: () => settingsService
                                 .setTranslationSelectedModelId(model.id),
                             child: Column(
@@ -1512,7 +1513,7 @@ class AppSettingsScreen extends StatelessWidget {
                                 ),
                                 Text(
                                   _downloadedModelLabel(model),
-                                  style: MeshTheme.mono(
+                                  style: MeshTokens.of(context).mono(
                                     fontSize: 11,
                                     color: scheme.onSurfaceVariant,
                                   ),

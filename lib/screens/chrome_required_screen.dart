@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 
 class ChromeRequiredScreen extends StatelessWidget {
@@ -84,7 +84,7 @@ class ChromeRequiredScreen extends StatelessWidget {
                       Flexible(
                         child: Text(
                           l10n.chrome_bluetoothRequiresChromium,
-                          style: MeshTheme.mono(
+                          style: MeshTokens.of(context).mono(
                             fontSize: 12,
                             color: scheme.onSecondaryContainer,
                             fontWeight: FontWeight.w500,

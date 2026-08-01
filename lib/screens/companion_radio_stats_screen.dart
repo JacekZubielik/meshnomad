@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meshcore_open/connector/meshcore_connector.dart';
 import 'package:meshcore_open/models/companion_radio_stats.dart';
 import 'package:meshcore_open/l10n/l10n.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
 import 'package:meshcore_open/widgets/mesh_ui.dart';
 import 'package:provider/provider.dart';
 
@@ -62,7 +62,9 @@ class _CompanionRadioStatsScreenState extends State<CompanionRadioStatsScreen> {
           Expanded(
             child: Text(
               text,
-              style: MeshTheme.mono(fontSize: 13, color: scheme.onSurface),
+              style: MeshTokens.of(
+                context,
+              ).mono(fontSize: 13, color: scheme.onSurface),
             ),
           ),
         ],
@@ -139,7 +141,9 @@ class _CompanionRadioStatsScreenState extends State<CompanionRadioStatsScreen> {
                               stats.lastSnrDb.toStringAsFixed(1),
                             ),
                             Icons.signal_cellular_alt,
-                            MeshTheme.snrColor(stats.lastSnrDb, blocked: false),
+                            MeshTokens.of(
+                              context,
+                            ).snrColor(stats.lastSnrDb, blocked: false),
                           ),
                         ],
                       ),
@@ -160,13 +164,13 @@ class _CompanionRadioStatsScreenState extends State<CompanionRadioStatsScreen> {
                           _tile(
                             l10n.radioStats_txAir(stats.txAirSecs),
                             Icons.upload,
-                            MeshPalette.blue,
+                            MeshTokens.of(context).blue,
                           ),
                           const Divider(height: 1),
                           _tile(
                             l10n.radioStats_rxAir(stats.rxAirSecs),
                             Icons.download,
-                            MeshPalette.blue,
+                            MeshTokens.of(context).blue,
                           ),
                         ],
                       ),

@@ -11,7 +11,7 @@ import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
 import '../services/app_settings_service.dart';
 import '../services/repeater_command_service.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../utils/battery_utils.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/routing_sheet.dart';
@@ -497,7 +497,7 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
               icon: Icons.timer_outlined,
               label: l10n.repeater_uptime,
               value: _formatDuration(_uptimeSecs),
-              color: MeshPalette.blue,
+              color: MeshTokens.of(context).blue,
             ),
             _StatItem(
               icon: Icons.schedule,
@@ -516,7 +516,7 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
               label: l10n.repeater_debugFlags,
               value: _formatValue(_debugFlags),
               color: _debugFlags != null && _debugFlags! > 0
-                  ? MeshPalette.warn
+                  ? MeshTokens.of(context).warn
                   : scheme.onSurfaceVariant,
             ),
           ]),
@@ -531,13 +531,13 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
               icon: Icons.signal_cellular_alt,
               label: l10n.repeater_lastRssi,
               value: _formatValue(_lastRssi, suffix: ' dB'),
-              color: MeshPalette.blue,
+              color: MeshTokens.of(context).blue,
             ),
             _StatItem(
               icon: Icons.waves,
               label: l10n.repeater_lastSnr,
               value: _formatSnr(_lastSnr),
-              color: MeshTheme.snrColor(_lastSnr, blocked: false),
+              color: MeshTokens.of(context).snrColor(_lastSnr, blocked: false),
             ),
             _StatItem(
               icon: Icons.noise_control_off,
@@ -549,13 +549,13 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
               icon: Icons.upload,
               label: l10n.repeater_txAirtime,
               value: _formatDuration(_txAirSecs),
-              color: MeshPalette.warn,
+              color: MeshTokens.of(context).warn,
             ),
             _StatItem(
               icon: Icons.download,
               label: l10n.repeater_rxAirtime,
               value: _formatDuration(_rxAirSecs),
-              color: MeshPalette.signal,
+              color: MeshTokens.of(context).signal,
             ),
           ]),
         ),
@@ -569,13 +569,13 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
               icon: Icons.send,
               label: l10n.repeater_sent,
               value: _packetTxText(),
-              color: MeshPalette.blue,
+              color: MeshTokens.of(context).blue,
             ),
             _StatItem(
               icon: Icons.call_received,
               label: l10n.repeater_received,
               value: _packetRxText(),
-              color: MeshPalette.signal,
+              color: MeshTokens.of(context).signal,
             ),
             _StatItem(
               icon: Icons.content_copy,
@@ -588,10 +588,10 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
               label: l10n.repeater_chanUtil,
               value: _chanUtilText(),
               color: _chanUtil != null && _chanUtil! > 80
-                  ? MeshPalette.alert
+                  ? MeshTokens.of(context).alert
                   : _chanUtil != null && _chanUtil! > 50
-                  ? MeshPalette.warn
-                  : MeshPalette.signal,
+                  ? MeshTokens.of(context).warn
+                  : MeshTokens.of(context).signal,
             ),
           ]),
         ),
@@ -612,9 +612,9 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
       batteryMv,
       _batteryChemistry(),
     );
-    if (percent < 20) return MeshPalette.alert;
-    if (percent < 40) return MeshPalette.warn;
-    return MeshPalette.signal;
+    if (percent < 20) return MeshTokens.of(context).alert;
+    if (percent < 40) return MeshTokens.of(context).warn;
+    return MeshTokens.of(context).signal;
   }
 
   Widget _buildStatGrid(List<_StatItem> items) {

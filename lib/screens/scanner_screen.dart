@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import '../connector/meshcore_connector.dart';
 import '../l10n/l10n.dart';
 import '../services/linux_ble_error_classifier.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../utils/app_logger.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/device_tile.dart';
@@ -483,22 +483,22 @@ class _ConnectionStatusHeader extends StatelessWidget {
     final (String label, Color color, bool pulse) = switch (connector.state) {
       MeshCoreConnectionState.scanning => (
         l10n.scanner_scanning,
-        MeshPalette.blue,
+        MeshTokens.of(context).blue,
         true,
       ),
       MeshCoreConnectionState.connecting => (
         l10n.scanner_connecting,
-        MeshPalette.warn,
+        MeshTokens.of(context).warn,
         true,
       ),
       MeshCoreConnectionState.connected => (
         l10n.scanner_connectedTo(connector.deviceDisplayName),
-        MeshPalette.signal,
+        MeshTokens.of(context).signal,
         false,
       ),
       MeshCoreConnectionState.disconnecting => (
         l10n.scanner_disconnecting,
-        MeshPalette.warn,
+        MeshTokens.of(context).warn,
         true,
       ),
       MeshCoreConnectionState.disconnected => (

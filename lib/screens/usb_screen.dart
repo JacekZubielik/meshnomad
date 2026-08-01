@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../connector/meshcore_connector.dart';
 import '../l10n/l10n.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../utils/app_logger.dart';
 import '../utils/platform_info.dart';
 import '../utils/usb_port_labels.dart';
@@ -168,12 +168,12 @@ class _UsbScreenState extends State<UsbScreen> {
             label: l10n.scanner_connectedTo(
               connector.activeUsbPortDisplayLabel ?? 'USB',
             ),
-            color: MeshPalette.signal,
+            color: MeshTokens.of(context).signal,
           );
         case MeshCoreConnectionState.disconnecting:
           return StatusChip(
             label: l10n.scanner_disconnecting,
-            color: MeshPalette.warn,
+            color: MeshTokens.of(context).warn,
             pulse: true,
           );
         default:
@@ -186,7 +186,7 @@ class _UsbScreenState extends State<UsbScreen> {
         connector.activeTransport == MeshCoreTransportType.usb) {
       return StatusChip(
         label: l10n.usbStatus_connecting,
-        color: MeshPalette.warn,
+        color: MeshTokens.of(context).warn,
         pulse: true,
       );
     } else {
@@ -278,7 +278,7 @@ class _UsbScreenState extends State<UsbScreen> {
               subtitle: showRawName
                   ? Text(
                       rawName,
-                      style: MeshTheme.mono(
+                      style: MeshTokens.of(context).mono(
                         fontSize: 11,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),

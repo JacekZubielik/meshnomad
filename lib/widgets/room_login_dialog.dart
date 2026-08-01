@@ -10,7 +10,7 @@ import '../l10n/contact_localization.dart';
 import '../services/storage_service.dart';
 import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 import '../utils/app_logger.dart';
 import '../helpers/snack_bar_builder.dart';
@@ -238,7 +238,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
           AvatarCircle(
             name: repeater.name,
             size: 40,
-            color: MeshPalette.magenta,
+            color: MeshTokens.of(context).magenta,
             icon: Icons.group,
           ),
           const SizedBox(width: 12),
@@ -334,7 +334,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                     children: [
                       Text(
                         l10n.login_routing,
-                        style: MeshTheme.accentLabel(
+                        style: MeshTokens.of(context).accentLabel(
                           color: scheme.onSurfaceVariant,
                           fontSize: 11,
                         ),

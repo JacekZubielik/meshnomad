@@ -9,7 +9,7 @@ import '../models/path_selection.dart';
 import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
 import '../services/repeater_command_service.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/routing_sheet.dart';
@@ -370,7 +370,7 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
             '<${pubKeyToHex(data['publicKey'] as Uint8List)}>',
           );
 
-    final snrColor = MeshTheme.snrColor(snr, blocked: false);
+    final snrColor = MeshTokens.of(context).snrColor(snr, blocked: false);
     final heardLabel = l10n.neighbors_heardAgo(
       fmtDuration(lastHeardSeconds + 0.0),
     );
@@ -383,7 +383,9 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
           AvatarCircle(
             name: name,
             size: 40,
-            color: contact != null ? MeshPalette.warn : scheme.onSurfaceVariant,
+            color: contact != null
+                ? MeshTokens.of(context).warn
+                : scheme.onSurfaceVariant,
             icon: contact != null ? Icons.cell_tower : Icons.device_unknown,
           ),
           const SizedBox(width: 12),
@@ -423,7 +425,7 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
               const SizedBox(height: 4),
               Text(
                 '${snr.toStringAsFixed(1)} dB',
-                style: MeshTheme.mono(
+                style: MeshTokens.of(context).mono(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: snrColor,

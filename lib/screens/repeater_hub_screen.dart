@@ -7,7 +7,7 @@ import '../l10n/l10n.dart';
 import '../models/contact.dart';
 import '../l10n/contact_localization.dart';
 import '../services/app_settings_service.dart';
-import '../theme/mesh_theme.dart';
+import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 import 'repeater_status_screen.dart';
 import 'repeater_cli_screen.dart';
@@ -62,7 +62,7 @@ class RepeaterHubScreen extends StatelessWidget {
                     AvatarCircle(
                       name: repeater.name,
                       size: 52,
-                      color: MeshPalette.warn,
+                      color: MeshTokens.of(context).warn,
                       icon: Icons.cell_tower,
                     ),
                     const SizedBox(width: 16),
@@ -80,7 +80,7 @@ class RepeaterHubScreen extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             repeater.shortPubKeyHex,
-                            style: MeshTheme.mono(
+                            style: MeshTokens.of(context).mono(
                               fontSize: 11,
                               color: scheme.onSurfaceVariant,
                             ),
@@ -108,7 +108,7 @@ class RepeaterHubScreen extends StatelessWidget {
                                   child: Text(
                                     '${repeater.latitude?.toStringAsFixed(4)}, '
                                     '${repeater.longitude?.toStringAsFixed(4)}',
-                                    style: MeshTheme.mono(
+                                    style: MeshTokens.of(context).mono(
                                       fontSize: 10,
                                       color: scheme.onSurfaceVariant,
                                     ),
@@ -124,7 +124,7 @@ class RepeaterHubScreen extends StatelessWidget {
                     StatusChip(
                       label: isAdmin ? 'ADMIN' : 'GUEST',
                       color: isAdmin
-                          ? MeshPalette.blue
+                          ? MeshTokens.of(context).blue
                           : scheme.onSurfaceVariant,
                     ),
                   ],
@@ -182,7 +182,7 @@ class RepeaterHubScreen extends StatelessWidget {
               icon: Icons.analytics,
               title: l10n.repeater_status,
               subtitle: l10n.repeater_statusSubtitle,
-              accentColor: MeshPalette.blue,
+              accentColor: MeshTokens.of(context).blue,
               onTap: () {
                 HapticFeedback.selectionClick();
                 Navigator.push(
@@ -202,7 +202,7 @@ class RepeaterHubScreen extends StatelessWidget {
               icon: Icons.bar_chart_sharp,
               title: l10n.repeater_telemetry,
               subtitle: l10n.repeater_telemetrySubtitle,
-              accentColor: MeshPalette.magenta,
+              accentColor: MeshTokens.of(context).magenta,
               onTap: () {
                 HapticFeedback.selectionClick();
                 Navigator.push(
@@ -219,7 +219,7 @@ class RepeaterHubScreen extends StatelessWidget {
               icon: Icons.group,
               title: l10n.repeater_neighbors,
               subtitle: l10n.repeater_neighborsSubtitle,
-              accentColor: MeshPalette.signal,
+              accentColor: MeshTokens.of(context).signal,
               onTap: () {
                 HapticFeedback.selectionClick();
                 Navigator.push(
@@ -238,7 +238,7 @@ class RepeaterHubScreen extends StatelessWidget {
                 icon: Icons.terminal,
                 title: l10n.repeater_cli,
                 subtitle: l10n.repeater_cliSubtitle,
-                accentColor: MeshPalette.warn,
+                accentColor: MeshTokens.of(context).warn,
                 onTap: () {
                   HapticFeedback.selectionClick();
                   Navigator.push(
@@ -257,7 +257,7 @@ class RepeaterHubScreen extends StatelessWidget {
                 icon: Icons.settings,
                 title: l10n.repeater_settings,
                 subtitle: l10n.repeater_settingsSubtitle,
-                accentColor: MeshPalette.alert,
+                accentColor: MeshTokens.of(context).alert,
                 onTap: () {
                   HapticFeedback.selectionClick();
                   Navigator.push(
@@ -310,7 +310,7 @@ class _HubActionTile extends StatelessWidget {
               height: 44,
               decoration: BoxDecoration(
                 color: accentColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(MeshRadii.md),
+                borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
                 border: Border.all(color: accentColor.withValues(alpha: 0.3)),
               ),
               alignment: Alignment.center,
