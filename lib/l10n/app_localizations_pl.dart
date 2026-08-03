@@ -3500,7 +3500,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String telemetry_batteryValue(int percent, String volts) {
-    return '$percent% / $volts W';
+    return '$percent% / ${volts}V';
   }
 
   @override
