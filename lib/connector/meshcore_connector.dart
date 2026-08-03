@@ -689,8 +689,12 @@ class MeshCoreConnector extends ChangeNotifier {
   }
 
   int getUnreadCountForContact(Contact contact) {
-    if (contact.type == advTypeRepeater) return 0;
-    return getUnreadCountForContactKey(contact.publicKeyHex);
+    // Caller already has the Contact, so its type is known — skip the
+    // linear _contacts scan that getUnreadCountForContactKey would otherwise
+    // redo via _shouldTrackUnreadForContactKey. Matters when this runs once
+    // per row on every list rebuild.
+    if (!_unreadStateLoaded || contact.type == advTypeRepeater) return 0;
+    return _contactUnreadCount[contact.publicKeyHex] ?? 0;
   }
 
   int getUnreadCountForContactKey(String contactKeyHex) {
@@ -700,7 +704,12 @@ class MeshCoreConnector extends ChangeNotifier {
   }
 
   int getUnreadCountForChannel(Channel channel) {
-    return getUnreadCountForChannelIndex(channel.index);
+    // Caller already has the Channel object, whose unreadCount field is kept
+    // in sync in place (see setChannelUnreadCount/markChannelRead) — skip the
+    // linear _findChannelByIndex scan that getUnreadCountForChannelIndex
+    // would otherwise redo. Matters when this runs once per row/comparator
+    // call on every list rebuild or sort.
+    return channel.unreadCount;
   }
 
   int getUnreadCountForChannelIndex(int channelIndex) {
@@ -4542,7 +4551,14 @@ class MeshCoreConnector extends ChangeNotifier {
     if (!_deferQueuedContactMessagesUntilContacts) return;
     if (_pendingInitialContactsSync && isConnected) {
       _pendingInitialContactsSync = false;
-      unawaited(getContacts());
+      // Incremental by lastmod: the locally cached contacts (loaded at app
+      // startup) are preserved and only entries the radio reports as changed
+      // since then are re-fetched, instead of re-pulling the full contact
+      // list (hundreds of entries on a busy mesh) on every connection. Falls
+      // back to a full sync naturally on a first-ever connect, since an
+      // empty cache yields lastmod 0. A full manual resync is still one tap
+      // away via "Refresh Contacts" in settings / pull-to-refresh.
+      unawaited(refreshContactsSinceLastmod());
       return;
     }
     unawaited(_processDeferredQueuedContactMessages());
