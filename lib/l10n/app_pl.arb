@@ -1408,7 +1408,7 @@
   "telemetry_mcuTemperatureLabel": "Temperatura MCU",
   "telemetry_temperatureLabel": "Temperatura",
   "telemetry_currentLabel": "Prąd",
-  "telemetry_batteryValue": "{percent}% / {volts} W",
+  "telemetry_batteryValue": "{percent}% / {volts}V",
   "@telemetry_batteryValue": {
     "placeholders": {
       "percent": {

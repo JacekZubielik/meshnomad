@@ -216,7 +216,7 @@ class MeshCoreApp extends StatelessWidget {
               NotificationService().setLocale(locale);
               return AnnotatedRegion<SystemUiOverlayStyle>(
                 value: _systemUiOverlayStyle(context),
-                child: child ?? const SizedBox.shrink(),
+                child: SelectionArea(child: child ?? const SizedBox.shrink()),
               );
             },
             home: (PlatformInfo.isWeb && !PlatformInfo.isChrome)

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import '../models/contact.dart';
 import '../models/path_history.dart';
@@ -18,10 +20,31 @@ class PathHistoryService extends ChangeNotifier {
 
   static const int _maxHistoryEntries = 100;
 
+  // Debounced persistence: a contact sync can call _addPathRecordInternal
+  // once per contact (dozens to hundreds in a row), and each call used to do
+  // a synchronous jsonEncode + SharedPreferences write + notifyListeners.
+  // That serialized disk I/O onto the same frame-handling call stack as the
+  // BLE sync, freezing the UI for the whole sync. Batch writes/notifies onto
+  // a short timer instead, keyed by the actual history snapshot (not just the
+  // contact key) so an LRU eviction before the timer fires can't drop it.
+  static const Duration _persistDebounce = Duration(milliseconds: 500);
+  final Map<String, ContactPathHistory> _pendingWrites = {};
+  Timer? _persistTimer;
+
   int _version = 0;
   int get version => _version;
 
   PathHistoryService(this._storage);
+
+  @override
+  void dispose() {
+    _persistTimer?.cancel();
+    for (final entry in _pendingWrites.entries) {
+      _storage.savePathHistory(entry.key, entry.value);
+    }
+    _pendingWrites.clear();
+    super.dispose();
+  }
 
   Future<void> initialize() async {
     // Load cached path histories on startup if needed
@@ -356,8 +379,21 @@ class PathHistoryService extends ChangeNotifier {
     _cache[contactPubKeyHex] = updatedHistory;
     _trackAccess(contactPubKeyHex);
     _evictIfNeeded();
-    _storage.savePathHistory(contactPubKeyHex, updatedHistory);
+    _scheduleWrite(contactPubKeyHex, updatedHistory);
+  }
 
+  void _scheduleWrite(String contactPubKeyHex, ContactPathHistory history) {
+    _pendingWrites[contactPubKeyHex] = history;
+    _persistTimer ??= Timer(_persistDebounce, _flushPendingWrites);
+  }
+
+  void _flushPendingWrites() {
+    _persistTimer = null;
+    final pending = Map<String, ContactPathHistory>.from(_pendingWrites);
+    _pendingWrites.clear();
+    for (final entry in pending.entries) {
+      _storage.savePathHistory(entry.key, entry.value);
+    }
     notifyListeners();
   }
 
