@@ -1594,37 +1594,37 @@ class _MapScreenState extends State<MapScreen> {
   Marker _buildNodeLabelMarker({required LatLng point, required String label}) {
     return Marker(
       point: point,
-      width: 120,
+      width: 140,
       height: 24,
       alignment: Alignment.topCenter,
       child: IgnorePointer(
         child: Transform.translate(
           offset: const Offset(0, -20),
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: _overlayPanelColor,
-                borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
-                border: Border.all(color: _overlayBorderColor),
-                boxShadow: [
-                  BoxShadow(
-                    color: _overlayShadowColor,
-                    blurRadius: 4,
-                    offset: Offset(0, 1),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: MeshTokens.of(context).monoBody(
-                  fontWeight: FontWeight.w700,
-                  color: _overlayPrimaryTextColor,
+          // No FittedBox (06-map-bugs.md): it scaled the whole card to fill
+          // a fixed box, so short names rendered LARGER than long ones
+          // despite sharing the same monoBody role. A fixed font size +
+          // the Text's own maxLines/ellipsis handles long names instead.
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: _overlayPanelColor,
+              borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
+              border: Border.all(color: _overlayBorderColor),
+              boxShadow: [
+                BoxShadow(
+                  color: _overlayShadowColor,
+                  blurRadius: 4,
+                  offset: Offset(0, 1),
                 ),
+              ],
+            ),
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: MeshTokens.of(context).monoBody(
+                fontWeight: FontWeight.w700,
+                color: _overlayPrimaryTextColor,
               ),
             ),
           ),
@@ -2769,6 +2769,10 @@ class _MapScreenState extends State<MapScreen> {
     final connector = context.read<MeshCoreConnector>();
     showMeshSheet(
       context,
+      // 06-map-bugs.md: default enableDrag competes with long-press text
+      // selection in the gesture arena — this sheet has selectable fields
+      // (Public Key, Path, …), so disable the whole-sheet drag-to-dismiss.
+      enableDrag: false,
       builder: (sheetContext) {
         final actions = <Widget>[];
         if (contact.type == advTypeChat) {

@@ -532,12 +532,14 @@ Future<T?> showMeshSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
   bool isScrollControlled = true,
+  bool enableDrag = true,
 }) {
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: isScrollControlled,
     useSafeArea: true,
     showDragHandle: false,
+    enableDrag: enableDrag,
     builder: (context) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: builder(context),
