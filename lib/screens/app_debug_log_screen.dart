@@ -153,7 +153,7 @@ class AppDebugLogScreen extends StatelessWidget {
   Color _levelColor(BuildContext context, AppDebugLogLevel level) {
     switch (level) {
       case AppDebugLogLevel.info:
-        return MeshTokens.of(context).blue;
+        return MeshTokens.of(context).primary;
       case AppDebugLogLevel.warning:
         return MeshTokens.of(context).warn;
       case AppDebugLogLevel.error:
@@ -167,7 +167,7 @@ class AppDebugLogScreen extends StatelessWidget {
         return Icon(
           Icons.info_outline,
           size: 18,
-          color: MeshTokens.of(context).blue,
+          color: MeshTokens.of(context).primary,
         );
       case AppDebugLogLevel.warning:
         return Icon(

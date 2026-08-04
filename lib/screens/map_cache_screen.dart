@@ -569,7 +569,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                       const SizedBox(height: 8),
                       LinearProgressIndicator(
                         value: progressValue,
-                        color: MeshTokens.of(context).blue,
+                        color: MeshTokens.of(context).primary,
                         backgroundColor: scheme.surfaceContainerHighest,
                       ),
                       const SizedBox(height: 4),

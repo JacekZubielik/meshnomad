@@ -168,7 +168,7 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
                             children: [
                               Icon(
                                 Icons.landscape,
-                                color: MeshTokens.of(context).blue,
+                                color: MeshTokens.of(context).primary,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -468,7 +468,7 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
       padding: const EdgeInsets.only(left: 14, right: 4),
       child: Row(
         children: [
-          Icon(Icons.landscape, color: MeshTokens.of(context).blue),
+          Icon(Icons.landscape, color: MeshTokens.of(context).primary),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

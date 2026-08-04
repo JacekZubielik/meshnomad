@@ -51,7 +51,7 @@ void main() {
       // A sample of the shortlisted color fields, not the full ~60
       // MeshTokens set.
       expect(find.text('Background'), findsOneWidget);
-      expect(find.text('Accent (blue)'), findsOneWidget);
+      expect(find.text('Primary accent'), findsOneWidget);
 
       // The font sizes section sits below the fold — scroll the ListView to
       // build it into the tree before asserting on it.
@@ -75,14 +75,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['blue'],
+        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
         isNull,
       );
 
-      await tester.tap(find.text('Accent (blue)'));
+      await tester.tap(find.text('Primary accent'));
       await tester.pumpAndSettle();
 
-      // Sheet is open — tap a preset swatch distinct from the default blue.
+      // Sheet is open — tap a preset swatch distinct from the default primary.
       final swatch = find.byKey(
         ValueKey('swatch_${const Color(0xFFEF4444).toARGB32()}'),
       );
@@ -90,7 +90,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['blue'],
+        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
         isNotNull,
       );
     });
@@ -106,7 +106,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Accent (blue)'));
+      await tester.tap(find.text('Primary accent'));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), 'not-a-color');
@@ -115,14 +115,14 @@ void main() {
 
       expect(find.text('Enter a hex color like #RRGGBB'), findsOneWidget);
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['blue'],
+        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
         isNull,
       );
     });
 
     testWidgets('reset icon clears a single override', (tester) async {
       await settingsService.setCustomColorOverride(
-        'blue',
+        'primary',
         const Color(0xFF112233),
       );
 
@@ -139,14 +139,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['blue'],
+        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
         isNull,
       );
     });
 
     testWidgets('reset all clears every override', (tester) async {
       await settingsService.setCustomColorOverride(
-        'blue',
+        'primary',
         const Color(0xFF112233),
       );
       await settingsService.setCustomFontSizeOverride('bodyMedium', 20);

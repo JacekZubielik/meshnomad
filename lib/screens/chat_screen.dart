@@ -1785,8 +1785,8 @@ class _MessageBubble extends StatelessWidget {
 Color _colorForName(BuildContext context, String name) {
   final tokens = MeshTokens.of(context);
   final hues = [
-    tokens.blue,
-    tokens.magenta,
+    tokens.primary,
+    tokens.secondary,
     tokens.signal,
     tokens.warn,
     const Color(0xFF8FA8F0),

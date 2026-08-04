@@ -15,8 +15,8 @@ class CustomStyleOverrides {
     'bg',
     'ink',
     'line',
-    'blue',
-    'magenta',
+    'primary',
+    'secondary',
     'signal',
     'warn',
     'alert',
@@ -57,9 +57,30 @@ class CustomStyleOverrides {
   factory CustomStyleOverrides.fromJson(Map<String, dynamic>? json) {
     if (json == null) return const CustomStyleOverrides();
     return CustomStyleOverrides(
-      colorOverrides: _parseIntMap(json['colors']),
+      colorOverrides: _migrateColorKeys(_parseIntMap(json['colors'])),
       fontSizeOverrides: _parseDoubleMap(json['font_sizes']),
     );
+  }
+
+  /// Renames legacy `blue`/`magenta` persisted keys to `primary`/`secondary`
+  /// (token rename, 01-token-rename.md) so overrides saved before the
+  /// rename keep applying to the same field after an app update.
+  static Map<String, int> _migrateColorKeys(Map<String, int> colors) {
+    if (!colors.containsKey('blue') && !colors.containsKey('magenta')) {
+      return colors;
+    }
+    final migrated = Map<String, int>.from(colors);
+    if (migrated.containsKey('blue') && !migrated.containsKey('primary')) {
+      migrated['primary'] = migrated.remove('blue')!;
+    } else {
+      migrated.remove('blue');
+    }
+    if (migrated.containsKey('magenta') && !migrated.containsKey('secondary')) {
+      migrated['secondary'] = migrated.remove('magenta')!;
+    } else {
+      migrated.remove('magenta');
+    }
+    return migrated;
   }
 
   static Map<String, int> _parseIntMap(dynamic raw) {

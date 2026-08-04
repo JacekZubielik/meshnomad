@@ -88,7 +88,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
         // Corner brackets on top
         ScannerCornerOverlay(
           scanWindowSize: 250,
-          borderColor: MeshTokens.of(context).blue,
+          borderColor: MeshTokens.of(context).primary,
           borderWidth: 2,
           cornerLength: 24,
         ),
@@ -202,7 +202,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                 children: [
                   Icon(
                     Icons.groups,
-                    color: MeshTokens.of(sheetContext).magenta,
+                    color: MeshTokens.of(sheetContext).secondary,
                     size: 32,
                   ),
                   const SizedBox(width: 14),
@@ -273,7 +273,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                     AvatarCircle(
                       name: community.name,
                       icon: Icons.groups,
-                      color: MeshTokens.of(sheetContext).magenta,
+                      color: MeshTokens.of(sheetContext).secondary,
                       size: 44,
                     ),
                     const SizedBox(width: 14),

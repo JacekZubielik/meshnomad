@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// MeshCore palette — high-contrast slate surfaces with sky-blue accents.
+/// MeshCore palette — high-contrast slate surfaces with sky-primary accents.
 class MeshPalette {
   MeshPalette._();
 
@@ -38,17 +38,17 @@ class MeshPalette {
   static const alertLine = Color(0x66EF4444);
 
   // Blue — primary map/app accent
-  static const blue = Color(0xFF0EA5E9);
-  static const blueDim = Color(0xFF0284C7);
-  static const blueBg = Color(0x290EA5E9);
-  static const blueLine = Color(0x800EA5E9);
+  static const primary = Color(0xFF0EA5E9);
+  static const primaryDim = Color(0xFF0284C7);
+  static const primaryBg = Color(0x290EA5E9);
+  static const primaryLine = Color(0x800EA5E9);
 
   // Magenta
-  static const magenta = Color(0xFFDE7FDB);
-  static const magentaBg = Color(0x1CDE7FDB);
-  static const magentaLine = Color(0x47DE7FDB);
+  static const secondary = Color(0xFFDE7FDB);
+  static const secondaryBg = Color(0x1CDE7FDB);
+  static const secondaryLine = Color(0x47DE7FDB);
 
-  // Me bubble (dusk blue)
+  // Me bubble (dusk primary)
   static const me = Color(0xFF0C4A6E);
   static const meBorder = Color(0xFF0369A1);
   static const meInk = Color(0xFFF0F9FF);
@@ -163,11 +163,11 @@ class MeshTheme {
 
   static ThemeData dark() {
     const scheme = ColorScheme.dark(
-      primary: MeshPalette.blue,
+      primary: MeshPalette.primary,
       onPrimary: Colors.white,
       primaryContainer: Color(0xFF075985),
       onPrimaryContainer: Colors.white,
-      secondary: MeshPalette.magenta,
+      secondary: MeshPalette.secondary,
       onSecondary: Colors.white,
       secondaryContainer: Color(0xFF331A33),
       onSecondaryContainer: Colors.white,
@@ -193,7 +193,7 @@ class MeshTheme {
       scrim: Colors.black54,
       inverseSurface: MeshPalette.ink,
       onInverseSurface: MeshPalette.bg,
-      inversePrimary: MeshPalette.blueDim,
+      inversePrimary: MeshPalette.primaryDim,
     );
     return _build(scheme, Brightness.dark);
   }

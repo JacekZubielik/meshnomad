@@ -161,7 +161,7 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                                             : Icons.download,
                                         size: 18,
                                         color: entry.outgoing
-                                            ? MeshTokens.of(context).blue
+                                            ? MeshTokens.of(context).primary
                                             : MeshTokens.of(context).signal,
                                       ),
                                       const SizedBox(width: 10),

@@ -146,7 +146,7 @@ class AirActivityDotState extends State<AirActivityDot> {
     final on = widget.active && _blink;
     final scheme = Theme.of(context).colorScheme;
     return PulseDot(
-      color: on ? MeshTokens.of(context).blue : scheme.outline,
+      color: on ? MeshTokens.of(context).primary : scheme.outline,
       size: 11,
       animate: false,
     );

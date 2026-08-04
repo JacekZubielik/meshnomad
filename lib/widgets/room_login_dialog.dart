@@ -238,7 +238,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
           AvatarCircle(
             name: repeater.name,
             size: 40,
-            color: MeshTokens.of(context).magenta,
+            color: MeshTokens.of(context).secondary,
             icon: Icons.group,
           ),
           const SizedBox(width: 12),

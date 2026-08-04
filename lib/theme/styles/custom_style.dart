@@ -16,8 +16,10 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       bg: colorFor('bg') != null ? Color(colorFor('bg')!) : null,
       ink: colorFor('ink') != null ? Color(colorFor('ink')!) : null,
       line: colorFor('line') != null ? Color(colorFor('line')!) : null,
-      blue: colorFor('blue') != null ? Color(colorFor('blue')!) : null,
-      magenta: colorFor('magenta') != null ? Color(colorFor('magenta')!) : null,
+      primary: colorFor('primary') != null ? Color(colorFor('primary')!) : null,
+      secondary: colorFor('secondary') != null
+          ? Color(colorFor('secondary')!)
+          : null,
       signal: colorFor('signal') != null ? Color(colorFor('signal')!) : null,
       warn: colorFor('warn') != null ? Color(colorFor('warn')!) : null,
       alert: colorFor('alert') != null ? Color(colorFor('alert')!) : null,

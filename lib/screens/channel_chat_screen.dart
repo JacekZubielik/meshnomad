@@ -1771,13 +1771,18 @@ class _RegionSelectDialogState extends State<_RegionSelectDialog> {
                   return ListTile(
                     leading: Icon(
                       Icons.landscape,
-                      color: selected ? MeshTokens.of(context).blue : null,
+                      color: selected ? MeshTokens.of(context).primary : null,
                     ),
                     title: Text(regions[index]),
                     trailing: selected
-                        ? Icon(Icons.check, color: MeshTokens.of(context).blue)
+                        ? Icon(
+                            Icons.check,
+                            color: MeshTokens.of(context).primary,
+                          )
                         : null,
-                    tileColor: selected ? MeshTokens.of(context).blueBg : null,
+                    tileColor: selected
+                        ? MeshTokens.of(context).primaryBg
+                        : null,
                     onTap: () {
                       // Tapping the already-selected region clears it.
                       context.read<MeshCoreConnector>().setChannelRegion(

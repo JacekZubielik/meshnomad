@@ -245,8 +245,8 @@ class AvatarCircle extends StatelessWidget {
   Color _colorFor(BuildContext context, String s) {
     final tokens = MeshTokens.of(context);
     final hues = [
-      tokens.blue,
-      tokens.magenta,
+      tokens.primary,
+      tokens.secondary,
       tokens.signal,
       tokens.warn,
       const Color(0xFF8FA8F0),

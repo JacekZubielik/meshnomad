@@ -55,11 +55,11 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       case advTypeRepeater:
         return MeshTokens.of(context).warn;
       case advTypeRoom:
-        return MeshTokens.of(context).magenta;
+        return MeshTokens.of(context).secondary;
       case advTypeSensor:
         return const Color(0xFF4ACCC4); // teal
       default:
-        return MeshTokens.of(context).blue;
+        return MeshTokens.of(context).primary;
     }
   }
 

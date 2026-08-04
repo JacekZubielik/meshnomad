@@ -19,7 +19,7 @@ void main() {
       final defaultTokens = MeshTokens.defaultTokens;
 
       final tokens = style.light.extension<MeshTokens>()!;
-      expect(tokens.blue, defaultTokens.blue);
+      expect(tokens.primary, defaultTokens.primary);
       expect(tokens.bg, defaultTokens.bg);
       expect(tokens.monoCaptionSize, defaultTokens.monoCaptionSize);
       expect(tokens.monoBodySize, defaultTokens.monoBodySize);
@@ -31,11 +31,11 @@ void main() {
 
     test('a present color override wins over the default', () {
       final style = buildCustomStyle(
-        const CustomStyleOverrides(colorOverrides: {'blue': 0xFF112233}),
+        const CustomStyleOverrides(colorOverrides: {'primary': 0xFF112233}),
       );
 
       final tokens = style.light.extension<MeshTokens>()!;
-      expect(tokens.blue, const Color(0xFF112233));
+      expect(tokens.primary, const Color(0xFF112233));
       // Unrelated fields stay at their default value.
       expect(tokens.ink, MeshTokens.defaultTokens.ink);
     });
@@ -79,12 +79,12 @@ void main() {
 
     test('light and dark share the same token overrides', () {
       final style = buildCustomStyle(
-        const CustomStyleOverrides(colorOverrides: {'blue': 0xFF445566}),
+        const CustomStyleOverrides(colorOverrides: {'primary': 0xFF445566}),
       );
 
       expect(
-        style.dark.extension<MeshTokens>()!.blue,
-        style.light.extension<MeshTokens>()!.blue,
+        style.dark.extension<MeshTokens>()!.primary,
+        style.light.extension<MeshTokens>()!.primary,
       );
     });
   });
