@@ -87,5 +87,40 @@ void main() {
         style.light.extension<MeshTokens>()!.primary,
       );
     });
+
+    test('an empty overrides set reproduces defaultStyle.dark.colorScheme '
+        'bit-for-bit (variant-automat parity)', () {
+      final style = buildCustomStyle(const CustomStyleOverrides());
+
+      expect(style.dark.colorScheme, defaultStyle.dark.colorScheme);
+    });
+
+    test('overriding primary reshapes MeshTokens.primaryBg and '
+        'ColorScheme.primary alike (C3)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(colorOverrides: {'primary': 0xFF00FF00}),
+      );
+
+      final tokens = style.dark.extension<MeshTokens>()!;
+      final primaryBgHsl = HSLColor.fromColor(tokens.primaryBg);
+      expect(primaryBgHsl.hue, closeTo(120.0, 1.0)); // green hue
+
+      expect(style.dark.colorScheme.primary, const Color(0xFF00FF00));
+      expect(style.light.colorScheme.primary, const Color(0xFF00FF00));
+    });
+
+    test('overriding bg also reshapes the surface layers used by '
+        'ColorScheme.surfaceContainer*', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(colorOverrides: {'bg': 0xFF1A0033}),
+      );
+
+      final tokens = style.dark.extension<MeshTokens>()!;
+      expect(style.dark.colorScheme.surface, tokens.bg);
+      expect(style.dark.colorScheme.surfaceContainerLow, tokens.bg1);
+      expect(style.dark.colorScheme.surfaceContainerHighest, tokens.bg3);
+      expect(style.dark.scaffoldBackgroundColor, tokens.bg);
+      expect(style.dark.appBarTheme.backgroundColor, tokens.bg);
+    });
   });
 }

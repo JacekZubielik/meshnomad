@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/custom_style_overrides.dart';
+import '../mesh_derived.dart';
 import '../mesh_tokens.dart';
 import '../style.dart';
 import 'default_style.dart';
@@ -11,20 +12,64 @@ import 'default_style.dart';
 MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
   MeshTokens applyColorOverrides(MeshTokens base) {
     int? colorFor(String key) => overrides.colorOverrides[key];
+    Color baseColorFor(String key, Color fallback) {
+      final value = colorFor(key);
+      return value != null ? Color(value) : fallback;
+    }
+
+    // Overridden (or default) base colors — every derived/variant token
+    // below is computed FROM THESE, not from the untouched defaults, so a
+    // user-picked accent also reshapes its dim/bg/line variants (A5/A6).
+    final bg = baseColorFor('bg', base.bg);
+    final ink = baseColorFor('ink', base.ink);
+    final line = baseColorFor('line', base.line);
+    final primary = baseColorFor('primary', base.primary);
+    final secondary = baseColorFor('secondary', base.secondary);
+    final signal = baseColorFor('signal', base.signal);
+    final warn = baseColorFor('warn', base.warn);
+    final alert = baseColorFor('alert', base.alert);
+    final me = baseColorFor('me', base.me);
+    final meInk = baseColorFor('meInk', base.meInk);
+
+    final bgLayers = deriveBgLayers(bg);
+    final inkLayers = deriveInkLayers(ink);
+    final lineLayers = deriveLineLayers(line);
+    final primaryVariants = derivePrimaryVariants(primary);
+    final secondaryVariants = deriveSecondaryVariants(secondary);
+    final warnVariants = deriveWarnVariants(warn);
+    final alertVariants = deriveAlertVariants(alert);
 
     return base.copyWith(
-      bg: colorFor('bg') != null ? Color(colorFor('bg')!) : null,
-      ink: colorFor('ink') != null ? Color(colorFor('ink')!) : null,
-      line: colorFor('line') != null ? Color(colorFor('line')!) : null,
-      primary: colorFor('primary') != null ? Color(colorFor('primary')!) : null,
-      secondary: colorFor('secondary') != null
-          ? Color(colorFor('secondary')!)
-          : null,
-      signal: colorFor('signal') != null ? Color(colorFor('signal')!) : null,
-      warn: colorFor('warn') != null ? Color(colorFor('warn')!) : null,
-      alert: colorFor('alert') != null ? Color(colorFor('alert')!) : null,
-      me: colorFor('me') != null ? Color(colorFor('me')!) : null,
-      meInk: colorFor('meInk') != null ? Color(colorFor('meInk')!) : null,
+      bg: bg,
+      bg1: bgLayers.bg1,
+      bg2: bgLayers.bg2,
+      bg3: bgLayers.bg3,
+      bg4: bgLayers.bg4,
+      ink: ink,
+      ink2: inkLayers.ink2,
+      ink3: inkLayers.ink3,
+      ink4: inkLayers.ink4,
+      line: line,
+      line2: lineLayers.line2,
+      line3: lineLayers.line3,
+      primary: primary,
+      primaryDim: primaryVariants.primaryDim,
+      primaryBg: primaryVariants.primaryBg,
+      primaryLine: primaryVariants.primaryLine,
+      secondary: secondary,
+      secondaryBg: secondaryVariants.secondaryBg,
+      secondaryLine: secondaryVariants.secondaryLine,
+      signal: signal,
+      signalDim: deriveSignalDim(signal),
+      warn: warn,
+      warnDim: warnVariants.warnDim,
+      warnBg: warnVariants.warnBg,
+      warnLine: warnVariants.warnLine,
+      alert: alert,
+      alertBg: alertVariants.alertBg,
+      alertLine: alertVariants.alertLine,
+      me: me,
+      meInk: meInk,
     );
   }
 
@@ -55,6 +100,52 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
   double monoBodySizeFor(MeshTokens base) =>
       overrides.fontSizeOverrides['monoBodySize'] ?? base.monoBodySize;
 
+  // C3: Material widgets reading `Theme.of(context).colorScheme.*` (not
+  // `MeshTokens.of(context)`) must also see the overridden accent — rebuild
+  // both brightness variants' [ColorScheme] from the same tokens, mirroring
+  // the field mapping in `mesh_theme.dart`'s `ColorScheme(...)` constructors
+  // (verified 2026-08-04, decision C3). Fields absent from [MeshTokens]
+  // (containers, `onX` contrast colors, shadow/scrim, …) are left untouched,
+  // inherited from [defaultStyle].
+  ColorScheme buildColorScheme(ColorScheme base, MeshTokens tokens) {
+    return base.copyWith(
+      primary: tokens.primary,
+      secondary: tokens.secondary,
+      tertiary: tokens.warn,
+      error: tokens.alert,
+      surface: tokens.bg,
+      onSurface: tokens.ink,
+      surfaceContainerLowest: tokens.bg,
+      surfaceContainerLow: tokens.bg1,
+      surfaceContainer: tokens.bg1,
+      surfaceContainerHigh: tokens.bg2,
+      surfaceContainerHighest: tokens.bg3,
+      onSurfaceVariant: tokens.ink2,
+      outline: tokens.line2,
+      outlineVariant: tokens.line,
+      inverseSurface: tokens.ink,
+      onInverseSurface: tokens.bg,
+      inversePrimary: tokens.primaryDim,
+    );
+  }
+
+  // Widget-themes that mesh_theme.dart bakes directly from the brightness's
+  // surface color at ThemeData-construction time — `ThemeData.copyWith`
+  // alone wouldn't refresh these, since they aren't looked up from
+  // `colorScheme` lazily (checked 2026-08-04 against `mesh_theme.dart`).
+  ThemeData applyColorSchemeAndChrome(ThemeData base, MeshTokens tokens) {
+    final scheme = buildColorScheme(base.colorScheme, tokens);
+    return base.copyWith(
+      colorScheme: scheme,
+      scaffoldBackgroundColor: scheme.surface,
+      canvasColor: scheme.surface,
+      appBarTheme: base.appBarTheme.copyWith(
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
+      ),
+    );
+  }
+
   // MeshTokens.defaultTokens is shared between light/dark (see comment on
   // that field) — still true after 01-font-role-infra.md, so one override
   // pass covers both brightness variants.
@@ -66,13 +157,19 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
   return MeshStyle(
     id: 'custom',
     displayName: 'Custom',
-    light: defaultStyle.light.copyWith(
-      extensions: [tokens],
-      textTheme: applyFontSizeOverrides(defaultStyle.light.textTheme),
+    light: applyColorSchemeAndChrome(
+      defaultStyle.light.copyWith(
+        extensions: [tokens],
+        textTheme: applyFontSizeOverrides(defaultStyle.light.textTheme),
+      ),
+      tokens,
     ),
-    dark: defaultStyle.dark.copyWith(
-      extensions: [tokens],
-      textTheme: applyFontSizeOverrides(defaultStyle.dark.textTheme),
+    dark: applyColorSchemeAndChrome(
+      defaultStyle.dark.copyWith(
+        extensions: [tokens],
+        textTheme: applyFontSizeOverrides(defaultStyle.dark.textTheme),
+      ),
+      tokens,
     ),
   );
 }
