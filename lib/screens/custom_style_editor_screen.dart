@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/l10n.dart';
 import '../models/custom_style_overrides.dart';
 import '../services/app_settings_service.dart';
 import '../theme/mesh_tokens.dart';
@@ -9,81 +11,340 @@ import '../theme/styles/default_style.dart';
 import '../widgets/mesh_ui.dart';
 
 class _ColorFieldSpec {
-  const _ColorFieldSpec(this.key, this.label, this.defaultColor);
+  const _ColorFieldSpec(this.key, this.defaultColor);
   final String key;
-  final String label;
   final Color defaultColor;
 }
 
 class _FontFieldSpec {
-  const _FontFieldSpec(this.key, this.label, this.defaultSize);
+  const _FontFieldSpec(this.key, this.defaultSize);
   final String key;
-  final String label;
   final double defaultSize;
 }
 
-final List<_ColorFieldSpec> _colorFields = [
-  _ColorFieldSpec('bg', 'Background', MeshTokens.defaultTokens.bg),
-  _ColorFieldSpec('ink', 'Text', MeshTokens.defaultTokens.ink),
-  _ColorFieldSpec('line', 'Divider', MeshTokens.defaultTokens.line),
+final List<_ColorFieldSpec> _baseColorFields = [
+  _ColorFieldSpec('bg', MeshTokens.defaultTokens.bg),
+  _ColorFieldSpec('ink', MeshTokens.defaultTokens.ink),
+  _ColorFieldSpec('line', MeshTokens.defaultTokens.line),
+  _ColorFieldSpec('primary', MeshTokens.defaultTokens.primary),
+  _ColorFieldSpec('secondary', MeshTokens.defaultTokens.secondary),
+  _ColorFieldSpec('signal', MeshTokens.defaultTokens.signal),
+  _ColorFieldSpec('warn', MeshTokens.defaultTokens.warn),
+  _ColorFieldSpec('alert', MeshTokens.defaultTokens.alert),
+  _ColorFieldSpec('me', MeshTokens.defaultTokens.me),
+  _ColorFieldSpec('meInk', MeshTokens.defaultTokens.meInk),
+];
+
+// A6/04-editor-ui.md: map/LOS palettes are semantically independent per
+// marker/state colors — every field is its own row, no automat.
+final List<_ColorFieldSpec> _mapColorFields = [
+  _ColorFieldSpec('mapOnline', MeshTokens.defaultTokens.mapOnline),
+  _ColorFieldSpec('mapOffline', MeshTokens.defaultTokens.mapOffline),
+  _ColorFieldSpec('mapStale', MeshTokens.defaultTokens.mapStale),
+  _ColorFieldSpec('mapRepeater', MeshTokens.defaultTokens.mapRepeater),
+  _ColorFieldSpec('mapRouter', MeshTokens.defaultTokens.mapRouter),
+  _ColorFieldSpec('mapBatteryLow', MeshTokens.defaultTokens.mapBatteryLow),
+  _ColorFieldSpec('mapCluster', MeshTokens.defaultTokens.mapCluster),
+  _ColorFieldSpec('mapSelected', MeshTokens.defaultTokens.mapSelected),
+  _ColorFieldSpec('mapSensor', MeshTokens.defaultTokens.mapSensor),
+  _ColorFieldSpec('mapShared', MeshTokens.defaultTokens.mapShared),
+  _ColorFieldSpec('mapPanelLight', MeshTokens.defaultTokens.mapPanelLight),
+  _ColorFieldSpec('mapPanelDark', MeshTokens.defaultTokens.mapPanelDark),
+  _ColorFieldSpec('mapTextPrimary', MeshTokens.defaultTokens.mapTextPrimary),
   _ColorFieldSpec(
-    'primary',
-    'Primary accent',
-    MeshTokens.defaultTokens.primary,
+    'mapTextSecondary',
+    MeshTokens.defaultTokens.mapTextSecondary,
   ),
+  _ColorFieldSpec('mapTextMuted', MeshTokens.defaultTokens.mapTextMuted),
+  _ColorFieldSpec('mapBorder', MeshTokens.defaultTokens.mapBorder),
   _ColorFieldSpec(
-    'secondary',
-    'Secondary accent',
-    MeshTokens.defaultTokens.secondary,
+    'mapMarkerOutline',
+    MeshTokens.defaultTokens.mapMarkerOutline,
   ),
-  _ColorFieldSpec('signal', 'Signal', MeshTokens.defaultTokens.signal),
-  _ColorFieldSpec('warn', 'Warning', MeshTokens.defaultTokens.warn),
-  _ColorFieldSpec('alert', 'Alert', MeshTokens.defaultTokens.alert),
-  _ColorFieldSpec('me', 'Message bubble', MeshTokens.defaultTokens.me),
+  _ColorFieldSpec('mapMarkerShadow', MeshTokens.defaultTokens.mapMarkerShadow),
+];
+
+final List<_ColorFieldSpec> _losColorFields = [
+  _ColorFieldSpec('losTerrain', MeshTokens.defaultTokens.losTerrain),
+  _ColorFieldSpec('losBeam', MeshTokens.defaultTokens.losBeam),
+  _ColorFieldSpec('losHorizon', MeshTokens.defaultTokens.losHorizon),
+  _ColorFieldSpec('losBlocked', MeshTokens.defaultTokens.losBlocked),
+  _ColorFieldSpec('losMarginal', MeshTokens.defaultTokens.losMarginal),
+  _ColorFieldSpec('losClear', MeshTokens.defaultTokens.losClear),
+  _ColorFieldSpec('losSelected', MeshTokens.defaultTokens.losSelected),
   _ColorFieldSpec(
-    'meInk',
-    'Message bubble text',
-    MeshTokens.defaultTokens.meInk,
+    'losChartBackground',
+    MeshTokens.defaultTokens.losChartBackground,
   ),
+  _ColorFieldSpec('losPanelDark', MeshTokens.defaultTokens.losPanelDark),
+  _ColorFieldSpec('losPanelLight', MeshTokens.defaultTokens.losPanelLight),
+  _ColorFieldSpec('losText', MeshTokens.defaultTokens.losText),
+  _ColorFieldSpec('losTextMuted', MeshTokens.defaultTokens.losTextMuted),
+  _ColorFieldSpec('losBorder', MeshTokens.defaultTokens.losBorder),
+  _ColorFieldSpec('losShadow', MeshTokens.defaultTokens.losShadow),
 ];
 
 final List<_FontFieldSpec> _fontFields = [
   _FontFieldSpec(
     'bodyMedium',
-    'Body',
     defaultStyle.light.textTheme.bodyMedium?.fontSize ?? 12,
   ),
   _FontFieldSpec(
     'bodySmall',
-    'Body (small)',
     defaultStyle.light.textTheme.bodySmall?.fontSize ?? 11,
   ),
   _FontFieldSpec(
     'titleSmall',
-    'Title',
     defaultStyle.light.textTheme.titleSmall?.fontSize ?? 13,
   ),
   _FontFieldSpec(
     'labelSmall',
-    'Label (small)',
     defaultStyle.light.textTheme.labelSmall?.fontSize ?? 10,
   ),
   _FontFieldSpec(
     'labelMedium',
-    'Label',
     defaultStyle.light.textTheme.labelMedium?.fontSize ?? 15,
   ),
-  _FontFieldSpec(
-    'monoCaptionSize',
-    'Mono caption',
-    MeshTokens.defaultTokens.monoCaptionSize,
-  ),
-  _FontFieldSpec(
-    'monoBodySize',
-    'Mono body',
-    MeshTokens.defaultTokens.monoBodySize,
-  ),
+  _FontFieldSpec('monoCaptionSize', MeshTokens.defaultTokens.monoCaptionSize),
+  _FontFieldSpec('monoBodySize', MeshTokens.defaultTokens.monoBodySize),
 ];
+
+/// Maps a color field key to its localized (label, subtitle) pair. One
+/// switch covering the base + map + LOS sections (04-editor-ui.md).
+(String, String) _colorFieldText(AppLocalizations l10n, String key) {
+  switch (key) {
+    case 'bg':
+      return (l10n.styleEditor_bg_label, l10n.styleEditor_bg_subtitle);
+    case 'ink':
+      return (l10n.styleEditor_ink_label, l10n.styleEditor_ink_subtitle);
+    case 'line':
+      return (l10n.styleEditor_line_label, l10n.styleEditor_line_subtitle);
+    case 'primary':
+      return (
+        l10n.styleEditor_primary_label,
+        l10n.styleEditor_primary_subtitle,
+      );
+    case 'secondary':
+      return (
+        l10n.styleEditor_secondary_label,
+        l10n.styleEditor_secondary_subtitle,
+      );
+    case 'signal':
+      return (l10n.styleEditor_signal_label, l10n.styleEditor_signal_subtitle);
+    case 'warn':
+      return (l10n.styleEditor_warn_label, l10n.styleEditor_warn_subtitle);
+    case 'alert':
+      return (l10n.styleEditor_alert_label, l10n.styleEditor_alert_subtitle);
+    case 'me':
+      return (l10n.styleEditor_me_label, l10n.styleEditor_me_subtitle);
+    case 'meInk':
+      return (l10n.styleEditor_meInk_label, l10n.styleEditor_meInk_subtitle);
+    case 'mapOnline':
+      return (
+        l10n.styleEditor_mapOnline_label,
+        l10n.styleEditor_mapOnline_subtitle,
+      );
+    case 'mapOffline':
+      return (
+        l10n.styleEditor_mapOffline_label,
+        l10n.styleEditor_mapOffline_subtitle,
+      );
+    case 'mapStale':
+      return (
+        l10n.styleEditor_mapStale_label,
+        l10n.styleEditor_mapStale_subtitle,
+      );
+    case 'mapRepeater':
+      return (
+        l10n.styleEditor_mapRepeater_label,
+        l10n.styleEditor_mapRepeater_subtitle,
+      );
+    case 'mapRouter':
+      return (
+        l10n.styleEditor_mapRouter_label,
+        l10n.styleEditor_mapRouter_subtitle,
+      );
+    case 'mapBatteryLow':
+      return (
+        l10n.styleEditor_mapBatteryLow_label,
+        l10n.styleEditor_mapBatteryLow_subtitle,
+      );
+    case 'mapCluster':
+      return (
+        l10n.styleEditor_mapCluster_label,
+        l10n.styleEditor_mapCluster_subtitle,
+      );
+    case 'mapSelected':
+      return (
+        l10n.styleEditor_mapSelected_label,
+        l10n.styleEditor_mapSelected_subtitle,
+      );
+    case 'mapSensor':
+      return (
+        l10n.styleEditor_mapSensor_label,
+        l10n.styleEditor_mapSensor_subtitle,
+      );
+    case 'mapShared':
+      return (
+        l10n.styleEditor_mapShared_label,
+        l10n.styleEditor_mapShared_subtitle,
+      );
+    case 'mapPanelLight':
+      return (
+        l10n.styleEditor_mapPanelLight_label,
+        l10n.styleEditor_mapPanelLight_subtitle,
+      );
+    case 'mapPanelDark':
+      return (
+        l10n.styleEditor_mapPanelDark_label,
+        l10n.styleEditor_mapPanelDark_subtitle,
+      );
+    case 'mapTextPrimary':
+      return (
+        l10n.styleEditor_mapTextPrimary_label,
+        l10n.styleEditor_mapTextPrimary_subtitle,
+      );
+    case 'mapTextSecondary':
+      return (
+        l10n.styleEditor_mapTextSecondary_label,
+        l10n.styleEditor_mapTextSecondary_subtitle,
+      );
+    case 'mapTextMuted':
+      return (
+        l10n.styleEditor_mapTextMuted_label,
+        l10n.styleEditor_mapTextMuted_subtitle,
+      );
+    case 'mapBorder':
+      return (
+        l10n.styleEditor_mapBorder_label,
+        l10n.styleEditor_mapBorder_subtitle,
+      );
+    case 'mapMarkerOutline':
+      return (
+        l10n.styleEditor_mapMarkerOutline_label,
+        l10n.styleEditor_mapMarkerOutline_subtitle,
+      );
+    case 'mapMarkerShadow':
+      return (
+        l10n.styleEditor_mapMarkerShadow_label,
+        l10n.styleEditor_mapMarkerShadow_subtitle,
+      );
+    case 'losTerrain':
+      return (
+        l10n.styleEditor_losTerrain_label,
+        l10n.styleEditor_losTerrain_subtitle,
+      );
+    case 'losBeam':
+      return (
+        l10n.styleEditor_losBeam_label,
+        l10n.styleEditor_losBeam_subtitle,
+      );
+    case 'losHorizon':
+      return (
+        l10n.styleEditor_losHorizon_label,
+        l10n.styleEditor_losHorizon_subtitle,
+      );
+    case 'losBlocked':
+      return (
+        l10n.styleEditor_losBlocked_label,
+        l10n.styleEditor_losBlocked_subtitle,
+      );
+    case 'losMarginal':
+      return (
+        l10n.styleEditor_losMarginal_label,
+        l10n.styleEditor_losMarginal_subtitle,
+      );
+    case 'losClear':
+      return (
+        l10n.styleEditor_losClear_label,
+        l10n.styleEditor_losClear_subtitle,
+      );
+    case 'losSelected':
+      return (
+        l10n.styleEditor_losSelected_label,
+        l10n.styleEditor_losSelected_subtitle,
+      );
+    case 'losChartBackground':
+      return (
+        l10n.styleEditor_losChartBackground_label,
+        l10n.styleEditor_losChartBackground_subtitle,
+      );
+    case 'losPanelDark':
+      return (
+        l10n.styleEditor_losPanelDark_label,
+        l10n.styleEditor_losPanelDark_subtitle,
+      );
+    case 'losPanelLight':
+      return (
+        l10n.styleEditor_losPanelLight_label,
+        l10n.styleEditor_losPanelLight_subtitle,
+      );
+    case 'losText':
+      return (
+        l10n.styleEditor_losText_label,
+        l10n.styleEditor_losText_subtitle,
+      );
+    case 'losTextMuted':
+      return (
+        l10n.styleEditor_losTextMuted_label,
+        l10n.styleEditor_losTextMuted_subtitle,
+      );
+    case 'losBorder':
+      return (
+        l10n.styleEditor_losBorder_label,
+        l10n.styleEditor_losBorder_subtitle,
+      );
+    case 'losShadow':
+      return (
+        l10n.styleEditor_losShadow_label,
+        l10n.styleEditor_losShadow_subtitle,
+      );
+    default:
+      throw ArgumentError('Unknown color field key: $key');
+  }
+}
+
+String _fontFieldLabel(AppLocalizations l10n, String key) {
+  switch (key) {
+    case 'bodyMedium':
+      return l10n.styleEditor_bodyMedium_label;
+    case 'bodySmall':
+      return l10n.styleEditor_bodySmall_label;
+    case 'titleSmall':
+      return l10n.styleEditor_titleSmall_label;
+    case 'labelSmall':
+      return l10n.styleEditor_labelSmall_label;
+    case 'labelMedium':
+      return l10n.styleEditor_labelMedium_label;
+    case 'monoCaptionSize':
+      return l10n.styleEditor_monoCaptionSize_label;
+    case 'monoBodySize':
+      return l10n.styleEditor_monoBodySize_label;
+    default:
+      throw ArgumentError('Unknown font field key: $key');
+  }
+}
+
+String _fontFieldSubtitle(AppLocalizations l10n, String key) {
+  switch (key) {
+    case 'bodyMedium':
+      return l10n.styleEditor_bodyMedium_subtitle;
+    case 'bodySmall':
+      return l10n.styleEditor_bodySmall_subtitle;
+    case 'titleSmall':
+      return l10n.styleEditor_titleSmall_subtitle;
+    case 'labelSmall':
+      return l10n.styleEditor_labelSmall_subtitle;
+    case 'labelMedium':
+      return l10n.styleEditor_labelMedium_subtitle;
+    case 'monoCaptionSize':
+      return l10n.styleEditor_monoCaptionSize_subtitle;
+    case 'monoBodySize':
+      return l10n.styleEditor_monoBodySize_subtitle;
+    default:
+      throw ArgumentError('Unknown font field key: $key');
+  }
+}
 
 // A compact preset palette for the color picker sheet — common hues at a
 // couple of lightness steps, not tied to any single brand.
@@ -114,10 +375,11 @@ const List<Color> _presetSwatches = [
   Color(0xFFEC4899),
 ];
 
-/// Editor for the "custom" [MeshStyle] — a shortlist of the most visible
-/// colors plus a handful of textTheme/mono font-size roles, layered on top
-/// of [defaultStyle] via [CustomStyleOverrides]. No new l10n keys (english
-/// strings only), matching the rest of the 2026-08 theme prompts.
+/// Editor for the "custom" [MeshStyle]: base colors, collapsible Map/LOS
+/// palettes (32 fields, A6), and font-size roles, layered on top of
+/// [defaultStyle] via [CustomStyleOverrides]. Every row supports per-field
+/// reset; "Reset all" at the bottom clears every override after
+/// confirmation (D1, 04-editor-ui.md).
 class CustomStyleEditorScreen extends StatelessWidget {
   const CustomStyleEditorScreen({super.key});
 
@@ -125,36 +387,29 @@ class CustomStyleEditorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AppSettingsService>(
       builder: (context, settingsService, child) {
+        final l10n = context.l10n;
+        final scheme = Theme.of(context).colorScheme;
         final overrides = settingsService.settings.customStyleOverrides;
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Custom style'),
+            title: Text(l10n.styleEditor_title),
             centerTitle: true,
-            actions: [
-              PopupMenuButton<void>(
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    onTap: settingsService.resetAllCustomOverrides,
-                    child: const Text('Reset all'),
-                  ),
-                ],
-              ),
-            ],
           ),
           body: SafeArea(
             top: false,
             child: ListView(
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
               children: [
-                const SectionHeader('Colors'),
+                SectionHeader(l10n.styleEditor_colorsSection),
                 MeshCard(
                   padding: EdgeInsets.zero,
                   child: Column(
                     children: [
-                      for (var i = 0; i < _colorFields.length; i++) ...[
+                      for (var i = 0; i < _baseColorFields.length; i++) ...[
                         if (i > 0) const Divider(height: 1, indent: 16),
                         _ColorFieldRow(
-                          spec: _colorFields[i],
+                          key: ValueKey('colorRow_${_baseColorFields[i].key}'),
+                          spec: _baseColorFields[i],
                           overrides: overrides,
                           settingsService: settingsService,
                         ),
@@ -162,7 +417,30 @@ class CustomStyleEditorScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SectionHeader('Font sizes'),
+                _ColorSectionExpansionTile(
+                  key: const ValueKey('mapSection'),
+                  title: l10n.styleEditor_mapSection,
+                  fields: _mapColorFields,
+                  overrides: overrides,
+                  settingsService: settingsService,
+                ),
+                _ColorSectionExpansionTile(
+                  key: const ValueKey('losSection'),
+                  title: l10n.styleEditor_losSection,
+                  fields: _losColorFields,
+                  overrides: overrides,
+                  settingsService: settingsService,
+                ),
+                SectionHeader(l10n.styleEditor_fontSizesSection),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Text(
+                    l10n.styleEditor_fontSizesIntro,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
                 MeshCard(
                   padding: EdgeInsets.zero,
                   child: Column(
@@ -170,12 +448,25 @@ class CustomStyleEditorScreen extends StatelessWidget {
                       for (var i = 0; i < _fontFields.length; i++) ...[
                         if (i > 0) const Divider(height: 1, indent: 16),
                         _FontFieldRow(
+                          key: ValueKey('fontRow_${_fontFields[i].key}'),
                           spec: _fontFields[i],
                           overrides: overrides,
                           settingsService: settingsService,
                         ),
                       ],
                     ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      key: const ValueKey('resetAllButton'),
+                      onPressed: () =>
+                          _confirmResetAll(context, settingsService),
+                      child: Text(l10n.styleEditor_resetAll),
+                    ),
                   ),
                 ),
               ],
@@ -185,10 +476,76 @@ class CustomStyleEditorScreen extends StatelessWidget {
       },
     );
   }
+
+  Future<void> _confirmResetAll(
+    BuildContext context,
+    AppSettingsService settingsService,
+  ) async {
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.styleEditor_resetAll),
+        content: Text(l10n.styleEditor_resetAllConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.common_cancel),
+          ),
+          TextButton(
+            key: const ValueKey('confirmResetAllButton'),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.styleEditor_resetAll),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await settingsService.resetAllCustomOverrides();
+    }
+  }
+}
+
+/// A collapsed-by-default section of color rows (Map/LOS palettes, A6).
+class _ColorSectionExpansionTile extends StatelessWidget {
+  const _ColorSectionExpansionTile({
+    super.key,
+    required this.title,
+    required this.fields,
+    required this.overrides,
+    required this.settingsService,
+  });
+
+  final String title;
+  final List<_ColorFieldSpec> fields;
+  final CustomStyleOverrides overrides;
+  final AppSettingsService settingsService;
+
+  @override
+  Widget build(BuildContext context) {
+    return MeshCard(
+      padding: EdgeInsets.zero,
+      child: ExpansionTile(
+        title: Text(title),
+        children: [
+          for (var i = 0; i < fields.length; i++) ...[
+            if (i > 0) const Divider(height: 1, indent: 16),
+            _ColorFieldRow(
+              key: ValueKey('colorRow_${fields[i].key}'),
+              spec: fields[i],
+              overrides: overrides,
+              settingsService: settingsService,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 class _ColorFieldRow extends StatelessWidget {
   const _ColorFieldRow({
+    super.key,
     required this.spec,
     required this.overrides,
     required this.settingsService,
@@ -200,36 +557,50 @@ class _ColorFieldRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final (label, subtitle) = _colorFieldText(l10n, spec.key);
     final override = overrides.colorOverrides[spec.key];
     final currentColor = override != null ? Color(override) : spec.defaultColor;
+    final scheme = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      title: Text(spec.label),
-      onTap: () => _openColorPicker(context, currentColor),
+      title: Text(label),
+      subtitle: Text(
+        subtitle,
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+      ),
+      onTap: () => _openColorPicker(context, currentColor, label),
       leading: Container(
         width: 28,
         height: 28,
         decoration: BoxDecoration(
           color: currentColor,
           shape: BoxShape.circle,
-          border: Border.all(color: Theme.of(context).colorScheme.outline),
+          border: Border.all(color: scheme.outline),
         ),
       ),
       trailing: override == null
           ? null
           : IconButton(
-              icon: const Icon(Icons.restart_alt, size: 20),
-              tooltip: 'Reset to default',
+              key: ValueKey('resetIcon_${spec.key}'),
+              icon: const Icon(Icons.settings_backup_restore, size: 20),
+              tooltip: l10n.styleEditor_resetTooltip,
               onPressed: () => settingsService.resetCustomOverride(spec.key),
             ),
     );
   }
 
-  void _openColorPicker(BuildContext context, Color currentColor) {
+  void _openColorPicker(
+    BuildContext context,
+    Color currentColor,
+    String title,
+  ) {
     showMeshSheet<void>(
       context,
       builder: (sheetContext) => _ColorPickerSheet(
-        title: spec.label,
+        title: title,
         currentColor: currentColor,
         onColorSelected: (color) {
           settingsService.setCustomColorOverride(spec.key, color);
@@ -279,7 +650,7 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
   void _applyHex() {
     final match = _hexPattern.firstMatch(_hexController.text.trim());
     if (match == null) {
-      setState(() => _hexError = 'Enter a hex color like #RRGGBB');
+      setState(() => _hexError = context.l10n.styleEditor_hexError);
       return;
     }
     final value = int.parse(match.group(1)!, radix: 16);
@@ -288,6 +659,7 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
       child: Column(
@@ -335,8 +707,8 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
                 LengthLimitingTextInputFormatter(7),
               ],
               decoration: InputDecoration(
-                labelText: 'Hex color',
-                hintText: '#RRGGBB',
+                labelText: l10n.styleEditor_hexLabel,
+                hintText: l10n.styleEditor_hexHint,
                 errorText: _hexError,
                 suffixIcon: IconButton(
                   key: const ValueKey('applyHexButton'),
@@ -359,6 +731,7 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
 
 class _FontFieldRow extends StatelessWidget {
   const _FontFieldRow({
+    super.key,
     required this.spec,
     required this.overrides,
     required this.settingsService,
@@ -373,14 +746,29 @@ class _FontFieldRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final label = _fontFieldLabel(l10n, spec.key);
+    final subtitle = _fontFieldSubtitle(l10n, spec.key);
     final override = overrides.fontSizeOverrides[spec.key];
     final currentSize = (override ?? spec.defaultSize).clamp(
       _minSize,
       _maxSize,
     );
+    final scheme = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      title: Text(spec.label),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label),
+          Text(
+            subtitle,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+          ),
+        ],
+      ),
       subtitle: Slider(
         value: currentSize,
         min: _minSize,
@@ -396,8 +784,9 @@ class _FontFieldRow extends StatelessWidget {
           Text('${currentSize.toStringAsFixed(1)}pt'),
           if (override != null)
             IconButton(
-              icon: const Icon(Icons.restart_alt, size: 20),
-              tooltip: 'Reset to default',
+              key: ValueKey('resetIcon_${spec.key}'),
+              icon: const Icon(Icons.settings_backup_restore, size: 20),
+              tooltip: l10n.styleEditor_resetTooltip,
               onPressed: () => settingsService.resetCustomOverride(spec.key),
             ),
         ],

@@ -4560,4 +4560,361 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get pathMap_unfollowPacket => 'パケットの追跡を解除';
+
+  @override
+  String get styleEditor_title => 'Custom style';
+
+  @override
+  String get styleEditor_colorsSection => 'Colors';
+
+  @override
+  String get styleEditor_fontSizesSection => 'Font sizes';
+
+  @override
+  String get styleEditor_fontSizesIntro =>
+      'Screen titles, buttons, and tabs scale together with the sizes above.';
+
+  @override
+  String get styleEditor_resetAll => 'Reset all';
+
+  @override
+  String get styleEditor_resetAllConfirm =>
+      'Restore all colors and sizes to their default values?';
+
+  @override
+  String get styleEditor_resetTooltip => 'Reset to default';
+
+  @override
+  String get styleEditor_hexLabel => 'Hex color';
+
+  @override
+  String get styleEditor_hexHint => '#RRGGBB';
+
+  @override
+  String get styleEditor_hexError => 'Enter a hex color like #RRGGBB';
+
+  @override
+  String get styleEditor_mapSection => 'Map';
+
+  @override
+  String get styleEditor_losSection => 'Line of sight (LOS)';
+
+  @override
+  String get styleEditor_bg_label => 'Background';
+
+  @override
+  String get styleEditor_bg_subtitle => 'Main app background';
+
+  @override
+  String get styleEditor_ink_label => 'Text';
+
+  @override
+  String get styleEditor_ink_subtitle => 'Primary text color';
+
+  @override
+  String get styleEditor_line_label => 'Lines';
+
+  @override
+  String get styleEditor_line_subtitle => 'Dividers and borders';
+
+  @override
+  String get styleEditor_primary_label => 'Primary accent';
+
+  @override
+  String get styleEditor_primary_subtitle => 'Buttons, active elements, map';
+
+  @override
+  String get styleEditor_secondary_label => 'Secondary accent';
+
+  @override
+  String get styleEditor_secondary_subtitle => 'Secondary elements, highlights';
+
+  @override
+  String get styleEditor_signal_label => 'Signal';
+
+  @override
+  String get styleEditor_signal_subtitle => 'Signal quality color (SNR)';
+
+  @override
+  String get styleEditor_warn_label => 'Warning';
+
+  @override
+  String get styleEditor_warn_subtitle => 'Warning messages';
+
+  @override
+  String get styleEditor_alert_label => 'Alert';
+
+  @override
+  String get styleEditor_alert_subtitle => 'Errors and critical states';
+
+  @override
+  String get styleEditor_me_label => 'Message bubble';
+
+  @override
+  String get styleEditor_me_subtitle => 'Own message background in chat';
+
+  @override
+  String get styleEditor_meInk_label => 'Bubble text';
+
+  @override
+  String get styleEditor_meInk_subtitle => 'Own message text color';
+
+  @override
+  String get styleEditor_mapOnline_label => 'Map: online node';
+
+  @override
+  String get styleEditor_mapOnline_subtitle => 'Active node marker';
+
+  @override
+  String get styleEditor_mapOffline_label => 'Map: offline node';
+
+  @override
+  String get styleEditor_mapOffline_subtitle => 'Unavailable node marker';
+
+  @override
+  String get styleEditor_mapStale_label => 'Map: stale node';
+
+  @override
+  String get styleEditor_mapStale_subtitle => 'Marker for a long-unseen node';
+
+  @override
+  String get styleEditor_mapRepeater_label => 'Map: repeater';
+
+  @override
+  String get styleEditor_mapRepeater_subtitle => 'Repeater (RPT) node marker';
+
+  @override
+  String get styleEditor_mapRouter_label => 'Map: room/router';
+
+  @override
+  String get styleEditor_mapRouter_subtitle => 'Room-type node marker';
+
+  @override
+  String get styleEditor_mapBatteryLow_label => 'Map: low battery';
+
+  @override
+  String get styleEditor_mapBatteryLow_subtitle =>
+      'Marker for a node with low battery';
+
+  @override
+  String get styleEditor_mapCluster_label => 'Map: cluster';
+
+  @override
+  String get styleEditor_mapCluster_subtitle =>
+      'Grouped markers when zoomed out';
+
+  @override
+  String get styleEditor_mapSelected_label => 'Map: selected node';
+
+  @override
+  String get styleEditor_mapSelected_subtitle =>
+      'Marker for the currently selected node';
+
+  @override
+  String get styleEditor_mapSensor_label => 'Map: sensor';
+
+  @override
+  String get styleEditor_mapSensor_subtitle => 'Sensor-type node marker';
+
+  @override
+  String get styleEditor_mapShared_label => 'Map: shared pin';
+
+  @override
+  String get styleEditor_mapShared_subtitle =>
+      'Marker for a location shared in chat';
+
+  @override
+  String get styleEditor_mapPanelLight_label => 'Map: light panel';
+
+  @override
+  String get styleEditor_mapPanelLight_subtitle =>
+      'Overlay panel background (light variant)';
+
+  @override
+  String get styleEditor_mapPanelDark_label => 'Map: dark panel';
+
+  @override
+  String get styleEditor_mapPanelDark_subtitle =>
+      'Overlay panel background (dark variant)';
+
+  @override
+  String get styleEditor_mapTextPrimary_label => 'Map: primary text';
+
+  @override
+  String get styleEditor_mapTextPrimary_subtitle => 'Text on map overlays';
+
+  @override
+  String get styleEditor_mapTextSecondary_label => 'Map: secondary text';
+
+  @override
+  String get styleEditor_mapTextSecondary_subtitle =>
+      'Less important text on overlays';
+
+  @override
+  String get styleEditor_mapTextMuted_label => 'Map: muted text';
+
+  @override
+  String get styleEditor_mapTextMuted_subtitle =>
+      'Least important text on overlays';
+
+  @override
+  String get styleEditor_mapBorder_label => 'Map: borders';
+
+  @override
+  String get styleEditor_mapBorder_subtitle =>
+      'Panel and label borders on the map';
+
+  @override
+  String get styleEditor_mapMarkerOutline_label => 'Map: marker outline';
+
+  @override
+  String get styleEditor_mapMarkerOutline_subtitle =>
+      'Outline around node markers';
+
+  @override
+  String get styleEditor_mapMarkerShadow_label => 'Map: marker shadow';
+
+  @override
+  String get styleEditor_mapMarkerShadow_subtitle => 'Shadow under markers';
+
+  @override
+  String get styleEditor_losTerrain_label => 'LOS: terrain';
+
+  @override
+  String get styleEditor_losTerrain_subtitle =>
+      'Terrain profile fill on the chart';
+
+  @override
+  String get styleEditor_losBeam_label => 'LOS: beam';
+
+  @override
+  String get styleEditor_losBeam_subtitle => 'Radio beam line between points';
+
+  @override
+  String get styleEditor_losHorizon_label => 'LOS: horizon';
+
+  @override
+  String get styleEditor_losHorizon_subtitle => 'Horizon line on the chart';
+
+  @override
+  String get styleEditor_losBlocked_label => 'LOS: blocked';
+
+  @override
+  String get styleEditor_losBlocked_subtitle =>
+      'Color when terrain blocks the link';
+
+  @override
+  String get styleEditor_losMarginal_label => 'LOS: marginal';
+
+  @override
+  String get styleEditor_losMarginal_subtitle =>
+      'Color when the link is marginal';
+
+  @override
+  String get styleEditor_losClear_label => 'LOS: clear';
+
+  @override
+  String get styleEditor_losClear_subtitle =>
+      'Color when the line of sight is clear';
+
+  @override
+  String get styleEditor_losSelected_label => 'LOS: selected point';
+
+  @override
+  String get styleEditor_losSelected_subtitle =>
+      'Selected point on the map/chart';
+
+  @override
+  String get styleEditor_losChartBackground_label => 'LOS: chart background';
+
+  @override
+  String get styleEditor_losChartBackground_subtitle =>
+      'Terrain profile chart background';
+
+  @override
+  String get styleEditor_losPanelDark_label => 'LOS: dark panel';
+
+  @override
+  String get styleEditor_losPanelDark_subtitle =>
+      'Panel background (dark variant)';
+
+  @override
+  String get styleEditor_losPanelLight_label => 'LOS: light panel';
+
+  @override
+  String get styleEditor_losPanelLight_subtitle =>
+      'Panel background (light variant)';
+
+  @override
+  String get styleEditor_losText_label => 'LOS: text';
+
+  @override
+  String get styleEditor_losText_subtitle => 'Text on LOS panels';
+
+  @override
+  String get styleEditor_losTextMuted_label => 'LOS: muted text';
+
+  @override
+  String get styleEditor_losTextMuted_subtitle =>
+      'Less important text on panels';
+
+  @override
+  String get styleEditor_losBorder_label => 'LOS: borders';
+
+  @override
+  String get styleEditor_losBorder_subtitle => 'LOS panel borders';
+
+  @override
+  String get styleEditor_losShadow_label => 'LOS: shadow';
+
+  @override
+  String get styleEditor_losShadow_subtitle => 'LOS panel shadows';
+
+  @override
+  String get styleEditor_bodyMedium_label => 'Body text';
+
+  @override
+  String get styleEditor_bodyMedium_subtitle =>
+      'Most text: settings labels, list content';
+
+  @override
+  String get styleEditor_bodySmall_label => 'Secondary text';
+
+  @override
+  String get styleEditor_bodySmall_subtitle => 'Subtitles and descriptions';
+
+  @override
+  String get styleEditor_titleSmall_label => 'Section titles';
+
+  @override
+  String get styleEditor_titleSmall_subtitle =>
+      'Section headers and dialog titles';
+
+  @override
+  String get styleEditor_labelSmall_label => 'Small label';
+
+  @override
+  String get styleEditor_labelSmall_subtitle =>
+      'Small labels: filters, stats, chart axes';
+
+  @override
+  String get styleEditor_labelMedium_label => 'Label';
+
+  @override
+  String get styleEditor_labelMedium_subtitle =>
+      'List names, bottom bar, repeater section headers';
+
+  @override
+  String get styleEditor_monoCaptionSize_label => 'Mono — captions';
+
+  @override
+  String get styleEditor_monoCaptionSize_subtitle =>
+      'Small technical text: IDs, coordinates, logs';
+
+  @override
+  String get styleEditor_monoBodySize_label => 'Mono — body';
+
+  @override
+  String get styleEditor_monoBodySize_subtitle =>
+      'Technical text: keys, RF data, map labels';
 }

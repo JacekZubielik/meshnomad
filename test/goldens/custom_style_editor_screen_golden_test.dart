@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:meshcore_open/l10n/app_localizations.dart';
 import 'package:meshcore_open/screens/custom_style_editor_screen.dart';
 import 'package:meshcore_open/services/app_settings_service.dart';
 import 'package:meshcore_open/storage/prefs_manager.dart';
@@ -32,6 +33,8 @@ void main() {
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: defaultStyle.dark,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: const CustomStyleEditorScreen(),
           ),
         ),

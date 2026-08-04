@@ -9,8 +9,13 @@ class CustomStyleOverrides {
     this.fontSizeOverrides = const {},
   });
 
-  /// The closed set of `MeshTokens` color fields the editor UI exposes —
-  /// the most visible colors, not the full map/LOS palette.
+  /// The closed set of `MeshTokens` color fields the editor UI exposes.
+  /// The first 10 are the base/most-visible colors; `*Dim`/`*Bg`/`*Line`
+  /// variants and background/text/divider layers are NOT here — they're
+  /// computed automatically from these bases (02-variant-automat.md).
+  /// The 32 `map*`/`los*` entries are semantically independent (each node
+  /// type / LOS state is its own color) and are applied 1:1, no automat
+  /// (A6, 04-editor-ui.md).
   static const List<String> editableColorKeys = [
     'bg',
     'ink',
@@ -22,6 +27,38 @@ class CustomStyleOverrides {
     'alert',
     'me',
     'meInk',
+    'mapOnline',
+    'mapOffline',
+    'mapStale',
+    'mapRepeater',
+    'mapRouter',
+    'mapBatteryLow',
+    'mapCluster',
+    'mapSelected',
+    'mapSensor',
+    'mapShared',
+    'mapPanelLight',
+    'mapPanelDark',
+    'mapTextPrimary',
+    'mapTextSecondary',
+    'mapTextMuted',
+    'mapBorder',
+    'mapMarkerOutline',
+    'mapMarkerShadow',
+    'losTerrain',
+    'losBeam',
+    'losHorizon',
+    'losBlocked',
+    'losMarginal',
+    'losClear',
+    'losSelected',
+    'losChartBackground',
+    'losPanelDark',
+    'losPanelLight',
+    'losText',
+    'losTextMuted',
+    'losBorder',
+    'losShadow',
   ];
 
   /// The closed set of `textTheme` roles / `MeshTokens` mono-size fields the

@@ -122,5 +122,21 @@ void main() {
       expect(style.dark.scaffoldBackgroundColor, tokens.bg);
       expect(style.dark.appBarTheme.backgroundColor, tokens.bg);
     });
+
+    test('overriding a map/LOS color applies it 1:1 with no automat '
+        '(04-editor-ui.md)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(
+          colorOverrides: {'mapOnline': 0xFF00FF00, 'losBeam': 0xFF123456},
+        ),
+      );
+
+      final tokens = style.dark.extension<MeshTokens>()!;
+      expect(tokens.mapOnline, const Color(0xFF00FF00));
+      expect(tokens.losBeam, const Color(0xFF123456));
+      // Unrelated map/LOS fields stay at their default value.
+      expect(tokens.mapOffline, MeshTokens.defaultTokens.mapOffline);
+      expect(tokens.losTerrain, MeshTokens.defaultTokens.losTerrain);
+    });
   });
 }
