@@ -1753,7 +1753,7 @@
   "pathTrace_failed": "Śledzenie ścieżki nie powiodło się.",
   "pathTrace_notAvailable": "Ścieżka śledzenia niedostępna.",
   "contacts_pathTrace": "Śledzenie Ścieżek",
-  "contacts_ping": "Pingować",
+  "contacts_ping": "Ping",
   "contacts_repeaterPathTrace": "Śledzenie ścieżki do przekaźnika",
   "contacts_roomPathTrace": "Śledzenie ścieżki do serwera pokojowego",
   "contacts_roomPing": "Pinguj serwer pokoju",
