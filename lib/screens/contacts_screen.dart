@@ -1676,10 +1676,9 @@ class _ContactTile extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
+                        child: SelectableText(
                           contact.name,
                           maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontWeight: unreadCount > 0
                                 ? FontWeight.w700
@@ -1714,13 +1713,12 @@ class _ContactTile extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
+                        child: SelectableText(
                           contact.pathLabel(
                             context.l10n,
                             pathHashByteWidth: pathHashByteWidth,
                           ),
                           maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12,
                             color: scheme.onSurfaceVariant,

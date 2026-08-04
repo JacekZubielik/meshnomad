@@ -376,37 +376,33 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
       ),
       body: SafeArea(
         top: false,
-        child: RefreshIndicator(
-          onRefresh: () =>
-              _isAutoRefreshEnabled ? Future.value() : _loadTelemetry(),
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              if (!_isLoaded &&
-                  !_hasData &&
-                  (_parsedTelemetry == null || _parsedTelemetry!.isEmpty))
-                Center(
-                  child: Text(
-                    l10n.telemetry_noData,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: scheme.onSurfaceVariant,
-                    ),
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (!_isLoaded &&
+                !_hasData &&
+                (_parsedTelemetry == null || _parsedTelemetry!.isEmpty))
+              Center(
+                child: Text(
+                  l10n.telemetry_noData,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: scheme.onSurfaceVariant,
                   ),
                 ),
-              if ((_isLoaded || _hasData) &&
-                  _parsedTelemetry != null &&
-                  _parsedTelemetry!.isNotEmpty)
-                for (final entry in _parsedTelemetry ?? [])
-                  _buildChannelInfoCard(
-                    entry['values'],
-                    l10n.telemetry_channelTitle(entry['channel']),
-                    entry['channel'],
-                    isImperialUnits,
-                  ),
-              _buildAutoRefreshCard(),
-            ],
-          ),
+              ),
+            if ((_isLoaded || _hasData) &&
+                _parsedTelemetry != null &&
+                _parsedTelemetry!.isNotEmpty)
+              for (final entry in _parsedTelemetry ?? [])
+                _buildChannelInfoCard(
+                  entry['values'],
+                  l10n.telemetry_channelTitle(entry['channel']),
+                  entry['channel'],
+                  isImperialUnits,
+                ),
+            _buildAutoRefreshCard(),
+          ],
         ),
       ),
     );
@@ -902,7 +898,7 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Text(
+            child: SelectableText(
               label,
               style: TextStyle(
                 color: scheme.onSurfaceVariant,
@@ -912,7 +908,7 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
+          SelectableText(
             value,
             style: MeshTokens.of(
               context,

@@ -319,21 +319,18 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
       ),
       body: SafeArea(
         top: false,
-        child: RefreshIndicator(
-          onRefresh: _loadNeighbors,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            children: [
-              if (!_isLoaded &&
-                  !_hasData &&
-                  (_parsedNeighbors == null || _parsedNeighbors!.isEmpty))
-                EmptyState(icon: Icons.wifi_find, title: l10n.neighbors_noData),
-              if (_isLoaded ||
-                  _hasData &&
-                      !(_parsedNeighbors == null || _parsedNeighbors!.isEmpty))
-                _buildNeighborsList(connector),
-            ],
-          ),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          children: [
+            if (!_isLoaded &&
+                !_hasData &&
+                (_parsedNeighbors == null || _parsedNeighbors!.isEmpty))
+              EmptyState(icon: Icons.wifi_find, title: l10n.neighbors_noData),
+            if (_isLoaded ||
+                _hasData &&
+                    !(_parsedNeighbors == null || _parsedNeighbors!.isEmpty))
+              _buildNeighborsList(connector),
+          ],
         ),
       ),
     );
@@ -394,20 +391,18 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                SelectableText(
                   name,
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontWeight: FontWeight.w500,
                     fontSize: 15,
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
+                SelectableText(
                   heardLabel,
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -423,7 +418,7 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
             children: [
               SignalBars(snr: snr, height: 16),
               const SizedBox(height: 4),
-              Text(
+              SelectableText(
                 '${snr.toStringAsFixed(1)} dB',
                 style: MeshTokens.of(context).mono(
                   fontSize: 11,

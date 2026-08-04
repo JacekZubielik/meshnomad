@@ -619,7 +619,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                     bottom: 4,
                                   )
                                 : EdgeInsets.zero,
-                            child: Text(
+                            child: SelectableText(
                               message.senderName,
                               style: TextStyle(
                                 fontSize: 13 * textScale,
@@ -699,7 +699,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                 ),
                                 const SizedBox(width: 4),
                                 Flexible(
-                                  child: Text(
+                                  child: SelectableText(
                                     context.l10n.channels_via(
                                       _formatPathPrefixes(
                                         displayPath,
@@ -728,7 +728,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
+                              SelectableText(
                                 _formatTime(context, message.timestamp),
                                 style: MeshTokens.of(context).mono(
                                   fontSize: 10 * textScale,
@@ -743,7 +743,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                   color: metaColor,
                                 ),
                                 const SizedBox(width: 2),
-                                Text(
+                                SelectableText(
                                   '${message.repeatCount}',
                                   style: MeshTokens.of(context).mono(
                                     fontSize: 10 * textScale,
