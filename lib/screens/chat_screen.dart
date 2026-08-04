@@ -203,8 +203,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Text(
                       '$pathLabel • $unreadLabel',
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 11,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.normal,
                         decoration: TextDecoration.underline,
                         decorationStyle: TextDecorationStyle.dotted,
@@ -1412,11 +1411,11 @@ class _MessageBubble extends StatelessWidget {
                                   : EdgeInsets.zero,
                               child: Text(
                                 senderName,
-                                style: MeshTokens.of(context).mono(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: _colorForName(context, senderName),
-                                ),
+                                style: MeshTokens.of(context)
+                                    .monoCaption(
+                                      color: _colorForName(context, senderName),
+                                    )
+                                    .copyWith(fontWeight: FontWeight.w700),
                               ),
                             ),
                             if (gifId == null) const SizedBox(height: 2),
@@ -1455,14 +1454,38 @@ class _MessageBubble extends StatelessWidget {
                                   child: TranslatedMessageContent(
                                     displayText: translatedDisplayText,
                                     originalText: originalDisplayText,
-                                    style: TextStyle(
-                                      color: textColor,
-                                      fontSize: bodyFontSize * textScale,
-                                    ),
-                                    originalStyle: TextStyle(
-                                      color: textColor.withValues(alpha: 0.72),
-                                      fontSize: bodyFontSize * textScale,
-                                    ),
+                                    style:
+                                        (Theme.of(
+                                                  context,
+                                                ).textTheme.titleSmall ??
+                                                const TextStyle())
+                                            .copyWith(
+                                              color: textColor,
+                                              fontSize:
+                                                  (Theme.of(context)
+                                                          .textTheme
+                                                          .titleSmall
+                                                          ?.fontSize ??
+                                                      bodyFontSize) *
+                                                  textScale,
+                                            ),
+                                    originalStyle:
+                                        (Theme.of(
+                                                  context,
+                                                ).textTheme.titleSmall ??
+                                                const TextStyle())
+                                            .copyWith(
+                                              color: textColor.withValues(
+                                                alpha: 0.72,
+                                              ),
+                                              fontSize:
+                                                  (Theme.of(context)
+                                                          .textTheme
+                                                          .titleSmall
+                                                          ?.fontSize ??
+                                                      bodyFontSize) *
+                                                  textScale,
+                                            ),
                                     onSecondaryTap: PlatformInfo.isDesktop
                                         ? onLongPress
                                         : null,
@@ -1487,7 +1510,9 @@ class _MessageBubble extends StatelessWidget {
                                       .maxMessageRetries,
                                 ),
                                 style: MeshTokens.of(context).mono(
-                                  fontSize: 9.5 * textScale,
+                                  fontSize:
+                                      MeshTokens.of(context).monoCaptionSize *
+                                      textScale,
                                   color: metaColor,
                                 ),
                               ),
@@ -1510,7 +1535,9 @@ class _MessageBubble extends StatelessWidget {
                                 Text(
                                   _formatTime(message.timestamp),
                                   style: MeshTokens.of(context).mono(
-                                    fontSize: 10 * textScale,
+                                    fontSize:
+                                        MeshTokens.of(context).monoCaptionSize *
+                                        textScale,
                                     color: metaColor,
                                   ),
                                 ),
@@ -1543,7 +1570,11 @@ class _MessageBubble extends StatelessWidget {
                                   Text(
                                     '${(message.tripTimeMs! / 1000).toStringAsFixed(1)}s',
                                     style: MeshTokens.of(context).mono(
-                                      fontSize: 9 * textScale,
+                                      fontSize:
+                                          MeshTokens.of(
+                                            context,
+                                          ).monoCaptionSize *
+                                          textScale,
                                       color: isOutgoing
                                           ? metaColor
                                           : scheme.tertiary,
@@ -1620,16 +1651,35 @@ class _MessageBubble extends StatelessWidget {
             children: [
               Text(
                 context.l10n.chat_poiShared,
-                style: TextStyle(
-                  color: textColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14 * textScale,
-                ),
+                style:
+                    (Theme.of(context).textTheme.titleSmall ??
+                            const TextStyle())
+                        .copyWith(
+                          color: textColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize:
+                              (Theme.of(
+                                    context,
+                                  ).textTheme.titleSmall?.fontSize ??
+                                  14) *
+                              textScale,
+                        ),
               ),
               if (poi.label.isNotEmpty)
                 Text(
                   poi.label,
-                  style: TextStyle(color: metaColor, fontSize: 12 * textScale),
+                  style:
+                      (Theme.of(context).textTheme.bodyMedium ??
+                              const TextStyle())
+                          .copyWith(
+                            color: metaColor,
+                            fontSize:
+                                (Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.fontSize ??
+                                    12) *
+                                textScale,
+                          ),
                 ),
             ],
           ),
@@ -1690,8 +1740,7 @@ class _MessageBubble extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       '$count',
-                      style: MeshTokens.of(context).mono(
-                        fontSize: 11,
+                      style: MeshTokens.of(context).monoBody(
                         fontWeight: FontWeight.w700,
                         color: scheme.onSurface,
                       ),

@@ -126,7 +126,9 @@ class ByteCountedTextField extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: Text(
                     '$usedBytes / $maxBytes',
-                    style: TextStyle(fontSize: 11, color: counterColor),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: counterColor),
                   ),
                 ),
               ),

@@ -84,8 +84,7 @@ class ChromeRequiredScreen extends StatelessWidget {
                       Flexible(
                         child: Text(
                           l10n.chrome_bluetoothRequiresChromium,
-                          style: MeshTokens.of(context).mono(
-                            fontSize: 12,
+                          style: MeshTokens.of(context).monoBody(
                             color: scheme.onSecondaryContainer,
                             fontWeight: FontWeight.w500,
                           ),

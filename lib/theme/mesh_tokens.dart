@@ -77,6 +77,8 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.lg,
     required this.xl,
     required this.pill,
+    required this.monoCaptionSize,
+    required this.monoBodySize,
   });
 
   final Color bg;
@@ -151,6 +153,14 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   final double lg;
   final double xl;
   final double pill;
+
+  /// Dominant `.mono(fontSize: ...)` size for secondary/muted mono text
+  /// (metadata, badges) — see docs/superpowers/prompts/2026-08-02-custom-
+  /// style-editor/01-font-role-infra.md.
+  final double monoCaptionSize;
+
+  /// Dominant `.mono(fontSize: ...)` size for primary-colored mono content.
+  final double monoBodySize;
 
   /// The default style's tokens — identical values to today's
   /// [MeshPalette]/[MapPalette]/[LosPalette]/[MeshRadii]. The same instance
@@ -228,6 +238,8 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     lg: MeshRadii.lg,
     xl: MeshRadii.xl,
     pill: MeshRadii.pill,
+    monoCaptionSize: 11,
+    monoBodySize: 13,
   );
 
   static MeshTokens of(BuildContext context) {
@@ -245,6 +257,35 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       fontFamily: MeshFonts.mono,
       fontFamilyFallback: MeshFonts.monoFallback,
       fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing ?? 0.2,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+  }
+
+  /// Mono text style at [monoCaptionSize] — secondary/muted mono content.
+  TextStyle monoCaption({Color? color, double? letterSpacing}) {
+    return TextStyle(
+      fontFamily: MeshFonts.mono,
+      fontFamilyFallback: MeshFonts.monoFallback,
+      fontSize: monoCaptionSize,
+      color: color,
+      letterSpacing: letterSpacing ?? 0.2,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+  }
+
+  /// Mono text style at [monoBodySize] — primary-colored mono content.
+  TextStyle monoBody({
+    Color? color,
+    FontWeight? fontWeight,
+    double? letterSpacing,
+  }) {
+    return TextStyle(
+      fontFamily: MeshFonts.mono,
+      fontFamilyFallback: MeshFonts.monoFallback,
+      fontSize: monoBodySize,
       fontWeight: fontWeight,
       color: color,
       letterSpacing: letterSpacing ?? 0.2,
@@ -373,6 +414,8 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     double? lg,
     double? xl,
     double? pill,
+    double? monoCaptionSize,
+    double? monoBodySize,
   }) {
     return MeshTokens(
       bg: bg ?? this.bg,
@@ -444,6 +487,8 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       lg: lg ?? this.lg,
       xl: xl ?? this.xl,
       pill: pill ?? this.pill,
+      monoCaptionSize: monoCaptionSize ?? this.monoCaptionSize,
+      monoBodySize: monoBodySize ?? this.monoBodySize,
     );
   }
 

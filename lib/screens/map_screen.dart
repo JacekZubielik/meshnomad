@@ -1545,11 +1545,14 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               Text(
                 '$count',
-                style: MeshTokens.of(context).mono(
-                  fontSize: count >= 100 ? 11.5 : 13.5,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
+                style: count >= 100
+                    ? MeshTokens.of(context)
+                          .monoCaption(color: Colors.white)
+                          .copyWith(fontWeight: FontWeight.w800)
+                    : MeshTokens.of(context).monoBody(
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
               ),
               if (online > 0)
                 Container(
@@ -1618,8 +1621,7 @@ class _MapScreenState extends State<MapScreen> {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: MeshTokens.of(context).mono(
-                  fontSize: 10,
+                style: MeshTokens.of(context).monoBody(
                   fontWeight: FontWeight.w700,
                   color: _overlayPrimaryTextColor,
                 ),
@@ -1767,8 +1769,7 @@ class _MapScreenState extends State<MapScreen> {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 12,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: _overlaySecondaryTextColor,
               ),
@@ -1903,8 +1904,7 @@ class _MapScreenState extends State<MapScreen> {
                         const SizedBox(width: 6),
                         Text(
                           '$visibleCount',
-                          style: MeshTokens.of(context).mono(
-                            fontSize: 13,
+                          style: MeshTokens.of(context).monoBody(
                             fontWeight: FontWeight.w700,
                             color: _overlayPrimaryTextColor,
                           ),
@@ -2092,9 +2092,8 @@ class _MapScreenState extends State<MapScreen> {
               padding: const EdgeInsets.all(16),
               child: Text(
                 context.l10n.map_noResults,
-                style: TextStyle(
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: _overlaySecondaryTextColor,
-                  fontSize: 13,
                 ),
               ),
             )
@@ -2133,8 +2132,7 @@ class _MapScreenState extends State<MapScreen> {
                               ),
                               Text(
                                 c.publicKeyHex.substring(0, 12),
-                                style: MeshTokens.of(context).mono(
-                                  fontSize: 10.5,
+                                style: MeshTokens.of(context).monoCaption(
                                   color: _overlaySecondaryTextColor,
                                 ),
                               ),
@@ -2311,8 +2309,7 @@ class _MapScreenState extends State<MapScreen> {
           ),
           Text(
             '$value',
-            style: MeshTokens.of(context).mono(
-              fontSize: 13,
+            style: MeshTokens.of(context).monoBody(
               fontWeight: FontWeight.w700,
               color: _overlayPrimaryTextColor,
             ),
@@ -2371,11 +2368,11 @@ class _MapScreenState extends State<MapScreen> {
                             Flexible(
                               child: Text(
                                 contact.name,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: _overlayPrimaryTextColor,
-                                ),
+                                style: Theme.of(context).textTheme.labelMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: _overlayPrimaryTextColor,
+                                    ),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -2494,7 +2491,7 @@ class _MapScreenState extends State<MapScreen> {
           value,
           style: MeshTokens.of(
             context,
-          ).mono(fontSize: 11.5, color: _overlayPrimaryTextColor),
+          ).monoBody(color: _overlayPrimaryTextColor),
         ),
       ],
     );
@@ -2998,8 +2995,7 @@ class _MapScreenState extends State<MapScreen> {
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),
@@ -3007,10 +3003,9 @@ class _MapScreenState extends State<MapScreen> {
           const SizedBox(height: 2),
           SelectableText(
             value,
-            style: MeshTokens.of(context).mono(
-              fontSize: 13,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: MeshTokens.of(
+              context,
+            ).monoBody(color: Theme.of(context).colorScheme.onSurface),
           ),
         ],
       ),
@@ -3421,10 +3416,9 @@ class _MapScreenState extends State<MapScreen> {
                           sheetContext.l10n.map_lastSeenTime,
                           trailing: Text(
                             _getTimeFilterLabel(settings.mapTimeFilterHours),
-                            style: MeshTokens.of(context).mono(
-                              fontSize: 11,
-                              color: scheme.onSurfaceVariant,
-                            ),
+                            style: MeshTokens.of(
+                              context,
+                            ).monoCaption(color: scheme.onSurfaceVariant),
                           ),
                         ),
                         Padding(
@@ -3516,7 +3510,7 @@ class _MapScreenState extends State<MapScreen> {
                                   sheetContext.l10n.map_publicKeyPrefixHint,
                               isDense: true,
                             ),
-                            style: MeshTokens.of(context).mono(fontSize: 13),
+                            style: MeshTokens.of(context).monoBody(),
                             onChanged: (value) =>
                                 service.setMapKeyPrefix(value),
                           ),
@@ -3697,8 +3691,7 @@ class _MapScreenState extends State<MapScreen> {
                 if (_pathTrace.isEmpty)
                   Text(
                     l10n.map_tapToAdd,
-                    style: TextStyle(
-                      fontSize: 12,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: _overlaySecondaryTextColor,
                     ),
                   ),
@@ -3708,15 +3701,14 @@ class _MapScreenState extends State<MapScreen> {
                     "${l10n.path_currentPathLabel} ${formatDistance(getPathDistanceMeters(_points), isImperial: isImperial)}",
                     style: MeshTokens.of(
                       context,
-                    ).mono(fontSize: 12, color: _overlaySecondaryTextColor),
+                    ).monoCaption(color: _overlaySecondaryTextColor),
                   ),
                 SelectableText(
                   PathHelper.splitPathBytes(
                     _pathTrace,
                     context.read<MeshCoreConnector>().pathHashByteWidth,
                   ).map(PathHelper.formatHopHex).join(','),
-                  style: MeshTokens.of(context).mono(
-                    fontSize: 18,
+                  style: MeshTokens.of(context).monoBody(
                     fontWeight: FontWeight.w700,
                     color: MeshTokens.of(context).mapSelected,
                   ),

@@ -432,7 +432,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                       padding: const EdgeInsets.all(8),
                       child: Text(
                         'Z: ${_overlayZoom.round()}:',
-                        style: const TextStyle(fontSize: 12),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   ),
@@ -457,10 +457,9 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                         selectedBounds == null
                             ? l10n.mapCache_noAreaSelected
                             : _formatBounds(selectedBounds, l10n),
-                        style: MeshTokens.of(context).mono(
-                          fontSize: 11,
-                          color: MeshTokens.of(context).ink2,
-                        ),
+                        style: MeshTokens.of(
+                          context,
+                        ).monoCaption(color: MeshTokens.of(context).ink2),
                       ),
                     ),
                   ),
@@ -537,7 +536,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                       l10n.mapCache_estimatedTiles(_estimatedTiles),
                       style: MeshTokens.of(
                         context,
-                      ).mono(fontSize: 12, color: scheme.onSurfaceVariant),
+                      ).monoCaption(color: scheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -561,10 +560,9 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                         l10n.mapCache_bulkDownloadDisabledForSource(
                           source.label,
                         ),
-                        style: MeshTokens.of(context).mono(
-                          fontSize: 12,
-                          color: MeshTokens.of(context).alert,
-                        ),
+                        style: MeshTokens.of(
+                          context,
+                        ).monoCaption(color: MeshTokens.of(context).alert),
                       ),
                     ],
                     if (_isDownloading) ...[
@@ -582,7 +580,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                         ),
                         style: MeshTokens.of(
                           context,
-                        ).mono(fontSize: 12, color: scheme.onSurfaceVariant),
+                        ).monoCaption(color: scheme.onSurfaceVariant),
                       ),
                     ],
                     const SizedBox(height: 12),
@@ -618,10 +616,9 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           l10n.mapCache_failedDownloads(_failedTiles),
-                          style: MeshTokens.of(context).mono(
-                            fontSize: 12,
-                            color: MeshTokens.of(context).alert,
-                          ),
+                          style: MeshTokens.of(
+                            context,
+                          ).monoCaption(color: MeshTokens.of(context).alert),
                         ),
                       ),
                   ],

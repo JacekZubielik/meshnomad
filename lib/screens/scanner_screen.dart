@@ -448,9 +448,8 @@ class _BluetoothOffBanner extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   context.l10n.scanner_bluetoothOffMessage,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: scheme.error.withValues(alpha: 0.8),
-                    fontSize: 12,
                   ),
                 ),
               ],

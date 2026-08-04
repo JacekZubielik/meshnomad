@@ -278,8 +278,7 @@ class _UsbScreenState extends State<UsbScreen> {
               subtitle: showRawName
                   ? Text(
                       rawName,
-                      style: MeshTokens.of(context).mono(
-                        fontSize: 11,
+                      style: MeshTokens.of(context).monoCaption(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       maxLines: 1,

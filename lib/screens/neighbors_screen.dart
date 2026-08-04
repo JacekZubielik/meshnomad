@@ -394,17 +394,15 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
                 SelectableText(
                   name,
                   maxLines: 1,
-                  style: const TextStyle(
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     fontWeight: FontWeight.w500,
-                    fontSize: 15,
                   ),
                 ),
                 const SizedBox(height: 2),
                 SelectableText(
                   heardLabel,
                   maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -420,11 +418,9 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
               const SizedBox(height: 4),
               SelectableText(
                 '${snr.toStringAsFixed(1)} dB',
-                style: MeshTokens.of(context).mono(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: snrColor,
-                ),
+                style: MeshTokens.of(
+                  context,
+                ).monoBody(fontWeight: FontWeight.w600, color: snrColor),
               ),
             ],
           ),

@@ -65,7 +65,9 @@ class DebugFrameViewer {
             children: [
               Text(
                 details.toString(),
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontFamily: 'monospace'),
               ),
               const Divider(),
               Text(
@@ -75,7 +77,9 @@ class DebugFrameViewer {
               const SizedBox(height: 8),
               Text(
                 hexString,
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
               ),
             ],
           ),

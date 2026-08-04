@@ -80,10 +80,9 @@ class RepeaterHubScreen extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             repeater.shortPubKeyHex,
-                            style: MeshTokens.of(context).mono(
-                              fontSize: 11,
-                              color: scheme.onSurfaceVariant,
-                            ),
+                            style: MeshTokens.of(
+                              context,
+                            ).monoCaption(color: scheme.onSurfaceVariant),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -108,8 +107,7 @@ class RepeaterHubScreen extends StatelessWidget {
                                   child: Text(
                                     '${repeater.latitude?.toStringAsFixed(4)}, '
                                     '${repeater.longitude?.toStringAsFixed(4)}',
-                                    style: MeshTokens.of(context).mono(
-                                      fontSize: 10,
+                                    style: MeshTokens.of(context).monoCaption(
                                       color: scheme.onSurfaceVariant,
                                     ),
                                     overflow: TextOverflow.ellipsis,
@@ -323,9 +321,8 @@ class _HubActionTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w600,
-                      fontSize: 15,
                     ),
                   ),
                   const SizedBox(height: 2),

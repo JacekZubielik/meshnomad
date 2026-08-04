@@ -315,7 +315,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                         return Text(
                           '$privacy • ${context.l10n.chat_unread(unreadCount)}$regionText',
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12),
+                          style: Theme.of(context).textTheme.bodyMedium,
                         );
                       },
                     ),
@@ -621,11 +621,20 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                 : EdgeInsets.zero,
                             child: SelectableText(
                               message.senderName,
-                              style: TextStyle(
-                                fontSize: 13 * textScale,
-                                fontWeight: FontWeight.w700,
-                                color: textColor,
-                              ),
+                              style:
+                                  (Theme.of(context).textTheme.titleSmall ??
+                                          const TextStyle())
+                                      .copyWith(
+                                        fontSize:
+                                            (Theme.of(context)
+                                                    .textTheme
+                                                    .titleSmall
+                                                    ?.fontSize ??
+                                                13) *
+                                            textScale,
+                                        fontWeight: FontWeight.w700,
+                                        color: textColor,
+                                      ),
                             ),
                           ),
                           if (gifId == null) const SizedBox(height: 2),
@@ -706,10 +715,18 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                         displayPathHashWidth,
                                       ),
                                     ),
-                                    style: MeshTokens.of(context).mono(
-                                      fontSize: 9.5 * textScale,
-                                      color: metaColor,
-                                    ),
+                                    style: MeshTokens.of(context)
+                                        .monoCaption(color: metaColor)
+                                        .copyWith(
+                                          fontSize:
+                                              (MeshTokens.of(context)
+                                                      .monoCaption(
+                                                        color: metaColor,
+                                                      )
+                                                      .fontSize ??
+                                                  9.5) *
+                                              textScale,
+                                        ),
                                   ),
                                 ),
                               ],
@@ -730,10 +747,16 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                             children: [
                               SelectableText(
                                 _formatTime(context, message.timestamp),
-                                style: MeshTokens.of(context).mono(
-                                  fontSize: 10 * textScale,
-                                  color: metaColor,
-                                ),
+                                style: MeshTokens.of(context)
+                                    .monoCaption(color: metaColor)
+                                    .copyWith(
+                                      fontSize:
+                                          (MeshTokens.of(context)
+                                                  .monoCaption(color: metaColor)
+                                                  .fontSize ??
+                                              10) *
+                                          textScale,
+                                    ),
                               ),
                               if (enableTracing && message.repeatCount > 0) ...[
                                 const SizedBox(width: 6),
@@ -745,10 +768,18 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                 const SizedBox(width: 2),
                                 SelectableText(
                                   '${message.repeatCount}',
-                                  style: MeshTokens.of(context).mono(
-                                    fontSize: 10 * textScale,
-                                    color: metaColor,
-                                  ),
+                                  style: MeshTokens.of(context)
+                                      .monoCaption(color: metaColor)
+                                      .copyWith(
+                                        fontSize:
+                                            (MeshTokens.of(context)
+                                                    .monoCaption(
+                                                      color: metaColor,
+                                                    )
+                                                    .fontSize ??
+                                                10) *
+                                            textScale,
+                                      ),
                                 ),
                               ],
                               if (isOutgoing) ...[
@@ -876,7 +907,13 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
           const SizedBox(width: 4),
           Text(
             context.l10n.chat_location,
-            style: TextStyle(fontSize: 12 * textScale, color: previewTextColor),
+            style: (Theme.of(context).textTheme.bodyMedium ?? const TextStyle())
+                .copyWith(
+                  fontSize:
+                      (Theme.of(context).textTheme.bodyMedium?.fontSize ?? 12) *
+                      textScale,
+                  color: previewTextColor,
+                ),
           ),
         ],
       );
@@ -885,11 +922,14 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
         replyText,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: 12 * textScale,
-          color: previewTextColor,
-          fontStyle: FontStyle.italic,
-        ),
+        style: (Theme.of(context).textTheme.bodyMedium ?? const TextStyle())
+            .copyWith(
+              fontSize:
+                  (Theme.of(context).textTheme.bodyMedium?.fontSize ?? 12) *
+                  textScale,
+              color: previewTextColor,
+              fontStyle: FontStyle.italic,
+            ),
       );
     }
 
@@ -909,11 +949,18 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
           children: [
             Text(
               context.l10n.chat_replyTo(message.replyToSenderName ?? ''),
-              style: TextStyle(
-                fontSize: 11 * textScale,
-                fontWeight: FontWeight.bold,
-                color: isOwnNode ? colorScheme.primary : colorScheme.onSurface,
-              ),
+              style:
+                  (Theme.of(context).textTheme.bodySmall ?? const TextStyle())
+                      .copyWith(
+                        fontSize:
+                            (Theme.of(context).textTheme.bodySmall?.fontSize ??
+                                11) *
+                            textScale,
+                        fontWeight: FontWeight.bold,
+                        color: isOwnNode
+                            ? colorScheme.primary
+                            : colorScheme.onSurface,
+                      ),
             ),
             const SizedBox(height: 2),
             contentPreview,
@@ -954,8 +1001,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                 const SizedBox(width: 4),
                 Text(
                   '$count',
-                  style: MeshTokens.of(context).mono(
-                    fontSize: 11,
+                  style: MeshTokens.of(context).monoBody(
                     fontWeight: FontWeight.w700,
                     color: scheme.onSurface,
                   ),
@@ -1029,7 +1075,18 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
               if (poi.label.isNotEmpty)
                 Text(
                   poi.label,
-                  style: TextStyle(color: metaColor, fontSize: 12 * textScale),
+                  style:
+                      (Theme.of(context).textTheme.bodyMedium ??
+                              const TextStyle())
+                          .copyWith(
+                            color: metaColor,
+                            fontSize:
+                                (Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.fontSize ??
+                                    12) *
+                                textScale,
+                          ),
                 ),
             ],
           ),
@@ -1080,20 +1137,38 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
               children: [
                 Text(
                   context.l10n.chat_replyingTo(message.senderName),
-                  style: MeshTokens.of(context).mono(
-                    fontSize: 11 * textScale,
-                    fontWeight: FontWeight.w700,
-                    color: scheme.primary,
-                  ),
+                  style: MeshTokens.of(context)
+                      .monoBody(
+                        fontWeight: FontWeight.w700,
+                        color: scheme.primary,
+                      )
+                      .copyWith(
+                        fontSize:
+                            MeshTokens.of(context)
+                                .monoBody(
+                                  fontWeight: FontWeight.w700,
+                                  color: scheme.primary,
+                                )
+                                .fontSize! *
+                            textScale,
+                      ),
                 ),
                 Text(
                   message.text,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11 * textScale,
-                    color: scheme.onSurfaceVariant,
-                  ),
+                  style:
+                      (Theme.of(context).textTheme.bodySmall ??
+                              const TextStyle())
+                          .copyWith(
+                            fontSize:
+                                (Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.fontSize ??
+                                    11) *
+                                textScale,
+                            color: scheme.onSurfaceVariant,
+                          ),
                 ),
               ],
             ),

@@ -314,8 +314,7 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
             const SizedBox(height: 8),
             SelectableText(
               resolvedNames,
-              style: TextStyle(
-                fontSize: 13,
+              style: Theme.of(dialogContext).textTheme.titleSmall?.copyWith(
                 color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
               ),
             ),
@@ -484,7 +483,7 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
         title: Text(l10n.routing_floodDelivery),
         subtitle: Text(
           _floodStatsLine(context, stats),
-          style: const TextStyle(fontSize: 11),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
         trailing: mode == _RoutingMode.flood
             ? Icon(
@@ -589,7 +588,7 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
           title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
           subtitle: Text(
             '$line1\n${line2Parts.join(' • ')}',
-            style: const TextStyle(fontSize: 11),
+            style: Theme.of(context).textTheme.bodySmall,
           ),
           isThreeLine: true,
           trailing: Row(

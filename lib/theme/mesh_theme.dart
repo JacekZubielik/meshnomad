@@ -231,7 +231,7 @@ class MeshTheme {
   }
 
   static ThemeData _build(ColorScheme scheme, Brightness brightness) {
-    final baseText =
+    final materialText =
         Typography.material2021(
           platform: TargetPlatform.android,
           colorScheme: scheme,
@@ -241,6 +241,17 @@ class MeshTheme {
           fontFamily: MeshFonts.sans,
           fontFamilyFallback: MeshFonts.sansFallback,
         );
+
+    // Explicit sizes matching the app's dominant `fontSize:` literal clusters
+    // (see docs/superpowers/specs/2026-08-02-custom-style-editor-design.md,
+    // "role fontów") — the stock Material 2021 scale doesn't match them.
+    final baseText = materialText.copyWith(
+      bodyMedium: materialText.bodyMedium?.copyWith(fontSize: 12),
+      bodySmall: materialText.bodySmall?.copyWith(fontSize: 11),
+      titleSmall: materialText.titleSmall?.copyWith(fontSize: 13),
+      labelSmall: materialText.labelSmall?.copyWith(fontSize: 10),
+      labelMedium: materialText.labelMedium?.copyWith(fontSize: 15),
+    );
 
     return ThemeData(
       useMaterial3: true,

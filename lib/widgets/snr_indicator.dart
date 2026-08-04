@@ -175,13 +175,14 @@ class _SNRIndicatorState extends State<SNRIndicator> {
               Icon(snrUi.icon, size: 18, color: snrUi.color),
               Text(
                 snrUi.text,
-                style: TextStyle(fontSize: 12, color: snrUi.color),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: snrUi.color),
               ),
               if (directRepeater != null)
                 Text(
                   '${directRepeaters.length}: ${directRepeater.pubkeyPrefixHex}: ${_formatLastUpdated(directRepeater.lastUpdated)}',
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -288,7 +289,7 @@ class _SNRIndicatorState extends State<SNRIndicator> {
                               '${repeater.snr.toStringAsFixed(1)} dB • ${_formatLastUpdated(repeater.lastUpdated)}',
                               style: MeshTokens.of(
                                 context,
-                              ).mono(fontSize: 11, color: snrColor),
+                              ).monoCaption(color: snrColor),
                             ),
                           ],
                         ),

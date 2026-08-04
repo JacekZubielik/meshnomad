@@ -173,8 +173,7 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                                             Text(
                                               entry.description,
                                               style: MeshTokens.of(context)
-                                                  .mono(
-                                                    fontSize: 11.5,
+                                                  .monoBody(
                                                     color: MeshTokens.of(
                                                       context,
                                                     ).ink,
@@ -184,8 +183,7 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                                             Text(
                                               entry.hexPreview,
                                               style: MeshTokens.of(context)
-                                                  .mono(
-                                                    fontSize: 10,
+                                                  .monoCaption(
                                                     color: MeshTokens.of(
                                                       context,
                                                     ).ink3,
@@ -195,8 +193,7 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                                             Text(
                                               time,
                                               style: MeshTokens.of(context)
-                                                  .mono(
-                                                    fontSize: 9.5,
+                                                  .monoCaption(
                                                     color: MeshTokens.of(
                                                       context,
                                                     ).ink4,
@@ -239,30 +236,32 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                                         children: [
                                           Text(
                                             info.title,
-                                            style: MeshTokens.of(context).mono(
-                                              fontSize: 11.5,
-                                              color: MeshTokens.of(context).ink,
-                                            ),
+                                            style: MeshTokens.of(context)
+                                                .monoBody(
+                                                  color: MeshTokens.of(
+                                                    context,
+                                                  ).ink,
+                                                ),
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
                                             info.summary,
-                                            style: MeshTokens.of(context).mono(
-                                              fontSize: 10,
-                                              color: MeshTokens.of(
-                                                context,
-                                              ).ink3,
-                                            ),
+                                            style: MeshTokens.of(context)
+                                                .monoCaption(
+                                                  color: MeshTokens.of(
+                                                    context,
+                                                  ).ink3,
+                                                ),
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
                                             time,
-                                            style: MeshTokens.of(context).mono(
-                                              fontSize: 9.5,
-                                              color: MeshTokens.of(
-                                                context,
-                                              ).ink4,
-                                            ),
+                                            style: MeshTokens.of(context)
+                                                .monoCaption(
+                                                  color: MeshTokens.of(
+                                                    context,
+                                                  ).ink4,
+                                                ),
                                           ),
                                         ],
                                       ),

@@ -77,11 +77,9 @@ class _BatteryIndicatorState extends State<BatteryIndicator> {
                 Flexible(
                   child: Text(
                     displayText,
-                    style: MeshTokens.of(context).mono(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: batteryUi.color,
-                    ),
+                    style: MeshTokens.of(context)
+                        .monoCaption(color: batteryUi.color)
+                        .copyWith(fontWeight: FontWeight.w600),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
