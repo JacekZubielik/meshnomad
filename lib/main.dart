@@ -24,6 +24,8 @@ import 'services/translation_service.dart';
 import 'services/ui_view_state_service.dart';
 import 'services/timeout_prediction_service.dart';
 import 'storage/prefs_manager.dart';
+import 'theme/style.dart';
+import 'theme/styles/custom_style.dart';
 import 'theme/styles/style_registry.dart';
 import 'utils/app_logger.dart';
 
@@ -203,10 +205,8 @@ class MeshCoreApp extends StatelessWidget {
             locale: _localeFromSetting(
               settingsService.settings.languageOverride,
             ),
-            theme: StyleRegistry.byId(settingsService.settings.styleId).light,
-            darkTheme: StyleRegistry.byId(
-              settingsService.settings.styleId,
-            ).dark,
+            theme: _activeStyle(settingsService).light,
+            darkTheme: _activeStyle(settingsService).dark,
             themeMode: _themeModeFromSetting(
               settingsService.settings.themeMode,
             ),
@@ -226,6 +226,14 @@ class MeshCoreApp extends StatelessWidget {
         },
       ),
     );
+  }
+
+  MeshStyle _activeStyle(AppSettingsService settingsService) {
+    final styleId = settingsService.settings.styleId;
+    if (styleId == 'custom') {
+      return buildCustomStyle(settingsService.settings.customStyleOverrides);
+    }
+    return StyleRegistry.byId(styleId);
   }
 
   ThemeMode _themeModeFromSetting(String value) {

@@ -1,3 +1,4 @@
+import 'custom_style_overrides.dart';
 import 'translation_support.dart';
 
 enum UnitSystem { metric, imperial }
@@ -109,6 +110,7 @@ class AppSettings {
   final int maxMessageRetries;
   final String themeMode;
   final String styleId;
+  final CustomStyleOverrides customStyleOverrides;
   final String? languageOverride; // null = system default
   final bool appDebugLogEnabled;
   final Map<String, String> batteryChemistryByDeviceId;
@@ -179,6 +181,7 @@ class AppSettings {
     this.maxMessageRetries = 5,
     this.themeMode = 'system',
     this.styleId = 'default',
+    this.customStyleOverrides = const CustomStyleOverrides(),
     this.languageOverride,
     this.appDebugLogEnabled = false,
     Map<String, String>? batteryChemistryByDeviceId,
@@ -247,6 +250,7 @@ class AppSettings {
       'max_message_retries': maxMessageRetries,
       'theme_mode': themeMode,
       'style_id': styleId,
+      'custom_style_overrides': customStyleOverrides.toJson(),
       'language_override': languageOverride,
       'app_debug_log_enabled': appDebugLogEnabled,
       'battery_chemistry_by_device_id': batteryChemistryByDeviceId,
@@ -324,6 +328,9 @@ class AppSettings {
       maxMessageRetries: json['max_message_retries'] as int? ?? 5,
       themeMode: json['theme_mode'] as String? ?? 'system',
       styleId: json['style_id'] as String? ?? 'default',
+      customStyleOverrides: CustomStyleOverrides.fromJson(
+        json['custom_style_overrides'] as Map<String, dynamic>?,
+      ),
       languageOverride: json['language_override'] as String?,
       appDebugLogEnabled: json['app_debug_log_enabled'] as bool? ?? false,
       batteryChemistryByDeviceId:
@@ -434,6 +441,7 @@ class AppSettings {
     int? maxMessageRetries,
     String? themeMode,
     String? styleId,
+    CustomStyleOverrides? customStyleOverrides,
     Object? languageOverride = _unset,
     bool? appDebugLogEnabled,
     Map<String, String>? batteryChemistryByDeviceId,
@@ -497,6 +505,7 @@ class AppSettings {
       maxMessageRetries: maxMessageRetries ?? this.maxMessageRetries,
       themeMode: themeMode ?? this.themeMode,
       styleId: styleId ?? this.styleId,
+      customStyleOverrides: customStyleOverrides ?? this.customStyleOverrides,
       languageOverride: languageOverride == _unset
           ? this.languageOverride
           : languageOverride as String?,
