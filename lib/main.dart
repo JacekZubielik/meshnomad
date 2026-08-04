@@ -216,9 +216,28 @@ class MeshCoreApp extends StatelessWidget {
               // Update notification service with resolved locale
               final locale = Localizations.localeOf(context);
               NotificationService().setLocale(locale);
+              // MaterialApp.builder inserts widgets ABOVE the Navigator (see
+              // WidgetsApp.builder docs), so `child` here is the Navigator
+              // itself. SelectionArea requires an Overlay ancestor to host
+              // selection handles, and the Navigator's own Overlay is a
+              // *descendant* of this builder's output, not an ancestor —
+              // wrapping `child` in SelectionArea directly leaves it with no
+              // reachable Overlay ("No Overlay widget found", reproducible
+              // even in a plain widget test, not just under
+              // IntegrationTestWidgetsFlutterBinding/flutter_driver). Hosting
+              // SelectionArea inside a self-provided Overlay puts a real
+              // Overlay ancestor above it.
               return AnnotatedRegion<SystemUiOverlayStyle>(
                 value: _systemUiOverlayStyle(context),
-                child: SelectionArea(child: child ?? const SizedBox.shrink()),
+                child: Overlay(
+                  initialEntries: [
+                    OverlayEntry(
+                      builder: (context) => SelectionArea(
+                        child: child ?? const SizedBox.shrink(),
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
             home: (PlatformInfo.isWeb && !PlatformInfo.isChrome)
