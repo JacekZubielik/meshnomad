@@ -229,6 +229,9 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    // 03-roles-chrome.md: descriptive text sits one step above bodyMedium.
+    final descriptionFontSize = (textTheme.bodyMedium?.fontSize ?? 12) + 2;
     final connector = context.watch<MeshCoreConnector>();
     final repeater = _resolveRepeater(connector);
     final isFloodMode = repeater.pathOverride == -1;
@@ -248,14 +251,13 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
               children: [
                 Text(
                   l10n.login_roomLogin,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
                   repeater.name,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  style: textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.normal,
                     color: scheme.onSurfaceVariant,
                   ),
@@ -281,7 +283,9 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                 children: [
                   Text(
                     l10n.login_roomDescription,
-                    style: const TextStyle(fontSize: 14),
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontSize: descriptionFontSize,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
@@ -319,11 +323,13 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                     },
                     title: Text(
                       l10n.login_savePassword,
-                      style: const TextStyle(fontSize: 14),
+                      style: textTheme.bodyMedium?.copyWith(
+                        fontSize: descriptionFontSize,
+                      ),
                     ),
                     subtitle: Text(
                       l10n.login_savePasswordSubtitle,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: textTheme.bodyMedium,
                     ),
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: EdgeInsets.zero,
@@ -335,7 +341,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                         l10n.login_routing,
                         style: MeshTokens.of(context).accentLabel(
                           color: scheme.onSurfaceVariant,
-                          fontSize: 11,
+                          fontSize: textTheme.bodySmall?.fontSize,
                         ),
                       ),
                       const Spacer(),

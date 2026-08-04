@@ -128,8 +128,11 @@ class _GifPickerState extends State<GifPicker> {
               const SizedBox(width: 8),
               Text(
                 context.l10n.gifPicker_title,
-                style: const TextStyle(
-                  fontSize: 20,
+                style: TextStyle(
+                  // 03-roles-chrome.md: titleSmall + 7 (default 13+7=20).
+                  fontSize:
+                      (Theme.of(context).textTheme.titleSmall?.fontSize ?? 13) +
+                      7,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -207,9 +210,9 @@ class _GifPickerState extends State<GifPicker> {
             const SizedBox(height: 16),
             Text(
               _error!,
-              style: TextStyle(
-                fontSize: 16,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.normal,
               ),
             ),
             const SizedBox(height: 16),
@@ -236,9 +239,9 @@ class _GifPickerState extends State<GifPicker> {
             const SizedBox(height: 16),
             Text(
               context.l10n.gifPicker_noGifsFound,
-              style: TextStyle(
-                fontSize: 16,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.normal,
               ),
             ),
           ],

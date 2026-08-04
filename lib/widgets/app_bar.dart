@@ -53,7 +53,14 @@ class AppBarTitle extends StatelessWidget {
                   if (showSubtitle)
                     Text(
                       selfName,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      style: TextStyle(
+                        // 03-roles-chrome.md: bodyMedium + 2 (default 12+2=14).
+                        fontSize:
+                            (Theme.of(context).textTheme.bodyMedium?.fontSize ??
+                                12) +
+                            2,
+                        color: Colors.grey[600],
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

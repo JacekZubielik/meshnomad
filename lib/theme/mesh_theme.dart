@@ -146,6 +146,47 @@ class MeshFonts {
   ];
 }
 
+/// Fixed pt increments deriving "chrome" text sizes from the editable
+/// `TextTheme` roles (`bodyMedium`, `bodySmall`, `titleSmall`), so overriding
+/// a role in the custom style editor also resizes the widgets that read
+/// these increments (B3/B4/C2, 2026-08-04) — matched to today's literal
+/// `fontSize:` values in [MeshTheme._build] at the roles' defaults
+/// (bodyMedium=12, bodySmall=11, titleSmall=13), see `03-roles-chrome.md`.
+class MeshTypeScale {
+  MeshTypeScale._();
+
+  /// `titleMedium` = `titleSmall` + this (default 13+3=16, matches stock M3).
+  static const double titleMediumIncrement = 3;
+
+  /// `titleLarge` = `titleSmall` + this (default 13+9=22, matches stock M3).
+  static const double titleLargeIncrement = 9;
+
+  /// `headlineSmall` = `titleSmall` + this (default 13+11=24, stock M3).
+  static const double headlineSmallIncrement = 11;
+
+  /// AppBar title = `titleSmall` + this (default 13+7=20).
+  static const double appBarTitleIncrement = 7;
+
+  /// Elevated/filled button label = `bodyMedium` + this (default 12+2=14).
+  static const double buttonLabelIncrement = 2;
+
+  /// Chip label = `bodySmall` + this (default 11+1.5=12.5).
+  static const double chipLabelIncrement = 1.5;
+
+  /// NavigationBar label = `bodySmall` + this (default 11+0.5=11.5).
+  static const double navigationLabelIncrement = 0.5;
+
+  /// TabBar label (selected + unselected) = `bodyMedium` + this
+  /// (default 12+1.5=13.5).
+  static const double tabLabelIncrement = 1.5;
+
+  /// Tooltip text = `bodySmall` + this (default 11+1=12).
+  static const double tooltipIncrement = 1;
+
+  /// Slider value-indicator text = `bodySmall` + this (default 11+1=12).
+  static const double sliderIndicatorIncrement = 1;
+}
+
 /// Radii used consistently across the app.
 class MeshRadii {
   MeshRadii._();
@@ -245,13 +286,31 @@ class MeshTheme {
     // Explicit sizes matching the app's dominant `fontSize:` literal clusters
     // (see docs/superpowers/specs/2026-08-02-custom-style-editor-design.md,
     // "role fontów") — the stock Material 2021 scale doesn't match them.
+    const titleSmallSize = 13.0;
     final baseText = materialText.copyWith(
       bodyMedium: materialText.bodyMedium?.copyWith(fontSize: 12),
       bodySmall: materialText.bodySmall?.copyWith(fontSize: 11),
-      titleSmall: materialText.titleSmall?.copyWith(fontSize: 13),
+      titleSmall: materialText.titleSmall?.copyWith(fontSize: titleSmallSize),
+      // Large titles derived from titleSmall (B3) — at the default 13 these
+      // land exactly on stock M3 (16/22/24), so defaults render unchanged.
+      titleMedium: materialText.titleMedium?.copyWith(
+        fontSize: titleSmallSize + MeshTypeScale.titleMediumIncrement,
+      ),
+      titleLarge: materialText.titleLarge?.copyWith(
+        fontSize: titleSmallSize + MeshTypeScale.titleLargeIncrement,
+      ),
+      headlineSmall: materialText.headlineSmall?.copyWith(
+        fontSize: titleSmallSize + MeshTypeScale.headlineSmallIncrement,
+      ),
       labelSmall: materialText.labelSmall?.copyWith(fontSize: 10),
       labelMedium: materialText.labelMedium?.copyWith(fontSize: 15),
     );
+
+    // Chrome sizes below are derived from these resolved roles (B4) rather
+    // than hardcoded, so a custom-style role override reshapes chrome too —
+    // see MeshTypeScale and buildCustomStyle's mirrored rebuild.
+    final bodyMediumSize = baseText.bodyMedium!.fontSize!;
+    final bodySmallSize = baseText.bodySmall!.fontSize!;
 
     return ThemeData(
       useMaterial3: true,
@@ -278,7 +337,7 @@ class MeshTheme {
         titleTextStyle: TextStyle(
           fontFamily: MeshFonts.sans,
           fontFamilyFallback: MeshFonts.sansFallback,
-          fontSize: 20,
+          fontSize: titleSmallSize + MeshTypeScale.appBarTitleIncrement,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.2,
           color: scheme.onSurface,
@@ -302,6 +361,13 @@ class MeshTheme {
         iconColor: scheme.onSurfaceVariant,
         textColor: scheme.onSurface,
         tileColor: Colors.transparent,
+        // C2: without an explicit titleTextStyle, ListTile/SwitchListTile
+        // titles fall back to the SDK's M3 default (bodyLarge, not an
+        // editable role) instead of scaling with the rest of the UI.
+        titleTextStyle: baseText.bodyMedium?.copyWith(color: scheme.onSurface),
+        subtitleTextStyle: baseText.bodySmall?.copyWith(
+          color: scheme.onSurfaceVariant,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(MeshRadii.md),
         ),
@@ -332,11 +398,11 @@ class MeshTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MeshRadii.pill),
           ),
-          textStyle: const TextStyle(
+          textStyle: TextStyle(
             fontFamily: MeshFonts.sans,
             fontFamilyFallback: MeshFonts.sansFallback,
             fontWeight: FontWeight.w600,
-            fontSize: 14,
+            fontSize: bodyMediumSize + MeshTypeScale.buttonLabelIncrement,
           ),
         ),
       ),
@@ -386,7 +452,7 @@ class MeshTheme {
         labelStyle: TextStyle(
           fontFamily: MeshFonts.sans,
           fontFamilyFallback: MeshFonts.sansFallback,
-          fontSize: 12.5,
+          fontSize: bodySmallSize + MeshTypeScale.chipLabelIncrement,
           fontWeight: FontWeight.w600,
           color: scheme.onSurfaceVariant,
         ),
@@ -407,7 +473,7 @@ class MeshTheme {
           return TextStyle(
             fontFamily: MeshFonts.sans,
             fontFamilyFallback: MeshFonts.sansFallback,
-            fontSize: 11.5,
+            fontSize: bodySmallSize + MeshTypeScale.navigationLabelIncrement,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
             letterSpacing: 0.1,
             color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
@@ -504,7 +570,7 @@ class MeshTheme {
           fontFamily: MeshFonts.mono,
           fontFamilyFallback: MeshFonts.monoFallback,
           color: scheme.onSurface,
-          fontSize: 12,
+          fontSize: bodySmallSize + MeshTypeScale.sliderIndicatorIncrement,
         ),
         trackHeight: 3,
       ),
@@ -513,16 +579,16 @@ class MeshTheme {
         unselectedLabelColor: scheme.onSurfaceVariant,
         indicatorColor: scheme.primary,
         dividerColor: scheme.outlineVariant,
-        labelStyle: const TextStyle(
+        labelStyle: TextStyle(
           fontFamily: MeshFonts.sans,
           fontFamilyFallback: MeshFonts.sansFallback,
-          fontSize: 13.5,
+          fontSize: bodyMediumSize + MeshTypeScale.tabLabelIncrement,
           fontWeight: FontWeight.w700,
         ),
-        unselectedLabelStyle: const TextStyle(
+        unselectedLabelStyle: TextStyle(
           fontFamily: MeshFonts.sans,
           fontFamilyFallback: MeshFonts.sansFallback,
-          fontSize: 13.5,
+          fontSize: bodyMediumSize + MeshTypeScale.tabLabelIncrement,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -537,7 +603,10 @@ class MeshTheme {
           borderRadius: BorderRadius.circular(MeshRadii.sm),
           border: Border.all(color: scheme.outline),
         ),
-        textStyle: TextStyle(color: scheme.onSurface, fontSize: 12),
+        textStyle: TextStyle(
+          color: scheme.onSurface,
+          fontSize: bodySmallSize + MeshTypeScale.tooltipIncrement,
+        ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
@@ -547,11 +616,11 @@ class MeshTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MeshRadii.pill),
           ),
-          textStyle: const TextStyle(
+          textStyle: TextStyle(
             fontFamily: MeshFonts.sans,
             fontFamilyFallback: MeshFonts.sansFallback,
             fontWeight: FontWeight.w600,
-            fontSize: 14,
+            fontSize: bodyMediumSize + MeshTypeScale.buttonLabelIncrement,
           ),
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/custom_style_overrides.dart';
 import '../mesh_derived.dart';
+import '../mesh_theme.dart' show MeshTypeScale;
 import '../mesh_tokens.dart';
 import '../style.dart';
 import 'default_style.dart';
@@ -75,6 +76,10 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
 
   TextTheme applyFontSizeOverrides(TextTheme base) {
     double? sizeFor(String key) => overrides.fontSizeOverrides[key];
+    // B3: titleMedium/titleLarge/headlineSmall aren't editable directly —
+    // they're always derived from the (possibly overridden) titleSmall, so
+    // dragging the "Title" slider also resizes large titles consistently.
+    final titleSmallSize = sizeFor('titleSmall') ?? base.titleSmall!.fontSize!;
 
     return base.copyWith(
       bodyMedium: sizeFor('bodyMedium') != null
@@ -86,6 +91,15 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       titleSmall: sizeFor('titleSmall') != null
           ? base.titleSmall?.copyWith(fontSize: sizeFor('titleSmall'))
           : null,
+      titleMedium: base.titleMedium?.copyWith(
+        fontSize: titleSmallSize + MeshTypeScale.titleMediumIncrement,
+      ),
+      titleLarge: base.titleLarge?.copyWith(
+        fontSize: titleSmallSize + MeshTypeScale.titleLargeIncrement,
+      ),
+      headlineSmall: base.headlineSmall?.copyWith(
+        fontSize: titleSmallSize + MeshTypeScale.headlineSmallIncrement,
+      ),
       labelSmall: sizeFor('labelSmall') != null
           ? base.labelSmall?.copyWith(fontSize: sizeFor('labelSmall'))
           : null,
@@ -129,13 +143,103 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     );
   }
 
+  // B4/C2: chrome sub-themes bake their `fontSize` from the role sizes at
+  // ThemeData-construction time (mesh_theme.dart), so a role override (e.g.
+  // dragging "Body") must re-derive these too, mirroring MeshTypeScale's
+  // increments 1:1 — otherwise chrome would silently keep the default sizes.
+  TextStyle? withFontSize(TextStyle? style, double fontSize) =>
+      style?.copyWith(fontSize: fontSize);
+
+  ThemeData applyChromeFontSizes(ThemeData base) {
+    final text = base.textTheme;
+    final bodyMediumSize = text.bodyMedium!.fontSize!;
+    final bodySmallSize = text.bodySmall!.fontSize!;
+    final titleSmallSize = text.titleSmall!.fontSize!;
+    final buttonTextSize = bodyMediumSize + MeshTypeScale.buttonLabelIncrement;
+
+    return base.copyWith(
+      listTileTheme: base.listTileTheme.copyWith(
+        titleTextStyle: withFontSize(
+          base.listTileTheme.titleTextStyle,
+          bodyMediumSize,
+        ),
+        subtitleTextStyle: withFontSize(
+          base.listTileTheme.subtitleTextStyle,
+          bodySmallSize,
+        ),
+      ),
+      appBarTheme: base.appBarTheme.copyWith(
+        titleTextStyle: withFontSize(
+          base.appBarTheme.titleTextStyle,
+          titleSmallSize + MeshTypeScale.appBarTitleIncrement,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: base.elevatedButtonTheme.style?.copyWith(
+          textStyle: WidgetStateProperty.resolveWith(
+            (states) => withFontSize(
+              base.elevatedButtonTheme.style?.textStyle?.resolve(states),
+              buttonTextSize,
+            ),
+          ),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: base.filledButtonTheme.style?.copyWith(
+          textStyle: WidgetStateProperty.resolveWith(
+            (states) => withFontSize(
+              base.filledButtonTheme.style?.textStyle?.resolve(states),
+              buttonTextSize,
+            ),
+          ),
+        ),
+      ),
+      chipTheme: base.chipTheme.copyWith(
+        labelStyle: withFontSize(
+          base.chipTheme.labelStyle,
+          bodySmallSize + MeshTypeScale.chipLabelIncrement,
+        ),
+      ),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => withFontSize(
+            base.navigationBarTheme.labelTextStyle?.resolve(states),
+            bodySmallSize + MeshTypeScale.navigationLabelIncrement,
+          ),
+        ),
+      ),
+      tabBarTheme: base.tabBarTheme.copyWith(
+        labelStyle: withFontSize(
+          base.tabBarTheme.labelStyle,
+          bodyMediumSize + MeshTypeScale.tabLabelIncrement,
+        ),
+        unselectedLabelStyle: withFontSize(
+          base.tabBarTheme.unselectedLabelStyle,
+          bodyMediumSize + MeshTypeScale.tabLabelIncrement,
+        ),
+      ),
+      tooltipTheme: base.tooltipTheme.copyWith(
+        textStyle: withFontSize(
+          base.tooltipTheme.textStyle,
+          bodySmallSize + MeshTypeScale.tooltipIncrement,
+        ),
+      ),
+      sliderTheme: base.sliderTheme.copyWith(
+        valueIndicatorTextStyle: withFontSize(
+          base.sliderTheme.valueIndicatorTextStyle,
+          bodySmallSize + MeshTypeScale.sliderIndicatorIncrement,
+        ),
+      ),
+    );
+  }
+
   // Widget-themes that mesh_theme.dart bakes directly from the brightness's
   // surface color at ThemeData-construction time — `ThemeData.copyWith`
   // alone wouldn't refresh these, since they aren't looked up from
   // `colorScheme` lazily (checked 2026-08-04 against `mesh_theme.dart`).
   ThemeData applyColorSchemeAndChrome(ThemeData base, MeshTokens tokens) {
     final scheme = buildColorScheme(base.colorScheme, tokens);
-    return base.copyWith(
+    final withScheme = base.copyWith(
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       canvasColor: scheme.surface,
@@ -143,7 +247,18 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
         backgroundColor: scheme.surface,
         foregroundColor: scheme.onSurface,
       ),
+      listTileTheme: base.listTileTheme.copyWith(
+        textColor: scheme.onSurface,
+        iconColor: scheme.onSurfaceVariant,
+        titleTextStyle: base.listTileTheme.titleTextStyle?.copyWith(
+          color: scheme.onSurface,
+        ),
+        subtitleTextStyle: base.listTileTheme.subtitleTextStyle?.copyWith(
+          color: scheme.onSurfaceVariant,
+        ),
+      ),
     );
+    return applyChromeFontSizes(withScheme);
   }
 
   // MeshTokens.defaultTokens is shared between light/dark (see comment on

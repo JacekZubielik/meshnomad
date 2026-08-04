@@ -225,8 +225,12 @@ class EmojiPicker extends StatelessWidget {
               children: [
                 Text(
                   l10n.chat_addReaction,
-                  style: const TextStyle(
-                    fontSize: 18,
+                  style: TextStyle(
+                    // 03-roles-chrome.md: titleSmall + 5 (default 13+5=18).
+                    fontSize:
+                        (Theme.of(context).textTheme.titleSmall?.fontSize ??
+                            13) +
+                        5,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
