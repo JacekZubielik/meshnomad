@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_skill/flutter_skill.dart';
 import 'l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -31,6 +32,7 @@ import 'utils/app_logger.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (kDebugMode) FlutterSkillBinding.ensureInitialized();
 
   // On desktop, debugPrint is not suppressed in release builds and every
   // call is a synchronous stdout write. The connector logs heavily on hot
@@ -214,9 +216,28 @@ class MeshCoreApp extends StatelessWidget {
               // Update notification service with resolved locale
               final locale = Localizations.localeOf(context);
               NotificationService().setLocale(locale);
+              // MaterialApp.builder inserts widgets ABOVE the Navigator (see
+              // WidgetsApp.builder docs), so `child` here is the Navigator
+              // itself. SelectionArea requires an Overlay ancestor to host
+              // selection handles, and the Navigator's own Overlay is a
+              // *descendant* of this builder's output, not an ancestor —
+              // wrapping `child` in SelectionArea directly leaves it with no
+              // reachable Overlay ("No Overlay widget found", reproducible
+              // even in a plain widget test, not just under
+              // IntegrationTestWidgetsFlutterBinding/flutter_driver). Hosting
+              // SelectionArea inside a self-provided Overlay puts a real
+              // Overlay ancestor above it.
               return AnnotatedRegion<SystemUiOverlayStyle>(
                 value: _systemUiOverlayStyle(context),
-                child: SelectionArea(child: child ?? const SizedBox.shrink()),
+                child: Overlay(
+                  initialEntries: [
+                    OverlayEntry(
+                      builder: (context) => SelectionArea(
+                        child: child ?? const SizedBox.shrink(),
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
             home: (PlatformInfo.isWeb && !PlatformInfo.isChrome)

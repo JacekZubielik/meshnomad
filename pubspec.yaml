@@ -76,6 +76,7 @@ dependencies:
   cryptography: ^2.9.0
   cryptography_flutter: ^2.3.4
   convert: ^3.1.2
+  flutter_skill: ^0.9.36
 
 hooks:
   user_defines:
@@ -98,6 +99,11 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
+  alchemist: ^0.14.0
+  integration_test:
+    sdk: flutter
+  flutter_driver:
+    sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

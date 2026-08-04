@@ -27,6 +27,15 @@ Open-source Flutter client for MeshCore LoRa mesh networking devices. Connects t
 ~/flutter/bin/flutter test
 ```
 
+### UI testing layers
+
+- Golden (pixel) tests: `flutter test --tags golden`; regenerate intentionally with `--update-goldens` and commit PNGs.
+- Integration (real engine, Linux): `CFLAGS='-include stdlib.h' flutter test integration_test -d linux`.
+- Patrol (Android native dialogs): `patrol test -d <device>` (not yet implemented — no Android device in the dev environment).
+- Live agent driving (debug only): `flutter_skill` binding in `main.dart` + MCP server `flutter-skill`.
+
+See skill `flutter-ui-testing-meshcore` for the full decision table and known gotchas (e.g. `IntegrationTestWidgetsFlutterBinding` vs the app's `SelectionArea` builder).
+
 ## Project Structure
 
 ```
