@@ -17,6 +17,7 @@ import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/sync_progress_overlay.dart';
 import '../helpers/snack_bar_builder.dart';
+import 'custom_style_editor_screen.dart';
 import 'map_cache_screen.dart';
 
 class AppSettingsScreen extends StatelessWidget {
@@ -205,6 +206,7 @@ class AppSettingsScreen extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   for (final style in StyleRegistry.all)
                     ChoiceChip(
@@ -212,6 +214,21 @@ class AppSettingsScreen extends StatelessWidget {
                       selected: settingsService.settings.styleId == style.id,
                       onSelected: (_) => settingsService.setStyleId(style.id),
                     ),
+                  ChoiceChip(
+                    label: const Text('Custom'),
+                    selected: settingsService.settings.styleId == 'custom',
+                    onSelected: (_) => settingsService.setStyleId('custom'),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.tune, size: 18),
+                    tooltip: 'Customize',
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CustomStyleEditorScreen(),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
