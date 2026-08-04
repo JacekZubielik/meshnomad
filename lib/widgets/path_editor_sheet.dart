@@ -209,7 +209,9 @@ class _PathEditorSheetState extends State<PathEditorSheet> {
         backgroundColor: scheme.primaryContainer,
         child: Text(
           '${index + 1}',
-          style: TextStyle(fontSize: 12, color: scheme.onPrimaryContainer),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: scheme.onPrimaryContainer),
         ),
       ),
       title: Text(

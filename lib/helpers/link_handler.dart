@@ -79,7 +79,9 @@ class LinkHandler {
               ),
               child: SelectableText(
                 url,
-                style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontFamily: 'monospace'),
               ),
             ),
           ],

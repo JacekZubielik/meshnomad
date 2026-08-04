@@ -1466,7 +1466,7 @@ class AppSettingsScreen extends StatelessWidget {
                     _downloadProgressLabel(context, translationService),
                     style: MeshTokens.of(
                       context,
-                    ).mono(fontSize: 12, color: scheme.onSurfaceVariant),
+                    ).monoCaption(color: scheme.onSurfaceVariant),
                   ),
                 ),
               ],
@@ -1513,10 +1513,9 @@ class AppSettingsScreen extends StatelessWidget {
                                 ),
                                 Text(
                                   _downloadedModelLabel(model),
-                                  style: MeshTokens.of(context).mono(
-                                    fontSize: 11,
-                                    color: scheme.onSurfaceVariant,
-                                  ),
+                                  style: MeshTokens.of(
+                                    context,
+                                  ).monoCaption(color: scheme.onSurfaceVariant),
                                 ),
                               ],
                             ),

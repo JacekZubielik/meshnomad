@@ -223,10 +223,8 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                           contact.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                          ),
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(fontWeight: FontWeight.w500),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -248,7 +246,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                           overflow: TextOverflow.ellipsis,
                           style: MeshTokens.of(
                             context,
-                          ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
+                          ).monoCaption(color: scheme.onSurfaceVariant),
                         ),
                       ),
                       if (contact.hasLocation) ...[
@@ -291,7 +289,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 textAlign: TextAlign.right,
                 style: MeshTokens.of(
                   context,
-                ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
+                ).monoCaption(color: scheme.onSurfaceVariant),
               ),
             ),
           ],

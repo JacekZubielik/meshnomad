@@ -195,8 +195,7 @@ class _TcpScreenState extends State<TcpScreen> {
                         Expanded(
                           child: Text(
                             connector.activeTcpEndpoint!,
-                            style: MeshTokens.of(context).mono(
-                              fontSize: 13,
+                            style: MeshTokens.of(context).monoBody(
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
                             maxLines: 1,

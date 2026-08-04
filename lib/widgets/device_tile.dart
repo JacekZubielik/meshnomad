@@ -78,7 +78,7 @@ class DeviceTile extends StatelessWidget {
                   mac,
                   style: MeshTokens.of(
                     context,
-                  ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
+                  ).monoCaption(color: scheme.onSurfaceVariant),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -106,7 +106,7 @@ class DeviceTile extends StatelessWidget {
                   '$rssi dBm',
                   style: MeshTokens.of(
                     context,
-                  ).mono(fontSize: 10, color: signalUi.color),
+                  ).monoCaption(color: signalUi.color),
                 ),
               ],
             ),

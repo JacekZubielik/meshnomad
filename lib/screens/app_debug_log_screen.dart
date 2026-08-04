@@ -83,20 +83,22 @@ class AppDebugLogScreen extends StatelessWidget {
                                       children: [
                                         TextSpan(
                                           text: '[${entry.tag}] ',
-                                          style: MeshTokens.of(context).mono(
-                                            fontSize: 11.5,
-                                            color: _levelColor(
-                                              context,
-                                              entry.level,
-                                            ),
-                                          ),
+                                          style: MeshTokens.of(context)
+                                              .monoCaption(
+                                                color: _levelColor(
+                                                  context,
+                                                  entry.level,
+                                                ),
+                                              ),
                                         ),
                                         TextSpan(
                                           text: entry.message,
-                                          style: MeshTokens.of(context).mono(
-                                            fontSize: 11.5,
-                                            color: MeshTokens.of(context).ink2,
-                                          ),
+                                          style: MeshTokens.of(context)
+                                              .monoCaption(
+                                                color: MeshTokens.of(
+                                                  context,
+                                                ).ink2,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -104,8 +106,7 @@ class AppDebugLogScreen extends StatelessWidget {
                                   const SizedBox(height: 2),
                                   Text(
                                     entry.formattedTime,
-                                    style: MeshTokens.of(context).mono(
-                                      fontSize: 9.5,
+                                    style: MeshTokens.of(context).monoCaption(
                                       color: MeshTokens.of(context).ink4,
                                     ),
                                   ),
@@ -137,10 +138,8 @@ class AppDebugLogScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           context.l10n.debugLog_enableInSettings,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: MeshTokens.of(context).ink3,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: MeshTokens.of(context).ink3),
                         ),
                       ],
                     ),

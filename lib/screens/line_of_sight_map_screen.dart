@@ -598,9 +598,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
         const SizedBox(height: 2),
         Text(
           value,
-          style: MeshTokens.of(context).mono(
+          style: MeshTokens.of(context).monoBody(
             color: MeshTokens.of(context).losText,
-            fontSize: 10,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -661,9 +660,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               color: MeshTokens.of(context).losText,
               icon: Text(
                 isImperial ? 'ft' : 'm',
-                style: TextStyle(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: MeshTokens.of(context).losText,
-                  fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -784,9 +782,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               value,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: MeshTokens.of(context).mono(
+              style: MeshTokens.of(context).monoBody(
                 color: valueColor ?? MeshTokens.of(context).losText,
-                fontSize: 11.5,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -837,9 +834,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                 Expanded(
                   child: Text(
                     '${_formatDistanceValue(obstruction.distanceMeters, isImperial)} $distanceUnit',
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: MeshTokens.of(context).losText,
-                      fontSize: 12,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -868,9 +864,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             const Spacer(),
             Text(
               'Blocked ${_formatHeightValue(obstruction.obstructionMeters, isImperial)} $heightUnit',
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: MeshTokens.of(context).losTextMuted,
-                fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -959,9 +954,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
           const SizedBox(height: 2),
           Text(
             value,
-            style: MeshTokens.of(context).mono(
+            style: MeshTokens.of(context).monoBody(
               color: MeshTokens.of(context).losText,
-              fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -1032,18 +1026,16 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             const SizedBox(height: 18),
             Text(
               context.l10n.losBlockedSpotsTitle,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: MeshTokens.of(context).losText,
-                fontSize: 15,
                 fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               context.l10n.losBlockedSpotsHint,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: MeshTokens.of(context).losTextMuted,
-                fontSize: 12,
               ),
             ),
             const SizedBox(height: 10),
@@ -1091,9 +1083,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             ),
             subtitle: Text(
               context.l10n.losMenuSubtitle,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: MeshTokens.of(context).losTextMuted,
-                fontSize: 11,
               ),
             ),
             children: [
@@ -1102,7 +1093,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   context.l10n.losShowDisplayNodes,
-                  style: const TextStyle(fontSize: 12),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 value: _showDisplayNodes,
                 onChanged: (value) {
@@ -1118,7 +1109,9 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                 const SizedBox(height: 6),
                 Text(
                   context.l10n.losCustomPoints,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 for (final point in _customEndpoints)
                   ListTile(
@@ -1126,11 +1119,11 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                     contentPadding: EdgeInsets.zero,
                     title: Text(
                       point.label,
-                      style: const TextStyle(fontSize: 12),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     subtitle: Text(
                       '${point.point.latitude.toStringAsFixed(5)}, ${point.point.longitude.toStringAsFixed(5)}',
-                      style: const TextStyle(fontSize: 11),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -1187,7 +1180,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                   antennaADisplay.toStringAsFixed(1),
                   heightUnit,
                 ),
-                style: const TextStyle(fontSize: 12),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
               Slider(
                 value: antennaADisplay,
@@ -1205,7 +1198,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                   antennaBDisplay.toStringAsFixed(1),
                   heightUnit,
                 ),
-                style: const TextStyle(fontSize: 12),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
               Slider(
                 value: antennaBDisplay,
@@ -1236,9 +1229,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                   '${context.l10n.losFrequencyLabel}: '
                   '${displayFrequencyMHz.toStringAsFixed(3)} MHz'
                   '${kFactorUsed == null ? '' : '  k=${kFactorUsed.toStringAsFixed(3)}'}',
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: MeshTokens.of(context).losTextMuted,
-                    fontSize: 11,
                   ),
                 ),
                 if (kFactorUsed != null)
@@ -1257,9 +1249,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
           ],
           Text(
             context.l10n.losElevationAttribution,
-            style: TextStyle(
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: MeshTokens.of(context).losTextMuted,
-              fontSize: 10,
             ),
           ),
         ],
@@ -1277,7 +1268,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
       children: [
         SizedBox(
           width: 54,
-          child: Text(label, style: const TextStyle(fontSize: 12)),
+          child: Text(label, style: Theme.of(context).textTheme.bodyMedium),
         ),
         Expanded(
           child: DropdownButton<LineOfSightEndpoint>(
@@ -1375,7 +1366,6 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             badgeTextStyle:
                 Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: MeshTokens.of(context).losTextMuted,
-                  fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ) ??
                 TextStyle(
@@ -1414,7 +1404,6 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                     badgeTextStyle:
                         Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: MeshTokens.of(context).losTextMuted,
-                          fontSize: 10,
                           fontWeight: FontWeight.w600,
                         ) ??
                         TextStyle(
@@ -1610,11 +1599,9 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                         alignment: Alignment.center,
                         child: Text(
                           endpoint == _start ? 'A' : 'B',
-                          style: MeshTokens.of(context).mono(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                            color: endpoint.color,
-                          ),
+                          style: MeshTokens.of(context)
+                              .monoCaption(color: endpoint.color)
+                              .copyWith(fontWeight: FontWeight.w700),
                         ),
                       ),
                     ),
@@ -1654,8 +1641,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                       endpoint.label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: MeshTokens.of(context).mono(
-                        fontSize: 10,
+                      style: MeshTokens.of(context).monoBody(
                         fontWeight: FontWeight.w700,
                         color: MeshTokens.of(context).losText,
                       ),
@@ -2271,9 +2257,8 @@ class _LosLegend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyle =
-        Theme.of(context).textTheme.labelSmall?.copyWith(
+        Theme.of(context).textTheme.bodyMedium?.copyWith(
           color: MeshTokens.of(context).losText,
-          fontSize: 12,
           fontWeight: FontWeight.w700,
         ) ??
         TextStyle(
