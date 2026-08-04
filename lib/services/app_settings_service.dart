@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show Color;
 import '../models/app_settings.dart';
+import '../models/custom_style_overrides.dart';
 import '../models/translation_support.dart';
 import '../storage/prefs_manager.dart';
 import '../utils/app_logger.dart';
@@ -211,6 +213,55 @@ class AppSettingsService extends ChangeNotifier {
 
   Future<void> setStyleId(String value) async {
     await updateSettings(_settings.copyWith(styleId: value));
+  }
+
+  Future<void> setCustomColorOverride(String key, Color value) async {
+    final colors = Map<String, int>.from(
+      _settings.customStyleOverrides.colorOverrides,
+    )..[key] = value.toARGB32();
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: _settings.customStyleOverrides.copyWith(
+          colorOverrides: colors,
+        ),
+      ),
+    );
+  }
+
+  Future<void> setCustomFontSizeOverride(String key, double value) async {
+    final fontSizes = Map<String, double>.from(
+      _settings.customStyleOverrides.fontSizeOverrides,
+    )..[key] = value;
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: _settings.customStyleOverrides.copyWith(
+          fontSizeOverrides: fontSizes,
+        ),
+      ),
+    );
+  }
+
+  Future<void> resetCustomOverride(String key) async {
+    final colors = Map<String, int>.from(
+      _settings.customStyleOverrides.colorOverrides,
+    )..remove(key);
+    final fontSizes = Map<String, double>.from(
+      _settings.customStyleOverrides.fontSizeOverrides,
+    )..remove(key);
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: _settings.customStyleOverrides.copyWith(
+          colorOverrides: colors,
+          fontSizeOverrides: fontSizes,
+        ),
+      ),
+    );
+  }
+
+  Future<void> resetAllCustomOverrides() async {
+    await updateSettings(
+      _settings.copyWith(customStyleOverrides: const CustomStyleOverrides()),
+    );
   }
 
   Future<void> setLanguageOverride(String? value) async {
