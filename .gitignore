@@ -94,3 +94,6 @@ keystore.properties
 
 # Claude Code local working dir (worktrees, jobs, settings)
 .claude/
+
+# CLAUDE.md — local only, never tracked/pushed on this fork
+CLAUDE.md
