@@ -140,7 +140,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "de": [
@@ -271,7 +273,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "es": [
@@ -415,7 +419,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "fr": [
@@ -559,7 +565,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "hu": [
@@ -703,7 +711,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "it": [
@@ -847,7 +857,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "ja": [
@@ -991,7 +1003,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "ko": [
@@ -1135,7 +1149,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "nl": [
@@ -1279,7 +1295,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "pl": [
@@ -1457,7 +1475,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "ru": [
@@ -1601,7 +1621,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "sk": [
@@ -1745,7 +1767,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "sl": [
@@ -1889,7 +1913,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "sv": [
@@ -2033,7 +2059,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "uk": [
@@ -2177,7 +2205,9 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ],
 
   "zh": [
@@ -2321,6 +2351,8 @@
     "styleEditor_monoCaptionSize_label",
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
-    "styleEditor_monoBodySize_subtitle"
+    "styleEditor_monoBodySize_subtitle",
+    "appSettings_about",
+    "appSettings_editCustomStyleTooltip"
   ]
 }

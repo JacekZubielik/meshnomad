@@ -340,8 +340,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Custom'), findsOneWidget);
-      expect(find.byIcon(Icons.tune), findsOneWidget);
+      // 05-settings-entry.md: the editor icon only appears once Custom is
+      // actually selected.
+      expect(find.byIcon(Icons.tune), findsNothing);
 
+      await tester.tap(find.text('Custom'));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.tune), findsOneWidget);
       await tester.tap(find.byIcon(Icons.tune));
       await tester.pumpAndSettle();
 

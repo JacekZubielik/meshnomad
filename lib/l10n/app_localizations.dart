@@ -8877,6 +8877,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Technical text: keys, RF data, map labels'**
   String get styleEditor_monoBodySize_subtitle;
+
+  /// No description provided for @appSettings_about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get appSettings_about;
+
+  /// No description provided for @appSettings_editCustomStyleTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit custom style'**
+  String get appSettings_editCustomStyleTooltip;
 }
 
 class _AppLocalizationsDelegate

@@ -2753,5 +2753,7 @@
   "styleEditor_monoCaptionSize_label": "Mono — podpisy",
   "styleEditor_monoCaptionSize_subtitle": "Drobny tekst techniczny: ID, współrzędne, logi",
   "styleEditor_monoBodySize_label": "Mono — treść",
-  "styleEditor_monoBodySize_subtitle": "Tekst techniczny: klucze, dane RF, etykiety na mapie"
+  "styleEditor_monoBodySize_subtitle": "Tekst techniczny: klucze, dane RF, etykiety na mapie",
+  "appSettings_about": "O aplikacji",
+  "appSettings_editCustomStyleTooltip": "Edytuj styl Custom"
 }

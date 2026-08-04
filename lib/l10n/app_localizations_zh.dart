@@ -4812,4 +4812,10 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get styleEditor_monoBodySize_subtitle =>
       'Technical text: keys, RF data, map labels';
+
+  @override
+  String get appSettings_about => 'About';
+
+  @override
+  String get appSettings_editCustomStyleTooltip => 'Edit custom style';
 }

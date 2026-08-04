@@ -2823,5 +2823,7 @@
   "styleEditor_monoCaptionSize_label": "Mono — captions",
   "styleEditor_monoCaptionSize_subtitle": "Small technical text: IDs, coordinates, logs",
   "styleEditor_monoBodySize_label": "Mono — body",
-  "styleEditor_monoBodySize_subtitle": "Technical text: keys, RF data, map labels"
+  "styleEditor_monoBodySize_subtitle": "Technical text: keys, RF data, map labels",
+  "appSettings_about": "About",
+  "appSettings_editCustomStyleTooltip": "Edit custom style"
 }

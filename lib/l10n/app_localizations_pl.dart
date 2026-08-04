@@ -5182,4 +5182,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get styleEditor_monoBodySize_subtitle =>
       'Tekst techniczny: klucze, dane RF, etykiety na mapie';
+
+  @override
+  String get appSettings_about => 'O aplikacji';
+
+  @override
+  String get appSettings_editCustomStyleTooltip => 'Edytuj styl Custom';
 }
