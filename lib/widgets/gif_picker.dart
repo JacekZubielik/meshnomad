@@ -180,8 +180,7 @@ class _GifPickerState extends State<GifPicker> {
           const SizedBox(height: 8),
           Text(
             context.l10n.gifPicker_poweredBy,
-            style: TextStyle(
-              fontSize: 11,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),

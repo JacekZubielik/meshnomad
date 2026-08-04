@@ -238,9 +238,8 @@ class _TelemetryLocationMapState extends State<TelemetryLocationMap> {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.white,
-                  fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
               ),

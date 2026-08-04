@@ -904,9 +904,8 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 color: scheme.onSurfaceVariant,
-                fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -914,9 +913,7 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
           const SizedBox(width: 8),
           Text(
             value,
-            style: MeshTokens.of(
-              context,
-            ).mono(fontSize: 13, color: scheme.onSurface),
+            style: MeshTokens.of(context).monoBody(color: scheme.onSurface),
             textAlign: TextAlign.end,
           ),
         ],

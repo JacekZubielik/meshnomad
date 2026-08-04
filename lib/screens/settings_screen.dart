@@ -346,8 +346,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mono
               ? Text(
                   value,
-                  style: MeshTokens.of(context).mono(
-                    fontSize: 13,
+                  style: MeshTokens.of(context).monoBody(
                     fontWeight: FontWeight.w500,
                     color: valueColor ?? scheme.onSurface,
                   ),

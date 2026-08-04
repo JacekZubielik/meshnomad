@@ -1680,13 +1680,13 @@ class _ContactTile extends StatelessWidget {
                           contact.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: unreadCount > 0
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            fontSize: 15,
-                            color: scheme.onSurface,
-                          ),
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
+                                fontWeight: unreadCount > 0
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                color: scheme.onSurface,
+                              ),
                         ),
                       ),
                       if (isFavorite) ...[
@@ -1721,10 +1721,8 @@ class _ContactTile extends StatelessWidget {
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: scheme.onSurfaceVariant,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: scheme.onSurfaceVariant),
                         ),
                       ),
                       if (hasPath) ...[
@@ -1762,8 +1760,7 @@ class _ContactTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.right,
-                    style: MeshTokens.of(context).mono(
-                      fontSize: 11,
+                    style: MeshTokens.of(context).monoCaption(
                       color: unreadCount > 0
                           ? MeshTokens.of(context).blue
                           : scheme.onSurfaceVariant,

@@ -1171,8 +1171,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               alignment: Alignment.center,
               child: Text(
                 shortLabel,
-                style: MeshTokens.of(context).mono(
-                  fontSize: 12,
+                style: MeshTokens.of(context).monoBody(
                   fontWeight: FontWeight.w700,
                   color: hasGps
                       ? MeshTokens.of(context).signal
@@ -1467,8 +1466,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: MeshTokens.of(context).mono(
-                  fontSize: 10,
+                style: MeshTokens.of(context).monoBody(
                   fontWeight: FontWeight.w500,
                   color: MeshTokens.of(context).ink2,
                 ),
@@ -1706,9 +1704,8 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                           children: [
                             Text(
                               '${l10n.channelPath_repeaterHops} ${formatDistance(selected?.distanceMeters ?? _pathDistanceMeters, isImperial: isImperial)}',
-                              style: MeshTokens.of(context).mono(
+                              style: MeshTokens.of(context).monoBody(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 13,
                                 color: MeshTokens.of(context).ink,
                               ),
                             ),
@@ -1833,13 +1830,13 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               formatDirectionText(pathTraceData, index),
               style: MeshTokens.of(
                 context,
-              ).mono(fontSize: 13, color: MeshTokens.of(context).ink),
+              ).monoBody(color: MeshTokens.of(context).ink),
             ),
             subtitle: Text(
               formatDirectionSubText(pathTraceData, index),
               style: MeshTokens.of(
                 context,
-              ).mono(fontSize: 12, color: MeshTokens.of(context).ink3),
+              ).monoCaption(color: MeshTokens.of(context).ink3),
             ),
             trailing: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1847,9 +1844,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                 Icon(snrUi.icon, color: snrUi.color, size: 18.0),
                 Text(
                   snrUi.text,
-                  style: MeshTokens.of(
-                    context,
-                  ).mono(fontSize: 10, color: snrUi.color),
+                  style: MeshTokens.of(context).monoCaption(color: snrUi.color),
                 ),
               ],
             ),
@@ -1918,7 +1913,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                     snrUi.text,
                     style: MeshTokens.of(
                       context,
-                    ).mono(fontSize: 10, color: snrUi.color),
+                    ).monoCaption(color: snrUi.color),
                   ),
                 ],
               );
@@ -1944,24 +1939,22 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               alignment: Alignment.center,
               child: Text(
                 '${index + 1}',
-                style: MeshTokens.of(context).mono(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: path.color,
-                ),
+                style: MeshTokens.of(
+                  context,
+                ).monoBody(fontWeight: FontWeight.w700, color: path.color),
               ),
             ),
             title: Text(
               title,
               style: MeshTokens.of(
                 context,
-              ).mono(fontSize: 13, color: MeshTokens.of(context).ink),
+              ).monoBody(color: MeshTokens.of(context).ink),
             ),
             subtitle: Text(
               subtitle,
               style: MeshTokens.of(
                 context,
-              ).mono(fontSize: 11, color: MeshTokens.of(context).ink3),
+              ).monoCaption(color: MeshTokens.of(context).ink3),
             ),
             trailing: trailing,
           );

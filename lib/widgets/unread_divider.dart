@@ -29,7 +29,7 @@ class UnreadDivider extends StatelessWidget {
               context.l10n.chat_newMessages,
               style: MeshTokens.of(
                 context,
-              ).mono(fontSize: 10.5, fontWeight: FontWeight.w600, color: color),
+              ).monoBody(fontWeight: FontWeight.w600, color: color),
             ),
           ),
           const SizedBox(width: 10),

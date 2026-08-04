@@ -62,9 +62,7 @@ class _CompanionRadioStatsScreenState extends State<CompanionRadioStatsScreen> {
           Expanded(
             child: Text(
               text,
-              style: MeshTokens.of(
-                context,
-              ).mono(fontSize: 13, color: scheme.onSurface),
+              style: MeshTokens.of(context).monoBody(color: scheme.onSurface),
             ),
           ),
         ],

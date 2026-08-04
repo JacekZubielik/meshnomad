@@ -1877,7 +1877,9 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
         leading: const Icon(Icons.tune),
         title: Text(
           l10n.repeater_advancedSettings,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(l10n.repeater_advancedSettingsSubtitle),
         childrenPadding: const EdgeInsets.fromLTRB(0, 8, 0, 4),
@@ -2042,7 +2044,9 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
         leading: const Icon(Icons.vpn_key),
         title: Text(
           l10n.repeater_keySettings,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(l10n.repeater_keySettingsSubtitle),
         childrenPadding: const EdgeInsets.fromLTRB(0, 8, 0, 4),
@@ -2171,8 +2175,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               const SizedBox(width: 8),
               Text(
                 l10n.repeater_dangerZone,
-                style: TextStyle(
-                  fontSize: 15,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: MeshTokens.of(context).alert,
                 ),

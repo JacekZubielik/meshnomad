@@ -298,8 +298,7 @@ class _RepeaterLoginDialogState extends State<RepeaterLoginDialog> {
                 ),
                 Text(
                   repeater.name,
-                  style: TextStyle(
-                    fontSize: 13,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.normal,
                     color: scheme.onSurfaceVariant,
                   ),
@@ -337,7 +336,8 @@ class _RepeaterLoginDialogState extends State<RepeaterLoginDialog> {
                         Expanded(
                           child: Text(
                             _loginError!,
-                            style: TextStyle(color: scheme.error, fontSize: 13),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(color: scheme.error),
                           ),
                         ),
                       ],
@@ -388,7 +388,7 @@ class _RepeaterLoginDialogState extends State<RepeaterLoginDialog> {
                     ),
                     subtitle: Text(
                       l10n.login_savePasswordSubtitle,
-                      style: const TextStyle(fontSize: 12),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: EdgeInsets.zero,
@@ -473,8 +473,7 @@ class _RepeaterLoginDialogState extends State<RepeaterLoginDialog> {
                       context.l10n,
                       pathHashByteWidth: connector.pathHashByteWidth,
                     ),
-                    style: TextStyle(
-                      fontSize: 11,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
                   ),

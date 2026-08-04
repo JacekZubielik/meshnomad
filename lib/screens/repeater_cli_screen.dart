@@ -328,11 +328,9 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                     child: ActionChip(
                       label: Text(
                         label,
-                        style: MeshTokens.of(context).mono(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: MeshTokens.of(context).blue,
-                        ),
+                        style: MeshTokens.of(context)
+                            .monoCaption(color: MeshTokens.of(context).blue)
+                            .copyWith(fontWeight: FontWeight.w600),
                       ),
                       backgroundColor: MeshTokens.of(context).blueBg,
                       side: BorderSide(color: MeshTokens.of(context).blueLine),
@@ -389,16 +387,14 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                       focusNode: _commandFocusNode,
                       style: MeshTokens.of(
                         context,
-                      ).mono(fontSize: 13, color: MeshTokens.of(context).ink),
+                      ).monoBody(color: MeshTokens.of(context).ink),
                       decoration: InputDecoration(
                         hintText: context.l10n.repeater_enterCommandHint,
-                        hintStyle: MeshTokens.of(context).mono(
-                          fontSize: 13,
-                          color: MeshTokens.of(context).ink4,
-                        ),
+                        hintStyle: MeshTokens.of(
+                          context,
+                        ).monoCaption(color: MeshTokens.of(context).ink4),
                         prefixText: '> ',
-                        prefixStyle: MeshTokens.of(context).mono(
-                          fontSize: 13,
+                        prefixStyle: MeshTokens.of(context).monoBody(
                           color: MeshTokens.of(context).blue,
                           fontWeight: FontWeight.w700,
                         ),
@@ -481,12 +477,14 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
             l10n.repeater_noCommandsSent,
             style: MeshTokens.of(
               context,
-            ).mono(fontSize: 13, color: MeshTokens.of(context).ink3),
+            ).monoCaption(color: MeshTokens.of(context).ink3),
           ),
           const SizedBox(height: 4),
           Text(
             l10n.repeater_typeCommandOrUseQuick,
-            style: TextStyle(fontSize: 12, color: MeshTokens.of(context).ink4),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: MeshTokens.of(context).ink4,
+            ),
           ),
         ],
       ),
@@ -512,21 +510,20 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                 width: 20,
                 child: Text(
                   isCommand ? '>' : ' ',
-                  style: MeshTokens.of(context).mono(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: isCommand
-                        ? MeshTokens.of(context).blue
-                        : MeshTokens.of(context).ink3,
-                  ),
+                  style: MeshTokens.of(context)
+                      .monoCaption(
+                        color: isCommand
+                            ? MeshTokens.of(context).blue
+                            : MeshTokens.of(context).ink3,
+                      )
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(width: 6),
               Expanded(
                 child: SelectableText(
                   entry['text']!,
-                  style: MeshTokens.of(context).mono(
-                    fontSize: 12.5,
+                  style: MeshTokens.of(context).monoBody(
                     color: isCommand
                         ? MeshTokens.of(context).blue
                         : MeshTokens.of(context).ink,
@@ -1085,7 +1082,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
             children: [
               Text(
                 l10n.repeater_commandsListNote,
-                style: const TextStyle(fontSize: 13),
+                style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 16),
               _buildHelpSection(
@@ -1166,13 +1163,17 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
       children: [
         Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         if (note != null) ...[
           const SizedBox(height: 4),
           Text(
             note,
-            style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
         ],
         const SizedBox(height: 8),
@@ -1201,16 +1202,16 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
             children: [
               Text(
                 entry.command,
-                style: MeshTokens.of(context).mono(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: MeshTokens.of(context).blue,
-                ),
+                style: MeshTokens.of(context)
+                    .monoCaption(color: MeshTokens.of(context).blue)
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 4),
               Text(
                 entry.description,
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),

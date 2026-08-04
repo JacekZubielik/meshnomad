@@ -256,8 +256,7 @@ class ChannelMessagePathScreen extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         _formatPathPrefixes(variants[i], hashByteWidth),
-                        style: MeshTokens.of(context).mono(
-                          fontSize: 11,
+                        style: MeshTokens.of(context).monoCaption(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -405,14 +404,14 @@ class ChannelMessagePathScreen extends StatelessWidget {
                     hexPrefix,
                     style: MeshTokens.of(
                       context,
-                    ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
+                    ).monoCaption(color: scheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     locationText,
                     style: MeshTokens.of(
                       context,
-                    ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
+                    ).monoCaption(color: scheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -1188,9 +1187,8 @@ class _ChannelMessagePathMapScreenState
                     label,
                     _formatPathPrefixes(selectedPath.pathBytes, width),
                   ),
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: 12,
                   ),
                 ),
               ],
@@ -1233,10 +1231,9 @@ class _ChannelMessagePathMapScreenState
               alignment: Alignment.center,
               child: Text(
                 hop.index.toString(),
-                style: const TextStyle(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
                 ),
               ),
             ),
@@ -1288,10 +1285,9 @@ class _ChannelMessagePathMapScreenState
             alignment: Alignment.center,
             child: Text(
               context.l10n.pathTrace_you,
-              style: const TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 12,
               ),
             ),
           ),
@@ -1379,10 +1375,9 @@ class _ChannelMessagePathMapScreenState
                   alignment: Alignment.center,
                   child: Text(
                     label,
-                    style: const TextStyle(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 11,
                     ),
                   ),
                 ),
@@ -1459,9 +1454,8 @@ class _ChannelMessagePathMapScreenState
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.white,
-                  fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -1556,8 +1550,7 @@ class _ChannelMessagePathMapScreenState
                                             _pathDistance,
                                         isImperial: isImperial,
                                       ),
-                                      style: MeshTokens.of(context).mono(
-                                        fontSize: 12,
+                                      style: MeshTokens.of(context).monoCaption(
                                         color: MeshTokens.of(context).ink2,
                                       ),
                                     ),
@@ -1718,9 +1711,8 @@ class _ChannelMessagePathMapScreenState
                       alignment: Alignment.center,
                       child: Text(
                         hop.index.toString(),
-                        style: const TextStyle(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.white,
-                          fontSize: 11,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -1732,10 +1724,8 @@ class _ChannelMessagePathMapScreenState
                         children: [
                           Text(
                             hop.displayLabel,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
@@ -1749,10 +1739,9 @@ class _ChannelMessagePathMapScreenState
                                   sharedCount,
                                 ),
                             ].join(' · '),
-                            style: MeshTokens.of(context).mono(
-                              fontSize: 10,
-                              color: MeshTokens.of(context).ink3,
-                            ),
+                            style: MeshTokens.of(
+                              context,
+                            ).monoCaption(color: MeshTokens.of(context).ink3),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],

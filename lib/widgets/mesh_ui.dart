@@ -204,18 +204,16 @@ class StatTile extends StatelessWidget {
           Text.rich(
             TextSpan(
               text: value,
-              style: MeshTokens.of(context).mono(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-                color: scheme.onSurface,
-              ),
+              style: MeshTokens.of(
+                context,
+              ).monoBody(fontWeight: FontWeight.w600, color: scheme.onSurface),
               children: [
                 if (unit != null)
                   TextSpan(
                     text: ' $unit',
                     style: MeshTokens.of(
                       context,
-                    ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
+                    ).monoCaption(color: scheme.onSurfaceVariant),
                   ),
               ],
             ),
@@ -573,7 +571,9 @@ class ErrorRetryCard extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: TextStyle(color: scheme.error, fontSize: 13),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(color: scheme.error),
             ),
           ),
           if (onRetry != null)

@@ -519,8 +519,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       const SizedBox(width: 6),
                       Text(
                         'CH ${channel.index}',
-                        style: MeshTokens.of(context).mono(
-                          fontSize: 11,
+                        style: MeshTokens.of(context).monoCaption(
                           color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
                         ),
                       ),
@@ -543,7 +542,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       lastPreview,
                       style: MeshTokens.of(
                         context,
-                      ).mono(fontSize: 11.5, color: scheme.onSurfaceVariant),
+                      ).monoCaption(color: scheme.onSurfaceVariant),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -562,7 +561,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     _relativeTime(lastTime),
                     style: MeshTokens.of(
                       context,
-                    ).mono(fontSize: 11, color: scheme.onSurfaceVariant),
+                    ).monoCaption(color: scheme.onSurfaceVariant),
                   ),
                 const SizedBox(height: 4),
                 Row(
@@ -1192,13 +1191,13 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
                           sheetContext.l10n.community_hashtagPrivacyHint,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(
-                              sheetContext,
-                            ).colorScheme.onSurfaceVariant,
-                            fontStyle: FontStyle.italic,
-                          ),
+                          style: Theme.of(sheetContext).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  sheetContext,
+                                ).colorScheme.onSurfaceVariant,
+                                fontStyle: FontStyle.italic,
+                              ),
                         ),
                       ),
                     Padding(
@@ -1869,12 +1868,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                             context.l10n.channels_communityShortId(
                               community.shortCommunityId,
                             ),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
                           ),
                           trailing: PopupMenuButton<String>(
                             onSelected: (value) {

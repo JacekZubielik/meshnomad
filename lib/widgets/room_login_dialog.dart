@@ -255,8 +255,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                 ),
                 Text(
                   repeater.name,
-                  style: TextStyle(
-                    fontSize: 13,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.normal,
                     color: scheme.onSurfaceVariant,
                   ),
@@ -324,7 +323,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                     ),
                     subtitle: Text(
                       l10n.login_savePasswordSubtitle,
-                      style: const TextStyle(fontSize: 12),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: EdgeInsets.zero,
@@ -409,8 +408,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                       context.l10n,
                       pathHashByteWidth: connector.pathHashByteWidth,
                     ),
-                    style: TextStyle(
-                      fontSize: 11,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
                   ),

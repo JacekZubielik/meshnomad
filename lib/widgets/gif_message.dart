@@ -149,7 +149,9 @@ class _GifMessageState extends State<GifMessage> {
         child: Text(
           "Can't load GIF\nTap to retry",
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12, color: widget.fallbackTextColor),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: widget.fallbackTextColor),
         ),
       );
     } else if (_isLoading && _image == null) {
@@ -165,7 +167,9 @@ class _GifMessageState extends State<GifMessage> {
         child: Text(
           'Tap to load GIF',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12, color: widget.fallbackTextColor),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: widget.fallbackTextColor),
         ),
       );
     } else {

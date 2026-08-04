@@ -241,8 +241,7 @@ void showSharedNodeSheet(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
             child: Text(
               title,
-              style: MeshTokens.of(context).mono(
-                fontSize: 14,
+              style: MeshTokens.of(context).monoBody(
                 fontWeight: FontWeight.w700,
                 color: MeshTokens.of(context).ink,
               ),
@@ -252,8 +251,7 @@ void showSharedNodeSheet(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               l10n.pathMap_sharedNodeCount(paths.length),
-              style: TextStyle(
-                fontSize: 12,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: MeshTokens.of(context).ink3,
               ),
             ),
@@ -267,13 +265,13 @@ void showSharedNodeSheet(
                 path.label,
                 style: MeshTokens.of(
                   context,
-                ).mono(fontSize: 13, color: MeshTokens.of(context).ink),
+                ).monoBody(color: MeshTokens.of(context).ink),
               ),
               trailing: Text(
                 l10n.pathMap_hopCount(path.totalTransmissions),
                 style: MeshTokens.of(
                   context,
-                ).mono(fontSize: 11, color: MeshTokens.of(context).ink3),
+                ).monoCaption(color: MeshTokens.of(context).ink3),
               ),
               onTap: () {
                 Navigator.pop(sheetContext);
@@ -454,7 +452,7 @@ class PathAnimationControls extends StatelessWidget {
                 ),
                 child: Text(
                   playback.speed == 0.5 ? '0.5×' : '${playback.speed.toInt()}×',
-                  style: MeshTokens.of(context).mono(fontSize: 12),
+                  style: MeshTokens.of(context).monoBody(),
                 ),
               ),
               Expanded(
@@ -465,7 +463,7 @@ class PathAnimationControls extends StatelessWidget {
                   textAlign: TextAlign.right,
                   style: MeshTokens.of(
                     context,
-                  ).mono(fontSize: 10.5, color: MeshTokens.of(context).ink2),
+                  ).monoCaption(color: MeshTokens.of(context).ink2),
                 ),
               ),
             ],
@@ -497,7 +495,9 @@ class PathMiniLegend extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           text,
-          style: TextStyle(fontSize: 11, color: MeshTokens.of(context).ink3),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: MeshTokens.of(context).ink3),
         ),
       ],
     );
@@ -595,7 +595,7 @@ class PathSummaryList extends StatelessWidget {
                   ),
                   child: Text(
                     l10n.pathMap_showAllPaths,
-                    style: const TextStyle(fontSize: 11),
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
             ],
@@ -638,8 +638,7 @@ class PathSummaryList extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     path.label,
-                    style: MeshTokens.of(context).mono(
-                      fontSize: 12,
+                    style: MeshTokens.of(context).monoBody(
                       fontWeight: isSelected
                           ? FontWeight.w700
                           : FontWeight.w500,
@@ -659,7 +658,7 @@ class PathSummaryList extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: MeshTokens.of(
                     context,
-                  ).mono(fontSize: 10.5, color: MeshTokens.of(context).ink3),
+                  ).monoCaption(color: MeshTokens.of(context).ink3),
                 ),
               ),
             ),

@@ -111,9 +111,8 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                 ),
                 child: Text(
                   context.l10n.community_scanInstructions,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: MeshTokens.of(context).ink2,
-                    fontSize: 13,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -213,17 +212,14 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                       children: [
                         Text(
                           community.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
+                          style: Theme.of(sheetContext).textTheme.labelMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         Text(
                           'ID: ${community.shortCommunityId}...',
-                          style: MeshTokens.of(sheetContext).mono(
-                            fontSize: 11.5,
-                            color: sheetScheme.onSurfaceVariant,
-                          ),
+                          style: MeshTokens.of(
+                            sheetContext,
+                          ).monoCaption(color: sheetScheme.onSurfaceVariant),
                         ),
                       ],
                     ),
@@ -287,17 +283,14 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                         children: [
                           Text(
                             community.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15,
-                            ),
+                            style: Theme.of(sheetContext).textTheme.labelMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                           Text(
                             'ID: ${community.shortCommunityId}...',
-                            style: MeshTokens.of(sheetContext).mono(
-                              fontSize: 11.5,
-                              color: joinScheme.onSurfaceVariant,
-                            ),
+                            style: MeshTokens.of(
+                              sheetContext,
+                            ).monoCaption(color: joinScheme.onSurfaceVariant),
                           ),
                         ],
                       ),
