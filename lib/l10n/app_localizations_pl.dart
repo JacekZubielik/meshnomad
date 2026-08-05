@@ -4189,7 +4189,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get contacts_pathTrace => 'Śledzenie Ścieżek';
 
   @override
-  String get contacts_ping => 'Pingować';
+  String get contacts_ping => 'Ping';
 
   @override
   String get contacts_repeaterPathTrace => 'Śledzenie ścieżki do przekaźnika';
@@ -4821,4 +4821,371 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pathMap_unfollowPacket => 'Przestań śledzić pakiet';
+
+  @override
+  String get styleEditor_title => 'Styl niestandardowy';
+
+  @override
+  String get styleEditor_colorsSection => 'Kolory';
+
+  @override
+  String get styleEditor_fontSizesSection => 'Rozmiary czcionek';
+
+  @override
+  String get styleEditor_fontSizesIntro =>
+      'Tytuły ekranów, przyciski i zakładki skalują się razem z powyższymi rozmiarami.';
+
+  @override
+  String get styleEditor_resetAll => 'Resetuj wszystko';
+
+  @override
+  String get styleEditor_resetAllConfirm =>
+      'Przywrócić wszystkie kolory i rozmiary do wartości domyślnych?';
+
+  @override
+  String get styleEditor_resetTooltip => 'Przywróć domyślne';
+
+  @override
+  String get styleEditor_hexLabel => 'Kolor hex';
+
+  @override
+  String get styleEditor_hexHint => '#RRGGBB';
+
+  @override
+  String get styleEditor_hexError => 'Wpisz kolor hex w formacie #RRGGBB';
+
+  @override
+  String get styleEditor_mapSection => 'Mapa';
+
+  @override
+  String get styleEditor_losSection => 'Linia widzenia (LOS)';
+
+  @override
+  String get styleEditor_bg_label => 'Tło';
+
+  @override
+  String get styleEditor_bg_subtitle => 'Główne tło aplikacji';
+
+  @override
+  String get styleEditor_ink_label => 'Tekst';
+
+  @override
+  String get styleEditor_ink_subtitle => 'Podstawowy kolor tekstu';
+
+  @override
+  String get styleEditor_line_label => 'Linie';
+
+  @override
+  String get styleEditor_line_subtitle => 'Separatory i obramowania';
+
+  @override
+  String get styleEditor_primary_label => 'Akcent główny';
+
+  @override
+  String get styleEditor_primary_subtitle =>
+      'Przyciski, aktywne elementy, mapa';
+
+  @override
+  String get styleEditor_secondary_label => 'Akcent dodatkowy';
+
+  @override
+  String get styleEditor_secondary_subtitle =>
+      'Elementy drugorzędne, wyróżnienia';
+
+  @override
+  String get styleEditor_signal_label => 'Sygnał';
+
+  @override
+  String get styleEditor_signal_subtitle => 'Kolor jakości sygnału (SNR)';
+
+  @override
+  String get styleEditor_warn_label => 'Ostrzeżenie';
+
+  @override
+  String get styleEditor_warn_subtitle => 'Komunikaty ostrzegawcze';
+
+  @override
+  String get styleEditor_alert_label => 'Alarm';
+
+  @override
+  String get styleEditor_alert_subtitle => 'Błędy i stany krytyczne';
+
+  @override
+  String get styleEditor_me_label => 'Dymek wiadomości';
+
+  @override
+  String get styleEditor_me_subtitle => 'Tło własnych wiadomości w czacie';
+
+  @override
+  String get styleEditor_meInk_label => 'Tekst dymka';
+
+  @override
+  String get styleEditor_meInk_subtitle => 'Kolor tekstu własnych wiadomości';
+
+  @override
+  String get styleEditor_mapOnline_label => 'Mapa: węzeł online';
+
+  @override
+  String get styleEditor_mapOnline_subtitle => 'Znacznik węzła aktywnego';
+
+  @override
+  String get styleEditor_mapOffline_label => 'Mapa: węzeł offline';
+
+  @override
+  String get styleEditor_mapOffline_subtitle => 'Znacznik węzła niedostępnego';
+
+  @override
+  String get styleEditor_mapStale_label => 'Mapa: węzeł nieaktualny';
+
+  @override
+  String get styleEditor_mapStale_subtitle =>
+      'Znacznik węzła dawno niewidzianego';
+
+  @override
+  String get styleEditor_mapRepeater_label => 'Mapa: przekaźnik';
+
+  @override
+  String get styleEditor_mapRepeater_subtitle =>
+      'Znacznik węzła typu repeater (RPT)';
+
+  @override
+  String get styleEditor_mapRouter_label => 'Mapa: room/router';
+
+  @override
+  String get styleEditor_mapRouter_subtitle => 'Znacznik węzła typu room';
+
+  @override
+  String get styleEditor_mapBatteryLow_label => 'Mapa: niska bateria';
+
+  @override
+  String get styleEditor_mapBatteryLow_subtitle =>
+      'Znacznik węzła z niską baterią';
+
+  @override
+  String get styleEditor_mapCluster_label => 'Mapa: klaster';
+
+  @override
+  String get styleEditor_mapCluster_subtitle =>
+      'Zgrupowane znaczniki przy oddaleniu';
+
+  @override
+  String get styleEditor_mapSelected_label => 'Mapa: wybrany węzeł';
+
+  @override
+  String get styleEditor_mapSelected_subtitle =>
+      'Znacznik aktualnie wybranego węzła';
+
+  @override
+  String get styleEditor_mapSensor_label => 'Mapa: czujnik';
+
+  @override
+  String get styleEditor_mapSensor_subtitle => 'Znacznik węzła typu sensor';
+
+  @override
+  String get styleEditor_mapShared_label => 'Mapa: udostępniona pinezka';
+
+  @override
+  String get styleEditor_mapShared_subtitle =>
+      'Znacznik pozycji udostępnionej w czacie';
+
+  @override
+  String get styleEditor_mapPanelLight_label => 'Mapa: panel jasny';
+
+  @override
+  String get styleEditor_mapPanelLight_subtitle =>
+      'Tło paneli nakładek (wariant jasny)';
+
+  @override
+  String get styleEditor_mapPanelDark_label => 'Mapa: panel ciemny';
+
+  @override
+  String get styleEditor_mapPanelDark_subtitle =>
+      'Tło paneli nakładek (wariant ciemny)';
+
+  @override
+  String get styleEditor_mapTextPrimary_label => 'Mapa: tekst główny';
+
+  @override
+  String get styleEditor_mapTextPrimary_subtitle => 'Tekst na nakładkach mapy';
+
+  @override
+  String get styleEditor_mapTextSecondary_label => 'Mapa: tekst drugorzędny';
+
+  @override
+  String get styleEditor_mapTextSecondary_subtitle =>
+      'Mniej ważny tekst na nakładkach';
+
+  @override
+  String get styleEditor_mapTextMuted_label => 'Mapa: tekst wyciszony';
+
+  @override
+  String get styleEditor_mapTextMuted_subtitle =>
+      'Najmniej istotny tekst na nakładkach';
+
+  @override
+  String get styleEditor_mapBorder_label => 'Mapa: obramowania';
+
+  @override
+  String get styleEditor_mapBorder_subtitle =>
+      'Ramki paneli i etykiet na mapie';
+
+  @override
+  String get styleEditor_mapMarkerOutline_label => 'Mapa: obrys znacznika';
+
+  @override
+  String get styleEditor_mapMarkerOutline_subtitle =>
+      'Obwódka znaczników węzłów';
+
+  @override
+  String get styleEditor_mapMarkerShadow_label => 'Mapa: cień znacznika';
+
+  @override
+  String get styleEditor_mapMarkerShadow_subtitle => 'Cień pod znacznikami';
+
+  @override
+  String get styleEditor_losTerrain_label => 'LOS: teren';
+
+  @override
+  String get styleEditor_losTerrain_subtitle =>
+      'Wypełnienie profilu terenu na wykresie';
+
+  @override
+  String get styleEditor_losBeam_label => 'LOS: wiązka';
+
+  @override
+  String get styleEditor_losBeam_subtitle =>
+      'Linia wiązki radiowej między punktami';
+
+  @override
+  String get styleEditor_losHorizon_label => 'LOS: horyzont';
+
+  @override
+  String get styleEditor_losHorizon_subtitle => 'Linia horyzontu na wykresie';
+
+  @override
+  String get styleEditor_losBlocked_label => 'LOS: zablokowana';
+
+  @override
+  String get styleEditor_losBlocked_subtitle =>
+      'Kolor gdy teren blokuje łączność';
+
+  @override
+  String get styleEditor_losMarginal_label => 'LOS: graniczna';
+
+  @override
+  String get styleEditor_losMarginal_subtitle =>
+      'Kolor gdy łączność jest na granicy';
+
+  @override
+  String get styleEditor_losClear_label => 'LOS: czysta';
+
+  @override
+  String get styleEditor_losClear_subtitle =>
+      'Kolor gdy linia widzenia jest wolna';
+
+  @override
+  String get styleEditor_losSelected_label => 'LOS: wybrany punkt';
+
+  @override
+  String get styleEditor_losSelected_subtitle =>
+      'Zaznaczony punkt na mapie/wykresie';
+
+  @override
+  String get styleEditor_losChartBackground_label => 'LOS: tło wykresu';
+
+  @override
+  String get styleEditor_losChartBackground_subtitle =>
+      'Tło wykresu profilu terenu';
+
+  @override
+  String get styleEditor_losPanelDark_label => 'LOS: panel ciemny';
+
+  @override
+  String get styleEditor_losPanelDark_subtitle => 'Tło paneli (wariant ciemny)';
+
+  @override
+  String get styleEditor_losPanelLight_label => 'LOS: panel jasny';
+
+  @override
+  String get styleEditor_losPanelLight_subtitle => 'Tło paneli (wariant jasny)';
+
+  @override
+  String get styleEditor_losText_label => 'LOS: tekst';
+
+  @override
+  String get styleEditor_losText_subtitle => 'Tekst na panelach LOS';
+
+  @override
+  String get styleEditor_losTextMuted_label => 'LOS: tekst wyciszony';
+
+  @override
+  String get styleEditor_losTextMuted_subtitle =>
+      'Mniej istotny tekst na panelach';
+
+  @override
+  String get styleEditor_losBorder_label => 'LOS: obramowania';
+
+  @override
+  String get styleEditor_losBorder_subtitle => 'Ramki paneli LOS';
+
+  @override
+  String get styleEditor_losShadow_label => 'LOS: cień';
+
+  @override
+  String get styleEditor_losShadow_subtitle => 'Cienie paneli LOS';
+
+  @override
+  String get styleEditor_bodyMedium_label => 'Tekst podstawowy';
+
+  @override
+  String get styleEditor_bodyMedium_subtitle =>
+      'Większość tekstów: etykiety ustawień, treści list';
+
+  @override
+  String get styleEditor_bodySmall_label => 'Tekst pomocniczy';
+
+  @override
+  String get styleEditor_bodySmall_subtitle =>
+      'Podtytuły i opisy pod etykietami';
+
+  @override
+  String get styleEditor_titleSmall_label => 'Tytuły sekcji';
+
+  @override
+  String get styleEditor_titleSmall_subtitle =>
+      'Nagłówki sekcji i tytuły w oknach dialogowych';
+
+  @override
+  String get styleEditor_labelSmall_label => 'Etykieta mała';
+
+  @override
+  String get styleEditor_labelSmall_subtitle =>
+      'Drobne etykiety: filtry, statystyki, osie wykresów';
+
+  @override
+  String get styleEditor_labelMedium_label => 'Etykieta';
+
+  @override
+  String get styleEditor_labelMedium_subtitle =>
+      'Nazwy na listach, dolny pasek, nagłówki sekcji przekaźnika';
+
+  @override
+  String get styleEditor_monoCaptionSize_label => 'Mono — podpisy';
+
+  @override
+  String get styleEditor_monoCaptionSize_subtitle =>
+      'Drobny tekst techniczny: ID, współrzędne, logi';
+
+  @override
+  String get styleEditor_monoBodySize_label => 'Mono — treść';
+
+  @override
+  String get styleEditor_monoBodySize_subtitle =>
+      'Tekst techniczny: klucze, dane RF, etykiety na mapie';
+
+  @override
+  String get appSettings_about => 'O aplikacji';
+
+  @override
+  String get appSettings_editCustomStyleTooltip => 'Edytuj styl Custom';
 }

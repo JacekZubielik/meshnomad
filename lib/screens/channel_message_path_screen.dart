@@ -35,6 +35,13 @@ class ChannelMessagePathScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     return Consumer<MeshCoreConnector>(
       builder: (context, connector, _) {
         final l10n = context.l10n;
@@ -353,7 +360,7 @@ class ChannelMessagePathScreen extends StatelessWidget {
                         width: 18,
                         height: 18,
                         decoration: BoxDecoration(
-                          color: MeshTokens.of(context).blueDim,
+                          color: MeshTokens.of(context).primaryDim,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: scheme.surfaceContainerLow,
@@ -378,7 +385,7 @@ class ChannelMessagePathScreen extends StatelessWidget {
                     child: Container(
                       width: 2,
                       margin: const EdgeInsets.symmetric(vertical: 4),
-                      color: MeshTokens.of(context).blueLine,
+                      color: MeshTokens.of(context).primaryLine,
                     ),
                   )
                 else
@@ -827,6 +834,13 @@ class _ChannelMessagePathMapScreenState
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     return Consumer<MeshCoreConnector>(
       builder: (context, connector, _) {
         final settings = context.watch<AppSettingsService>().settings;
@@ -938,7 +952,7 @@ class _ChannelMessagePathMapScreenState
                 Polyline(
                   points: points,
                   strokeWidth: 4,
-                  color: MeshTokens.of(context).blue,
+                  color: MeshTokens.of(context).primary,
                 ),
               ]
             : <Polyline>[];
@@ -1217,7 +1231,7 @@ class _ChannelMessagePathMapScreenState
               width: 35,
               height: 35,
               decoration: BoxDecoration(
-                color: MeshTokens.of(context).blue,
+                color: MeshTokens.of(context).primary,
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
@@ -1358,7 +1372,7 @@ class _ChannelMessagePathMapScreenState
                   width: 35,
                   height: 35,
                   decoration: BoxDecoration(
-                    color: MeshTokens.of(context).blue,
+                    color: MeshTokens.of(context).primary,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: Colors.white,
@@ -1669,9 +1683,8 @@ class _ChannelMessagePathMapScreenState
           highlightRow = selectedDisplay.rowForSegment[activeSegment];
         }
         final highlightColor =
-            (selectedDisplay?.color ?? MeshTokens.of(context).blue).withValues(
-              alpha: 0.14,
-            );
+            (selectedDisplay?.color ?? MeshTokens.of(context).primary)
+                .withValues(alpha: 0.14);
         return ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 4),
           itemCount: hops.length,
@@ -1686,7 +1699,7 @@ class _ChannelMessagePathMapScreenState
                 color: index == highlightRow
                     ? highlightColor
                     : isFocused
-                    ? MeshTokens.of(context).blueBg
+                    ? MeshTokens.of(context).primaryBg
                     : Colors.transparent,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -1700,12 +1713,12 @@ class _ChannelMessagePathMapScreenState
                       decoration: BoxDecoration(
                         color: MeshTokens.of(
                           context,
-                        ).blueDim.withValues(alpha: 0.3),
+                        ).primaryDim.withValues(alpha: 0.3),
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: MeshTokens.of(
                             context,
-                          ).blueDim.withValues(alpha: 0.5),
+                          ).primaryDim.withValues(alpha: 0.5),
                         ),
                       ),
                       alignment: Alignment.center,

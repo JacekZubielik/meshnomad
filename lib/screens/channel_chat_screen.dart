@@ -274,6 +274,13 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
@@ -1771,13 +1778,18 @@ class _RegionSelectDialogState extends State<_RegionSelectDialog> {
                   return ListTile(
                     leading: Icon(
                       Icons.landscape,
-                      color: selected ? MeshTokens.of(context).blue : null,
+                      color: selected ? MeshTokens.of(context).primary : null,
                     ),
                     title: Text(regions[index]),
                     trailing: selected
-                        ? Icon(Icons.check, color: MeshTokens.of(context).blue)
+                        ? Icon(
+                            Icons.check,
+                            color: MeshTokens.of(context).primary,
+                          )
                         : null,
-                    tileColor: selected ? MeshTokens.of(context).blueBg : null,
+                    tileColor: selected
+                        ? MeshTokens.of(context).primaryBg
+                        : null,
                     onTap: () {
                       // Tapping the already-selected region clears it.
                       context.read<MeshCoreConnector>().setChannelRegion(

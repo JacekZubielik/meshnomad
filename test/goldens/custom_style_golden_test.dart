@@ -26,12 +26,9 @@ void main() {
                     'bodyMedium',
                     style: textTheme.bodyMedium?.copyWith(color: tokens.ink),
                   ),
-                  Text(
-                    'monoBody',
-                    style: tokens.monoBody(color: tokens.ink),
-                  ),
+                  Text('monoBody', style: tokens.monoBody(color: tokens.ink)),
                   const SizedBox(height: 8),
-                  Container(width: 60, height: 20, color: tokens.blue),
+                  Container(width: 60, height: 20, color: tokens.primary),
                 ],
               ),
             ),
@@ -43,7 +40,7 @@ void main() {
 
   final overridden = buildCustomStyle(
     const CustomStyleOverrides(
-      colorOverrides: {'blue': 0xFFFF3B30, 'bg': 0xFF1A0033},
+      colorOverrides: {'primary': 0xFFFF3B30, 'bg': 0xFF1A0033},
       fontSizeOverrides: {'bodyMedium': 18.0, 'monoBodySize': 16.0},
     ),
   );

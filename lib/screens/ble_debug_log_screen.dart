@@ -29,6 +29,13 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     return Consumer<BleDebugLogService>(
       builder: (context, logService, _) {
         final entries = logService.entries.reversed.toList();
@@ -161,7 +168,7 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                                             : Icons.download,
                                         size: 18,
                                         color: entry.outgoing
-                                            ? MeshTokens.of(context).blue
+                                            ? MeshTokens.of(context).primary
                                             : MeshTokens.of(context).signal,
                                       ),
                                       const SizedBox(width: 10),

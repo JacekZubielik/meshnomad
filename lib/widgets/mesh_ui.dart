@@ -245,8 +245,8 @@ class AvatarCircle extends StatelessWidget {
   Color _colorFor(BuildContext context, String s) {
     final tokens = MeshTokens.of(context);
     final hues = [
-      tokens.blue,
-      tokens.magenta,
+      tokens.primary,
+      tokens.secondary,
       tokens.signal,
       tokens.warn,
       const Color(0xFF8FA8F0),
@@ -532,12 +532,14 @@ Future<T?> showMeshSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
   bool isScrollControlled = true,
+  bool enableDrag = true,
 }) {
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: isScrollControlled,
     useSafeArea: true,
     showDragHandle: false,
+    enableDrag: enableDrag,
     builder: (context) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: builder(context),

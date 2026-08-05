@@ -54,6 +54,13 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
@@ -168,7 +175,7 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
                             children: [
                               Icon(
                                 Icons.landscape,
-                                color: MeshTokens.of(context).blue,
+                                color: MeshTokens.of(context).primary,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -468,7 +475,7 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
       padding: const EdgeInsets.only(left: 14, right: 4),
       child: Row(
         children: [
-          Icon(Icons.landscape, color: MeshTokens.of(context).blue),
+          Icon(Icons.landscape, color: MeshTokens.of(context).primary),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

@@ -29,6 +29,13 @@ class RepeaterHubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
     final settingsService = context.watch<AppSettingsService>();
@@ -122,7 +129,7 @@ class RepeaterHubScreen extends StatelessWidget {
                     StatusChip(
                       label: isAdmin ? 'ADMIN' : 'GUEST',
                       color: isAdmin
-                          ? MeshTokens.of(context).blue
+                          ? MeshTokens.of(context).primary
                           : scheme.onSurfaceVariant,
                     ),
                   ],
@@ -180,7 +187,7 @@ class RepeaterHubScreen extends StatelessWidget {
               icon: Icons.analytics,
               title: l10n.repeater_status,
               subtitle: l10n.repeater_statusSubtitle,
-              accentColor: MeshTokens.of(context).blue,
+              accentColor: MeshTokens.of(context).primary,
               onTap: () {
                 HapticFeedback.selectionClick();
                 Navigator.push(
@@ -200,7 +207,7 @@ class RepeaterHubScreen extends StatelessWidget {
               icon: Icons.bar_chart_sharp,
               title: l10n.repeater_telemetry,
               subtitle: l10n.repeater_telemetrySubtitle,
-              accentColor: MeshTokens.of(context).magenta,
+              accentColor: MeshTokens.of(context).secondary,
               onTap: () {
                 HapticFeedback.selectionClick();
                 Navigator.push(

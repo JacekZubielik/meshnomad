@@ -1021,6 +1021,13 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     return Consumer<MeshCoreConnector>(
       builder: (context, connector, _) {
         final settings = context.watch<AppSettingsService>().settings;
@@ -1057,7 +1064,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                       children: [
                         if (_isLoading)
                           CircularProgressIndicator(
-                            color: MeshTokens.of(context).blue,
+                            color: MeshTokens.of(context).primary,
                           ),
                         const SizedBox(height: 16),
                         if (!_isLoading && _failed2Loaded)
@@ -1215,14 +1222,16 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               height: 35,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: MeshTokens.of(context).blue.withValues(alpha: 0.18),
+                color: MeshTokens.of(context).primary.withValues(alpha: 0.18),
                 border: Border.all(
-                  color: MeshTokens.of(context).blue.withValues(alpha: 0.7),
+                  color: MeshTokens.of(context).primary.withValues(alpha: 0.7),
                   width: 2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: MeshTokens.of(context).blue.withValues(alpha: 0.35),
+                    color: MeshTokens.of(
+                      context,
+                    ).primary.withValues(alpha: 0.35),
                     blurRadius: 6,
                   ),
                 ],
@@ -1233,7 +1242,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                 style: MeshTokens.of(context).mono(
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
-                  color: MeshTokens.of(context).blue,
+                  color: MeshTokens.of(context).primary,
                 ),
               ),
             ),
@@ -1267,18 +1276,20 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isGuessed
-                    ? MeshTokens.of(context).magenta.withValues(alpha: 0.18)
+                    ? MeshTokens.of(context).secondary.withValues(alpha: 0.18)
                     : MeshTokens.of(context).alert.withValues(alpha: 0.18),
                 border: Border.all(
                   color: isGuessed
-                      ? MeshTokens.of(context).magenta.withValues(alpha: 0.7)
+                      ? MeshTokens.of(context).secondary.withValues(alpha: 0.7)
                       : MeshTokens.of(context).alert.withValues(alpha: 0.7),
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: isGuessed
-                        ? MeshTokens.of(context).magenta.withValues(alpha: 0.3)
+                        ? MeshTokens.of(
+                            context,
+                          ).secondary.withValues(alpha: 0.3)
                         : MeshTokens.of(context).alert.withValues(alpha: 0.3),
                     blurRadius: 5,
                   ),
@@ -1288,7 +1299,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               child: Icon(
                 Icons.person,
                 color: isGuessed
-                    ? MeshTokens.of(context).magenta
+                    ? MeshTokens.of(context).secondary
                     : MeshTokens.of(context).alert,
                 size: 18,
               ),

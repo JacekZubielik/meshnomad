@@ -29,13 +29,13 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.alert,
     required this.alertBg,
     required this.alertLine,
-    required this.blue,
-    required this.blueDim,
-    required this.blueBg,
-    required this.blueLine,
-    required this.magenta,
-    required this.magentaBg,
-    required this.magentaLine,
+    required this.primary,
+    required this.primaryDim,
+    required this.primaryBg,
+    required this.primaryLine,
+    required this.secondary,
+    required this.secondaryBg,
+    required this.secondaryLine,
     required this.me,
     required this.meBorder,
     required this.meInk,
@@ -102,13 +102,13 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   final Color alert;
   final Color alertBg;
   final Color alertLine;
-  final Color blue;
-  final Color blueDim;
-  final Color blueBg;
-  final Color blueLine;
-  final Color magenta;
-  final Color magentaBg;
-  final Color magentaLine;
+  final Color primary;
+  final Color primaryDim;
+  final Color primaryBg;
+  final Color primaryLine;
+  final Color secondary;
+  final Color secondaryBg;
+  final Color secondaryLine;
   final Color me;
   final Color meBorder;
   final Color meInk;
@@ -190,13 +190,13 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     alert: MeshPalette.alert,
     alertBg: MeshPalette.alertBg,
     alertLine: MeshPalette.alertLine,
-    blue: MeshPalette.blue,
-    blueDim: MeshPalette.blueDim,
-    blueBg: MeshPalette.blueBg,
-    blueLine: MeshPalette.blueLine,
-    magenta: MeshPalette.magenta,
-    magentaBg: MeshPalette.magentaBg,
-    magentaLine: MeshPalette.magentaLine,
+    primary: MeshPalette.primary,
+    primaryDim: MeshPalette.primaryDim,
+    primaryBg: MeshPalette.primaryBg,
+    primaryLine: MeshPalette.primaryLine,
+    secondary: MeshPalette.secondary,
+    secondaryBg: MeshPalette.secondaryBg,
+    secondaryLine: MeshPalette.secondaryLine,
     me: MeshPalette.me,
     meBorder: MeshPalette.meBorder,
     meInk: MeshPalette.meInk,
@@ -366,13 +366,13 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     Color? alert,
     Color? alertBg,
     Color? alertLine,
-    Color? blue,
-    Color? blueDim,
-    Color? blueBg,
-    Color? blueLine,
-    Color? magenta,
-    Color? magentaBg,
-    Color? magentaLine,
+    Color? primary,
+    Color? primaryDim,
+    Color? primaryBg,
+    Color? primaryLine,
+    Color? secondary,
+    Color? secondaryBg,
+    Color? secondaryLine,
     Color? me,
     Color? meBorder,
     Color? meInk,
@@ -439,13 +439,13 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       alert: alert ?? this.alert,
       alertBg: alertBg ?? this.alertBg,
       alertLine: alertLine ?? this.alertLine,
-      blue: blue ?? this.blue,
-      blueDim: blueDim ?? this.blueDim,
-      blueBg: blueBg ?? this.blueBg,
-      blueLine: blueLine ?? this.blueLine,
-      magenta: magenta ?? this.magenta,
-      magentaBg: magentaBg ?? this.magentaBg,
-      magentaLine: magentaLine ?? this.magentaLine,
+      primary: primary ?? this.primary,
+      primaryDim: primaryDim ?? this.primaryDim,
+      primaryBg: primaryBg ?? this.primaryBg,
+      primaryLine: primaryLine ?? this.primaryLine,
+      secondary: secondary ?? this.secondary,
+      secondaryBg: secondaryBg ?? this.secondaryBg,
+      secondaryLine: secondaryLine ?? this.secondaryLine,
       me: me ?? this.me,
       meBorder: meBorder ?? this.meBorder,
       meInk: meInk ?? this.meInk,

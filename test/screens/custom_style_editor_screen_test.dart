@@ -17,7 +17,12 @@ Widget _wrap(Widget child, {required AppSettingsService settingsService}) {
     providers: [
       ChangeNotifierProvider<AppSettingsService>.value(value: settingsService),
     ],
-    child: MaterialApp(theme: StyleRegistry.byId('default').light, home: child),
+    child: MaterialApp(
+      theme: StyleRegistry.byId('default').light,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: child,
+    ),
   );
 }
 
@@ -51,16 +56,95 @@ void main() {
       // A sample of the shortlisted color fields, not the full ~60
       // MeshTokens set.
       expect(find.text('Background'), findsOneWidget);
-      expect(find.text('Accent (blue)'), findsOneWidget);
+      expect(find.text('Primary accent'), findsOneWidget);
 
       // The font sizes section sits below the fold — scroll the ListView to
       // build it into the tree before asserting on it.
       await tester.scrollUntilVisible(find.text('FONT SIZES'), 300);
       expect(find.text('FONT SIZES'), findsOneWidget);
-      expect(find.text('Body'), findsOneWidget);
+      expect(find.byKey(const ValueKey('fontRow_bodyMedium')), findsOneWidget);
 
-      await tester.scrollUntilVisible(find.text('Mono caption'), 300);
-      expect(find.text('Mono caption'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('fontRow_monoCaptionSize')),
+        300,
+      );
+      expect(
+        find.byKey(const ValueKey('fontRow_monoCaptionSize')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Map and LOS sections are collapsed by default and expand '
+        'to show their fields', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const CustomStyleEditorScreen(),
+          settingsService: settingsService,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(find.text('Map'), 300);
+      expect(find.text('Map'), findsOneWidget);
+      expect(find.byKey(const ValueKey('colorRow_mapOnline')), findsNothing);
+
+      await tester.tap(find.text('Map'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('colorRow_mapOnline')), findsOneWidget);
+
+      await tester.scrollUntilVisible(find.text('Line of sight (LOS)'), 300);
+      expect(find.text('Line of sight (LOS)'), findsOneWidget);
+      expect(find.byKey(const ValueKey('colorRow_losTerrain')), findsNothing);
+
+      await tester.tap(find.text('Line of sight (LOS)'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('colorRow_losTerrain')), findsOneWidget);
+    });
+
+    testWidgets('editing a map color saves an override applied by '
+        'buildCustomStyle', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const CustomStyleEditorScreen(),
+          settingsService: settingsService,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(find.text('Map'), 300);
+      await tester.tap(find.text('Map'));
+      await tester.pumpAndSettle();
+
+      expect(
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverrides['mapOnline'],
+        isNull,
+      );
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('colorRow_mapOnline')),
+        300,
+      );
+      await tester.tap(find.byKey(const ValueKey('colorRow_mapOnline')));
+      await tester.pumpAndSettle();
+
+      final swatch = find.byKey(
+        ValueKey('swatch_${const Color(0xFFEF4444).toARGB32()}'),
+      );
+      await tester.tap(swatch);
+      await tester.pumpAndSettle();
+
+      expect(
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverrides['mapOnline'],
+        const Color(0xFFEF4444).toARGB32(),
+      );
     });
 
     testWidgets('tapping a preset swatch updates and persists the override', (
@@ -75,14 +159,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['blue'],
+        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
         isNull,
       );
 
-      await tester.tap(find.text('Accent (blue)'));
+      await tester.tap(find.text('Primary accent'));
       await tester.pumpAndSettle();
 
-      // Sheet is open — tap a preset swatch distinct from the default blue.
+      // Sheet is open — tap a preset swatch distinct from the default primary.
       final swatch = find.byKey(
         ValueKey('swatch_${const Color(0xFFEF4444).toARGB32()}'),
       );
@@ -90,7 +174,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['blue'],
+        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
         isNotNull,
       );
     });
@@ -106,7 +190,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Accent (blue)'));
+      await tester.tap(find.text('Primary accent'));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), 'not-a-color');
@@ -115,14 +199,15 @@ void main() {
 
       expect(find.text('Enter a hex color like #RRGGBB'), findsOneWidget);
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['blue'],
+        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
         isNull,
       );
     });
 
-    testWidgets('reset icon clears a single override', (tester) async {
+    testWidgets('reset icon appears after a change and clears the single '
+        'override, then disappears', (tester) async {
       await settingsService.setCustomColorOverride(
-        'blue',
+        'primary',
         const Color(0xFF112233),
       );
 
@@ -134,19 +219,22 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.restart_alt), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.restart_alt));
+      final resetIcon = find.byKey(const ValueKey('resetIcon_primary'));
+      expect(resetIcon, findsOneWidget);
+      await tester.tap(resetIcon);
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['blue'],
+        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
         isNull,
       );
+      expect(find.byKey(const ValueKey('resetIcon_primary')), findsNothing);
     });
 
-    testWidgets('reset all clears every override', (tester) async {
+    testWidgets('reset all requires confirmation and then clears every '
+        'override', (tester) async {
       await settingsService.setCustomColorOverride(
-        'blue',
+        'primary',
         const Color(0xFF112233),
       );
       await settingsService.setCustomFontSizeOverride('bodyMedium', 20);
@@ -159,9 +247,24 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(PopupMenuButton<void>));
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('resetAllButton')),
+        300,
+      );
+      await tester.tap(find.byKey(const ValueKey('resetAllButton')));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Reset all'));
+
+      // Confirmation dialog is up — overrides must survive until confirmed.
+      expect(
+        find.text('Restore all colors and sizes to their default values?'),
+        findsOneWidget,
+      );
+      expect(
+        settingsService.settings.customStyleOverrides.colorOverrides,
+        isNotEmpty,
+      );
+
+      await tester.tap(find.byKey(const ValueKey('confirmResetAllButton')));
       await tester.pumpAndSettle();
 
       expect(
@@ -171,6 +274,38 @@ void main() {
       expect(
         settingsService.settings.customStyleOverrides.fontSizeOverrides,
         isEmpty,
+      );
+    });
+
+    testWidgets('dismissing the reset-all confirmation keeps overrides', (
+      tester,
+    ) async {
+      await settingsService.setCustomColorOverride(
+        'primary',
+        const Color(0xFF112233),
+      );
+
+      await tester.pumpWidget(
+        _wrap(
+          const CustomStyleEditorScreen(),
+          settingsService: settingsService,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('resetAllButton')),
+        300,
+      );
+      await tester.tap(find.byKey(const ValueKey('resetAllButton')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(
+        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
+        isNotNull,
       );
     });
   });
@@ -205,8 +340,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Custom'), findsOneWidget);
-      expect(find.byIcon(Icons.tune), findsOneWidget);
+      // 05-settings-entry.md: the editor icon only appears once Custom is
+      // actually selected.
+      expect(find.byIcon(Icons.tune), findsNothing);
 
+      await tester.tap(find.text('Custom'));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.tune), findsOneWidget);
       await tester.tap(find.byIcon(Icons.tune));
       await tester.pumpAndSettle();
 

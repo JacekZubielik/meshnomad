@@ -55,11 +55,11 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       case advTypeRepeater:
         return MeshTokens.of(context).warn;
       case advTypeRoom:
-        return MeshTokens.of(context).magenta;
+        return MeshTokens.of(context).secondary;
       case advTypeSensor:
         return const Color(0xFF4ACCC4); // teal
       default:
-        return MeshTokens.of(context).blue;
+        return MeshTokens.of(context).primary;
     }
   }
 
@@ -79,6 +79,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     final l10n = context.l10n;
     final connector = context.watch<MeshCoreConnector>();
 

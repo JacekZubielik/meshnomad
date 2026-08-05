@@ -5,7 +5,7 @@ void main() {
   group('CustomStyleOverrides JSON round-trip', () {
     test('round-trips colors and font sizes', () {
       const original = CustomStyleOverrides(
-        colorOverrides: {'blue': 0xFF0EA5E9, 'ink': 0xFFF8FAFC},
+        colorOverrides: {'primary': 0xFF0EA5E9, 'ink': 0xFFF8FAFC},
         fontSizeOverrides: {'bodyMedium': 13.0, 'monoBodySize': 14.5},
       );
 
@@ -33,7 +33,7 @@ void main() {
 
     test('skips malformed color entries instead of throwing', () {
       final decoded = CustomStyleOverrides.fromJson({
-        'colors': {'blue': 'not-an-int', 'ink': 0xFFF8FAFC},
+        'colors': {'primary': 'not-an-int', 'ink': 0xFFF8FAFC},
         'font_sizes': <String, dynamic>{},
       });
 
@@ -60,16 +60,47 @@ void main() {
     });
   });
 
+  group('CustomStyleOverrides legacy color key migration', () {
+    test('migrates old blue/magenta keys to primary/secondary on load', () {
+      final decoded = CustomStyleOverrides.fromJson({
+        'colors': {
+          'blue': 0xFF0EA5E9,
+          'magenta': 0xFFDE7FDB,
+          'ink': 0xFFF8FAFC,
+        },
+        'font_sizes': <String, dynamic>{},
+      });
+
+      expect(decoded.colorOverrides, {
+        'primary': 0xFF0EA5E9,
+        'secondary': 0xFFDE7FDB,
+        'ink': 0xFFF8FAFC,
+      });
+    });
+
+    test(
+      'prefers an already-present primary/secondary key over legacy ones',
+      () {
+        final decoded = CustomStyleOverrides.fromJson({
+          'colors': {'blue': 0xFF0EA5E9, 'primary': 0xFF112233},
+          'font_sizes': <String, dynamic>{},
+        });
+
+        expect(decoded.colorOverrides, {'primary': 0xFF112233});
+      },
+    );
+  });
+
   group('CustomStyleOverrides.copyWith', () {
     test('replaces only the provided map', () {
       const original = CustomStyleOverrides(
-        colorOverrides: {'blue': 1},
+        colorOverrides: {'primary': 1},
         fontSizeOverrides: {'bodyMedium': 12.0},
       );
 
-      final updated = original.copyWith(colorOverrides: {'blue': 2});
+      final updated = original.copyWith(colorOverrides: {'primary': 2});
 
-      expect(updated.colorOverrides, {'blue': 2});
+      expect(updated.colorOverrides, {'primary': 2});
       expect(updated.fontSizeOverrides, {'bodyMedium': 12.0});
     });
   });

@@ -82,10 +82,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(settingsService.settings.styleId, 'custom');
 
-    // 2. Otwórz edytor i zmień kolor blue.
+    // 2. Otwórz edytor i zmień kolor primary.
     await tester.tap(find.byIcon(Icons.tune));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Accent (blue)'));
+    await tester.tap(find.text('Primary accent'));
     await tester.pumpAndSettle();
     await tester.tap(
       find.byKey(ValueKey('swatch_${const Color(0xFFEF4444).toARGB32()}')),
@@ -94,7 +94,7 @@ void main() {
 
     // 3. LIVE PREVIEW: motyw appki (MaterialApp theme) ma nowy kolor.
     var ctx = tester.element(find.byType(Scaffold).first);
-    expect(MeshTokens.of(ctx).blue, const Color(0xFFEF4444));
+    expect(MeshTokens.of(ctx).primary, const Color(0xFFEF4444));
 
     // 4. Powrót do Default przywraca oryginał, Custom zachowuje zmianę.
     final navigator = tester.state<NavigatorState>(find.byType(Navigator));
@@ -103,17 +103,17 @@ void main() {
     await tester.tap(find.text('Default'));
     await tester.pumpAndSettle();
     ctx = tester.element(find.byType(Scaffold).first);
-    expect(MeshTokens.of(ctx).blue, MeshTokens.defaultTokens.blue);
+    expect(MeshTokens.of(ctx).primary, MeshTokens.defaultTokens.primary);
     await tester.tap(find.text('Custom'));
     await tester.pumpAndSettle();
     ctx = tester.element(find.byType(Scaffold).first);
-    expect(MeshTokens.of(ctx).blue, const Color(0xFFEF4444));
+    expect(MeshTokens.of(ctx).primary, const Color(0xFFEF4444));
 
     // 5. PERSYSTENCJA: świeża instancja serwisu czyta realne prefsy z dysku.
     final rereadService = AppSettingsService();
     await rereadService.loadSettings();
     expect(
-      rereadService.settings.customStyleOverrides.colorOverrides['blue'],
+      rereadService.settings.customStyleOverrides.colorOverrides['primary'],
       0xFFEF4444,
     );
 

@@ -215,7 +215,14 @@ class _QrScannerWidgetState extends State<QrScannerWidget>
                     ),
                     child: Text(
                       widget.instructions!,
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(
+                        color: Colors.white,
+                        // 03-roles-chrome.md: bodyMedium + 2 (default 12+2=14).
+                        fontSize:
+                            (Theme.of(context).textTheme.bodyMedium?.fontSize ??
+                                12) +
+                            2,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -296,7 +303,10 @@ class _QrScannerWidgetState extends State<QrScannerWidget>
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.normal,
+              ),
             ),
           ],
         ),

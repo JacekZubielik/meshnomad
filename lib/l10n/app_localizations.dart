@@ -8217,6 +8217,678 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlock view from packet'**
   String get pathMap_unfollowPacket;
+
+  /// No description provided for @styleEditor_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom style'**
+  String get styleEditor_title;
+
+  /// No description provided for @styleEditor_colorsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors'**
+  String get styleEditor_colorsSection;
+
+  /// No description provided for @styleEditor_fontSizesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Font sizes'**
+  String get styleEditor_fontSizesSection;
+
+  /// No description provided for @styleEditor_fontSizesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen titles, buttons, and tabs scale together with the sizes above.'**
+  String get styleEditor_fontSizesIntro;
+
+  /// No description provided for @styleEditor_resetAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all'**
+  String get styleEditor_resetAll;
+
+  /// No description provided for @styleEditor_resetAllConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore all colors and sizes to their default values?'**
+  String get styleEditor_resetAllConfirm;
+
+  /// No description provided for @styleEditor_resetTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to default'**
+  String get styleEditor_resetTooltip;
+
+  /// No description provided for @styleEditor_hexLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hex color'**
+  String get styleEditor_hexLabel;
+
+  /// No description provided for @styleEditor_hexHint.
+  ///
+  /// In en, this message translates to:
+  /// **'#RRGGBB'**
+  String get styleEditor_hexHint;
+
+  /// No description provided for @styleEditor_hexError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a hex color like #RRGGBB'**
+  String get styleEditor_hexError;
+
+  /// No description provided for @styleEditor_mapSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get styleEditor_mapSection;
+
+  /// No description provided for @styleEditor_losSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Line of sight (LOS)'**
+  String get styleEditor_losSection;
+
+  /// No description provided for @styleEditor_bg_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get styleEditor_bg_label;
+
+  /// No description provided for @styleEditor_bg_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Main app background'**
+  String get styleEditor_bg_subtitle;
+
+  /// No description provided for @styleEditor_ink_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get styleEditor_ink_label;
+
+  /// No description provided for @styleEditor_ink_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary text color'**
+  String get styleEditor_ink_subtitle;
+
+  /// No description provided for @styleEditor_line_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Lines'**
+  String get styleEditor_line_label;
+
+  /// No description provided for @styleEditor_line_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dividers and borders'**
+  String get styleEditor_line_subtitle;
+
+  /// No description provided for @styleEditor_primary_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary accent'**
+  String get styleEditor_primary_label;
+
+  /// No description provided for @styleEditor_primary_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buttons, active elements, map'**
+  String get styleEditor_primary_subtitle;
+
+  /// No description provided for @styleEditor_secondary_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary accent'**
+  String get styleEditor_secondary_label;
+
+  /// No description provided for @styleEditor_secondary_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary elements, highlights'**
+  String get styleEditor_secondary_subtitle;
+
+  /// No description provided for @styleEditor_signal_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal'**
+  String get styleEditor_signal_label;
+
+  /// No description provided for @styleEditor_signal_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal quality color (SNR)'**
+  String get styleEditor_signal_subtitle;
+
+  /// No description provided for @styleEditor_warn_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get styleEditor_warn_label;
+
+  /// No description provided for @styleEditor_warn_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning messages'**
+  String get styleEditor_warn_subtitle;
+
+  /// No description provided for @styleEditor_alert_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get styleEditor_alert_label;
+
+  /// No description provided for @styleEditor_alert_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Errors and critical states'**
+  String get styleEditor_alert_subtitle;
+
+  /// No description provided for @styleEditor_me_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Message bubble'**
+  String get styleEditor_me_label;
+
+  /// No description provided for @styleEditor_me_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Own message background in chat'**
+  String get styleEditor_me_subtitle;
+
+  /// No description provided for @styleEditor_meInk_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Bubble text'**
+  String get styleEditor_meInk_label;
+
+  /// No description provided for @styleEditor_meInk_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Own message text color'**
+  String get styleEditor_meInk_subtitle;
+
+  /// No description provided for @styleEditor_mapOnline_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: online node'**
+  String get styleEditor_mapOnline_label;
+
+  /// No description provided for @styleEditor_mapOnline_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active node marker'**
+  String get styleEditor_mapOnline_subtitle;
+
+  /// No description provided for @styleEditor_mapOffline_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: offline node'**
+  String get styleEditor_mapOffline_label;
+
+  /// No description provided for @styleEditor_mapOffline_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable node marker'**
+  String get styleEditor_mapOffline_subtitle;
+
+  /// No description provided for @styleEditor_mapStale_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: stale node'**
+  String get styleEditor_mapStale_label;
+
+  /// No description provided for @styleEditor_mapStale_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Marker for a long-unseen node'**
+  String get styleEditor_mapStale_subtitle;
+
+  /// No description provided for @styleEditor_mapRepeater_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: repeater'**
+  String get styleEditor_mapRepeater_label;
+
+  /// No description provided for @styleEditor_mapRepeater_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeater (RPT) node marker'**
+  String get styleEditor_mapRepeater_subtitle;
+
+  /// No description provided for @styleEditor_mapRouter_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: room/router'**
+  String get styleEditor_mapRouter_label;
+
+  /// No description provided for @styleEditor_mapRouter_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Room-type node marker'**
+  String get styleEditor_mapRouter_subtitle;
+
+  /// No description provided for @styleEditor_mapBatteryLow_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: low battery'**
+  String get styleEditor_mapBatteryLow_label;
+
+  /// No description provided for @styleEditor_mapBatteryLow_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Marker for a node with low battery'**
+  String get styleEditor_mapBatteryLow_subtitle;
+
+  /// No description provided for @styleEditor_mapCluster_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: cluster'**
+  String get styleEditor_mapCluster_label;
+
+  /// No description provided for @styleEditor_mapCluster_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Grouped markers when zoomed out'**
+  String get styleEditor_mapCluster_subtitle;
+
+  /// No description provided for @styleEditor_mapSelected_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: selected node'**
+  String get styleEditor_mapSelected_label;
+
+  /// No description provided for @styleEditor_mapSelected_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Marker for the currently selected node'**
+  String get styleEditor_mapSelected_subtitle;
+
+  /// No description provided for @styleEditor_mapSensor_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: sensor'**
+  String get styleEditor_mapSensor_label;
+
+  /// No description provided for @styleEditor_mapSensor_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sensor-type node marker'**
+  String get styleEditor_mapSensor_subtitle;
+
+  /// No description provided for @styleEditor_mapShared_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: shared pin'**
+  String get styleEditor_mapShared_label;
+
+  /// No description provided for @styleEditor_mapShared_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Marker for a location shared in chat'**
+  String get styleEditor_mapShared_subtitle;
+
+  /// No description provided for @styleEditor_mapPanelLight_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: light panel'**
+  String get styleEditor_mapPanelLight_label;
+
+  /// No description provided for @styleEditor_mapPanelLight_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overlay panel background (light variant)'**
+  String get styleEditor_mapPanelLight_subtitle;
+
+  /// No description provided for @styleEditor_mapPanelDark_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: dark panel'**
+  String get styleEditor_mapPanelDark_label;
+
+  /// No description provided for @styleEditor_mapPanelDark_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overlay panel background (dark variant)'**
+  String get styleEditor_mapPanelDark_subtitle;
+
+  /// No description provided for @styleEditor_mapTextPrimary_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: primary text'**
+  String get styleEditor_mapTextPrimary_label;
+
+  /// No description provided for @styleEditor_mapTextPrimary_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Text on map overlays'**
+  String get styleEditor_mapTextPrimary_subtitle;
+
+  /// No description provided for @styleEditor_mapTextSecondary_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: secondary text'**
+  String get styleEditor_mapTextSecondary_label;
+
+  /// No description provided for @styleEditor_mapTextSecondary_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Less important text on overlays'**
+  String get styleEditor_mapTextSecondary_subtitle;
+
+  /// No description provided for @styleEditor_mapTextMuted_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: muted text'**
+  String get styleEditor_mapTextMuted_label;
+
+  /// No description provided for @styleEditor_mapTextMuted_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Least important text on overlays'**
+  String get styleEditor_mapTextMuted_subtitle;
+
+  /// No description provided for @styleEditor_mapBorder_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: borders'**
+  String get styleEditor_mapBorder_label;
+
+  /// No description provided for @styleEditor_mapBorder_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Panel and label borders on the map'**
+  String get styleEditor_mapBorder_subtitle;
+
+  /// No description provided for @styleEditor_mapMarkerOutline_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: marker outline'**
+  String get styleEditor_mapMarkerOutline_label;
+
+  /// No description provided for @styleEditor_mapMarkerOutline_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Outline around node markers'**
+  String get styleEditor_mapMarkerOutline_subtitle;
+
+  /// No description provided for @styleEditor_mapMarkerShadow_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Map: marker shadow'**
+  String get styleEditor_mapMarkerShadow_label;
+
+  /// No description provided for @styleEditor_mapMarkerShadow_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shadow under markers'**
+  String get styleEditor_mapMarkerShadow_subtitle;
+
+  /// No description provided for @styleEditor_losTerrain_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: terrain'**
+  String get styleEditor_losTerrain_label;
+
+  /// No description provided for @styleEditor_losTerrain_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terrain profile fill on the chart'**
+  String get styleEditor_losTerrain_subtitle;
+
+  /// No description provided for @styleEditor_losBeam_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: beam'**
+  String get styleEditor_losBeam_label;
+
+  /// No description provided for @styleEditor_losBeam_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio beam line between points'**
+  String get styleEditor_losBeam_subtitle;
+
+  /// No description provided for @styleEditor_losHorizon_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: horizon'**
+  String get styleEditor_losHorizon_label;
+
+  /// No description provided for @styleEditor_losHorizon_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Horizon line on the chart'**
+  String get styleEditor_losHorizon_subtitle;
+
+  /// No description provided for @styleEditor_losBlocked_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: blocked'**
+  String get styleEditor_losBlocked_label;
+
+  /// No description provided for @styleEditor_losBlocked_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Color when terrain blocks the link'**
+  String get styleEditor_losBlocked_subtitle;
+
+  /// No description provided for @styleEditor_losMarginal_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: marginal'**
+  String get styleEditor_losMarginal_label;
+
+  /// No description provided for @styleEditor_losMarginal_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Color when the link is marginal'**
+  String get styleEditor_losMarginal_subtitle;
+
+  /// No description provided for @styleEditor_losClear_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: clear'**
+  String get styleEditor_losClear_label;
+
+  /// No description provided for @styleEditor_losClear_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Color when the line of sight is clear'**
+  String get styleEditor_losClear_subtitle;
+
+  /// No description provided for @styleEditor_losSelected_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: selected point'**
+  String get styleEditor_losSelected_label;
+
+  /// No description provided for @styleEditor_losSelected_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected point on the map/chart'**
+  String get styleEditor_losSelected_subtitle;
+
+  /// No description provided for @styleEditor_losChartBackground_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: chart background'**
+  String get styleEditor_losChartBackground_label;
+
+  /// No description provided for @styleEditor_losChartBackground_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terrain profile chart background'**
+  String get styleEditor_losChartBackground_subtitle;
+
+  /// No description provided for @styleEditor_losPanelDark_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: dark panel'**
+  String get styleEditor_losPanelDark_label;
+
+  /// No description provided for @styleEditor_losPanelDark_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Panel background (dark variant)'**
+  String get styleEditor_losPanelDark_subtitle;
+
+  /// No description provided for @styleEditor_losPanelLight_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: light panel'**
+  String get styleEditor_losPanelLight_label;
+
+  /// No description provided for @styleEditor_losPanelLight_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Panel background (light variant)'**
+  String get styleEditor_losPanelLight_subtitle;
+
+  /// No description provided for @styleEditor_losText_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: text'**
+  String get styleEditor_losText_label;
+
+  /// No description provided for @styleEditor_losText_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Text on LOS panels'**
+  String get styleEditor_losText_subtitle;
+
+  /// No description provided for @styleEditor_losTextMuted_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: muted text'**
+  String get styleEditor_losTextMuted_label;
+
+  /// No description provided for @styleEditor_losTextMuted_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Less important text on panels'**
+  String get styleEditor_losTextMuted_subtitle;
+
+  /// No description provided for @styleEditor_losBorder_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: borders'**
+  String get styleEditor_losBorder_label;
+
+  /// No description provided for @styleEditor_losBorder_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS panel borders'**
+  String get styleEditor_losBorder_subtitle;
+
+  /// No description provided for @styleEditor_losShadow_label.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS: shadow'**
+  String get styleEditor_losShadow_label;
+
+  /// No description provided for @styleEditor_losShadow_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LOS panel shadows'**
+  String get styleEditor_losShadow_subtitle;
+
+  /// No description provided for @styleEditor_bodyMedium_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Body text'**
+  String get styleEditor_bodyMedium_label;
+
+  /// No description provided for @styleEditor_bodyMedium_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Most text: settings labels, list content'**
+  String get styleEditor_bodyMedium_subtitle;
+
+  /// No description provided for @styleEditor_bodySmall_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary text'**
+  String get styleEditor_bodySmall_label;
+
+  /// No description provided for @styleEditor_bodySmall_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitles and descriptions'**
+  String get styleEditor_bodySmall_subtitle;
+
+  /// No description provided for @styleEditor_titleSmall_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Section titles'**
+  String get styleEditor_titleSmall_label;
+
+  /// No description provided for @styleEditor_titleSmall_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Section headers and dialog titles'**
+  String get styleEditor_titleSmall_subtitle;
+
+  /// No description provided for @styleEditor_labelSmall_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Small label'**
+  String get styleEditor_labelSmall_label;
+
+  /// No description provided for @styleEditor_labelSmall_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Small labels: filters, stats, chart axes'**
+  String get styleEditor_labelSmall_subtitle;
+
+  /// No description provided for @styleEditor_labelMedium_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get styleEditor_labelMedium_label;
+
+  /// No description provided for @styleEditor_labelMedium_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'List names, bottom bar, repeater section headers'**
+  String get styleEditor_labelMedium_subtitle;
+
+  /// No description provided for @styleEditor_monoCaptionSize_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Mono — captions'**
+  String get styleEditor_monoCaptionSize_label;
+
+  /// No description provided for @styleEditor_monoCaptionSize_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Small technical text: IDs, coordinates, logs'**
+  String get styleEditor_monoCaptionSize_subtitle;
+
+  /// No description provided for @styleEditor_monoBodySize_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Mono — body'**
+  String get styleEditor_monoBodySize_label;
+
+  /// No description provided for @styleEditor_monoBodySize_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical text: keys, RF data, map labels'**
+  String get styleEditor_monoBodySize_subtitle;
+
+  /// No description provided for @appSettings_about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get appSettings_about;
+
+  /// No description provided for @appSettings_editCustomStyleTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit custom style'**
+  String get appSettings_editCustomStyleTooltip;
 }
 
 class _AppLocalizationsDelegate

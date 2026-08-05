@@ -22,7 +22,7 @@ List<Color> alternatePathColors(BuildContext context) => [
   const Color(0xFF8B5CF6), // purple
   MeshTokens.of(context).signal, // green
   MeshTokens.of(context).warn, // amber
-  MeshTokens.of(context).magenta,
+  MeshTokens.of(context).secondary,
 ];
 
 double getPathDistanceMeters(List<LatLng> points) {
@@ -407,7 +407,7 @@ class PathAnimationControls extends StatelessWidget {
                     ? l10n.pathMap_animationOff
                     : l10n.pathMap_animationOn,
                 color: animationEnabled
-                    ? MeshTokens.of(context).blue
+                    ? MeshTokens.of(context).primary
                     : MeshTokens.of(context).ink4,
                 onPressed: onToggleAnimation,
               ),
@@ -440,7 +440,7 @@ class PathAnimationControls extends StatelessWidget {
                 tooltip: followEnabled
                     ? l10n.pathMap_unfollowPacket
                     : l10n.pathMap_followPacket,
-                color: followEnabled ? MeshTokens.of(context).blue : null,
+                color: followEnabled ? MeshTokens.of(context).primary : null,
                 onPressed: enabled ? onToggleFollow : null,
               ),
               TextButton(

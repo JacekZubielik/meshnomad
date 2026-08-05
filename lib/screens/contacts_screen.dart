@@ -332,6 +332,13 @@ class _ContactsScreenState extends State<ContactsScreen>
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     final connector = context.watch<MeshCoreConnector>();
 
     // Auto-navigate back to scanner if disconnected
@@ -1430,7 +1437,7 @@ class _ContactsScreenState extends State<ContactsScreen>
               ListTile(
                 leading: Icon(
                   Icons.meeting_room,
-                  color: MeshTokens.of(context).blue,
+                  color: MeshTokens.of(context).primary,
                 ),
                 title: Text(context.l10n.contacts_roomLogin),
                 onTap: () {
@@ -1604,13 +1611,13 @@ class _ContactTile extends StatelessWidget {
       case advTypeRepeater:
         return MeshTokens.of(context).warn;
       case advTypeRoom:
-        return MeshTokens.of(context).magenta;
+        return MeshTokens.of(context).secondary;
       case advTypeSensor:
         return const Color(0xFF4ACCC4); // teal
       default:
         return MeshTokens.of(
           context,
-        ).blue; // chat — AvatarCircle handles deterministic hue
+        ).primary; // chat — AvatarCircle handles deterministic hue
     }
   }
 
@@ -1760,7 +1767,7 @@ class _ContactTile extends StatelessWidget {
                     textAlign: TextAlign.right,
                     style: MeshTokens.of(context).monoCaption(
                       color: unreadCount > 0
-                          ? MeshTokens.of(context).blue
+                          ? MeshTokens.of(context).primary
                           : scheme.onSurfaceVariant,
                     ),
                   ),

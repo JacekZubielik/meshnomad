@@ -19,7 +19,7 @@ void main() {
       final defaultTokens = MeshTokens.defaultTokens;
 
       final tokens = style.light.extension<MeshTokens>()!;
-      expect(tokens.blue, defaultTokens.blue);
+      expect(tokens.primary, defaultTokens.primary);
       expect(tokens.bg, defaultTokens.bg);
       expect(tokens.monoCaptionSize, defaultTokens.monoCaptionSize);
       expect(tokens.monoBodySize, defaultTokens.monoBodySize);
@@ -31,11 +31,11 @@ void main() {
 
     test('a present color override wins over the default', () {
       final style = buildCustomStyle(
-        const CustomStyleOverrides(colorOverrides: {'blue': 0xFF112233}),
+        const CustomStyleOverrides(colorOverrides: {'primary': 0xFF112233}),
       );
 
       final tokens = style.light.extension<MeshTokens>()!;
-      expect(tokens.blue, const Color(0xFF112233));
+      expect(tokens.primary, const Color(0xFF112233));
       // Unrelated fields stay at their default value.
       expect(tokens.ink, MeshTokens.defaultTokens.ink);
     });
@@ -79,13 +79,64 @@ void main() {
 
     test('light and dark share the same token overrides', () {
       final style = buildCustomStyle(
-        const CustomStyleOverrides(colorOverrides: {'blue': 0xFF445566}),
+        const CustomStyleOverrides(colorOverrides: {'primary': 0xFF445566}),
       );
 
       expect(
-        style.dark.extension<MeshTokens>()!.blue,
-        style.light.extension<MeshTokens>()!.blue,
+        style.dark.extension<MeshTokens>()!.primary,
+        style.light.extension<MeshTokens>()!.primary,
       );
+    });
+
+    test('an empty overrides set reproduces defaultStyle.dark.colorScheme '
+        'bit-for-bit (variant-automat parity)', () {
+      final style = buildCustomStyle(const CustomStyleOverrides());
+
+      expect(style.dark.colorScheme, defaultStyle.dark.colorScheme);
+    });
+
+    test('overriding primary reshapes MeshTokens.primaryBg and '
+        'ColorScheme.primary alike (C3)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(colorOverrides: {'primary': 0xFF00FF00}),
+      );
+
+      final tokens = style.dark.extension<MeshTokens>()!;
+      final primaryBgHsl = HSLColor.fromColor(tokens.primaryBg);
+      expect(primaryBgHsl.hue, closeTo(120.0, 1.0)); // green hue
+
+      expect(style.dark.colorScheme.primary, const Color(0xFF00FF00));
+      expect(style.light.colorScheme.primary, const Color(0xFF00FF00));
+    });
+
+    test('overriding bg also reshapes the surface layers used by '
+        'ColorScheme.surfaceContainer*', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(colorOverrides: {'bg': 0xFF1A0033}),
+      );
+
+      final tokens = style.dark.extension<MeshTokens>()!;
+      expect(style.dark.colorScheme.surface, tokens.bg);
+      expect(style.dark.colorScheme.surfaceContainerLow, tokens.bg1);
+      expect(style.dark.colorScheme.surfaceContainerHighest, tokens.bg3);
+      expect(style.dark.scaffoldBackgroundColor, tokens.bg);
+      expect(style.dark.appBarTheme.backgroundColor, tokens.bg);
+    });
+
+    test('overriding a map/LOS color applies it 1:1 with no automat '
+        '(04-editor-ui.md)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(
+          colorOverrides: {'mapOnline': 0xFF00FF00, 'losBeam': 0xFF123456},
+        ),
+      );
+
+      final tokens = style.dark.extension<MeshTokens>()!;
+      expect(tokens.mapOnline, const Color(0xFF00FF00));
+      expect(tokens.losBeam, const Color(0xFF123456));
+      // Unrelated map/LOS fields stay at their default value.
+      expect(tokens.mapOffline, MeshTokens.defaultTokens.mapOffline);
+      expect(tokens.losTerrain, MeshTokens.defaultTokens.losTerrain);
     });
   });
 }

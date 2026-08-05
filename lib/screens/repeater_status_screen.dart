@@ -436,6 +436,13 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     final l10n = context.l10n;
     final connector = context.watch<MeshCoreConnector>();
     final repeater = _resolveRepeater(connector);
@@ -497,7 +504,7 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
               icon: Icons.timer_outlined,
               label: l10n.repeater_uptime,
               value: _formatDuration(_uptimeSecs),
-              color: MeshTokens.of(context).blue,
+              color: MeshTokens.of(context).primary,
             ),
             _StatItem(
               icon: Icons.schedule,
@@ -531,7 +538,7 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
               icon: Icons.signal_cellular_alt,
               label: l10n.repeater_lastRssi,
               value: _formatValue(_lastRssi, suffix: ' dB'),
-              color: MeshTokens.of(context).blue,
+              color: MeshTokens.of(context).primary,
             ),
             _StatItem(
               icon: Icons.waves,
@@ -569,7 +576,7 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
               icon: Icons.send,
               label: l10n.repeater_sent,
               value: _packetTxText(),
-              color: MeshTokens.of(context).blue,
+              color: MeshTokens.of(context).primary,
             ),
             _StatItem(
               icon: Icons.call_received,

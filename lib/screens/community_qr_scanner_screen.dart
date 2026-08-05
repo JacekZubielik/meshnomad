@@ -33,6 +33,13 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: AdaptiveAppBarTitle(context.l10n.community_scanQr),
@@ -88,7 +95,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
         // Corner brackets on top
         ScannerCornerOverlay(
           scanWindowSize: 250,
-          borderColor: MeshTokens.of(context).blue,
+          borderColor: MeshTokens.of(context).primary,
           borderWidth: 2,
           cornerLength: 24,
         ),
@@ -202,7 +209,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                 children: [
                   Icon(
                     Icons.groups,
-                    color: MeshTokens.of(sheetContext).magenta,
+                    color: MeshTokens.of(sheetContext).secondary,
                     size: 32,
                   ),
                   const SizedBox(width: 14),
@@ -273,7 +280,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                     AvatarCircle(
                       name: community.name,
                       icon: Icons.groups,
-                      color: MeshTokens.of(sheetContext).magenta,
+                      color: MeshTokens.of(sheetContext).secondary,
                       size: 44,
                     ),
                     const SizedBox(width: 14),

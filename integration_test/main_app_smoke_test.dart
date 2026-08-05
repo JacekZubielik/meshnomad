@@ -20,13 +20,15 @@ import 'package:meshcore_open/storage/prefs_manager.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  // Regression test for the MaterialApp.builder + SelectionArea + Overlay
-  // bug (2026-08-04): WidgetsApp.builder inserts widgets ABOVE the
-  // Navigator, so wrapping `child` (the Navigator) directly in
-  // SelectionArea leaves SelectionArea with no Overlay ancestor —
-  // `assert(debugCheckHasOverlay(context))` in SelectableRegion.build()
-  // throws "No Overlay widget found." The fix wraps SelectionArea in a
-  // self-hosted Overlay inside the builder.
+  // Regression test for MeshCoreApp's top-level build. Originally guarded
+  // the MaterialApp.builder + SelectionArea + Overlay bug (2026-08-04):
+  // WidgetsApp.builder inserts widgets ABOVE the Navigator, so wrapping
+  // `child` (the Navigator) directly in SelectionArea left it with no
+  // Overlay ancestor ("No Overlay widget found"). Fixed by moving
+  // SelectionArea to be per-screen instead of global (07-selection-bugs.md,
+  // 2026-08-05) — each screen's SelectionArea now sits inside the
+  // Navigator, reaching its Overlay naturally, so builder no longer needs
+  // a self-hosted Overlay at all. Kept as a general smoke test.
   testWidgets(
     'MeshCoreApp builds without a FlutterError (SelectionArea/Overlay)',
     (tester) async {

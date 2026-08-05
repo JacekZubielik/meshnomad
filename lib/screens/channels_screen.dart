@@ -95,6 +95,13 @@ class _ChannelsScreenState extends State<ChannelsScreen>
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     final connector = context.watch<MeshCoreConnector>();
     final viewState = context.watch<UiViewStateService>();
 
@@ -385,14 +392,14 @@ class _ChannelsScreenState extends State<ChannelsScreen>
     switch (channelType) {
       case ChannelType.communityPublic:
         icon = Icons.groups;
-        iconColor = MeshTokens.of(context).magenta;
+        iconColor = MeshTokens.of(context).secondary;
         if (community != null) {
           subtitle =
               '${context.l10n.community_publicChannel} • ${community.name}';
         }
       case ChannelType.communityHashtag:
         icon = Icons.groups;
-        iconColor = MeshTokens.of(context).magenta;
+        iconColor = MeshTokens.of(context).secondary;
         if (community != null) {
           subtitle =
               '${context.l10n.community_hashtagChannel} • ${community.name}';
@@ -402,10 +409,10 @@ class _ChannelsScreenState extends State<ChannelsScreen>
         iconColor = MeshTokens.of(context).signal;
       case ChannelType.hashtag:
         icon = Icons.tag;
-        iconColor = MeshTokens.of(context).blue;
+        iconColor = MeshTokens.of(context).primary;
       case ChannelType.private:
         icon = Icons.lock;
-        iconColor = MeshTokens.of(context).blue;
+        iconColor = MeshTokens.of(context).primary;
     }
 
     // Last message preview
@@ -479,7 +486,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       width: 16,
                       height: 16,
                       decoration: BoxDecoration(
-                        color: MeshTokens.of(context).magenta,
+                        color: MeshTokens.of(context).secondary,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Theme.of(
@@ -839,10 +846,10 @@ class _ChannelsScreenState extends State<ChannelsScreen>
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               borderColor: isSelected && enabled
-                  ? MeshTokens.of(sheetContext).blueLine
+                  ? MeshTokens.of(sheetContext).primaryLine
                   : null,
               color: isSelected && enabled
-                  ? MeshTokens.of(sheetContext).blueBg
+                  ? MeshTokens.of(sheetContext).primaryBg
                   : null,
               onTap: enabled
                   ? () {
@@ -861,7 +868,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     size: 38,
                     color: enabled
                         ? (isSelected
-                              ? MeshTokens.of(sheetContext).blue
+                              ? MeshTokens.of(sheetContext).primary
                               : cardScheme.onSurfaceVariant)
                         : cardScheme.outline,
                     icon: icon,
@@ -899,7 +906,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     Icon(
                       Icons.chevron_right,
                       color: isSelected
-                          ? MeshTokens.of(sheetContext).blue
+                          ? MeshTokens.of(sheetContext).primary
                           : cardScheme.onSurfaceVariant,
                       size: 20,
                     ),
@@ -1857,10 +1864,10 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         final community = _communities[index];
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: MeshTokens.of(context).magentaBg,
+                            backgroundColor: MeshTokens.of(context).secondaryBg,
                             child: Icon(
                               Icons.groups,
-                              color: MeshTokens.of(context).magenta,
+                              color: MeshTokens.of(context).secondary,
                             ),
                           ),
                           title: Text(community.name),

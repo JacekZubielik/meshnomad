@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 import '../connector/meshcore_connector.dart';
@@ -25,6 +26,13 @@ class AppSettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: AdaptiveAppBarTitle(context.l10n.appSettings_title),
@@ -126,6 +134,13 @@ class AppSettingsScreen extends StatelessWidget {
                           padding: EdgeInsets.zero,
                           child: _buildDebugContent(context, settingsService),
                         ),
+
+                        // ABOUT
+                        SectionHeader(context.l10n.appSettings_about),
+                        const MeshCard(
+                          padding: EdgeInsets.zero,
+                          child: _AboutTile(),
+                        ),
                       ],
                     );
                   },
@@ -219,16 +234,21 @@ class AppSettingsScreen extends StatelessWidget {
                     selected: settingsService.settings.styleId == 'custom',
                     onSelected: (_) => settingsService.setStyleId('custom'),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.tune, size: 18),
-                    tooltip: 'Customize',
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const CustomStyleEditorScreen(),
+                  // D2/05-settings-entry.md: the editor entry only makes
+                  // sense once Custom is actually selected — showing it
+                  // next to Default too made it look like it belonged to
+                  // the whole Style section rather than just Custom.
+                  if (settingsService.settings.styleId == 'custom')
+                    IconButton(
+                      icon: const Icon(Icons.tune, size: 18),
+                      tooltip: context.l10n.appSettings_editCustomStyleTooltip,
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CustomStyleEditorScreen(),
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ],
@@ -2550,6 +2570,69 @@ class _TranslationLanguageDialogContentState
           child: Text(context.l10n.common_close),
         ),
       ],
+    );
+  }
+}
+
+/// The "About" row at the bottom of app settings — same `showAboutDialog`
+/// entry point as `SettingsScreen._showAbout`, reachable from app-wide
+/// settings too (D2, 05-settings-entry.md), not only from a connected
+/// device's settings screen.
+class _AboutTile extends StatefulWidget {
+  const _AboutTile();
+
+  @override
+  State<_AboutTile> createState() => _AboutTileState();
+}
+
+class _AboutTileState extends State<_AboutTile> {
+  String _appVersion = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+    setState(() {
+      _appVersion = packageInfo.version;
+    });
+  }
+
+  void _showAbout(BuildContext context) {
+    final l10n = context.l10n;
+    showAboutDialog(
+      context: context,
+      applicationName: l10n.appTitle,
+      applicationVersion: _appVersion.isEmpty
+          ? l10n.common_loading
+          : _appVersion,
+      applicationLegalese: l10n.settings_aboutLegalese,
+      children: [
+        const SizedBox(height: 16),
+        Text(l10n.settings_aboutDescription),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      leading: Icon(Icons.info_outline, color: scheme.onSurfaceVariant),
+      title: Text(l10n.appSettings_about),
+      subtitle: Text(
+        l10n.settings_aboutVersion(
+          _appVersion.isEmpty ? l10n.common_loading : _appVersion,
+        ),
+      ),
+      trailing: Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+      onTap: () => _showAbout(context),
     );
   }
 }
