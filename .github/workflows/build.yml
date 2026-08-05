@@ -37,7 +37,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - run: flutter pub get
-      - run: flutter build apk --release --no-pub
+      # No --no-pub here: `flutter pub get` regenerates GeneratedPluginRegistrant
+      # with ALL plugins (including dev-dependency integration_test), while the
+      # release build excludes dev-dependency plugins from the compile classpath.
+      # `flutter build` without --no-pub regenerates the registrant release-aware,
+      # so the stale reference doesn't break :app:compileReleaseJavaWithJavac.
+      - run: flutter build apk --release
 
   ios:
     runs-on: macos-latest
