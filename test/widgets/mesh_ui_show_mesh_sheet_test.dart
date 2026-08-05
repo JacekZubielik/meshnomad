@@ -48,49 +48,45 @@ void main() {
         expect(find.text('Copy'), findsOneWidget);
 
         // A vertical drag on the sheet content must not dismiss it.
-        await tester.drag(
-          find.byType(SelectableText),
-          const Offset(0, 300),
-        );
+        await tester.drag(find.byType(SelectableText), const Offset(0, 300));
         await tester.pumpAndSettle();
 
         expect(find.byType(SelectableText), findsOneWidget);
       },
     );
 
-    testWidgets(
-      'enableDrag defaults to true for sheets that do not opt out',
-      (tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Builder(
-              builder: (context) => Scaffold(
-                body: Center(
-                  child: ElevatedButton(
-                    onPressed: () => showMeshSheet<void>(
-                      context,
-                      builder: (sheetContext) => const Padding(
-                        padding: EdgeInsets.all(24),
-                        child: Text('Plain sheet'),
-                      ),
+    testWidgets('enableDrag defaults to true for sheets that do not opt out', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: ElevatedButton(
+                  onPressed: () => showMeshSheet<void>(
+                    context,
+                    builder: (sheetContext) => const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text('Plain sheet'),
                     ),
-                    child: const Text('Open'),
                   ),
+                  child: const Text('Open'),
                 ),
               ),
             ),
           ),
-        );
+        ),
+      );
 
-        await tester.tap(find.text('Open'));
-        await tester.pumpAndSettle();
-        expect(find.text('Plain sheet'), findsOneWidget);
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(find.text('Plain sheet'), findsOneWidget);
 
-        await tester.drag(find.text('Plain sheet'), const Offset(0, 600));
-        await tester.pumpAndSettle();
+      await tester.drag(find.text('Plain sheet'), const Offset(0, 600));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Plain sheet'), findsNothing);
-      },
-    );
+      expect(find.text('Plain sheet'), findsNothing);
+    });
   });
 }
