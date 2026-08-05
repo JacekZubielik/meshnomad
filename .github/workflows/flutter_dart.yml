@@ -1,5 +1,8 @@
 name: Flutter and Dart
 
+env:
+  FLUTTER_VERSION: "3.44.8"
+
 on:
   pull_request:
     paths-ignore:
@@ -25,6 +28,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Install dependencies
         run: flutter pub get

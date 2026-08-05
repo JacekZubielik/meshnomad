@@ -1,5 +1,8 @@
 name: Deploy to Cloudflare Workers
 
+env:
+  FLUTTER_VERSION: "3.44.8"
+
 on:
   push:
     tags:
@@ -16,8 +19,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          # Match local development version which provides Dart 3.11.0
-          flutter-version: '3.41.2'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
