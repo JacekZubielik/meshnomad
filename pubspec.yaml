@@ -47,7 +47,7 @@ dependencies:
   shared_preferences: ^2.2.2
   uuid: ^4.3.3
   flutter_map: ^8.2.2
-  latlong2: ^0.9.1
+  latlong2: ^0.10.1
   flutter_local_notifications: ^22.0.0
   crypto: ^3.0.3
   pointycastle: ^4.0.0
