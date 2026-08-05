@@ -35,6 +35,13 @@ class ChannelMessagePathScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     return Consumer<MeshCoreConnector>(
       builder: (context, connector, _) {
         final l10n = context.l10n;
@@ -827,6 +834,13 @@ class _ChannelMessagePathMapScreenState
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     return Consumer<MeshCoreConnector>(
       builder: (context, connector, _) {
         final settings = context.watch<AppSettingsService>().settings;

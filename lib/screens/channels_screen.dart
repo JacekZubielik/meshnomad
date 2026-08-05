@@ -95,6 +95,13 @@ class _ChannelsScreenState extends State<ChannelsScreen>
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     final connector = context.watch<MeshCoreConnector>();
     final viewState = context.watch<UiViewStateService>();
 

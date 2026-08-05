@@ -385,6 +385,14 @@ class CustomStyleEditorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) — this fixes known-issues pkt 6 too (Font sizes
+    // tab had no working selection since the global SelectionArea sat
+    // above the Navigator and its Overlay-hosting workaround interfered).
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     return Consumer<AppSettingsService>(
       builder: (context, settingsService, child) {
         final l10n = context.l10n;

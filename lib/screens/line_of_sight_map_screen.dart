@@ -355,6 +355,13 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     final settings = context.watch<AppSettingsService>().settings;
     final isImperial = settings.unitSystem == UnitSystem.imperial;
     final tileCache = context.watch<MapTileCacheService>();

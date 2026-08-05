@@ -91,6 +91,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
     final canPop = Navigator.of(context).canPop();
     return Scaffold(
       appBar: AppBar(
