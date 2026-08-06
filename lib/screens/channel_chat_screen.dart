@@ -40,6 +40,8 @@ import '../widgets/sync_progress_overlay.dart';
 import '../widgets/translated_message_content.dart';
 import '../widgets/unread_divider.dart';
 import '../theme/mesh_tokens.dart';
+import '../widgets/dotted_separator.dart';
+import '../widgets/mesh_info_dialog.dart';
 import '../widgets/mesh_ui.dart';
 import 'channel_message_path_screen.dart';
 import 'map_screen.dart';
@@ -560,6 +562,57 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     final metaColor = textColor.withValues(alpha: 0.65);
     const bodyFontSize = 14.0;
 
+    // Footer time row — shared by both footer layouts (with/without the
+    // technical block).
+    final timeRow = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SelectableText(
+          _formatTime(context, message.timestamp),
+          style: MeshTokens.of(context)
+              .monoCaption(color: metaColor)
+              .copyWith(
+                fontSize:
+                    (MeshTokens.of(
+                          context,
+                        ).monoCaption(color: metaColor).fontSize ??
+                        10) *
+                    textScale,
+              ),
+        ),
+        if (enableTracing && message.repeatCount > 0) ...[
+          const SizedBox(width: 6),
+          Icon(Icons.repeat, size: 11 * textScale, color: metaColor),
+          const SizedBox(width: 2),
+          SelectableText(
+            '${message.repeatCount}',
+            style: MeshTokens.of(context)
+                .monoCaption(color: metaColor)
+                .copyWith(
+                  fontSize:
+                      (MeshTokens.of(
+                            context,
+                          ).monoCaption(color: metaColor).fontSize ??
+                          10) *
+                      textScale,
+                ),
+          ),
+        ],
+        if (isOutgoing) ...[
+          const SizedBox(width: 4),
+          MessageStatusIcon(
+            isAcked: message.status == ChannelMessageStatus.sent,
+            isRepeated:
+                message.status == ChannelMessageStatus.sent &&
+                displayPath.isNotEmpty,
+            isPending: message.status == ChannelMessageStatus.pending,
+            isFailed: message.status == ChannelMessageStatus.failed,
+            onColor: metaColor,
+          ),
+        ],
+      ],
+    );
+
     // Asymmetric radius matching chat_screen bubbles.
     final borderRadius = isOutgoing
         ? BorderRadius.only(
@@ -614,204 +667,189 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                       borderRadius: borderRadius,
                       border: Border.all(color: bubbleBorder, width: 1),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (!isOutgoing) ...[
-                          Padding(
-                            padding: gifId != null
-                                ? const EdgeInsets.only(
-                                    left: 8,
-                                    top: 4,
-                                    bottom: 4,
-                                  )
-                                : EdgeInsets.zero,
-                            child: SelectableText(
-                              message.senderName,
-                              style:
-                                  (Theme.of(context).textTheme.titleSmall ??
-                                          const TextStyle())
-                                      .copyWith(
-                                        fontSize:
-                                            (Theme.of(context)
-                                                    .textTheme
-                                                    .titleSmall
-                                                    ?.fontSize ??
-                                                13) *
-                                            textScale,
-                                        fontWeight: FontWeight.w700,
-                                        color: textColor,
-                                      ),
-                            ),
-                          ),
-                          if (gifId == null) const SizedBox(height: 2),
-                        ],
-                        if (message.replyToMessageId != null) ...[
-                          _buildReplyPreview(message, textScale),
-                          const SizedBox(height: 8),
-                        ],
-                        if (poi != null)
-                          _buildPoiMessage(
-                            context,
-                            poi,
-                            isOutgoing,
-                            textScale,
-                            message.senderName,
-                          )
-                        else if (gifId != null)
-                          Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: GifMessage(
-                                  url:
-                                      'https://media.giphy.com/media/$gifId/giphy.gif',
-                                  backgroundColor: Colors.transparent,
-                                  fallbackTextColor: textColor.withValues(
-                                    alpha: 0.7,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        else
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Flexible(
-                                child: TranslatedMessageContent(
-                                  displayText: translatedDisplayText,
-                                  originalText: originalDisplayText,
-                                  style: TextStyle(
-                                    color: textColor,
-                                    fontSize: bodyFontSize * textScale,
-                                  ),
-                                  originalStyle: TextStyle(
-                                    fontSize: bodyFontSize * textScale,
-                                    fontStyle: FontStyle.italic,
-                                    color: textColor.withValues(alpha: 0.72),
-                                  ),
-                                  onSecondaryTap: PlatformInfo.isDesktop
-                                      ? () => _showMessageActions(message)
-                                      : null,
-                                ),
-                              ),
-                            ],
-                          ),
-                        if (enableTracing && displayPath.isNotEmpty) ...[
-                          const SizedBox(height: 3),
-                          Padding(
-                            padding: gifId != null
-                                ? const EdgeInsets.symmetric(horizontal: 8)
-                                : EdgeInsets.zero,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                RouteChip(
-                                  isDirect: (message.pathLength ?? -1) >= 0,
-                                  hops: displayHopCount,
-                                ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: SelectableText(
-                                    context.l10n.channels_via(
-                                      _formatPathPrefixes(
-                                        displayPath,
-                                        displayPathHashWidth,
-                                      ),
-                                    ),
-                                    style: MeshTokens.of(context)
-                                        .monoCaption(color: metaColor)
+                    // IntrinsicWidth lets the dotted separator stretch to the
+                    // bubble's natural width without inflating the bubble.
+                    child: IntrinsicWidth(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (!isOutgoing) ...[
+                            Padding(
+                              padding: gifId != null
+                                  ? const EdgeInsets.only(
+                                      left: 8,
+                                      top: 4,
+                                      bottom: 4,
+                                    )
+                                  : EdgeInsets.zero,
+                              child: SelectableText(
+                                message.senderName,
+                                style:
+                                    (Theme.of(context).textTheme.titleSmall ??
+                                            const TextStyle())
                                         .copyWith(
                                           fontSize:
-                                              (MeshTokens.of(context)
-                                                      .monoCaption(
-                                                        color: metaColor,
-                                                      )
-                                                      .fontSize ??
-                                                  9.5) *
+                                              (Theme.of(context)
+                                                      .textTheme
+                                                      .titleSmall
+                                                      ?.fontSize ??
+                                                  13) *
                                               textScale,
+                                          fontWeight: FontWeight.w700,
+                                          color: textColor,
                                         ),
+                              ),
+                            ),
+                            if (gifId == null) const SizedBox(height: 2),
+                          ],
+                          if (message.replyToMessageId != null) ...[
+                            _buildReplyPreview(message, textScale),
+                            const SizedBox(height: 8),
+                          ],
+                          if (poi != null)
+                            _buildPoiMessage(
+                              context,
+                              poi,
+                              isOutgoing,
+                              textScale,
+                              message.senderName,
+                            )
+                          else if (gifId != null)
+                            Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: GifMessage(
+                                    url:
+                                        'https://media.giphy.com/media/$gifId/giphy.gif',
+                                    backgroundColor: Colors.transparent,
+                                    fallbackTextColor: textColor.withValues(
+                                      alpha: 0.7,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          else
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Flexible(
+                                  child: TranslatedMessageContent(
+                                    displayText: translatedDisplayText,
+                                    originalText: originalDisplayText,
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontSize: bodyFontSize * textScale,
+                                    ),
+                                    originalStyle: TextStyle(
+                                      fontSize: bodyFontSize * textScale,
+                                      fontStyle: FontStyle.italic,
+                                      color: textColor.withValues(alpha: 0.72),
+                                    ),
+                                    onSecondaryTap: PlatformInfo.isDesktop
+                                        ? () => _showMessageActions(message)
+                                        : null,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                        const SizedBox(height: 3),
-                        Padding(
-                          padding: gifId != null
-                              ? const EdgeInsets.only(
-                                  left: 8,
-                                  right: 8,
-                                  bottom: 4,
-                                )
-                              : EdgeInsets.zero,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SelectableText(
-                                _formatTime(context, message.timestamp),
-                                style: MeshTokens.of(context)
-                                    .monoCaption(color: metaColor)
-                                    .copyWith(
-                                      fontSize:
-                                          (MeshTokens.of(context)
-                                                  .monoCaption(color: metaColor)
-                                                  .fontSize ??
-                                              10) *
-                                          textScale,
+                          if (enableTracing && displayPath.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            // Delicate rule cutting the technical footer off
+                            // the message content at a glance.
+                            Padding(
+                              padding: gifId != null
+                                  ? const EdgeInsets.symmetric(horizontal: 8)
+                                  : EdgeInsets.zero,
+                              child: DottedSeparator(color: textColor),
+                            ),
+                            const SizedBox(height: 4),
+                            // The whole RPT bar is one tap target opening the
+                            // route map popup, so the via list is plain Text —
+                            // SelectableText would swallow the taps.
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => _showMessagePathInfo(message),
+                              child: Padding(
+                                padding: gifId != null
+                                    ? const EdgeInsets.symmetric(horizontal: 8)
+                                    : EdgeInsets.zero,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    RouteChip(
+                                      isDirect: (message.pathLength ?? -1) >= 0,
+                                      hops: displayHopCount,
                                     ),
-                              ),
-                              if (enableTracing && message.repeatCount > 0) ...[
-                                const SizedBox(width: 6),
-                                Icon(
-                                  Icons.repeat,
-                                  size: 11 * textScale,
-                                  color: metaColor,
-                                ),
-                                const SizedBox(width: 2),
-                                SelectableText(
-                                  '${message.repeatCount}',
-                                  style: MeshTokens.of(context)
-                                      .monoCaption(color: metaColor)
-                                      .copyWith(
-                                        fontSize:
-                                            (MeshTokens.of(context)
-                                                    .monoCaption(
-                                                      color: metaColor,
-                                                    )
-                                                    .fontSize ??
-                                                10) *
-                                            textScale,
+                                    const SizedBox(width: 4),
+                                    Flexible(
+                                      child: Text(
+                                        context.l10n.channels_via(
+                                          _formatPathPrefixes(
+                                            displayPath,
+                                            displayPathHashWidth,
+                                          ),
+                                        ),
+                                        style: MeshTokens.of(context)
+                                            .monoCaption(color: metaColor)
+                                            .copyWith(
+                                              fontSize:
+                                                  (MeshTokens.of(context)
+                                                          .monoCaption(
+                                                            color: metaColor,
+                                                          )
+                                                          .fontSize ??
+                                                      9.5) *
+                                                  textScale,
+                                            ),
                                       ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                              if (isOutgoing) ...[
-                                const SizedBox(width: 4),
-                                MessageStatusIcon(
-                                  isAcked:
-                                      message.status ==
-                                      ChannelMessageStatus.sent,
-                                  isRepeated:
-                                      message.status ==
-                                          ChannelMessageStatus.sent &&
-                                      displayPath.isNotEmpty,
-                                  isPending:
-                                      message.status ==
-                                      ChannelMessageStatus.pending,
-                                  isFailed:
-                                      message.status ==
-                                      ChannelMessageStatus.failed,
-                                  onColor: metaColor,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Padding(
+                              padding: gifId != null
+                                  ? const EdgeInsets.only(
+                                      left: 8,
+                                      right: 8,
+                                      bottom: 4,
+                                    )
+                                  : EdgeInsets.zero,
+                              child: timeRow,
+                            ),
+                          ] else ...[
+                            // No technical block (tracing off or no path):
+                            // a short rule the width of the time row still
+                            // cuts the footer off the content.
+                            const SizedBox(height: 6),
+                            Padding(
+                              padding: gifId != null
+                                  ? const EdgeInsets.only(
+                                      left: 8,
+                                      right: 8,
+                                      bottom: 4,
+                                    )
+                                  : EdgeInsets.zero,
+                              child: IntrinsicWidth(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    DottedSeparator(color: textColor),
+                                    const SizedBox(height: 4),
+                                    timeRow,
+                                  ],
                                 ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -1492,11 +1530,22 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   }
 
   void _showMessagePathInfo(ChannelMessage message) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            ChannelMessagePathScreen(message: message, channelMessage: true),
+    // The route map opens as a popup with the pattern's equal edge insets,
+    // not as a full-screen card. The embedded screen keeps its own app bar
+    // (title + back) and per-path colors.
+    showDialog<void>(
+      context: context,
+      builder: (_) => Dialog(
+        insetPadding: const EdgeInsets.all(MeshInfoDialog.edgeInset),
+        clipBehavior: Clip.antiAlias,
+        child: SizedBox(
+          width: double.maxFinite,
+          height: double.maxFinite,
+          child: ChannelMessagePathMapScreen(
+            message: message,
+            channelMessage: true,
+          ),
+        ),
       ),
     );
   }
