@@ -9,6 +9,7 @@ import '../l10n/l10n.dart';
 import '../models/contact.dart';
 import '../screens/map_screen.dart';
 import '../theme/mesh_tokens.dart';
+import 'indicator_caption.dart';
 import 'mesh_ui.dart';
 import 'signal_ui.dart';
 
@@ -112,7 +113,7 @@ SNRUi snrUiFromSNR(BuildContext context, double? snr, int? spreadingFactor) {
 
   final snrLevels = getSNRfromSF(spreadingFactor);
 
-  String text = '${snr.toStringAsFixed(1)} dB';
+  String text = '${snr.toStringAsFixed(1)}dB';
   final tier = snr >= snrLevels[0]
       ? 0
       : snr >= snrLevels[1]
@@ -263,12 +264,7 @@ class _SNRIndicatorState extends State<SNRIndicator> {
             children: [
               Icon(snrUi.icon, size: 18, color: snrUi.color),
               const SizedBox(height: 2),
-              Text(
-                snrUi.text,
-                style: MeshTokens.of(context)
-                    .monoCaption(color: snrUi.color)
-                    .copyWith(fontWeight: FontWeight.w600),
-              ),
+              IndicatorCaption(snrUi.text, color: snrUi.color),
             ],
           ),
         ),

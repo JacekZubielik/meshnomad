@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../connector/meshcore_connector.dart';
 import '../theme/mesh_tokens.dart';
+import 'indicator_caption.dart';
 
 class BatteryUi {
   final IconData icon;
@@ -74,16 +75,7 @@ class _BatteryIndicatorState extends State<BatteryIndicator> {
               children: [
                 Icon(batteryUi.icon, size: 18, color: batteryUi.color),
                 const SizedBox(height: 2),
-                Flexible(
-                  child: Text(
-                    displayText,
-                    style: MeshTokens.of(context)
-                        .monoCaption(color: batteryUi.color)
-                        .copyWith(fontWeight: FontWeight.w600),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+                IndicatorCaption(displayText, color: batteryUi.color),
               ],
             ),
           ],

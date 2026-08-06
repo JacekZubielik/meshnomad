@@ -29,7 +29,6 @@ import '../widgets/mesh_ui.dart';
 import '../widgets/quick_switch_bar.dart';
 import '../widgets/repeater_login_dialog.dart';
 import '../widgets/room_login_dialog.dart';
-import '../widgets/sync_progress_overlay.dart';
 import '../widgets/unread_badge.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'channels_screen.dart';
@@ -350,113 +349,105 @@ class _ContactsScreenState extends State<ContactsScreen>
     return PopScope(
       canPop: allowBack,
       child: Scaffold(
-        appBar: AppBar(
-          title: AppBarTitle(context.l10n.contacts_title),
-          automaticallyImplyLeading: false,
-          bottom: const SyncProgressAppBarBottom(),
-          actions: [
-            PopupMenuButton(
-              tooltip: context.l10n.contacts_moreOptions,
-              itemBuilder: (context) => <PopupMenuEntry<dynamic>>[
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.person_add_rounded),
-                      const SizedBox(width: 8),
-                      Text(context.l10n.discoveredContacts_Title),
-                    ],
-                  ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DiscoveryScreen(),
-                    ),
-                  ),
+        appBar: meshMainAppBar(
+          context,
+          title: context.l10n.contacts_title,
+          menuTooltip: context.l10n.contacts_moreOptions,
+          menuItemBuilder: (context) => <PopupMenuEntry<dynamic>>[
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.person_add_rounded),
+                  const SizedBox(width: 8),
+                  Text(context.l10n.discoveredContacts_Title),
+                ],
+              ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DiscoveryScreen(),
                 ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.paste),
-                      const SizedBox(width: 8),
-                      Text(context.l10n.contacts_addContactFromClipboard),
-                    ],
-                  ),
-                  onTap: () => _contactImport(),
+              ),
+            ),
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.paste),
+                  const SizedBox(width: 8),
+                  Text(context.l10n.contacts_addContactFromClipboard),
+                ],
+              ),
+              onTap: () => _contactImport(),
+            ),
+            const PopupMenuDivider(),
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.connect_without_contact),
+                  const SizedBox(width: 8),
+                  Text(context.l10n.contacts_zeroHopAdvert),
+                ],
+              ),
+              onTap: () => {
+                connector.sendSelfAdvert(flood: false),
+                showDismissibleSnackBar(
+                  context,
+                  content: Text(context.l10n.settings_advertisementSent),
                 ),
-                const PopupMenuDivider(),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.connect_without_contact),
-                      const SizedBox(width: 8),
-                      Text(context.l10n.contacts_zeroHopAdvert),
-                    ],
-                  ),
-                  onTap: () => {
-                    connector.sendSelfAdvert(flood: false),
-                    showDismissibleSnackBar(
-                      context,
-                      content: Text(context.l10n.settings_advertisementSent),
-                    ),
-                  },
+              },
+            ),
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.cell_tower),
+                  const SizedBox(width: 8),
+                  Text(context.l10n.contacts_floodAdvert),
+                ],
+              ),
+              onTap: () => {
+                connector.sendSelfAdvert(flood: true),
+                showDismissibleSnackBar(
+                  context,
+                  content: Text(context.l10n.settings_advertisementSent),
                 ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.cell_tower),
-                      const SizedBox(width: 8),
-                      Text(context.l10n.contacts_floodAdvert),
-                    ],
+              },
+            ),
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.copy),
+                  const SizedBox(width: 8),
+                  Text(context.l10n.contacts_copyAdvertToClipboard),
+                ],
+              ),
+              onTap: () => _contactExport(Uint8List.fromList([])),
+            ),
+            const PopupMenuDivider(),
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.logout,
+                    color: Theme.of(context).colorScheme.error,
                   ),
-                  onTap: () => {
-                    connector.sendSelfAdvert(flood: true),
-                    showDismissibleSnackBar(
-                      context,
-                      content: Text(context.l10n.settings_advertisementSent),
-                    ),
-                  },
-                ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.copy),
-                      const SizedBox(width: 8),
-                      Text(context.l10n.contacts_copyAdvertToClipboard),
-                    ],
-                  ),
-                  onTap: () => _contactExport(Uint8List.fromList([])),
-                ),
-                const PopupMenuDivider(),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.logout,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(context.l10n.common_disconnect),
-                    ],
-                  ),
-                  onTap: () => _disconnect(context, connector),
-                ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.settings),
-                      const SizedBox(width: 8),
-                      Text(context.l10n.settings_title),
-                    ],
-                  ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  ),
-                ),
-              ],
-              child: const AppBarMenuIcon(),
+                  const SizedBox(width: 8),
+                  Text(context.l10n.common_disconnect),
+                ],
+              ),
+              onTap: () => _disconnect(context, connector),
+            ),
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.settings),
+                  const SizedBox(width: 8),
+                  Text(context.l10n.settings_title),
+                ],
+              ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              ),
             ),
           ],
         ),
@@ -1756,10 +1747,19 @@ class _ContactTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (unreadCount > 0) ...[
-                    UnreadBadge(count: unreadCount),
-                    const SizedBox(height: 4),
-                  ],
+                  if (unreadCount > 0)
+                    UnreadBadge(count: unreadCount)
+                  else
+                    // Reserve the badge's footprint so a new unread count
+                    // never changes the tile height (same as channels).
+                    const Visibility(
+                      visible: false,
+                      maintainSize: true,
+                      maintainAnimation: true,
+                      maintainState: true,
+                      child: UnreadBadge(count: 0),
+                    ),
+                  const SizedBox(height: 4),
                   Text(
                     _formatLastSeen(context, lastSeen),
                     maxLines: 1,

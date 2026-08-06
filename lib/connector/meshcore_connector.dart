@@ -214,6 +214,9 @@ class MeshCoreConnector extends ChangeNotifier {
   static const _gpsLocationPollInterval = Duration(minutes: 1);
   Timer? _radioStatsPollTimer;
   int _radioStatsPollRefCount = 0;
+  int? _bleLinkRssi;
+  Timer? _bleRssiPollTimer;
+  int _bleRssiPollRefCount = 0;
   final ValueNotifier<CompanionRadioStats?> radioStatsNotifier =
       ValueNotifier<CompanionRadioStats?>(null);
   int _reconnectAttempts = 0;
@@ -468,6 +471,7 @@ class MeshCoreConnector extends ChangeNotifier {
   int get pathHashByteWidth => _pathHashByteWidth;
 
   CompanionRadioStats? get latestRadioStats => _latestRadioStats;
+  int? get bleLinkRssi => _bleLinkRssi;
 
   bool get supportsCompanionRadioStats => (_firmwareVerCode ?? 0) >= 8;
 
@@ -2920,6 +2924,46 @@ class MeshCoreConnector extends ChangeNotifier {
     _radioStatsPollRefCount = (_radioStatsPollRefCount - 1).clamp(0, 999);
     if (_radioStatsPollRefCount == 0) {
       _stopRadioStatsPolling();
+    }
+  }
+
+  // BLE link RSSI polling for the transport indicator. The timer always
+  // ticks while acquired; each tick is a no-op unless a BLE link is up, so
+  // the indicator recovers by itself across reconnects.
+  void acquireBleRssiPolling() {
+    _bleRssiPollRefCount++;
+    if (_bleRssiPollRefCount == 1) {
+      _pollBleLinkRssi();
+      _bleRssiPollTimer ??= Timer.periodic(
+        const Duration(seconds: 5),
+        (_) => _pollBleLinkRssi(),
+      );
+    }
+  }
+
+  void releaseBleRssiPolling() {
+    _bleRssiPollRefCount = (_bleRssiPollRefCount - 1).clamp(0, 999);
+    if (_bleRssiPollRefCount == 0) {
+      _bleRssiPollTimer?.cancel();
+      _bleRssiPollTimer = null;
+    }
+  }
+
+  Future<void> _pollBleLinkRssi() async {
+    final device = _device;
+    if (device == null ||
+        !isConnected ||
+        _activeTransport != MeshCoreTransportType.bluetooth) {
+      return;
+    }
+    try {
+      final rssi = await device.readRssi();
+      if (_bleLinkRssi != rssi) {
+        _bleLinkRssi = rssi;
+        notifyListeners();
+      }
+    } catch (_) {
+      // Link may be mid-teardown; keep the last reading.
     }
   }
 
@@ -6553,6 +6597,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _stopBatteryPolling();
     _stopGpsLocationPolling();
     _stopRadioStatsPolling();
+    _bleLinkRssi = null;
     _latestRadioStats = null;
     radioStatsNotifier.value = null;
     _prevTotalAirSecs = 0;
@@ -6726,6 +6771,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _batteryPollTimer?.cancel();
     _gpsLocationPollTimer?.cancel();
     _radioStatsPollTimer?.cancel();
+    _bleRssiPollTimer?.cancel();
     radioStatsNotifier.dispose();
     _receivedFramesController.close();
     _usbManager.dispose();

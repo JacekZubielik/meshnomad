@@ -8,6 +8,7 @@ import 'package:meshcore_open/screens/companion_radio_stats_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../theme/mesh_tokens.dart';
+import 'indicator_caption.dart';
 import 'mesh_ui.dart';
 
 void pushCompanionRadioStatsScreen(BuildContext context) {
@@ -62,9 +63,7 @@ class _RadioStatsIconButtonState extends State<RadioStatsIconButton> {
               active: connector.radioStatsAirActivityPulse,
             );
             if (widget.compact) {
-              final caption = stats == null
-                  ? '—'
-                  : '${stats.noiseFloorDbm} dBm';
+              final caption = stats == null ? '—' : '${stats.noiseFloorDbm}dBm';
               return Semantics(
                 label: context.l10n.radioStats_tooltip,
                 button: true,
@@ -84,15 +83,9 @@ class _RadioStatsIconButtonState extends State<RadioStatsIconButton> {
                           icon: Icons.wifi_tethering,
                         ),
                         const SizedBox(height: 2),
-                        Text(
+                        IndicatorCaption(
                           caption,
-                          style: MeshTokens.of(context)
-                              .monoCaption(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              )
-                              .copyWith(fontWeight: FontWeight.w600),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ],
                     ),

@@ -1219,7 +1219,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                // Top-aligned so the icons stay centered on the field's first
+                // line even when the counter appears or the field grows.
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   IconButton(
                     icon: const Icon(Icons.gif_box),

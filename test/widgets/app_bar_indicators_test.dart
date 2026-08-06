@@ -15,6 +15,10 @@ import 'package:meshcore_open/widgets/snr_indicator.dart';
 
 class _FakeConnector extends MeshCoreConnector {
   final List<DirectRepeater> repeaters = [];
+  MeshCoreTransportType transport = MeshCoreTransportType.bluetooth;
+  int? rssi;
+  String? usbLabel;
+  String? tcpEndpoint;
 
   @override
   List<DirectRepeater> get directRepeaters => repeaters;
@@ -35,10 +39,28 @@ class _FakeConnector extends MeshCoreConnector {
   bool get radioStatsAirActivityPulse => false;
 
   @override
+  MeshCoreTransportType get activeTransport => transport;
+
+  @override
+  int? get bleLinkRssi => rssi;
+
+  @override
+  String? get activeUsbPortDisplayLabel => usbLabel;
+
+  @override
+  String? get activeTcpEndpoint => tcpEndpoint;
+
+  @override
   void acquireRadioStatsPolling() {}
 
   @override
   void releaseRadioStatsPolling() {}
+
+  @override
+  void acquireBleRssiPolling() {}
+
+  @override
+  void releaseBleRssiPolling() {}
 }
 
 CompanionRadioStats _stats({int noiseFloorDbm = -98}) => CompanionRadioStats(
@@ -157,7 +179,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('-98 dBm'), findsOneWidget);
+    expect(find.text('-98dBm'), findsOneWidget);
   });
 
   testWidgets('AppBarMenuIcon renders more_vert at the shared indicator size', (
@@ -170,5 +192,112 @@ void main() {
 
     final icon = tester.widget<Icon>(find.byIcon(Icons.more_vert));
     expect(icon.size, 18);
+  });
+
+  group('TransportIndicator', () {
+    testWidgets('BLE shows bluetooth icon with the link RSSI', (tester) async {
+      connector.transport = MeshCoreTransportType.bluetooth;
+      connector.rssi = -58;
+
+      await tester.pumpWidget(
+        _wrap(TransportIndicator(connector: connector), connector: connector),
+      );
+      await tester.pump();
+
+      expect(find.byIcon(Icons.bluetooth), findsOneWidget);
+      expect(find.text('-58dBm'), findsOneWidget);
+    });
+
+    testWidgets('BLE shows a placeholder before the first RSSI read', (
+      tester,
+    ) async {
+      connector.transport = MeshCoreTransportType.bluetooth;
+      connector.rssi = null;
+
+      await tester.pumpWidget(
+        _wrap(TransportIndicator(connector: connector), connector: connector),
+      );
+      await tester.pump();
+
+      expect(find.text('—'), findsOneWidget);
+    });
+
+    testWidgets('USB shows the port label, TCP the endpoint', (tester) async {
+      connector.transport = MeshCoreTransportType.usb;
+      connector.usbLabel = 'ttyACM0';
+
+      await tester.pumpWidget(
+        _wrap(TransportIndicator(connector: connector), connector: connector),
+      );
+      await tester.pump();
+      expect(find.byIcon(Icons.usb), findsOneWidget);
+      expect(find.text('ttyACM0'), findsOneWidget);
+
+      connector.transport = MeshCoreTransportType.tcp;
+      connector.tcpEndpoint = '192.168.40.10:5000';
+
+      await tester.pumpWidget(
+        _wrap(TransportIndicator(connector: connector), connector: connector),
+      );
+      await tester.pump();
+      expect(find.byIcon(Icons.lan), findsOneWidget);
+      expect(find.text('192.168.40.10:5000'), findsOneWidget);
+    });
+  });
+
+  group('AppBarTitle indicator row', () {
+    testWidgets('separates every indicator with a vertical line', (
+      tester,
+    ) async {
+      connector.repeaters.add(
+        DirectRepeater(pubkeyPrefix: [0xAB, 0x12], pathHashWidth: 2, snr: 8.0),
+      );
+      connector.rssi = -58;
+
+      await tester.pumpWidget(
+        _wrap(const AppBarTitle('T'), connector: connector),
+      );
+      await tester.pump();
+
+      // Four indicators (battery, signal, RF, transport): three lines
+      // between them plus a trailing line before the actions menu.
+      expect(
+        find.byKey(const ValueKey('appBarIndicatorSeparator')),
+        findsNWidgets(4),
+      );
+    });
+
+    testWidgets('keeps all indicators visible on a narrow bar', (tester) async {
+      connector.repeaters.add(
+        DirectRepeater(pubkeyPrefix: [0xAB, 0x12], pathHashWidth: 2, snr: 8.0),
+      );
+      connector.rssi = -58;
+
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(width: 320, child: AppBarTitle('Channels')),
+          connector: connector,
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byIcon(Icons.bluetooth), findsOneWidget);
+      expect(find.byIcon(Icons.wifi_tethering), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(BatteryIndicator),
+          matching: find.byType(Icon),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(SNRIndicator),
+          matching: find.byType(Icon),
+        ),
+        findsOneWidget,
+      );
+    });
   });
 }
