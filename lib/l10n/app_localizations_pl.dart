@@ -4368,6 +4368,39 @@ class AppLocalizationsPl extends AppLocalizations {
   String get snrIndicator_nearByRepeaters => 'Pobliskie przekaźniki';
 
   @override
+  String get indicator_batteryTitle => 'Bateria';
+
+  @override
+  String get indicator_chargeLabel => 'Naładowanie';
+
+  @override
+  String get indicator_voltageLabel => 'Napięcie';
+
+  @override
+  String get indicator_connectionTitle => 'Połączenie';
+
+  @override
+  String get indicator_deviceLabel => 'Urządzenie';
+
+  @override
+  String get indicator_macLabel => 'MAC';
+
+  @override
+  String get indicator_rssiLabel => 'RSSI';
+
+  @override
+  String get indicator_portLabel => 'Port';
+
+  @override
+  String get indicator_baudLabel => 'Prędkość (baud)';
+
+  @override
+  String get indicator_endpointLabel => 'Adres';
+
+  @override
+  String get indicator_rangeSession => 'Sesja';
+
+  @override
   String get snrIndicator_lastSeen => 'Ostatnio widziany';
 
   @override

@@ -4,17 +4,39 @@ import 'package:meshcore_open/models/companion_radio_stats.dart';
 import 'package:meshcore_open/l10n/l10n.dart';
 import 'package:meshcore_open/theme/mesh_tokens.dart';
 import 'package:meshcore_open/widgets/mesh_ui.dart';
+import 'package:meshcore_open/widgets/stats_line_chart.dart';
 import 'package:provider/provider.dart';
 
-class CompanionRadioStatsScreen extends StatefulWidget {
+class CompanionRadioStatsScreen extends StatelessWidget {
   const CompanionRadioStatsScreen({super.key});
 
   @override
-  State<CompanionRadioStatsScreen> createState() =>
-      _CompanionRadioStatsScreenState();
+  Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(context.l10n.radioStats_screenTitle),
+          centerTitle: true,
+        ),
+        body: const SingleChildScrollView(child: RadioStatsPanel()),
+      ),
+    );
+  }
 }
 
-class _CompanionRadioStatsScreenState extends State<CompanionRadioStatsScreen> {
+/// Live radio stats body — polling lifecycle, tiles and the noise chart.
+/// Hosted by [CompanionRadioStatsScreen] and by the RF indicator's popup.
+class RadioStatsPanel extends StatefulWidget {
+  const RadioStatsPanel({super.key});
+
+  @override
+  State<RadioStatsPanel> createState() => _RadioStatsPanelState();
+}
+
+class _RadioStatsPanelState extends State<RadioStatsPanel> {
   final List<double> _noiseHistory = [];
   static const int _maxSamples = 120;
   MeshCoreConnector? _connector;
@@ -72,272 +94,131 @@ class _CompanionRadioStatsScreenState extends State<CompanionRadioStatsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
-    // above the Navigator) so "select all" can't sweep in text from other,
-    // offstage routes still mounted via maintainState:true.
-    return SelectionArea(child: _screenBody(context));
-  }
-
-  Widget _screenBody(BuildContext context) {
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.radioStats_screenTitle),
-        centerTitle: true,
-      ),
-      body: Selector<MeshCoreConnector, ({bool connected, bool supported})>(
-        selector: (_, c) => (
-          connected: c.isConnected,
-          supported: c.supportsCompanionRadioStats,
-        ),
-        builder: (context, state, _) {
-          if (!state.connected) {
-            return Center(child: Text(l10n.radioStats_notConnected));
-          }
-          if (!state.supported) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  l10n.radioStats_firmwareTooOld,
-                  textAlign: TextAlign.center,
-                ),
+    return Selector<MeshCoreConnector, ({bool connected, bool supported})>(
+      selector: (_, c) =>
+          (connected: c.isConnected, supported: c.supportsCompanionRadioStats),
+      builder: (context, state, _) {
+        if (!state.connected) {
+          return Center(child: Text(l10n.radioStats_notConnected));
+        }
+        if (!state.supported) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                l10n.radioStats_firmwareTooOld,
+                textAlign: TextAlign.center,
               ),
-            );
-          }
-          final connector = context.read<MeshCoreConnector>();
-          final scheme = Theme.of(context).colorScheme;
-          final tt = Theme.of(context).textTheme;
+            ),
+          );
+        }
+        final connector = context.read<MeshCoreConnector>();
+        final scheme = Theme.of(context).colorScheme;
 
-          return ValueListenableBuilder<CompanionRadioStats?>(
-            valueListenable: connector.radioStatsNotifier,
-            builder: (context, stats, _) {
-              return ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                children: [
-                  if (stats != null) ...[
-                    const SectionHeader(
-                      'Signal',
-                      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    ),
-                    MeshCard(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 4,
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _tile(
-                            l10n.radioStats_noiseFloor(stats.noiseFloorDbm),
-                            Icons.noise_aware,
-                            scheme.onSurfaceVariant,
-                          ),
-                          const Divider(height: 1),
-                          _tile(
-                            l10n.radioStats_lastRssi(stats.lastRssiDbm),
-                            Icons.wifi_tethering,
-                            scheme.onSurfaceVariant,
-                          ),
-                          const Divider(height: 1),
-                          _tile(
-                            l10n.radioStats_lastSnr(
-                              stats.lastSnrDb.toStringAsFixed(1),
-                            ),
-                            Icons.signal_cellular_alt,
-                            MeshTokens.of(
-                              context,
-                            ).snrColor(stats.lastSnrDb, blocked: false),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SectionHeader(
-                      'Airtime',
-                      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    ),
-                    MeshCard(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 4,
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _tile(
-                            l10n.radioStats_txAir(stats.txAirSecs),
-                            Icons.upload,
-                            MeshTokens.of(context).primary,
-                          ),
-                          const Divider(height: 1),
-                          _tile(
-                            l10n.radioStats_rxAir(stats.rxAirSecs),
-                            Icons.download,
-                            MeshTokens.of(context).primary,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ] else ...[
-                    const SizedBox(height: 80),
-                    Center(
-                      child: CircularProgressIndicator(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Center(
-                      child: Text(
-                        l10n.radioStats_waiting,
-                        style: TextStyle(color: scheme.onSurfaceVariant),
-                      ),
-                    ),
-                  ],
-                  SectionHeader(
-                    l10n.radioStats_chartCaption,
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        return ValueListenableBuilder<CompanionRadioStats?>(
+          valueListenable: connector.radioStatsNotifier,
+          builder: (context, stats, _) {
+            // A plain column — the hosting screen or popup provides
+            // the scrolling.
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (stats != null) ...[
+                  const SectionHeader(
+                    'Signal',
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: SizedBox(
-                      height: 200,
-                      child: CustomPaint(
-                        painter: _NoiseChartPainter(
-                          samples: List<double>.from(_noiseHistory),
-                          colorScheme: scheme,
-                          textTheme: tt,
+                  MeshCard(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _tile(
+                          l10n.radioStats_noiseFloor(stats.noiseFloorDbm),
+                          Icons.noise_aware,
+                          scheme.onSurfaceVariant,
                         ),
-                        child: const SizedBox.expand(),
-                      ),
+                        const Divider(height: 1),
+                        _tile(
+                          l10n.radioStats_lastRssi(stats.lastRssiDbm),
+                          Icons.wifi_tethering,
+                          scheme.onSurfaceVariant,
+                        ),
+                        const Divider(height: 1),
+                        _tile(
+                          l10n.radioStats_lastSnr(
+                            stats.lastSnrDb.toStringAsFixed(1),
+                          ),
+                          Icons.signal_cellular_alt,
+                          MeshTokens.of(
+                            context,
+                          ).snrColor(stats.lastSnrDb, blocked: false),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SectionHeader(
+                    'Airtime',
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  ),
+                  MeshCard(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _tile(
+                          l10n.radioStats_txAir(stats.txAirSecs),
+                          Icons.upload,
+                          MeshTokens.of(context).primary,
+                        ),
+                        const Divider(height: 1),
+                        _tile(
+                          l10n.radioStats_rxAir(stats.rxAirSecs),
+                          Icons.download,
+                          MeshTokens.of(context).primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else ...[
+                  const SizedBox(height: 80),
+                  Center(
+                    child: CircularProgressIndicator(
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      l10n.radioStats_waiting,
+                      style: TextStyle(color: scheme.onSurfaceVariant),
+                    ),
+                  ),
                 ],
-              );
-            },
-          );
-        },
-      ),
+                SectionHeader(
+                  l10n.radioStats_chartCaption,
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: StatsLineChart(samples: _noiseHistory, height: 200),
+                ),
+                const SizedBox(height: 8),
+              ],
+            );
+          },
+        );
+      },
     );
-  }
-}
-
-class _NoiseChartPainter extends CustomPainter {
-  final List<double> samples;
-  final ColorScheme colorScheme;
-  final TextTheme textTheme;
-
-  _NoiseChartPainter({
-    required this.samples,
-    required this.colorScheme,
-    required this.textTheme,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final bg = Paint()..color = colorScheme.surfaceContainerHighest;
-    final border = Paint()
-      ..color = colorScheme.outlineVariant
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    final grid = Paint()
-      ..color = colorScheme.outlineVariant.withValues(alpha: 0.5)
-      ..strokeWidth = 1;
-    final line = Paint()
-      ..color = colorScheme.primary
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
-      bg,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
-      border,
-    );
-
-    const padL = 40.0;
-    const padR = 8.0;
-    const padT = 8.0;
-    const padB = 24.0;
-    final chart = Rect.fromLTRB(
-      padL,
-      padT,
-      size.width - padR,
-      size.height - padB,
-    );
-
-    for (var i = 0; i <= 4; i++) {
-      final y = chart.top + (chart.height * i / 4);
-      canvas.drawLine(Offset(chart.left, y), Offset(chart.right, y), grid);
-    }
-
-    if (samples.length < 2) {
-      final tp = TextPainter(
-        text: TextSpan(
-          text: '—',
-          style: textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      tp.paint(
-        canvas,
-        Offset(chart.left + 4, chart.top + chart.height / 2 - tp.height / 2),
-      );
-      return;
-    }
-
-    double minV = samples.reduce((a, b) => a < b ? a : b);
-    double maxV = samples.reduce((a, b) => a > b ? a : b);
-    if ((maxV - minV).abs() < 1) {
-      minV -= 2;
-      maxV += 2;
-    }
-    final span = maxV - minV;
-
-    for (var i = 0; i <= 4; i++) {
-      final v = maxV - span * i / 4;
-      final tp = _yAxisLabel(v);
-      final y = chart.top + (chart.height * i / 4) - tp.height / 2;
-      tp.paint(canvas, Offset(4, y));
-    }
-
-    final path = Path();
-    for (var i = 0; i < samples.length; i++) {
-      final x = chart.left + (chart.width * i / (samples.length - 1));
-      final t = (samples[i] - minV) / span;
-      final y = chart.bottom - t * chart.height;
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    canvas.drawPath(path, line);
-  }
-
-  @override
-  bool shouldRepaint(covariant _NoiseChartPainter oldDelegate) {
-    return oldDelegate.samples.length != samples.length ||
-        oldDelegate.colorScheme != colorScheme;
-  }
-
-  TextPainter _yAxisLabel(double v) {
-    final tp = TextPainter(
-      text: TextSpan(
-        text: v.round().toString(),
-        style: textTheme.labelSmall?.copyWith(
-          color: colorScheme.onSurfaceVariant,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    return tp;
   }
 }

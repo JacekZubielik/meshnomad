@@ -6,9 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:meshcore_open/connector/meshcore_connector.dart';
 import 'package:meshcore_open/l10n/app_localizations.dart';
 import 'package:meshcore_open/models/companion_radio_stats.dart';
+import 'package:meshcore_open/screens/companion_radio_stats_screen.dart';
 import 'package:meshcore_open/storage/prefs_manager.dart';
 import 'package:meshcore_open/theme/styles/style_registry.dart';
 import 'package:meshcore_open/widgets/app_bar.dart';
+import 'package:meshcore_open/widgets/mesh_info_dialog.dart';
 import 'package:meshcore_open/widgets/battery_indicator.dart';
 import 'package:meshcore_open/widgets/radio_stats_entry.dart';
 import 'package:meshcore_open/widgets/snr_indicator.dart';
@@ -18,6 +20,7 @@ class _FakeConnector extends MeshCoreConnector {
   MeshCoreTransportType transport = MeshCoreTransportType.bluetooth;
   int? rssi;
   String? usbLabel;
+  int? usbBaud;
   String? tcpEndpoint;
 
   @override
@@ -48,6 +51,9 @@ class _FakeConnector extends MeshCoreConnector {
   String? get activeUsbPortDisplayLabel => usbLabel;
 
   @override
+  int? get activeUsbBaudRate => usbBaud;
+
+  @override
   String? get activeTcpEndpoint => tcpEndpoint;
 
   @override
@@ -61,6 +67,9 @@ class _FakeConnector extends MeshCoreConnector {
 
   @override
   void releaseBleRssiPolling() {}
+
+  @override
+  void setPollingInterval(int seconds) {}
 }
 
 CompanionRadioStats _stats({int noiseFloorDbm = -98}) => CompanionRadioStats(
@@ -222,16 +231,16 @@ void main() {
       expect(find.text('—'), findsOneWidget);
     });
 
-    testWidgets('USB shows the port label, TCP the endpoint', (tester) async {
+    testWidgets('USB shows the baud rate, TCP the endpoint', (tester) async {
       connector.transport = MeshCoreTransportType.usb;
-      connector.usbLabel = 'ttyACM0';
+      connector.usbBaud = 115200;
 
       await tester.pumpWidget(
         _wrap(TransportIndicator(connector: connector), connector: connector),
       );
       await tester.pump();
       expect(find.byIcon(Icons.usb), findsOneWidget);
-      expect(find.text('ttyACM0'), findsOneWidget);
+      expect(find.text('115200'), findsOneWidget);
 
       connector.transport = MeshCoreTransportType.tcp;
       connector.tcpEndpoint = '192.168.40.10:5000';
@@ -242,6 +251,78 @@ void main() {
       await tester.pump();
       expect(find.byIcon(Icons.lan), findsOneWidget);
       expect(find.text('192.168.40.10:5000'), findsOneWidget);
+    });
+  });
+
+  group('indicator popups (MeshInfoDialog pattern)', () {
+    testWidgets('battery tap opens the info popup with charge and voltage', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(BatteryIndicator(connector: connector), connector: connector),
+      );
+      await tester.pump();
+
+      await tester.tap(find.byType(BatteryIndicator));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MeshInfoDialog), findsOneWidget);
+      expect(find.text('75%'), findsWidgets);
+      expect(find.text('3.70 V'), findsOneWidget);
+    });
+
+    testWidgets('transport tap opens the info popup with BLE details', (
+      tester,
+    ) async {
+      connector.transport = MeshCoreTransportType.bluetooth;
+      connector.rssi = -58;
+
+      await tester.pumpWidget(
+        _wrap(TransportIndicator(connector: connector), connector: connector),
+      );
+      await tester.pump();
+
+      await tester.tap(find.byType(TransportIndicator));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MeshInfoDialog), findsOneWidget);
+      expect(find.text('-58 dBm'), findsOneWidget);
+    });
+
+    testWidgets('RF tap opens radio stats as a popup, not a route', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(const RadioStatsIconButton(compact: true), connector: connector),
+      );
+      await tester.pump();
+
+      await tester.tap(find.byType(RadioStatsIconButton));
+      // No pumpAndSettle: the waiting-for-stats spinner animates forever.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byType(MeshInfoDialog), findsOneWidget);
+      expect(find.byType(RadioStatsPanel), findsOneWidget);
+    });
+
+    testWidgets('signal tap opens nearby repeaters as the info popup', (
+      tester,
+    ) async {
+      connector.repeaters.add(
+        DirectRepeater(pubkeyPrefix: [0xAB, 0x12], pathHashWidth: 2, snr: 8.0),
+      );
+
+      await tester.pumpWidget(
+        _wrap(SNRIndicator(connector: connector), connector: connector),
+      );
+      await tester.pump();
+
+      await tester.tap(find.byType(SNRIndicator));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MeshInfoDialog), findsOneWidget);
+      expect(find.byType(NearbyRepeaterTile), findsOneWidget);
     });
   });
 

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../connector/meshcore_connector.dart';
+import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
 import 'indicator_caption.dart';
+import 'mesh_info_dialog.dart';
+import 'stats_line_chart.dart';
 
 class BatteryUi {
   final IconData icon;
@@ -38,7 +41,13 @@ class BatteryIndicator extends StatefulWidget {
 }
 
 class _BatteryIndicatorState extends State<BatteryIndicator> {
-  bool _showBatteryVoltage = false;
+  void _showBatteryPopup(BuildContext context) {
+    showMeshInfoDialog<void>(
+      context,
+      title: context.l10n.indicator_batteryTitle,
+      builder: (_) => _BatteryPopupBody(connector: widget.connector),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,21 +58,14 @@ class _BatteryIndicatorState extends State<BatteryIndicator> {
       return const SizedBox.shrink();
     }
 
-    final String displayText;
-    if (_showBatteryVoltage) {
-      displayText = '${(millivolts / 1000.0).toStringAsFixed(2)}V';
-    } else {
-      displayText = percent != null ? '$percent%' : '—';
-    }
+    // The caption always shows the percentage — details (voltage, and the
+    // upcoming history chart) live in the shared info popup.
+    final displayText = percent != null ? '$percent%' : '—';
 
     final batteryUi = batteryUiForPercent(context, percent);
 
     return InkWell(
-      onTap: () {
-        setState(() {
-          _showBatteryVoltage = !_showBatteryVoltage;
-        });
-      },
+      onTap: () => _showBatteryPopup(context),
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -75,12 +77,86 @@ class _BatteryIndicatorState extends State<BatteryIndicator> {
               children: [
                 Icon(batteryUi.icon, size: 18, color: batteryUi.color),
                 const SizedBox(height: 2),
-                IndicatorCaption(displayText, color: batteryUi.color),
+                IndicatorCaption(displayText),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Battery popup body: live charge/voltage rows plus the session charge
+/// chart with a mandatory range selector (5 min / 30 min / whole session).
+class _BatteryPopupBody extends StatefulWidget {
+  final MeshCoreConnector connector;
+
+  const _BatteryPopupBody({required this.connector});
+
+  @override
+  State<_BatteryPopupBody> createState() => _BatteryPopupBodyState();
+}
+
+class _BatteryPopupBodyState extends State<_BatteryPopupBody> {
+  Duration? _window = const Duration(minutes: 30);
+
+  List<double> _samplesInWindow() {
+    final history = widget.connector.batteryHistory;
+    final window = _window;
+    if (window == null) {
+      return [for (final (_, percent) in history) percent];
+    }
+    final cutoff = DateTime.now().subtract(window);
+    return [
+      for (final (time, percent) in history)
+        if (time.isAfter(cutoff)) percent,
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AnimatedBuilder(
+      animation: widget.connector,
+      builder: (context, _) {
+        final percent = widget.connector.batteryPercent;
+        final millivolts = widget.connector.batteryMillivolts;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            MeshInfoRow(
+              l10n.indicator_chargeLabel,
+              percent != null ? '$percent%' : '—',
+            ),
+            MeshInfoRow(
+              l10n.indicator_voltageLabel,
+              millivolts != null
+                  ? '${(millivolts / 1000.0).toStringAsFixed(2)} V'
+                  : '—',
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final (label, window) in [
+                  ('5 min', const Duration(minutes: 5)),
+                  ('30 min', const Duration(minutes: 30)),
+                  (l10n.indicator_rangeSession, null),
+                ])
+                  ChoiceChip(
+                    label: Text(label),
+                    selected: _window == window,
+                    onSelected: (_) => setState(() => _window = window),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            StatsLineChart(samples: _samplesInWindow(), height: 160),
+          ],
+        );
+      },
     );
   }
 }

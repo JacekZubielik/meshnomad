@@ -28,11 +28,14 @@ double indicatorCaptionWidth(BuildContext context) {
 
 /// Fixed-width, center-aligned caption under an app-bar indicator icon.
 /// Longer values are ellipsized instead of pushing the neighbours around.
+///
+/// Every caption uses the SAME color — `colorScheme.onSurface`, which the
+/// custom style maps from the editable "Text" (`ink`) token — so all four
+/// indicators recolor together from one style variable.
 class IndicatorCaption extends StatelessWidget {
   final String text;
-  final Color? color;
 
-  const IndicatorCaption(this.text, {super.key, this.color});
+  const IndicatorCaption(this.text, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,10 @@ class IndicatorCaption extends StatelessWidget {
         textAlign: TextAlign.center,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: indicatorCaptionStyle(context, color: color),
+        style: indicatorCaptionStyle(
+          context,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }

@@ -217,6 +217,15 @@ class MeshCoreConnector extends ChangeNotifier {
   int? _bleLinkRssi;
   Timer? _bleRssiPollTimer;
   int _bleRssiPollRefCount = 0;
+  int? _activeUsbBaudRate;
+
+  /// Session-scoped BLE link RSSI samples (one per poll tick) for the
+  /// transport popup's chart. Cleared on disconnect.
+  final List<double> bleRssiHistory = [];
+
+  /// Session-scoped battery charge samples `(timestamp, percent)` for the
+  /// battery popup's chart and its range selector. Cleared on disconnect.
+  final List<(DateTime, double)> batteryHistory = [];
   final ValueNotifier<CompanionRadioStats?> radioStatsNotifier =
       ValueNotifier<CompanionRadioStats?>(null);
   int _reconnectAttempts = 0;
@@ -403,6 +412,7 @@ class MeshCoreConnector extends ChangeNotifier {
   MeshCoreTransportType get activeTransport => _activeTransport;
   String? get activeUsbPort => _usbManager.activePortKey;
   String? get activeUsbPortDisplayLabel => _usbManager.activePortDisplayLabel;
+  int? get activeUsbBaudRate => _activeUsbBaudRate;
   bool get isUsbTransportConnected =>
       _state == MeshCoreConnectionState.connected &&
       _activeTransport == MeshCoreTransportType.usb;
@@ -1713,6 +1723,7 @@ class MeshCoreConnector extends ChangeNotifier {
       _usbFrameSubscription = null;
       _appDebugLogService?.info('connectUsb: opening serial port…', tag: 'USB');
       await _usbManager.connect(portName: portName, baudRate: baudRate);
+      _activeUsbBaudRate = baudRate;
       _appDebugLogService?.info(
         'connectUsb: serial port opened, label=${_usbManager.activePortDisplayLabel}',
         tag: 'USB',
@@ -2958,10 +2969,12 @@ class MeshCoreConnector extends ChangeNotifier {
     }
     try {
       final rssi = await device.readRssi();
-      if (_bleLinkRssi != rssi) {
-        _bleLinkRssi = rssi;
-        notifyListeners();
+      _bleLinkRssi = rssi;
+      bleRssiHistory.add(rssi.toDouble());
+      while (bleRssiHistory.length > 120) {
+        bleRssiHistory.removeAt(0);
       }
+      notifyListeners();
     } catch (_) {
       // Link may be mid-teardown; keep the last reading.
     }
@@ -4679,6 +4692,13 @@ class MeshCoreConnector extends ChangeNotifier {
       _batteryMillivolts = reader.readUInt16LE();
       _storageUsedKb = reader.readUInt32LE();
       _storageTotalKb = reader.readUInt32LE();
+      final chargePercent = batteryPercent;
+      if (chargePercent != null) {
+        batteryHistory.add((DateTime.now(), chargePercent.toDouble()));
+        while (batteryHistory.length > 2880) {
+          batteryHistory.removeAt(0);
+        }
+      }
       final volts = (_batteryMillivolts! / 1000.0).toStringAsFixed(2);
       _appDebugLogService?.info(
         'Pulled battery: $volts V ($_batteryMillivolts mV)',
@@ -6598,6 +6618,9 @@ class MeshCoreConnector extends ChangeNotifier {
     _stopGpsLocationPolling();
     _stopRadioStatsPolling();
     _bleLinkRssi = null;
+    _activeUsbBaudRate = null;
+    bleRssiHistory.clear();
+    batteryHistory.clear();
     _latestRadioStats = null;
     radioStatsNotifier.value = null;
     _prevTotalAirSecs = 0;

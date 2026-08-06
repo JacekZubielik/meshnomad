@@ -7480,6 +7480,72 @@ abstract class AppLocalizations {
   /// **'Nearby Repeaters'**
   String get snrIndicator_nearByRepeaters;
 
+  /// No description provided for @indicator_batteryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery'**
+  String get indicator_batteryTitle;
+
+  /// No description provided for @indicator_chargeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Charge'**
+  String get indicator_chargeLabel;
+
+  /// No description provided for @indicator_voltageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Voltage'**
+  String get indicator_voltageLabel;
+
+  /// No description provided for @indicator_connectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection'**
+  String get indicator_connectionTitle;
+
+  /// No description provided for @indicator_deviceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get indicator_deviceLabel;
+
+  /// No description provided for @indicator_macLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'MAC'**
+  String get indicator_macLabel;
+
+  /// No description provided for @indicator_rssiLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'RSSI'**
+  String get indicator_rssiLabel;
+
+  /// No description provided for @indicator_portLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Port'**
+  String get indicator_portLabel;
+
+  /// No description provided for @indicator_baudLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Baud rate'**
+  String get indicator_baudLabel;
+
+  /// No description provided for @indicator_endpointLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Endpoint'**
+  String get indicator_endpointLabel;
+
+  /// No description provided for @indicator_rangeSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Session'**
+  String get indicator_rangeSession;
+
   /// No description provided for @snrIndicator_lastSeen.
   ///
   /// In en, this message translates to:

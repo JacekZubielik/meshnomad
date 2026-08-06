@@ -10,6 +10,7 @@ import '../models/contact.dart';
 import '../screens/map_screen.dart';
 import '../theme/mesh_tokens.dart';
 import 'indicator_caption.dart';
+import 'mesh_info_dialog.dart';
 import 'mesh_ui.dart';
 import 'signal_ui.dart';
 
@@ -156,6 +157,7 @@ class NearbyRepeaterTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final contact = this.contact;
     final name = contact?.name;
     final prefixLabel = PathHelper.formatHopHex(repeater.pubkeyPrefix);
     final snrColor = MeshTokens.of(
@@ -178,9 +180,24 @@ class NearbyRepeaterTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name ?? prefixLabel,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        name ?? prefixLabel,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (contact != null) ...[
+                      const SizedBox(width: 6),
+                      RouteChip(
+                        isDirect: contact.pathLength >= 0,
+                        hops: contact.pathLength,
+                      ),
+                    ],
+                  ],
                 ),
                 Text(
                   '$prefixLabel • ${repeater.snr.toStringAsFixed(1)} dB • ${_formatLastUpdated(repeater.lastUpdated)}',
@@ -264,7 +281,7 @@ class _SNRIndicatorState extends State<SNRIndicator> {
             children: [
               Icon(snrUi.icon, size: 18, color: snrUi.color),
               const SizedBox(height: 2),
-              IndicatorCaption(snrUi.text, color: snrUi.color),
+              IndicatorCaption(snrUi.text),
             ],
           ),
         ),
@@ -276,52 +293,38 @@ class _SNRIndicatorState extends State<SNRIndicator> {
     BuildContext context,
     List<DirectRepeater> directBestRepeaters,
   ) {
-    final l10n = context.l10n;
+    final allContacts = widget.connector.allContacts;
+    final selfLat = widget.connector.selfLatitude;
+    final selfLon = widget.connector.selfLongitude;
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.snrIndicator_nearByRepeaters),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Scrollbar(
-            child: ListView.separated(
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              itemCount: directBestRepeaters.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final repeater = directBestRepeaters[index];
-                final allContacts = widget.connector.allContacts;
+    LatLng? selfPoint;
+    if (selfLat != null &&
+        selfLon != null &&
+        _isValidSelfLocation(selfLat, selfLon)) {
+      selfPoint = LatLng(selfLat, selfLon);
+    }
 
-                final selfLat = widget.connector.selfLatitude;
-                final selfLon = widget.connector.selfLongitude;
-
-                LatLng? selfPoint;
-                if (selfLat != null &&
-                    selfLon != null &&
-                    _isValidSelfLocation(selfLat, selfLon)) {
-                  selfPoint = LatLng(selfLat, selfLon);
-                }
-
-                final contact = _getRepeaterPrefixMatchNearLocation(
-                  allContacts,
-                  repeater.pubkeyPrefix,
-                  contactKeyHex: repeater.contactKeyHex,
-                  searchPoint: selfPoint,
-                  preferFavorites: true,
-                );
-
-                return NearbyRepeaterTile(repeater: repeater, contact: contact);
-              },
+    showMeshInfoDialog<void>(
+      context,
+      title:
+          '${context.l10n.snrIndicator_nearByRepeaters} '
+          '(${directBestRepeaters.length})',
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final (index, repeater) in directBestRepeaters.indexed) ...[
+            if (index > 0) const Divider(height: 1),
+            NearbyRepeaterTile(
+              repeater: repeater,
+              contact: _getRepeaterPrefixMatchNearLocation(
+                allContacts,
+                repeater.pubkeyPrefix,
+                contactKeyHex: repeater.contactKeyHex,
+                searchPoint: selfPoint,
+                preferFavorites: true,
+              ),
             ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.common_close),
-          ),
+          ],
         ],
       ),
     );

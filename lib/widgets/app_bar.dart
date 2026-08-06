@@ -3,9 +3,12 @@ import 'package:meshcore_open/connector/meshcore_connector.dart';
 import 'package:meshcore_open/widgets/battery_indicator.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import 'indicator_caption.dart';
+import 'mesh_info_dialog.dart';
 import 'radio_stats_entry.dart';
 import 'snr_indicator.dart';
+import 'stats_line_chart.dart';
 import 'sync_progress_overlay.dart';
 
 /// The ⋮ menu icon for main-screen app bars — same icon size as the
@@ -121,26 +124,105 @@ class _TransportIndicatorState extends State<TransportIndicator> {
         caption = rssi == null ? '—' : '${rssi}dBm';
       case MeshCoreTransportType.usb:
         icon = Icons.usb;
-        // Device paths like /dev/bus/usb/001/002 are useless in a caption —
-        // keep only the last segment; IndicatorCaption ellipsizes the rest.
-        final usbLabel = connector.activeUsbPortDisplayLabel;
-        caption = usbLabel == null || usbLabel.isEmpty
-            ? 'USB'
-            : usbLabel.split('/').last;
+        // Port paths/names are too long for the caption — show the link's
+        // baud rate ('115200' fits the fixed box); full details belong to
+        // the future indicator popup.
+        caption = connector.activeUsbBaudRate?.toString() ?? 'USB';
       case MeshCoreTransportType.tcp:
         icon = Icons.lan;
         caption = connector.activeTcpEndpoint ?? 'TCP';
     }
-    final color = Theme.of(context).colorScheme.onSurfaceVariant;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(height: 2),
-          IndicatorCaption(caption, color: color),
-        ],
+    final scheme = Theme.of(context).colorScheme;
+    // The BT glyph carries the accent — the RF activity icon blinks white.
+    final iconColor =
+        connector.activeTransport == MeshCoreTransportType.bluetooth
+        ? scheme.primary
+        : scheme.onSurfaceVariant;
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () => _showTransportPopup(context),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18, color: iconColor),
+            const SizedBox(height: 2),
+            IndicatorCaption(caption),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showTransportPopup(BuildContext context) {
+    final connector = widget.connector;
+    showMeshInfoDialog<void>(
+      context,
+      title: context.l10n.indicator_connectionTitle,
+      builder: (_) => AnimatedBuilder(
+        animation: connector,
+        builder: (context, _) {
+          final l10n = context.l10n;
+          final isBle =
+              connector.activeTransport == MeshCoreTransportType.bluetooth;
+          // USB rows render as two aligned columns; the label column is as
+          // wide as the longest label of the pair.
+          final usbLabelWidth = meshInfoLabelColumnWidth(context, [
+            l10n.indicator_portLabel,
+            l10n.indicator_baudLabel,
+          ]);
+          final rows = <Widget>[
+            switch (connector.activeTransport) {
+              MeshCoreTransportType.bluetooth => MeshInfoRow(
+                l10n.indicator_deviceLabel,
+                connector.deviceDisplayName,
+              ),
+              MeshCoreTransportType.usb => MeshInfoRow(
+                l10n.indicator_portLabel,
+                connector.activeUsbPortDisplayLabel ?? '—',
+                labelWidth: usbLabelWidth,
+              ),
+              MeshCoreTransportType.tcp => MeshInfoRow(
+                l10n.indicator_endpointLabel,
+                connector.activeTcpEndpoint ?? '—',
+              ),
+            },
+            switch (connector.activeTransport) {
+              MeshCoreTransportType.bluetooth => MeshInfoRow(
+                l10n.indicator_macLabel,
+                connector.deviceIdLabel,
+              ),
+              MeshCoreTransportType.usb => MeshInfoRow(
+                l10n.indicator_baudLabel,
+                connector.activeUsbBaudRate?.toString() ?? '—',
+                labelWidth: usbLabelWidth,
+              ),
+              MeshCoreTransportType.tcp => MeshInfoRow(
+                l10n.indicator_portLabel,
+                connector.activeTcpEndpoint?.split(':').last ?? '—',
+              ),
+            },
+            if (isBle)
+              MeshInfoRow(
+                l10n.indicator_rssiLabel,
+                connector.bleLinkRssi != null
+                    ? '${connector.bleLinkRssi} dBm'
+                    : '—',
+              ),
+          ];
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ...rows,
+              if (isBle) ...[
+                const SizedBox(height: 8),
+                StatsLineChart(samples: connector.bleRssiHistory, height: 140),
+              ],
+            ],
+          );
+        },
       ),
     );
   }

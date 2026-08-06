@@ -7,16 +7,17 @@ import 'package:meshcore_open/l10n/l10n.dart';
 import 'package:meshcore_open/screens/companion_radio_stats_screen.dart';
 import 'package:provider/provider.dart';
 
-import '../theme/mesh_tokens.dart';
 import 'indicator_caption.dart';
+import 'mesh_info_dialog.dart';
 import 'mesh_ui.dart';
 
 void pushCompanionRadioStatsScreen(BuildContext context) {
-  Navigator.push(
+  // Radio stats open as the shared info popup (MeshInfoDialog pattern),
+  // not as a full-screen route.
+  showMeshInfoDialog<void>(
     context,
-    MaterialPageRoute<void>(
-      builder: (context) => const CompanionRadioStatsScreen(),
-    ),
+    title: context.l10n.radioStats_screenTitle,
+    builder: (_) => const RadioStatsPanel(),
   );
 }
 
@@ -83,10 +84,7 @@ class _RadioStatsIconButtonState extends State<RadioStatsIconButton> {
                           icon: Icons.wifi_tethering,
                         ),
                         const SizedBox(height: 2),
-                        IndicatorCaption(
-                          caption,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                        IndicatorCaption(caption),
                       ],
                     ),
                   ),
@@ -165,7 +163,9 @@ class AirActivityDotState extends State<AirActivityDot> {
   Widget build(BuildContext context) {
     final on = widget.active && _blink;
     final scheme = Theme.of(context).colorScheme;
-    final color = on ? MeshTokens.of(context).primary : scheme.outline;
+    // Blink to the caption's white, not accent blue — the accent belongs to
+    // the BT transport icon.
+    final color = on ? scheme.onSurface : scheme.outline;
     final icon = widget.icon;
     if (icon != null) {
       return Icon(icon, size: 18, color: color);

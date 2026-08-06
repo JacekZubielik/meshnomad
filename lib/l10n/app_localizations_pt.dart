@@ -4344,6 +4344,39 @@ class AppLocalizationsPt extends AppLocalizations {
   String get snrIndicator_nearByRepeaters => 'Repetidores Próximos';
 
   @override
+  String get indicator_batteryTitle => 'Battery';
+
+  @override
+  String get indicator_chargeLabel => 'Charge';
+
+  @override
+  String get indicator_voltageLabel => 'Voltage';
+
+  @override
+  String get indicator_connectionTitle => 'Connection';
+
+  @override
+  String get indicator_deviceLabel => 'Device';
+
+  @override
+  String get indicator_macLabel => 'MAC';
+
+  @override
+  String get indicator_rssiLabel => 'RSSI';
+
+  @override
+  String get indicator_portLabel => 'Port';
+
+  @override
+  String get indicator_baudLabel => 'Baud rate';
+
+  @override
+  String get indicator_endpointLabel => 'Endpoint';
+
+  @override
+  String get indicator_rangeSession => 'Session';
+
+  @override
   String get snrIndicator_lastSeen => 'Visto pela última vez';
 
   @override
