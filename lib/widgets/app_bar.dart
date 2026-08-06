@@ -15,9 +15,11 @@ class AppBarMenuIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ~Square touch field right of the last separator.
+    // ~Square touch field right of the last separator. No right padding:
+    // the AppBar's titleSpacing already provides the 16dp edge inset, so the
+    // right margin mirrors the title's left inset exactly.
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.only(left: 8, top: 8, bottom: 8),
       child: Center(
         child: Icon(
           Icons.more_vert,
