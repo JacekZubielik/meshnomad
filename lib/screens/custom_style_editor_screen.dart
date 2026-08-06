@@ -668,8 +668,11 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    // showMeshSheet's useSafeArea only guards the top edge — the sheet body
+    // must clear the system navigation bar itself.
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 16 + bottomInset),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

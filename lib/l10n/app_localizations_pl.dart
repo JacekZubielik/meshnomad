@@ -683,10 +683,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_theme => 'Motyw';
 
   @override
-  String get appSettings_themeSystem => 'Domyślne ustawienia systemu';
+  String get appSettings_themeSystem => 'System';
 
   @override
-  String get appSettings_themeLight => 'Jasne';
+  String get appSettings_themeLight => 'Jasny';
 
   @override
   String get appSettings_themeDark => 'Ciemny';
