@@ -722,7 +722,7 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     ),
                   ],
-                  icon: const Icon(Icons.more_vert),
+                  child: const AppBarMenuIcon(),
                 ),
               ],
             ),

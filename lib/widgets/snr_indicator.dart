@@ -7,6 +7,7 @@ import '../connector/meshcore_protocol.dart';
 import '../helpers/path_helper.dart';
 import '../l10n/l10n.dart';
 import '../models/contact.dart';
+import '../screens/map_screen.dart';
 import '../theme/mesh_tokens.dart';
 import 'mesh_ui.dart';
 import 'signal_ui.dart';
@@ -126,6 +127,94 @@ SNRUi snrUiFromSNR(BuildContext context, double? snr, int? spreadingFactor) {
   return SNRUi(signalUi.icon, signalUi.color, text);
 }
 
+String _formatLastUpdated(DateTime lastSeen) {
+  final now = DateTime.now();
+  final diff = now.difference(lastSeen);
+  if (diff.isNegative) {
+    return "0s";
+  }
+  if (diff.inMinutes < 1) {
+    return "${diff.inSeconds}s";
+  }
+  if (diff.inMinutes < 60) {
+    return "${diff.inMinutes}m";
+  }
+  if (diff.inHours < 24) {
+    final hours = diff.inHours;
+    return "${hours}h";
+  }
+  final days = diff.inDays;
+  return "${days}d";
+}
+
+class NearbyRepeaterTile extends StatelessWidget {
+  final DirectRepeater repeater;
+  final Contact? contact;
+
+  const NearbyRepeaterTile({super.key, required this.repeater, this.contact});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = contact?.name;
+    final prefixLabel = PathHelper.formatHopHex(repeater.pubkeyPrefix);
+    final snrColor = MeshTokens.of(
+      context,
+    ).snrColor(repeater.snr, blocked: false);
+    final latitude = contact?.latitude;
+    final longitude = contact?.longitude;
+    final hasLocation =
+        (contact?.hasLocation ?? false) &&
+        latitude != null &&
+        longitude != null;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          AvatarCircle(name: name ?? prefixLabel, size: 36, color: snrColor),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name ?? prefixLabel,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                Text(
+                  '$prefixLabel • ${repeater.snr.toStringAsFixed(1)} dB • ${_formatLastUpdated(repeater.lastUpdated)}',
+                  style: MeshTokens.of(context).monoCaption(color: snrColor),
+                ),
+                if (hasLocation)
+                  Text(
+                    '${latitude.toStringAsFixed(5)}, ${longitude.toStringAsFixed(5)}',
+                    style: MeshTokens.of(context).monoCaption(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (hasLocation)
+            IconButton(
+              icon: const Icon(Icons.map_outlined),
+              tooltip: context.l10n.map_centerOnNode,
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => MapScreen(
+                    highlightPosition: LatLng(latitude, longitude),
+                    highlightLabel: name ?? prefixLabel,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class SNRIndicator extends StatefulWidget {
   final MeshCoreConnector connector;
 
@@ -173,47 +262,18 @@ class _SNRIndicatorState extends State<SNRIndicator> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(snrUi.icon, size: 18, color: snrUi.color),
+              const SizedBox(height: 2),
               Text(
                 snrUi.text,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: snrUi.color),
+                style: MeshTokens.of(context)
+                    .monoCaption(color: snrUi.color)
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
-              if (directRepeater != null)
-                Text(
-                  '${directRepeaters.length}: ${directRepeater.pubkeyPrefixHex}: ${_formatLastUpdated(directRepeater.lastUpdated)}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  String _formatLastUpdated(DateTime lastSeen) {
-    final now = DateTime.now();
-    final diff = now.difference(lastSeen);
-    if (diff.isNegative) {
-      return "0s";
-    }
-    if (diff.inMinutes < 1) {
-      return "${diff.inSeconds}s";
-    }
-    if (diff.inMinutes < 60) {
-      return "${diff.inMinutes}m";
-    }
-    if (diff.inHours < 24) {
-      final hours = diff.inHours;
-      return "${hours}h";
-    }
-    final days = diff.inDays;
-    return "${days}d";
   }
 
   void _showFullPathDialog(
@@ -256,47 +316,7 @@ class _SNRIndicatorState extends State<SNRIndicator> {
                   preferFavorites: true,
                 );
 
-                final name = contact?.name;
-                final prefixLabel = PathHelper.formatHopHex(
-                  repeater.pubkeyPrefix,
-                );
-                final snrColor = MeshTokens.of(
-                  context,
-                ).snrColor(repeater.snr, blocked: false);
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  child: Row(
-                    children: [
-                      AvatarCircle(
-                        name: name ?? prefixLabel,
-                        size: 36,
-                        color: snrColor,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              name ?? prefixLabel,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            Text(
-                              '${repeater.snr.toStringAsFixed(1)} dB • ${_formatLastUpdated(repeater.lastUpdated)}',
-                              style: MeshTokens.of(
-                                context,
-                              ).monoCaption(color: snrColor),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+                return NearbyRepeaterTile(repeater: repeater, contact: contact);
               },
             ),
           ),

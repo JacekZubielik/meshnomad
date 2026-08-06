@@ -168,7 +168,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                   ),
                 ),
               ],
-              icon: const Icon(Icons.more_vert),
+              child: const AppBarMenuIcon(),
             ),
           ],
         ),

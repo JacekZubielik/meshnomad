@@ -3,8 +3,40 @@ import 'package:meshcore_open/connector/meshcore_connector.dart';
 import 'package:meshcore_open/widgets/battery_indicator.dart';
 import 'package:provider/provider.dart';
 
+import '../theme/mesh_tokens.dart';
 import 'radio_stats_entry.dart';
 import 'snr_indicator.dart';
+
+/// The ⋮ menu icon for main-screen app bars, sized and padded identically to
+/// the battery/signal/RF indicator columns so all four sit on one icon line.
+/// The empty caption reserves the same line box the indicator captions use.
+class AppBarMenuIcon extends StatelessWidget {
+  const AppBarMenuIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.more_vert,
+            size: 18,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            '',
+            style: MeshTokens.of(
+              context,
+            ).monoCaption().copyWith(fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class AppBarTitle extends StatelessWidget {
   final String title;

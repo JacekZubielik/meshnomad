@@ -456,7 +456,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                   ),
                 ),
               ],
-              icon: const Icon(Icons.more_vert),
+              child: const AppBarMenuIcon(),
             ),
           ],
         ),
