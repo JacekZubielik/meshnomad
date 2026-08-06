@@ -17,6 +17,7 @@ import '../models/message.dart';
 import '../models/path_selection.dart';
 import '../models/translation_support.dart';
 import '../helpers/reaction_helper.dart';
+import '../helpers/rolling_counter_window.dart';
 import '../helpers/cyr2lat.dart';
 import '../helpers/smaz.dart';
 import '../services/app_debug_log_service.dart';
@@ -250,6 +251,7 @@ class MeshCoreConnector extends ChangeNotifier {
   CompanionRadioStats? _latestRadioStats;
   Stopwatch? _airtimeBumpStopwatch;
   int _prevTotalAirSecs = 0;
+  final RollingCounterWindow _txAirWindow = RollingCounterWindow();
   int? _batteryMillivolts;
   double? _selfLatitude;
   double? _selfLongitude;
@@ -481,6 +483,9 @@ class MeshCoreConnector extends ChangeNotifier {
   int get pathHashByteWidth => _pathHashByteWidth;
 
   CompanionRadioStats? get latestRadioStats => _latestRadioStats;
+
+  /// TX airtime seconds accumulated over the last hour (rolling window).
+  int get txAirUsedLastHourSecs => _txAirWindow.usedIn(DateTime.now());
   int? get bleLinkRssi => _bleLinkRssi;
 
   bool get supportsCompanionRadioStats => (_firmwareVerCode ?? 0) >= 8;
@@ -4676,6 +4681,7 @@ class MeshCoreConnector extends ChangeNotifier {
       _airtimeBumpStopwatch!.start();
     }
     _prevTotalAirSecs = total;
+    _txAirWindow.add(stats.receivedAt, stats.txAirSecs);
     _latestRadioStats = stats;
     radioStatsNotifier.value = stats;
   }
@@ -6624,6 +6630,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _latestRadioStats = null;
     radioStatsNotifier.value = null;
     _prevTotalAirSecs = 0;
+    _txAirWindow.clear();
     _airtimeBumpStopwatch?.stop();
     _airtimeBumpStopwatch = null;
 

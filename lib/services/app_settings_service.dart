@@ -179,6 +179,12 @@ class AppSettingsService extends ChangeNotifier {
     }
   }
 
+  Future<void> setTxDutyCyclePercent(int value) async {
+    await updateSettings(
+      _settings.copyWith(txDutyCyclePercent: value.clamp(1, 100)),
+    );
+  }
+
   Future<void> setAutoRouteRotationEnabled(bool value) async {
     await updateSettings(_settings.copyWith(autoRouteRotationEnabled: value));
   }

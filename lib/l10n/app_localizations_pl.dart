@@ -4549,6 +4549,27 @@ class AppLocalizationsPl extends AppLocalizations {
       'Poziom szumów (dBm) w ostatnich próbkach.';
 
   @override
+  String get radioStats_bandChartCaption => 'Margines RSSI nad szumem + SNR';
+
+  @override
+  String get radioStats_seriesNoise => 'Szum';
+
+  @override
+  String radioStats_txWindow(int used, int limit) {
+    return 'TX (okno 1 h): $used/$limit s';
+  }
+
+  @override
+  String radioStats_txWindowPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String radioStats_txLimitCaption(int percent, int total) {
+    return 'limit: duty cycle $percent% (ETSI) · TX całkowity: $total s';
+  }
+
+  @override
   String radioStats_stripNoise(int noiseDbm) {
     return 'Poziom szumów: $noiseDbm dBm';
   }

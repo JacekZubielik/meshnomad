@@ -1430,6 +1430,19 @@ void _privacySettings(BuildContext context, MeshCoreConnector connector) {
   );
 }
 
+/// Applies the duty-cycle limit chosen in the radio settings dialog:
+/// persists it app-side (drives the radio stats airtime budget) and forwards
+/// it to the connected node over the self-CLI (`set dutycycle`, 1–100),
+/// which companion firmware accepts (see docs/BLE_PROTOCOL.md, CLI Commands).
+Future<void> applyDutyCycleToNode({
+  required int percent,
+  required AppSettingsService settings,
+  required MeshCoreConnector connector,
+}) async {
+  await settings.setTxDutyCyclePercent(percent);
+  await connector.sendCliCommand('set dutycycle $percent');
+}
+
 class _RadioSettingsDialog extends StatefulWidget {
   final MeshCoreConnector connector;
 
@@ -1450,6 +1463,7 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
   _RadioSettingsSnapshot? _lastNonRepeatSnapshot;
   String? _frequencyError;
   String? _txPowerError;
+  int _dutyCycle = 10;
 
   AppDebugLogService get _appLog =>
       Provider.of<AppDebugLogService>(context, listen: false);
@@ -1504,6 +1518,7 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
     }
 
     _clientRepeat = widget.connector.clientRepeat ?? false;
+    _dutyCycle = context.read<AppSettingsService>().settings.txDutyCyclePercent;
     _selectedPresetIndex = _findMatchingPresetIndex();
     if (_clientRepeat) {
       _lastNonRepeatSnapshot =
@@ -1766,6 +1781,7 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
 
   Future<void> _saveSettings() async {
     final l10n = context.l10n;
+    final appSettings = context.read<AppSettingsService>();
     final freqMHz = double.tryParse(_frequencyController.text);
     final txPower = int.tryParse(_txPowerController.text);
 
@@ -1821,6 +1837,11 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
         ),
       );
       await widget.connector.sendFrame(buildSetRadioTxPowerFrame(txPower));
+      await applyDutyCycleToNode(
+        percent: _dutyCycle,
+        settings: appSettings,
+        connector: widget.connector,
+      );
       await widget.connector.refreshDeviceInfo();
       final rememberedSnapshot = _clientRepeat
           ? _lastNonRepeatSnapshot
@@ -2008,6 +2029,24 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
                 errorText: _txPowerError,
               ),
               keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.repeater_dutyCycle),
+              subtitle: Text(l10n.repeater_dutyCycleHelper),
+              trailing: Text(
+                l10n.repeater_dutyCyclePercent(_dutyCycle),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Slider(
+              value: _dutyCycle.toDouble(),
+              min: 1,
+              max: 100,
+              divisions: 99,
+              label: l10n.repeater_dutyCyclePercent(_dutyCycle),
+              onChanged: (value) => setState(() => _dutyCycle = value.toInt()),
             ),
             if (widget.connector.clientRepeat != null) ...[
               const SizedBox(height: 16),

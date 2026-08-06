@@ -2531,6 +2531,38 @@
     }
   },
   "radioStats_chartCaption": "Noise floor (dBm) over recent samples.",
+  "radioStats_bandChartCaption": "Signal margin over noise + SNR",
+  "radioStats_seriesNoise": "Noise",
+  "radioStats_txWindow": "TX (1 h window): {used}/{limit} s",
+  "@radioStats_txWindow": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "radioStats_txWindowPercent": "{percent}%",
+  "@radioStats_txWindowPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "radioStats_txLimitCaption": "limit: duty cycle {percent}% (ETSI) · TX total: {total} s",
+  "@radioStats_txLimitCaption": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "radioStats_stripNoise": "Noise floor: {noiseDbm} dBm",
   "@radioStats_stripNoise": {
     "placeholders": {

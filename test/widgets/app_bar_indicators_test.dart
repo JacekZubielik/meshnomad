@@ -7,6 +7,7 @@ import 'package:meshcore_open/connector/meshcore_connector.dart';
 import 'package:meshcore_open/l10n/app_localizations.dart';
 import 'package:meshcore_open/models/companion_radio_stats.dart';
 import 'package:meshcore_open/screens/companion_radio_stats_screen.dart';
+import 'package:meshcore_open/services/app_settings_service.dart';
 import 'package:meshcore_open/storage/prefs_manager.dart';
 import 'package:meshcore_open/theme/styles/style_registry.dart';
 import 'package:meshcore_open/widgets/app_bar.dart';
@@ -82,8 +83,14 @@ CompanionRadioStats _stats({int noiseFloorDbm = -98}) => CompanionRadioStats(
 );
 
 Widget _wrap(Widget child, {required MeshCoreConnector connector}) {
-  return ChangeNotifierProvider<MeshCoreConnector>.value(
-    value: connector,
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<MeshCoreConnector>.value(value: connector),
+      // RadioStatsPanel (RF popup) watches the duty-cycle limit setting.
+      ChangeNotifierProvider<AppSettingsService>(
+        create: (_) => AppSettingsService(),
+      ),
+    ],
     child: MaterialApp(
       theme: StyleRegistry.byId('default').light,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

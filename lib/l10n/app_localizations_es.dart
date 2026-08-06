@@ -4528,6 +4528,27 @@ class AppLocalizationsEs extends AppLocalizations {
       'Nivel de ruido (dBm) en muestras recientes.';
 
   @override
+  String get radioStats_bandChartCaption => 'Signal margin over noise + SNR';
+
+  @override
+  String get radioStats_seriesNoise => 'Noise';
+
+  @override
+  String radioStats_txWindow(int used, int limit) {
+    return 'TX (1 h window): $used/$limit s';
+  }
+
+  @override
+  String radioStats_txWindowPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String radioStats_txLimitCaption(int percent, int total) {
+    return 'limit: duty cycle $percent% (ETSI) · TX total: $total s';
+  }
+
+  @override
   String radioStats_stripNoise(int noiseDbm) {
     return 'Nivel de ruido: $noiseDbm dBm';
   }

@@ -684,4 +684,21 @@ void main() {
       expect(restored.gpsIntervalSeconds, equals(321));
     });
   });
+
+  group('AppSettings — txDutyCyclePercent', () {
+    test('defaults to the ETSI 10%', () {
+      expect(AppSettings().txDutyCyclePercent, equals(10));
+    });
+
+    test('json roundtrip preserves the value', () {
+      final json = AppSettings().copyWith(txDutyCyclePercent: 25).toJson();
+      expect(json['tx_duty_cycle_percent'], equals(25));
+      expect(AppSettings.fromJson(json).txDutyCyclePercent, equals(25));
+    });
+
+    test('fromJson with missing field falls back to 10 (backward compat)', () {
+      final settings = AppSettings.fromJson(<String, dynamic>{});
+      expect(settings.txDutyCyclePercent, equals(10));
+    });
+  });
 }

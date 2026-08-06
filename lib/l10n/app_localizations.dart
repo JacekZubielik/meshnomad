@@ -7786,6 +7786,36 @@ abstract class AppLocalizations {
   /// **'Noise floor (dBm) over recent samples.'**
   String get radioStats_chartCaption;
 
+  /// No description provided for @radioStats_bandChartCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal margin over noise + SNR'**
+  String get radioStats_bandChartCaption;
+
+  /// No description provided for @radioStats_seriesNoise.
+  ///
+  /// In en, this message translates to:
+  /// **'Noise'**
+  String get radioStats_seriesNoise;
+
+  /// No description provided for @radioStats_txWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'TX (1 h window): {used}/{limit} s'**
+  String radioStats_txWindow(int used, int limit);
+
+  /// No description provided for @radioStats_txWindowPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String radioStats_txWindowPercent(int percent);
+
+  /// No description provided for @radioStats_txLimitCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'limit: duty cycle {percent}% (ETSI) · TX total: {total} s'**
+  String radioStats_txLimitCaption(int percent, int total);
+
   /// No description provided for @radioStats_stripNoise.
   ///
   /// In en, this message translates to:
