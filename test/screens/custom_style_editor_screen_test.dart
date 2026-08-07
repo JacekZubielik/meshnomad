@@ -222,16 +222,10 @@ void main() {
       );
     });
 
-    testWidgets('reset icon appears after a change and clears the single '
-        'override, then disappears', (tester) async {
-      // _wrap renders under a light theme, so the editor seeds its
-      // brightness switch to Light — the override must land there too.
-      await settingsService.setCustomColorOverride(
-        'primary',
-        const Color(0xFF112233),
-        brightness: Brightness.light,
-      );
-
+    testWidgets('reset icon is disabled by default, becomes enabled after a '
+        'change, clears the override, then disables again (pkt 2)', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           const CustomStyleEditorScreen(),
@@ -240,9 +234,23 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final resetIcon = find.byKey(const ValueKey('resetIcon_primary'));
-      expect(resetIcon, findsOneWidget);
-      await tester.tap(resetIcon);
+      // No override yet — the icon is present but disabled, not hidden.
+      IconButton resetIcon() => tester.widget<IconButton>(
+        find.byKey(const ValueKey('resetIcon_primary')),
+      );
+      expect(resetIcon().onPressed, isNull);
+
+      // _wrap renders under a light theme, so the editor seeds its
+      // brightness switch to Light — the override lands there too.
+      await settingsService.setCustomColorOverride(
+        'primary',
+        const Color(0xFF112233),
+        brightness: Brightness.light,
+      );
+      await tester.pumpAndSettle();
+      expect(resetIcon().onPressed, isNotNull);
+
+      await tester.tap(find.byKey(const ValueKey('resetIcon_primary')));
       await tester.pumpAndSettle();
 
       expect(
@@ -252,7 +260,7 @@ void main() {
             .colorOverridesLight['primary'],
         isNull,
       );
-      expect(find.byKey(const ValueKey('resetIcon_primary')), findsNothing);
+      expect(resetIcon().onPressed, isNull);
     });
 
     testWidgets('reset all requires confirmation and then clears every '

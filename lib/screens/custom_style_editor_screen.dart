@@ -807,17 +807,20 @@ class _ColorFieldRow extends StatelessWidget {
           border: Border.all(color: scheme.outline),
         ),
       ),
-      trailing: override == null
-          ? null
-          : IconButton(
-              key: ValueKey('resetIcon_${spec.key}'),
-              icon: const Icon(Icons.settings_backup_restore, size: 20),
-              tooltip: l10n.styleEditor_resetTooltip,
-              onPressed: () => settingsService.resetCustomColorOverride(
+      // pkt 2: the reset affordance stays visible on every row (disabled
+      // when there's nothing to reset) instead of disappearing — a hidden
+      // trailing widget reads as "no reset exists for this field".
+      trailing: IconButton(
+        key: ValueKey('resetIcon_${spec.key}'),
+        icon: const Icon(Icons.settings_backup_restore, size: 20),
+        tooltip: l10n.styleEditor_resetTooltip,
+        onPressed: override == null
+            ? null
+            : () => settingsService.resetCustomColorOverride(
                 spec.key,
                 brightness,
               ),
-            ),
+      ),
     );
   }
 
@@ -1014,18 +1017,20 @@ class _FontFieldRow extends StatelessWidget {
         onChanged: (value) =>
             settingsService.setCustomFontSizeOverride(spec.key, value),
       ),
+      // pkt 2: reset stays visible (disabled when nothing to reset) — see
+      // the matching comment on _ColorFieldRow.
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text('${currentSize.toStringAsFixed(1)}pt'),
-          if (override != null)
-            IconButton(
-              key: ValueKey('resetIcon_${spec.key}'),
-              icon: const Icon(Icons.settings_backup_restore, size: 20),
-              tooltip: l10n.styleEditor_resetTooltip,
-              onPressed: () =>
-                  settingsService.resetCustomFontSizeOverride(spec.key),
-            ),
+          IconButton(
+            key: ValueKey('resetIcon_${spec.key}'),
+            icon: const Icon(Icons.settings_backup_restore, size: 20),
+            tooltip: l10n.styleEditor_resetTooltip,
+            onPressed: override == null
+                ? null
+                : () => settingsService.resetCustomFontSizeOverride(spec.key),
+          ),
         ],
       ),
     );
