@@ -3,11 +3,15 @@ import 'dart:io';
 /// Queries the macOS IOKit registry via [ioreg] to build a map of serial port
 /// callout device paths to human-readable USB device names.
 ///
-/// The [flserial] native library uses the deprecated [IOUSBDevice] IOKit class
-/// to resolve device names, but macOS 10.15+ renamed it to [IOUSBHostDevice].
-/// As a result flserial always returns "n/a" for USB product/vendor info on
-/// modern macOS. This utility bypasses that limitation by invoking ioreg
-/// directly and parsing its output.
+/// The previous native serial transport used the deprecated [IOUSBDevice]
+/// IOKit class to resolve device names, but macOS 10.15+ renamed it to
+/// [IOUSBHostDevice]. As a result it always returned "n/a" for USB
+/// product/vendor info on modern macOS. This utility bypasses that
+/// limitation by invoking ioreg directly and parsing its output.
+///
+/// Likely dead code after the flutter_libserialport migration (which reads
+/// USB names straight from libserialport) — kept pending verification on
+/// real macOS hardware, not available in this session.
 ///
 /// Returns a Map of e.g. `"/dev/cu.usbmodem1101"` → `"Nordic NRF52 DK"`.
 /// Devices without a USB product name are not included in the map.

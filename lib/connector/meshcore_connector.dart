@@ -1957,7 +1957,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _lastDeviceId = _deviceId;
     _lastDeviceDisplayName = _deviceDisplayName;
     _manualDisconnect = false;
-    _cancelReconnectTimer();
+    _cancelPendingReconnectTimer();
     _bleInitialSyncStarted = false;
     if (PlatformInfo.isWeb) {
       _resetConnectionHandshakeState();
@@ -2297,6 +2297,7 @@ class MeshCoreConnector extends ChangeNotifier {
       );
 
       _setState(MeshCoreConnectionState.connected);
+      _reconnectAttempts = 0;
       if (_shouldGateInitialChannelSync) {
         _hasReceivedDeviceInfo = false;
         _pendingInitialChannelSync = true;
@@ -2640,6 +2641,11 @@ class MeshCoreConnector extends ChangeNotifier {
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
     _reconnectAttempts = 0;
+  }
+
+  void _cancelPendingReconnectTimer() {
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
   }
 
   int _nextReconnectDelayMs() {
