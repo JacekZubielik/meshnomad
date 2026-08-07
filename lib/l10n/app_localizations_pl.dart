@@ -4880,6 +4880,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_title => 'Styl niestandardowy';
 
   @override
+  String get styleEditor_brightnessLight => 'Jasny';
+
+  @override
+  String get styleEditor_brightnessDark => 'Ciemny';
+
+  @override
   String get styleEditor_colorsSection => 'Kolory';
 
   @override

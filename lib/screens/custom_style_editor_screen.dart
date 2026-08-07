@@ -11,9 +11,17 @@ import '../theme/styles/default_style.dart';
 import '../widgets/mesh_ui.dart';
 
 class _ColorFieldSpec {
-  const _ColorFieldSpec(this.key, this.defaultColor);
+  const _ColorFieldSpec(
+    this.key,
+    this.defaultColorDark,
+    this.defaultColorLight,
+  );
   final String key;
-  final Color defaultColor;
+  final Color defaultColorDark;
+  final Color defaultColorLight;
+
+  Color defaultColorFor(Brightness brightness) =>
+      brightness == Brightness.light ? defaultColorLight : defaultColorDark;
 }
 
 class _FontFieldSpec {
@@ -23,65 +31,226 @@ class _FontFieldSpec {
 }
 
 final List<_ColorFieldSpec> _baseColorFields = [
-  _ColorFieldSpec('bg', MeshTokens.defaultTokens.bg),
-  _ColorFieldSpec('ink', MeshTokens.defaultTokens.ink),
-  _ColorFieldSpec('line', MeshTokens.defaultTokens.line),
-  _ColorFieldSpec('primary', MeshTokens.defaultTokens.primary),
-  _ColorFieldSpec('secondary', MeshTokens.defaultTokens.secondary),
-  _ColorFieldSpec('signal', MeshTokens.defaultTokens.signal),
-  _ColorFieldSpec('warn', MeshTokens.defaultTokens.warn),
-  _ColorFieldSpec('alert', MeshTokens.defaultTokens.alert),
-  _ColorFieldSpec('me', MeshTokens.defaultTokens.me),
-  _ColorFieldSpec('meInk', MeshTokens.defaultTokens.meInk),
+  _ColorFieldSpec(
+    'bg',
+    MeshTokens.defaultTokens.bg,
+    MeshTokens.defaultTokensLight.bg,
+  ),
+  _ColorFieldSpec(
+    'ink',
+    MeshTokens.defaultTokens.ink,
+    MeshTokens.defaultTokensLight.ink,
+  ),
+  _ColorFieldSpec(
+    'line',
+    MeshTokens.defaultTokens.line,
+    MeshTokens.defaultTokensLight.line,
+  ),
+  _ColorFieldSpec(
+    'primary',
+    MeshTokens.defaultTokens.primary,
+    MeshTokens.defaultTokensLight.primary,
+  ),
+  _ColorFieldSpec(
+    'secondary',
+    MeshTokens.defaultTokens.secondary,
+    MeshTokens.defaultTokensLight.secondary,
+  ),
+  _ColorFieldSpec(
+    'signal',
+    MeshTokens.defaultTokens.signal,
+    MeshTokens.defaultTokensLight.signal,
+  ),
+  _ColorFieldSpec(
+    'warn',
+    MeshTokens.defaultTokens.warn,
+    MeshTokens.defaultTokensLight.warn,
+  ),
+  _ColorFieldSpec(
+    'alert',
+    MeshTokens.defaultTokens.alert,
+    MeshTokens.defaultTokensLight.alert,
+  ),
+  _ColorFieldSpec(
+    'me',
+    MeshTokens.defaultTokens.me,
+    MeshTokens.defaultTokensLight.me,
+  ),
+  _ColorFieldSpec(
+    'meInk',
+    MeshTokens.defaultTokens.meInk,
+    MeshTokens.defaultTokensLight.meInk,
+  ),
 ];
 
 // A6/04-editor-ui.md: map/LOS palettes are semantically independent per
-// marker/state colors — every field is its own row, no automat.
+// marker/state colors — every field is its own row, no automat. They're
+// shared between brightnesses (defaultTokensLight mirrors defaultTokens for
+// every map*/los* field, pkt 17 prompt 01), so dark/light defaults are equal.
 final List<_ColorFieldSpec> _mapColorFields = [
-  _ColorFieldSpec('mapOnline', MeshTokens.defaultTokens.mapOnline),
-  _ColorFieldSpec('mapOffline', MeshTokens.defaultTokens.mapOffline),
-  _ColorFieldSpec('mapStale', MeshTokens.defaultTokens.mapStale),
-  _ColorFieldSpec('mapRepeater', MeshTokens.defaultTokens.mapRepeater),
-  _ColorFieldSpec('mapRouter', MeshTokens.defaultTokens.mapRouter),
-  _ColorFieldSpec('mapBatteryLow', MeshTokens.defaultTokens.mapBatteryLow),
-  _ColorFieldSpec('mapCluster', MeshTokens.defaultTokens.mapCluster),
-  _ColorFieldSpec('mapSelected', MeshTokens.defaultTokens.mapSelected),
-  _ColorFieldSpec('mapSensor', MeshTokens.defaultTokens.mapSensor),
-  _ColorFieldSpec('mapShared', MeshTokens.defaultTokens.mapShared),
-  _ColorFieldSpec('mapPanelLight', MeshTokens.defaultTokens.mapPanelLight),
-  _ColorFieldSpec('mapPanelDark', MeshTokens.defaultTokens.mapPanelDark),
-  _ColorFieldSpec('mapTextPrimary', MeshTokens.defaultTokens.mapTextPrimary),
+  _ColorFieldSpec(
+    'mapOnline',
+    MeshTokens.defaultTokens.mapOnline,
+    MeshTokens.defaultTokensLight.mapOnline,
+  ),
+  _ColorFieldSpec(
+    'mapOffline',
+    MeshTokens.defaultTokens.mapOffline,
+    MeshTokens.defaultTokensLight.mapOffline,
+  ),
+  _ColorFieldSpec(
+    'mapStale',
+    MeshTokens.defaultTokens.mapStale,
+    MeshTokens.defaultTokensLight.mapStale,
+  ),
+  _ColorFieldSpec(
+    'mapRepeater',
+    MeshTokens.defaultTokens.mapRepeater,
+    MeshTokens.defaultTokensLight.mapRepeater,
+  ),
+  _ColorFieldSpec(
+    'mapRouter',
+    MeshTokens.defaultTokens.mapRouter,
+    MeshTokens.defaultTokensLight.mapRouter,
+  ),
+  _ColorFieldSpec(
+    'mapBatteryLow',
+    MeshTokens.defaultTokens.mapBatteryLow,
+    MeshTokens.defaultTokensLight.mapBatteryLow,
+  ),
+  _ColorFieldSpec(
+    'mapCluster',
+    MeshTokens.defaultTokens.mapCluster,
+    MeshTokens.defaultTokensLight.mapCluster,
+  ),
+  _ColorFieldSpec(
+    'mapSelected',
+    MeshTokens.defaultTokens.mapSelected,
+    MeshTokens.defaultTokensLight.mapSelected,
+  ),
+  _ColorFieldSpec(
+    'mapSensor',
+    MeshTokens.defaultTokens.mapSensor,
+    MeshTokens.defaultTokensLight.mapSensor,
+  ),
+  _ColorFieldSpec(
+    'mapShared',
+    MeshTokens.defaultTokens.mapShared,
+    MeshTokens.defaultTokensLight.mapShared,
+  ),
+  _ColorFieldSpec(
+    'mapPanelLight',
+    MeshTokens.defaultTokens.mapPanelLight,
+    MeshTokens.defaultTokensLight.mapPanelLight,
+  ),
+  _ColorFieldSpec(
+    'mapPanelDark',
+    MeshTokens.defaultTokens.mapPanelDark,
+    MeshTokens.defaultTokensLight.mapPanelDark,
+  ),
+  _ColorFieldSpec(
+    'mapTextPrimary',
+    MeshTokens.defaultTokens.mapTextPrimary,
+    MeshTokens.defaultTokensLight.mapTextPrimary,
+  ),
   _ColorFieldSpec(
     'mapTextSecondary',
     MeshTokens.defaultTokens.mapTextSecondary,
+    MeshTokens.defaultTokensLight.mapTextSecondary,
   ),
-  _ColorFieldSpec('mapTextMuted', MeshTokens.defaultTokens.mapTextMuted),
-  _ColorFieldSpec('mapBorder', MeshTokens.defaultTokens.mapBorder),
+  _ColorFieldSpec(
+    'mapTextMuted',
+    MeshTokens.defaultTokens.mapTextMuted,
+    MeshTokens.defaultTokensLight.mapTextMuted,
+  ),
+  _ColorFieldSpec(
+    'mapBorder',
+    MeshTokens.defaultTokens.mapBorder,
+    MeshTokens.defaultTokensLight.mapBorder,
+  ),
   _ColorFieldSpec(
     'mapMarkerOutline',
     MeshTokens.defaultTokens.mapMarkerOutline,
+    MeshTokens.defaultTokensLight.mapMarkerOutline,
   ),
-  _ColorFieldSpec('mapMarkerShadow', MeshTokens.defaultTokens.mapMarkerShadow),
+  _ColorFieldSpec(
+    'mapMarkerShadow',
+    MeshTokens.defaultTokens.mapMarkerShadow,
+    MeshTokens.defaultTokensLight.mapMarkerShadow,
+  ),
 ];
 
 final List<_ColorFieldSpec> _losColorFields = [
-  _ColorFieldSpec('losTerrain', MeshTokens.defaultTokens.losTerrain),
-  _ColorFieldSpec('losBeam', MeshTokens.defaultTokens.losBeam),
-  _ColorFieldSpec('losHorizon', MeshTokens.defaultTokens.losHorizon),
-  _ColorFieldSpec('losBlocked', MeshTokens.defaultTokens.losBlocked),
-  _ColorFieldSpec('losMarginal', MeshTokens.defaultTokens.losMarginal),
-  _ColorFieldSpec('losClear', MeshTokens.defaultTokens.losClear),
-  _ColorFieldSpec('losSelected', MeshTokens.defaultTokens.losSelected),
+  _ColorFieldSpec(
+    'losTerrain',
+    MeshTokens.defaultTokens.losTerrain,
+    MeshTokens.defaultTokensLight.losTerrain,
+  ),
+  _ColorFieldSpec(
+    'losBeam',
+    MeshTokens.defaultTokens.losBeam,
+    MeshTokens.defaultTokensLight.losBeam,
+  ),
+  _ColorFieldSpec(
+    'losHorizon',
+    MeshTokens.defaultTokens.losHorizon,
+    MeshTokens.defaultTokensLight.losHorizon,
+  ),
+  _ColorFieldSpec(
+    'losBlocked',
+    MeshTokens.defaultTokens.losBlocked,
+    MeshTokens.defaultTokensLight.losBlocked,
+  ),
+  _ColorFieldSpec(
+    'losMarginal',
+    MeshTokens.defaultTokens.losMarginal,
+    MeshTokens.defaultTokensLight.losMarginal,
+  ),
+  _ColorFieldSpec(
+    'losClear',
+    MeshTokens.defaultTokens.losClear,
+    MeshTokens.defaultTokensLight.losClear,
+  ),
+  _ColorFieldSpec(
+    'losSelected',
+    MeshTokens.defaultTokens.losSelected,
+    MeshTokens.defaultTokensLight.losSelected,
+  ),
   _ColorFieldSpec(
     'losChartBackground',
     MeshTokens.defaultTokens.losChartBackground,
+    MeshTokens.defaultTokensLight.losChartBackground,
   ),
-  _ColorFieldSpec('losPanelDark', MeshTokens.defaultTokens.losPanelDark),
-  _ColorFieldSpec('losPanelLight', MeshTokens.defaultTokens.losPanelLight),
-  _ColorFieldSpec('losText', MeshTokens.defaultTokens.losText),
-  _ColorFieldSpec('losTextMuted', MeshTokens.defaultTokens.losTextMuted),
-  _ColorFieldSpec('losBorder', MeshTokens.defaultTokens.losBorder),
-  _ColorFieldSpec('losShadow', MeshTokens.defaultTokens.losShadow),
+  _ColorFieldSpec(
+    'losPanelDark',
+    MeshTokens.defaultTokens.losPanelDark,
+    MeshTokens.defaultTokensLight.losPanelDark,
+  ),
+  _ColorFieldSpec(
+    'losPanelLight',
+    MeshTokens.defaultTokens.losPanelLight,
+    MeshTokens.defaultTokensLight.losPanelLight,
+  ),
+  _ColorFieldSpec(
+    'losText',
+    MeshTokens.defaultTokens.losText,
+    MeshTokens.defaultTokensLight.losText,
+  ),
+  _ColorFieldSpec(
+    'losTextMuted',
+    MeshTokens.defaultTokens.losTextMuted,
+    MeshTokens.defaultTokensLight.losTextMuted,
+  ),
+  _ColorFieldSpec(
+    'losBorder',
+    MeshTokens.defaultTokens.losBorder,
+    MeshTokens.defaultTokensLight.losBorder,
+  ),
+  _ColorFieldSpec(
+    'losShadow',
+    MeshTokens.defaultTokens.losShadow,
+    MeshTokens.defaultTokensLight.losShadow,
+  ),
 ];
 
 final List<_FontFieldSpec> _fontFields = [
@@ -380,8 +549,25 @@ const List<Color> _presetSwatches = [
 /// [defaultStyle] via [CustomStyleOverrides]. Every row supports per-field
 /// reset; "Reset all" at the bottom clears every override after
 /// confirmation (D1, 04-editor-ui.md).
-class CustomStyleEditorScreen extends StatelessWidget {
+class CustomStyleEditorScreen extends StatefulWidget {
   const CustomStyleEditorScreen({super.key});
+
+  @override
+  State<CustomStyleEditorScreen> createState() =>
+      _CustomStyleEditorScreenState();
+}
+
+class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
+  Brightness? _editedBrightness;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Seed the switch from the app's current theme on first build only —
+    // afterwards the user's own tap on the segment is the source of truth,
+    // independent of whatever brightness the app happens to be rendering.
+    _editedBrightness ??= Theme.of(context).brightness;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -393,6 +579,7 @@ class CustomStyleEditorScreen extends StatelessWidget {
   }
 
   Widget _screenBody(BuildContext context) {
+    final brightness = _editedBrightness!;
     return Consumer<AppSettingsService>(
       builder: (context, settingsService, child) {
         final l10n = context.l10n;
@@ -408,6 +595,27 @@ class CustomStyleEditorScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
               children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Center(
+                    child: SegmentedButton<Brightness>(
+                      key: const ValueKey('brightnessSwitch'),
+                      segments: [
+                        ButtonSegment(
+                          value: Brightness.light,
+                          label: Text(l10n.styleEditor_brightnessLight),
+                        ),
+                        ButtonSegment(
+                          value: Brightness.dark,
+                          label: Text(l10n.styleEditor_brightnessDark),
+                        ),
+                      ],
+                      selected: {brightness},
+                      onSelectionChanged: (selection) =>
+                          setState(() => _editedBrightness = selection.first),
+                    ),
+                  ),
+                ),
                 SectionHeader(l10n.styleEditor_colorsSection),
                 MeshCard(
                   padding: EdgeInsets.zero,
@@ -420,6 +628,7 @@ class CustomStyleEditorScreen extends StatelessWidget {
                           spec: _baseColorFields[i],
                           overrides: overrides,
                           settingsService: settingsService,
+                          brightness: brightness,
                         ),
                       ],
                     ],
@@ -431,6 +640,7 @@ class CustomStyleEditorScreen extends StatelessWidget {
                   fields: _mapColorFields,
                   overrides: overrides,
                   settingsService: settingsService,
+                  brightness: brightness,
                 ),
                 _ColorSectionExpansionTile(
                   key: const ValueKey('losSection'),
@@ -438,6 +648,7 @@ class CustomStyleEditorScreen extends StatelessWidget {
                   fields: _losColorFields,
                   overrides: overrides,
                   settingsService: settingsService,
+                  brightness: brightness,
                 ),
                 SectionHeader(l10n.styleEditor_fontSizesSection),
                 Padding(
@@ -522,12 +733,14 @@ class _ColorSectionExpansionTile extends StatelessWidget {
     required this.fields,
     required this.overrides,
     required this.settingsService,
+    required this.brightness,
   });
 
   final String title;
   final List<_ColorFieldSpec> fields;
   final CustomStyleOverrides overrides;
   final AppSettingsService settingsService;
+  final Brightness brightness;
 
   @override
   Widget build(BuildContext context) {
@@ -543,6 +756,7 @@ class _ColorSectionExpansionTile extends StatelessWidget {
               spec: fields[i],
               overrides: overrides,
               settingsService: settingsService,
+              brightness: brightness,
             ),
           ],
         ],
@@ -557,19 +771,22 @@ class _ColorFieldRow extends StatelessWidget {
     required this.spec,
     required this.overrides,
     required this.settingsService,
+    required this.brightness,
   });
 
   final _ColorFieldSpec spec;
   final CustomStyleOverrides overrides;
   final AppSettingsService settingsService;
+  final Brightness brightness;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final (label, subtitle) = _colorFieldText(l10n, spec.key);
-    // pkt 17 prompt 04: hardcoded dark until the brightness switch lands.
-    final override = overrides.colorOverridesFor(Brightness.dark)[spec.key];
-    final currentColor = override != null ? Color(override) : spec.defaultColor;
+    final override = overrides.colorOverridesFor(brightness)[spec.key];
+    final currentColor = override != null
+        ? Color(override)
+        : spec.defaultColorFor(brightness);
     final scheme = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -598,7 +815,7 @@ class _ColorFieldRow extends StatelessWidget {
               tooltip: l10n.styleEditor_resetTooltip,
               onPressed: () => settingsService.resetCustomColorOverride(
                 spec.key,
-                Brightness.dark,
+                brightness,
               ),
             ),
     );
@@ -618,7 +835,7 @@ class _ColorFieldRow extends StatelessWidget {
           settingsService.setCustomColorOverride(
             spec.key,
             color,
-            brightness: Brightness.dark,
+            brightness: brightness,
           );
           Navigator.of(sheetContext).pop();
         },

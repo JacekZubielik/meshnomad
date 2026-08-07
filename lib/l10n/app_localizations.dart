@@ -8320,6 +8320,18 @@ abstract class AppLocalizations {
   /// **'Custom style'**
   String get styleEditor_title;
 
+  /// No description provided for @styleEditor_brightnessLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get styleEditor_brightnessLight;
+
+  /// No description provided for @styleEditor_brightnessDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get styleEditor_brightnessDark;
+
   /// No description provided for @styleEditor_colorsSection.
   ///
   /// In en, this message translates to:

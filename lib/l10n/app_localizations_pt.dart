@@ -4852,6 +4852,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get styleEditor_title => 'Custom style';
 
   @override
+  String get styleEditor_brightnessLight => 'Light';
+
+  @override
+  String get styleEditor_brightnessDark => 'Dark';
+
+  @override
   String get styleEditor_colorsSection => 'Colors';
 
   @override

@@ -2661,6 +2661,8 @@
   "pathMap_unfollowPacket": "Przestań śledzić pakiet",
   "pathMap_gpsCount": "{confirmed}/{total} GPS",
   "styleEditor_title": "Styl niestandardowy",
+  "styleEditor_brightnessLight": "Jasny",
+  "styleEditor_brightnessDark": "Ciemny",
   "styleEditor_colorsSection": "Kolory",
   "styleEditor_fontSizesSection": "Rozmiary czcionek",
   "styleEditor_fontSizesIntro": "Tytuły ekranów, przyciski i zakładki skalują się razem z powyższymi rozmiarami.",

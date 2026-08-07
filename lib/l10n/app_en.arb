@@ -2758,6 +2758,8 @@
   "pathMap_followPacket": "Lock view to packet",
   "pathMap_unfollowPacket": "Unlock view from packet",
   "styleEditor_title": "Custom style",
+  "styleEditor_brightnessLight": "Light",
+  "styleEditor_brightnessDark": "Dark",
   "styleEditor_colorsSection": "Colors",
   "styleEditor_fontSizesSection": "Font sizes",
   "styleEditor_fontSizesIntro": "Screen titles, buttons, and tabs scale together with the sizes above.",
