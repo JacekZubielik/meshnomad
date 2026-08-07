@@ -2672,6 +2672,8 @@
   "styleEditor_hexLabel": "Kolor hex",
   "styleEditor_hexHint": "#RRGGBB",
   "styleEditor_hexError": "Wpisz kolor hex w formacie #RRGGBB",
+  "styleEditor_tintLabel": "Jasność",
+  "styleEditor_hexExamplesCaption": "Przykłady",
   "styleEditor_mapSection": "Mapa",
   "styleEditor_losSection": "Linia widzenia (LOS)",
   "styleEditor_bg_label": "Tło",

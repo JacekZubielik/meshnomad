@@ -8386,6 +8386,18 @@ abstract class AppLocalizations {
   /// **'Enter a hex color like #RRGGBB'**
   String get styleEditor_hexError;
 
+  /// No description provided for @styleEditor_tintLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Lightness'**
+  String get styleEditor_tintLabel;
+
+  /// No description provided for @styleEditor_hexExamplesCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Examples'**
+  String get styleEditor_hexExamplesCaption;
+
   /// No description provided for @styleEditor_mapSection.
   ///
   /// In en, this message translates to:

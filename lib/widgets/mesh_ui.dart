@@ -528,6 +528,14 @@ class BottomSheetHeader extends StatelessWidget {
 
 /// Shows a modal bottom sheet with the app-standard shape, scroll behavior
 /// and safe-area handling. Pair the content with [BottomSheetHeader].
+///
+/// The sheet's own background is painted explicitly here (read fresh from
+/// [Theme.of] inside this builder) rather than left to
+/// [ThemeData.bottomSheetTheme] — a sheet that edits the very token driving
+/// its own background color (the custom style editor's color picker) needs
+/// a widget in the tree that unambiguously re-subscribes to [Theme] on every
+/// rebuild; `backgroundColor: Colors.transparent` below removes Flutter's
+/// own bottom-sheet chrome so there's no stale layer painting underneath it.
 Future<T?> showMeshSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
@@ -540,10 +548,23 @@ Future<T?> showMeshSheet<T>(
     useSafeArea: true,
     showDragHandle: false,
     enableDrag: enableDrag,
-    builder: (context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: builder(context),
-    ),
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      final bottomSheetTheme = Theme.of(context).bottomSheetTheme;
+      return Material(
+        color:
+            bottomSheetTheme.modalBackgroundColor ??
+            bottomSheetTheme.backgroundColor ??
+            Theme.of(context).colorScheme.surfaceContainerLow,
+        shape: bottomSheetTheme.shape,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
+          child: builder(context),
+        ),
+      );
+    },
   );
 }
 

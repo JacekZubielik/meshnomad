@@ -4915,6 +4915,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_hexError => 'Wpisz kolor hex w formacie #RRGGBB';
 
   @override
+  String get styleEditor_tintLabel => 'Jasność';
+
+  @override
+  String get styleEditor_hexExamplesCaption => 'Przykłady';
+
+  @override
   String get styleEditor_mapSection => 'Mapa';
 
   @override

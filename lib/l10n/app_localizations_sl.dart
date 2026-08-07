@@ -4872,6 +4872,12 @@ class AppLocalizationsSl extends AppLocalizations {
   String get styleEditor_hexError => 'Enter a hex color like #RRGGBB';
 
   @override
+  String get styleEditor_tintLabel => 'Lightness';
+
+  @override
+  String get styleEditor_hexExamplesCaption => 'Examples';
+
+  @override
   String get styleEditor_mapSection => 'Map';
 
   @override

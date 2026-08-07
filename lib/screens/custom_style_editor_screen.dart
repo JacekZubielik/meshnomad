@@ -842,6 +842,11 @@ class _ColorFieldRow extends StatelessWidget {
           );
           Navigator.of(sheetContext).pop();
         },
+        onPreviewChanged: (color) => settingsService.setCustomColorOverride(
+          spec.key,
+          color,
+          brightness: brightness,
+        ),
       ),
     );
   }
@@ -852,25 +857,107 @@ class _ColorPickerSheet extends StatefulWidget {
     required this.title,
     required this.currentColor,
     required this.onColorSelected,
+    this.onPreviewChanged,
   });
 
   final String title;
   final Color currentColor;
+  // One-shot pick (swatch tap, hex confirm, example chip) — applies AND
+  // closes the sheet, per the caller's wiring in _openColorPicker.
   final ValueChanged<Color> onColorSelected;
+  // Continuous adjustment (the tint slider) — applies live without
+  // closing. Optional because only the slider needs it.
+  final ValueChanged<Color>? onPreviewChanged;
 
   @override
   State<_ColorPickerSheet> createState() => _ColorPickerSheetState();
+}
+
+// A compact, functional reference — not the full preset grid above —
+// distinct base hues with their hex spelled out so a user unfamiliar with
+// the format can see what a value looks like. Tapping applies immediately,
+// same as tapping a preset swatch (pkt 3c).
+const List<Color> _exampleSwatches = [
+  Color(0xFFFFFFFF),
+  Color(0xFF000000),
+  Color(0xFFEF4444),
+  Color(0xFF22C55E),
+  Color(0xFF3B82F6),
+];
+
+// pkt 3b: tick marks stay a single color across the whole track (not
+// active/inactive-shaded) and are only differentiated by size — larger
+// every 25%, smaller every 5% in between. Flutter positions `center`
+// using the real track/thumb geometry, so alignment is exact regardless
+// of what this shape draws.
+class _TintTickMarkShape extends SliderTickMarkShape {
+  const _TintTickMarkShape();
+
+  static const double _minorRadius = 2;
+  static const double _majorRadius = 3;
+
+  @override
+  Size getPreferredSize({
+    required SliderThemeData sliderTheme,
+    required bool isEnabled,
+  }) => const Size.fromRadius(_majorRadius);
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required Animation<double> enableAnimation,
+    required TextDirection textDirection,
+    required bool isEnabled,
+    required Offset thumbCenter,
+  }) {
+    // `center` is this tick's own position; there's no direct "which
+    // division is this" parameter, so derive it from the track rect the
+    // same way Slider itself lays ticks out.
+    final trackRect = sliderTheme.trackShape!.getPreferredRect(
+      parentBox: parentBox,
+      sliderTheme: sliderTheme,
+      isDiscrete: true,
+    );
+    final fraction = trackRect.width == 0
+        ? 0.0
+        : ((center.dx - trackRect.left) / trackRect.width).clamp(0.0, 1.0);
+    final isMajor = (fraction * 100).round() % 25 == 0;
+    final paint = Paint()
+      ..color = sliderTheme.activeTickMarkColor ?? Colors.transparent;
+    context.canvas.drawCircle(
+      center,
+      isMajor ? _majorRadius : _minorRadius,
+      paint,
+    );
+  }
 }
 
 class _ColorPickerSheetState extends State<_ColorPickerSheet> {
   late final TextEditingController _hexController;
   String? _hexError;
 
+  // pkt 3b: hue/saturation are captured once and held fixed — the slider
+  // only ever moves lightness, so it can't drift the color's hue on
+  // repeated small adjustments (recomputing from the live preview color
+  // each time would compound rounding through the RGB<->HSL round trip).
+  late final double _hue;
+  late final double _saturation;
+  late double _lightness;
+  late Color _previewColor;
+
   static final RegExp _hexPattern = RegExp(r'^#?([0-9A-Fa-f]{6})$');
 
   @override
   void initState() {
     super.initState();
+    _previewColor = widget.currentColor;
+    final hsl = HSLColor.fromColor(widget.currentColor);
+    _hue = hsl.hue;
+    _saturation = hsl.saturation;
+    _lightness = hsl.lightness;
     _hexController = TextEditingController(
       text:
           '#${widget.currentColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
@@ -939,6 +1026,62 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.styleEditor_tintLabel,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                SliderTheme(
+                  data: Theme.of(context).sliderTheme.copyWith(
+                    showValueIndicator: ShowValueIndicator.alwaysVisible,
+                    tickMarkShape: const _TintTickMarkShape(),
+                    activeTickMarkColor: MeshTokens.of(
+                      context,
+                    ).ink.withValues(alpha: 0.55),
+                    inactiveTickMarkColor: MeshTokens.of(
+                      context,
+                    ).ink.withValues(alpha: 0.55),
+                  ),
+                  child: Slider(
+                    key: const ValueKey('tintSlider'),
+                    value: _lightness,
+                    divisions: 20,
+                    // Leading/trailing spaces widen the measured label text
+                    // beyond the digits themselves — the bubble shape sizes
+                    // itself to that measurement, so this buys visual
+                    // breathing room without fighting the shape's own
+                    // (otherwise tight) internal padding.
+                    label: ' ${(_lightness * 100).round()}% ',
+                    // Live-applies on every step WITHOUT closing the sheet —
+                    // unlike every other control here (swatches, hex), a
+                    // slider is inherently a multi-step adjustment, not a
+                    // single pick. Closing on each change (the original
+                    // bug) made it unusable.
+                    onChanged: (v) => setState(() {
+                      _lightness = v;
+                      _previewColor = HSLColor.fromAHSL(
+                        1.0,
+                        _hue,
+                        _saturation,
+                        v,
+                      ).toColor();
+                      _hexController.text =
+                          '#${_previewColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+                      _hexError = null;
+                      widget.onPreviewChanged?.call(_previewColor);
+                    }),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextField(
               controller: _hexController,
               inputFormatters: [
@@ -960,6 +1103,70 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
               ),
               onChanged: (_) => setState(() => _hexError = null),
               onSubmitted: (_) => _applyHex(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.styleEditor_hexExamplesCaption,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final example in _exampleSwatches)
+                      GestureDetector(
+                        key: ValueKey('example_${example.toARGB32()}'),
+                        onTap: () => widget.onColorSelected(example),
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(6, 4, 10, 4),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: example,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.outline,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '#${example.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
+                                style: MeshTokens.of(context).mono(
+                                  fontSize: 11,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

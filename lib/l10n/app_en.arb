@@ -2769,6 +2769,8 @@
   "styleEditor_hexLabel": "Hex color",
   "styleEditor_hexHint": "#RRGGBB",
   "styleEditor_hexError": "Enter a hex color like #RRGGBB",
+  "styleEditor_tintLabel": "Lightness",
+  "styleEditor_hexExamplesCaption": "Examples",
   "styleEditor_mapSection": "Map",
   "styleEditor_losSection": "Line of sight (LOS)",
   "styleEditor_bg_label": "Background",
