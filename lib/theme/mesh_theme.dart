@@ -62,6 +62,21 @@ class MeshPalette {
   static const lightInk2 = Color(0xFF3C4853);
   static const lightInk3 = Color(0xFF69767F);
   static const lightBlue = Color(0xFF2F6EA8);
+
+  // Pełna jasna baza pod defaultTokensLight (pkt 17). Wartości bg3/ink4/line3
+  // ekstrapolowane z istniejących ramp; secondary/warn/alert przeniesione
+  // z ColorScheme.light() (mesh_theme.dart); signal = dotychczasowy signalDim.
+  // To TYMCZASOWY punkt startowy pod przyszłe zestawy pastelowe — nie kanon.
+  static const lightLine1 = Color(0xFFD8DEE5);
+  static const lightLine2 = Color(0xFFC3CCD4);
+  static const lightLine3 = Color(0xFFB1BCC4);
+  static const lightBg3 = Color(0xFFD2DAE1);
+  static const lightBg4 = Color(0xFFC6CFD8);
+  static const lightInk4 = Color(0xFFB8BDC0);
+  static const lightSecondary = Color(0xFF8C4A8A);
+  static const lightWarn = Color(0xFF9A5B16);
+  static const lightAlert = Color(0xFFB53D2F);
+  static const lightSignal = Color(0xFF16A34A);
 }
 
 /// High-contrast semantic colors for UI rendered over variable map tiles.

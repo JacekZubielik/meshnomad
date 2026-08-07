@@ -242,6 +242,87 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     monoBodySize: 13,
   );
 
+  /// Light-variant base tokens for the custom style (pkt 17). Values borrowed
+  /// from today's light `ColorScheme`/`MeshPalette.light*` as a starting
+  /// point — the Default style itself is slated for removal, this is NOT a
+  /// compatibility contract. Radii, mono sizes and all map*/los* colors are
+  /// shared with [defaultTokens] (call sites branch on brightness themselves).
+  static const MeshTokens defaultTokensLight = MeshTokens(
+    bg: MeshPalette.lightBg,
+    bg1: MeshPalette.lightBg1,
+    bg2: MeshPalette.lightBg2,
+    bg3: MeshPalette.lightBg3,
+    bg4: MeshPalette.lightBg4,
+    line: MeshPalette.lightLine1,
+    line2: MeshPalette.lightLine2,
+    line3: MeshPalette.lightLine3,
+    ink: MeshPalette.lightInk,
+    ink2: MeshPalette.lightInk2,
+    ink3: MeshPalette.lightInk3,
+    ink4: MeshPalette.lightInk4,
+    signal: MeshPalette.lightSignal,
+    signalDim: Color(0xFF0D873A), // = deriveSignalDim(lightSignal)
+    warn: MeshPalette.lightWarn,
+    warnDim: Color(0xFF884412), // = deriveWarnVariants(lightWarn).warnDim
+    warnBg: Color(0x1F9A5B16),
+    warnLine: Color(0x669A5B16),
+    alert: MeshPalette.lightAlert,
+    alertBg: Color(0x1FB53D2F),
+    alertLine: Color(0x66B53D2F),
+    primary: MeshPalette.lightBlue,
+    primaryDim: Color(
+      0xFF21578E,
+    ), // = derivePrimaryVariants(lightBlue).primaryDim
+    primaryBg: Color(0x292F6EA8),
+    primaryLine: Color(0x802F6EA8),
+    secondary: MeshPalette.lightSecondary,
+    secondaryBg: Color(0x1C8C4A8A),
+    secondaryLine: Color(0x478C4A8A),
+    me: MeshPalette.me,
+    meBorder: MeshPalette.meBorder,
+    meInk: MeshPalette.meInk,
+    mapOnline: MapPalette.online,
+    mapOffline: MapPalette.offline,
+    mapStale: MapPalette.stale,
+    mapRepeater: MapPalette.repeater,
+    mapRouter: MapPalette.router,
+    mapBatteryLow: MapPalette.batteryLow,
+    mapCluster: MapPalette.cluster,
+    mapSelected: MapPalette.selected,
+    mapSensor: MapPalette.sensor,
+    mapShared: MapPalette.shared,
+    mapPanelLight: MapPalette.panelLight,
+    mapPanelDark: MapPalette.panelDark,
+    mapTextPrimary: MapPalette.textPrimary,
+    mapTextSecondary: MapPalette.textSecondary,
+    mapTextMuted: MapPalette.textMuted,
+    mapBorder: MapPalette.border,
+    mapMarkerOutline: MapPalette.markerOutline,
+    mapMarkerShadow: MapPalette.markerShadow,
+    losTerrain: LosPalette.terrain,
+    losBeam: LosPalette.beam,
+    losHorizon: LosPalette.horizon,
+    losBlocked: LosPalette.blocked,
+    losMarginal: LosPalette.marginal,
+    losClear: LosPalette.clear,
+    losSelected: LosPalette.selected,
+    losChartBackground: LosPalette.chartBackground,
+    losPanelDark: LosPalette.panelDark,
+    losPanelLight: LosPalette.panelLight,
+    losText: LosPalette.text,
+    losTextMuted: LosPalette.textMuted,
+    losBorder: LosPalette.border,
+    losShadow: LosPalette.shadow,
+    xs: MeshRadii.xs,
+    sm: MeshRadii.sm,
+    md: MeshRadii.md,
+    lg: MeshRadii.lg,
+    xl: MeshRadii.xl,
+    pill: MeshRadii.pill,
+    monoCaptionSize: 11,
+    monoBodySize: 13,
+  );
+
   static MeshTokens of(BuildContext context) {
     return Theme.of(context).extension<MeshTokens>()!;
   }

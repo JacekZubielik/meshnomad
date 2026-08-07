@@ -230,3 +230,116 @@ const double _kLine3LightnessRatio = 1.655737704918033;
     ),
   );
 }
+
+// ── Light-variant layer derivers (pkt 17) ──────────────────────────────────
+// The dark constants above are directional (bg layers LIGHTEN the base); on a
+// light base (lightness ≈0.965) they clamp to white. These constants were
+// measured 2026-08-07 from the light ramp
+// lightBg → lightBg1 → lightBg2 → lightBg3 → lightBg4,
+// lightInk → lightInk2 → lightInk3 → lightInk4,
+// lightLine1 → lightLine2 → lightLine3,
+// the same way the dark ones were (bit-for-bit reproduction — see
+// test/theme/mesh_derived_light_test.dart). Accent derivers above stay shared
+// between brightnesses (dim = darken works on light accents too).
+
+const double _kBg1LightHueShift = -1.1368683772161603e-13;
+const double _kBg1LightSaturationRatio = 1.0588235294117656;
+const double _kBg1LightLightnessRatio = 0.967479674796748;
+const double _kBg2LightHueShift = -2.727272727272805;
+const double _kBg2LightSaturationRatio = 0.9339622641509433;
+const double _kBg2LightLightnessRatio = 0.928861788617886;
+const double _kBg3LightHueShift = -1.9999999999999716;
+const double _kBg3LightSaturationRatio = 0.9000000000000015;
+const double _kBg3LightLightnessRatio = 0.8841463414634146;
+const double _kBg4LightHueShift = 0.0;
+const double _kBg4LightSaturationRatio = 0.8437500000000012;
+const double _kBg4LightLightnessRatio = 0.8414634146341463;
+
+/// Light-variant `bg1..bg4` — layers get DARKER as they stack on a light base.
+({Color bg1, Color bg2, Color bg3, Color bg4}) deriveBgLayersLight(Color bg) {
+  return (
+    bg1: _deriveHsl(
+      bg,
+      hueShiftDegrees: _kBg1LightHueShift,
+      saturationRatio: _kBg1LightSaturationRatio,
+      lightnessRatio: _kBg1LightLightnessRatio,
+    ),
+    bg2: _deriveHsl(
+      bg,
+      hueShiftDegrees: _kBg2LightHueShift,
+      saturationRatio: _kBg2LightSaturationRatio,
+      lightnessRatio: _kBg2LightLightnessRatio,
+    ),
+    bg3: _deriveHsl(
+      bg,
+      hueShiftDegrees: _kBg3LightHueShift,
+      saturationRatio: _kBg3LightSaturationRatio,
+      lightnessRatio: _kBg3LightLightnessRatio,
+    ),
+    bg4: _deriveHsl(
+      bg,
+      hueShiftDegrees: _kBg4LightHueShift,
+      saturationRatio: _kBg4LightSaturationRatio,
+      lightnessRatio: _kBg4LightLightnessRatio,
+    ),
+  );
+}
+
+const double _kInk2LightHueShift = 1.4229249011858087;
+const double _kInk2LightSaturationRatio = 0.6287349014621744;
+const double _kInk2LightLightnessRatio = 3.325581395348837;
+const double _kInk3LightHueShift = -2.727272727272691;
+const double _kInk3LightSaturationRatio = 0.370689655172414;
+const double _kInk3LightLightnessRatio = 5.395348837209302;
+const double _kInk4LightHueShift = -4.772727272727366;
+const double _kInk4LightSaturationRatio = 0.23337856173677074;
+const double _kInk4LightLightnessRatio = 8.744186046511627;
+
+/// Light-variant `ink2..ink4` — secondary text gets LIGHTER on a light base.
+({Color ink2, Color ink3, Color ink4}) deriveInkLayersLight(Color ink) {
+  return (
+    ink2: _deriveHsl(
+      ink,
+      hueShiftDegrees: _kInk2LightHueShift,
+      saturationRatio: _kInk2LightSaturationRatio,
+      lightnessRatio: _kInk2LightLightnessRatio,
+    ),
+    ink3: _deriveHsl(
+      ink,
+      hueShiftDegrees: _kInk3LightHueShift,
+      saturationRatio: _kInk3LightSaturationRatio,
+      lightnessRatio: _kInk3LightLightnessRatio,
+    ),
+    ink4: _deriveHsl(
+      ink,
+      hueShiftDegrees: _kInk4LightHueShift,
+      saturationRatio: _kInk4LightSaturationRatio,
+      lightnessRatio: _kInk4LightLightnessRatio,
+    ),
+  );
+}
+
+const double _kLine2LightHueShift = -4.072398190045334;
+const double _kLine2LightSaturationRatio = 0.825242718446603;
+const double _kLine2LightLightnessRatio = 0.9146067415730338;
+const double _kLine3LightHueShift = -7.044534412955528;
+const double _kLine3LightSaturationRatio = 0.6934306569343068;
+const double _kLine3LightLightnessRatio = 0.8382022471910113;
+
+/// Light-variant `line2`/`line3` — dividers get DARKER on a light base.
+({Color line2, Color line3}) deriveLineLayersLight(Color line) {
+  return (
+    line2: _deriveHsl(
+      line,
+      hueShiftDegrees: _kLine2LightHueShift,
+      saturationRatio: _kLine2LightSaturationRatio,
+      lightnessRatio: _kLine2LightLightnessRatio,
+    ),
+    line3: _deriveHsl(
+      line,
+      hueShiftDegrees: _kLine3LightHueShift,
+      saturationRatio: _kLine3LightSaturationRatio,
+      lightnessRatio: _kLine3LightLightnessRatio,
+    ),
+  );
+}
