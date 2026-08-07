@@ -40,7 +40,7 @@ void main() {
 
   final overridden = buildCustomStyle(
     const CustomStyleOverrides(
-      colorOverrides: {'primary': 0xFFFF3B30, 'bg': 0xFF1A0033},
+      colorOverridesDark: {'primary': 0xFFFF3B30, 'bg': 0xFF1A0033},
       fontSizeOverrides: {'bodyMedium': 18.0, 'monoBodySize': 16.0},
     ),
   );

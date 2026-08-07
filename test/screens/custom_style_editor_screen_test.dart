@@ -121,7 +121,7 @@ void main() {
         settingsService
             .settings
             .customStyleOverrides
-            .colorOverrides['mapOnline'],
+            .colorOverridesDark['mapOnline'],
         isNull,
       );
 
@@ -142,7 +142,7 @@ void main() {
         settingsService
             .settings
             .customStyleOverrides
-            .colorOverrides['mapOnline'],
+            .colorOverridesDark['mapOnline'],
         const Color(0xFFEF4444).toARGB32(),
       );
     });
@@ -159,7 +159,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesDark['primary'],
         isNull,
       );
 
@@ -174,7 +177,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesDark['primary'],
         isNotNull,
       );
     });
@@ -199,7 +205,10 @@ void main() {
 
       expect(find.text('Enter a hex color like #RRGGBB'), findsOneWidget);
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesDark['primary'],
         isNull,
       );
     });
@@ -209,6 +218,7 @@ void main() {
       await settingsService.setCustomColorOverride(
         'primary',
         const Color(0xFF112233),
+        brightness: Brightness.dark,
       );
 
       await tester.pumpWidget(
@@ -225,7 +235,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesDark['primary'],
         isNull,
       );
       expect(find.byKey(const ValueKey('resetIcon_primary')), findsNothing);
@@ -236,6 +249,7 @@ void main() {
       await settingsService.setCustomColorOverride(
         'primary',
         const Color(0xFF112233),
+        brightness: Brightness.dark,
       );
       await settingsService.setCustomFontSizeOverride('bodyMedium', 20);
 
@@ -260,7 +274,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides,
+        settingsService.settings.customStyleOverrides.colorOverridesDark,
         isNotEmpty,
       );
 
@@ -268,7 +282,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides,
+        settingsService.settings.customStyleOverrides.colorOverridesDark,
         isEmpty,
       );
       expect(
@@ -283,6 +297,7 @@ void main() {
       await settingsService.setCustomColorOverride(
         'primary',
         const Color(0xFF112233),
+        brightness: Brightness.dark,
       );
 
       await tester.pumpWidget(
@@ -304,7 +319,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesDark['primary'],
         isNotNull,
       );
     });

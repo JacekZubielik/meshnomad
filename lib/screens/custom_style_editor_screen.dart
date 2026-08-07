@@ -567,7 +567,8 @@ class _ColorFieldRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final (label, subtitle) = _colorFieldText(l10n, spec.key);
-    final override = overrides.colorOverrides[spec.key];
+    // pkt 17 prompt 04: hardcoded dark until the brightness switch lands.
+    final override = overrides.colorOverridesFor(Brightness.dark)[spec.key];
     final currentColor = override != null ? Color(override) : spec.defaultColor;
     final scheme = Theme.of(context).colorScheme;
     return ListTile(
@@ -595,7 +596,10 @@ class _ColorFieldRow extends StatelessWidget {
               key: ValueKey('resetIcon_${spec.key}'),
               icon: const Icon(Icons.settings_backup_restore, size: 20),
               tooltip: l10n.styleEditor_resetTooltip,
-              onPressed: () => settingsService.resetCustomOverride(spec.key),
+              onPressed: () => settingsService.resetCustomColorOverride(
+                spec.key,
+                Brightness.dark,
+              ),
             ),
     );
   }
@@ -611,7 +615,11 @@ class _ColorFieldRow extends StatelessWidget {
         title: title,
         currentColor: currentColor,
         onColorSelected: (color) {
-          settingsService.setCustomColorOverride(spec.key, color);
+          settingsService.setCustomColorOverride(
+            spec.key,
+            color,
+            brightness: Brightness.dark,
+          );
           Navigator.of(sheetContext).pop();
         },
       ),
@@ -798,7 +806,8 @@ class _FontFieldRow extends StatelessWidget {
               key: ValueKey('resetIcon_${spec.key}'),
               icon: const Icon(Icons.settings_backup_restore, size: 20),
               tooltip: l10n.styleEditor_resetTooltip,
-              onPressed: () => settingsService.resetCustomOverride(spec.key),
+              onPressed: () =>
+                  settingsService.resetCustomFontSizeOverride(spec.key),
             ),
         ],
       ),

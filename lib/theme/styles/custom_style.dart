@@ -11,8 +11,11 @@ import 'default_style.dart';
 /// [defaultStyle]'s exact values. Absent keys, or keys with no known
 /// matching field, silently fall back to the default value — never throws.
 MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
+  // pkt 17 prompt 03: reads only the dark map for now — the two-pass build
+  // (dark from defaultTokens, light from defaultTokensLight) lands there.
   MeshTokens applyColorOverrides(MeshTokens base) {
-    int? colorFor(String key) => overrides.colorOverrides[key];
+    final colors = overrides.colorOverridesFor(Brightness.dark);
+    int? colorFor(String key) => colors[key];
     Color baseColorFor(String key, Color fallback) {
       final value = colorFor(key);
       return value != null ? Color(value) : fallback;

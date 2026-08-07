@@ -31,7 +31,7 @@ void main() {
 
     test('a present color override wins over the default', () {
       final style = buildCustomStyle(
-        const CustomStyleOverrides(colorOverrides: {'primary': 0xFF112233}),
+        const CustomStyleOverrides(colorOverridesDark: {'primary': 0xFF112233}),
       );
 
       final tokens = style.light.extension<MeshTokens>()!;
@@ -69,7 +69,7 @@ void main() {
       expect(
         () => buildCustomStyle(
           const CustomStyleOverrides(
-            colorOverrides: {'notARealField': 0xFF000000},
+            colorOverridesDark: {'notARealField': 0xFF000000},
             fontSizeOverrides: {'notARealRole': 99.0},
           ),
         ),
@@ -79,7 +79,7 @@ void main() {
 
     test('light and dark share the same token overrides', () {
       final style = buildCustomStyle(
-        const CustomStyleOverrides(colorOverrides: {'primary': 0xFF445566}),
+        const CustomStyleOverrides(colorOverridesDark: {'primary': 0xFF445566}),
       );
 
       expect(
@@ -98,7 +98,7 @@ void main() {
     test('overriding primary reshapes MeshTokens.primaryBg and '
         'ColorScheme.primary alike (C3)', () {
       final style = buildCustomStyle(
-        const CustomStyleOverrides(colorOverrides: {'primary': 0xFF00FF00}),
+        const CustomStyleOverrides(colorOverridesDark: {'primary': 0xFF00FF00}),
       );
 
       final tokens = style.dark.extension<MeshTokens>()!;
@@ -112,7 +112,7 @@ void main() {
     test('overriding bg also reshapes the surface layers used by '
         'ColorScheme.surfaceContainer*', () {
       final style = buildCustomStyle(
-        const CustomStyleOverrides(colorOverrides: {'bg': 0xFF1A0033}),
+        const CustomStyleOverrides(colorOverridesDark: {'bg': 0xFF1A0033}),
       );
 
       final tokens = style.dark.extension<MeshTokens>()!;
@@ -127,7 +127,7 @@ void main() {
         '(04-editor-ui.md)', () {
       final style = buildCustomStyle(
         const CustomStyleOverrides(
-          colorOverrides: {'mapOnline': 0xFF00FF00, 'losBeam': 0xFF123456},
+          colorOverridesDark: {'mapOnline': 0xFF00FF00, 'losBeam': 0xFF123456},
         ),
       );
 
