@@ -8,8 +8,8 @@ String normalizeUsbPortName(String portLabel) {
 
 /// Returns a human-readable name for a serial port label.
 ///
-/// The native flserial library encodes port info as a ` - `-separated string:
-///   `"<port> - <description> - <hardware_id>"`
+/// The native USB serial transport encodes port info as a ` - `-separated
+/// string: `"<port> - <description> - <hardware_id>"`
 ///
 /// This function extracts the *description* field (index 1) and discards the
 /// raw hardware_id, which is not user-friendly. If the description is missing

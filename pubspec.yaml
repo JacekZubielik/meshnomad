@@ -38,11 +38,16 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_blue_plus: ^2.1.0
-  # TODO: Switch to official flserial repo once changes are upstreamed
-  flserial:
-    git:
-      url: https://github.com/MeshEnvy/flserial.git
-      ref: 48216310061efc8d5d217cc18014fc2cb501646e
+  # Vendored fork of jpnurmi/flutter_libserialport 0.6.0, patched to fix an
+  # upstream libserialport bug: sp_new_config() never initializes
+  # config->xon_xoff, so a freshly-allocated SerialPortConfig can carry
+  # uninitialized heap garbage there and get rejected by sp_set_config()
+  # with a spurious "Invalid XON/XOFF setting" (EINVAL). Also hardens
+  # sp_open()/sp_free_port() to close the fd on open-time failures instead
+  # of leaking it (which otherwise permanently EBUSYs the port for the life
+  # of the process). See third_party/flutter_libserialport/.
+  flutter_libserialport:
+    path: third_party/flutter_libserialport
   provider: ^6.1.5+1
   shared_preferences: ^2.2.2
   uuid: ^4.3.3
