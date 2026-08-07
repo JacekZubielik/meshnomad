@@ -32,7 +32,9 @@ import 'utils/app_logger.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (kDebugMode) FlutterSkillBinding.ensureInitialized();
+  if (kDebugMode) {
+    FlutterSkillBinding.ensureInitialized(autoEnableIndicators: false);
+  }
 
   // On desktop, debugPrint is not suppressed in release builds and every
   // call is a synchronous stdout write. The connector logs heavily on hot
@@ -196,7 +198,6 @@ class MeshCoreApp extends StatelessWidget {
         builder: (context, settingsService, child) {
           return MaterialApp(
             title: 'MeshCore Open',
-            debugShowCheckedModeBanner: false,
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
