@@ -76,6 +76,8 @@ jobs:
         with:
           channel: "stable"
           cache: true
+      - name: Install macOS build deps
+        run: brew install automake libtool
       - run: flutter pub get
       - run: flutter build macos --release --no-pub
 
