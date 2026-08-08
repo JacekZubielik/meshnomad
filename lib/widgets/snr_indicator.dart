@@ -7,7 +7,10 @@ import '../connector/meshcore_protocol.dart';
 import '../helpers/path_helper.dart';
 import '../l10n/l10n.dart';
 import '../models/contact.dart';
+import '../screens/map_screen.dart';
 import '../theme/mesh_tokens.dart';
+import 'indicator_caption.dart';
+import 'mesh_info_dialog.dart';
 import 'mesh_ui.dart';
 import 'signal_ui.dart';
 
@@ -111,7 +114,7 @@ SNRUi snrUiFromSNR(BuildContext context, double? snr, int? spreadingFactor) {
 
   final snrLevels = getSNRfromSF(spreadingFactor);
 
-  String text = '${snr.toStringAsFixed(1)} dB';
+  String text = '${snr.toStringAsFixed(1)}dB';
   final tier = snr >= snrLevels[0]
       ? 0
       : snr >= snrLevels[1]
@@ -124,6 +127,110 @@ SNRUi snrUiFromSNR(BuildContext context, double? snr, int? spreadingFactor) {
   final signalUi = signalUiForStrengthTier(context, tier);
 
   return SNRUi(signalUi.icon, signalUi.color, text);
+}
+
+String _formatLastUpdated(DateTime lastSeen) {
+  final now = DateTime.now();
+  final diff = now.difference(lastSeen);
+  if (diff.isNegative) {
+    return "0s";
+  }
+  if (diff.inMinutes < 1) {
+    return "${diff.inSeconds}s";
+  }
+  if (diff.inMinutes < 60) {
+    return "${diff.inMinutes}m";
+  }
+  if (diff.inHours < 24) {
+    final hours = diff.inHours;
+    return "${hours}h";
+  }
+  final days = diff.inDays;
+  return "${days}d";
+}
+
+class NearbyRepeaterTile extends StatelessWidget {
+  final DirectRepeater repeater;
+  final Contact? contact;
+
+  const NearbyRepeaterTile({super.key, required this.repeater, this.contact});
+
+  @override
+  Widget build(BuildContext context) {
+    final contact = this.contact;
+    final name = contact?.name;
+    final prefixLabel = PathHelper.formatHopHex(repeater.pubkeyPrefix);
+    final snrColor = MeshTokens.of(
+      context,
+    ).snrColor(repeater.snr, blocked: false);
+    final latitude = contact?.latitude;
+    final longitude = contact?.longitude;
+    final hasLocation =
+        (contact?.hasLocation ?? false) &&
+        latitude != null &&
+        longitude != null;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          AvatarCircle(name: name ?? prefixLabel, size: 36, color: snrColor),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        name ?? prefixLabel,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (contact != null) ...[
+                      const SizedBox(width: 6),
+                      RouteChip(
+                        isDirect: contact.pathLength >= 0,
+                        hops: contact.pathLength,
+                      ),
+                    ],
+                  ],
+                ),
+                Text(
+                  '$prefixLabel • ${repeater.snr.toStringAsFixed(1)} dB • ${_formatLastUpdated(repeater.lastUpdated)}',
+                  style: MeshTokens.of(context).monoCaption(color: snrColor),
+                ),
+                if (hasLocation)
+                  Text(
+                    '${latitude.toStringAsFixed(5)}, ${longitude.toStringAsFixed(5)}',
+                    style: MeshTokens.of(context).monoCaption(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (hasLocation)
+            IconButton(
+              icon: const Icon(Icons.map_outlined),
+              tooltip: context.l10n.map_centerOnNode,
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => MapScreen(
+                    highlightPosition: LatLng(latitude, longitude),
+                    highlightLabel: name ?? prefixLabel,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class SNRIndicator extends StatefulWidget {
@@ -173,22 +280,8 @@ class _SNRIndicatorState extends State<SNRIndicator> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(snrUi.icon, size: 18, color: snrUi.color),
-              Text(
-                snrUi.text,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: snrUi.color),
-              ),
-              if (directRepeater != null)
-                Text(
-                  '${directRepeaters.length}: ${directRepeater.pubkeyPrefixHex}: ${_formatLastUpdated(directRepeater.lastUpdated)}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+              const SizedBox(height: 2),
+              IndicatorCaption(snrUi.text),
             ],
           ),
         ),
@@ -196,116 +289,42 @@ class _SNRIndicatorState extends State<SNRIndicator> {
     );
   }
 
-  String _formatLastUpdated(DateTime lastSeen) {
-    final now = DateTime.now();
-    final diff = now.difference(lastSeen);
-    if (diff.isNegative) {
-      return "0s";
-    }
-    if (diff.inMinutes < 1) {
-      return "${diff.inSeconds}s";
-    }
-    if (diff.inMinutes < 60) {
-      return "${diff.inMinutes}m";
-    }
-    if (diff.inHours < 24) {
-      final hours = diff.inHours;
-      return "${hours}h";
-    }
-    final days = diff.inDays;
-    return "${days}d";
-  }
-
   void _showFullPathDialog(
     BuildContext context,
     List<DirectRepeater> directBestRepeaters,
   ) {
-    final l10n = context.l10n;
+    final allContacts = widget.connector.allContacts;
+    final selfLat = widget.connector.selfLatitude;
+    final selfLon = widget.connector.selfLongitude;
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.snrIndicator_nearByRepeaters),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Scrollbar(
-            child: ListView.separated(
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              itemCount: directBestRepeaters.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final repeater = directBestRepeaters[index];
-                final allContacts = widget.connector.allContacts;
+    LatLng? selfPoint;
+    if (selfLat != null &&
+        selfLon != null &&
+        _isValidSelfLocation(selfLat, selfLon)) {
+      selfPoint = LatLng(selfLat, selfLon);
+    }
 
-                final selfLat = widget.connector.selfLatitude;
-                final selfLon = widget.connector.selfLongitude;
-
-                LatLng? selfPoint;
-                if (selfLat != null &&
-                    selfLon != null &&
-                    _isValidSelfLocation(selfLat, selfLon)) {
-                  selfPoint = LatLng(selfLat, selfLon);
-                }
-
-                final contact = _getRepeaterPrefixMatchNearLocation(
-                  allContacts,
-                  repeater.pubkeyPrefix,
-                  contactKeyHex: repeater.contactKeyHex,
-                  searchPoint: selfPoint,
-                  preferFavorites: true,
-                );
-
-                final name = contact?.name;
-                final prefixLabel = PathHelper.formatHopHex(
-                  repeater.pubkeyPrefix,
-                );
-                final snrColor = MeshTokens.of(
-                  context,
-                ).snrColor(repeater.snr, blocked: false);
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  child: Row(
-                    children: [
-                      AvatarCircle(
-                        name: name ?? prefixLabel,
-                        size: 36,
-                        color: snrColor,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              name ?? prefixLabel,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            Text(
-                              '${repeater.snr.toStringAsFixed(1)} dB • ${_formatLastUpdated(repeater.lastUpdated)}',
-                              style: MeshTokens.of(
-                                context,
-                              ).monoCaption(color: snrColor),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+    showMeshInfoDialog<void>(
+      context,
+      title:
+          '${context.l10n.snrIndicator_nearByRepeaters} '
+          '(${directBestRepeaters.length})',
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final (index, repeater) in directBestRepeaters.indexed) ...[
+            if (index > 0) const Divider(height: 1),
+            NearbyRepeaterTile(
+              repeater: repeater,
+              contact: _getRepeaterPrefixMatchNearLocation(
+                allContacts,
+                repeater.pubkeyPrefix,
+                contactKeyHex: repeater.contactKeyHex,
+                searchPoint: selfPoint,
+                preferFavorites: true,
+              ),
             ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.common_close),
-          ),
+          ],
         ],
       ),
     );

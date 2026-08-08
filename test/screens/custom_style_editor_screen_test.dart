@@ -12,13 +12,17 @@ import 'package:meshcore_open/services/translation_service.dart';
 import 'package:meshcore_open/storage/prefs_manager.dart';
 import 'package:meshcore_open/theme/styles/style_registry.dart';
 
-Widget _wrap(Widget child, {required AppSettingsService settingsService}) {
+Widget _wrap(
+  Widget child, {
+  required AppSettingsService settingsService,
+  ThemeData? theme,
+}) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<AppSettingsService>.value(value: settingsService),
     ],
     child: MaterialApp(
-      theme: StyleRegistry.byId('default').light,
+      theme: theme ?? StyleRegistry.byId('default').light,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: child,
@@ -59,8 +63,13 @@ void main() {
       expect(find.text('Primary accent'), findsOneWidget);
 
       // The font sizes section sits below the fold — scroll the ListView to
-      // build it into the tree before asserting on it.
-      await tester.scrollUntilVisible(find.text('FONT SIZES'), 300);
+      // build it into the tree before asserting on it. Scrolling straight to
+      // the row (not just the section header) avoids relying on how close
+      // the header happens to sit to it.
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('fontRow_bodyMedium')),
+        300,
+      );
       expect(find.text('FONT SIZES'), findsOneWidget);
       expect(find.byKey(const ValueKey('fontRow_bodyMedium')), findsOneWidget);
 
@@ -121,7 +130,7 @@ void main() {
         settingsService
             .settings
             .customStyleOverrides
-            .colorOverrides['mapOnline'],
+            .colorOverridesLight['mapOnline'],
         isNull,
       );
 
@@ -142,7 +151,7 @@ void main() {
         settingsService
             .settings
             .customStyleOverrides
-            .colorOverrides['mapOnline'],
+            .colorOverridesLight['mapOnline'],
         const Color(0xFFEF4444).toARGB32(),
       );
     });
@@ -159,7 +168,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesLight['primary'],
         isNull,
       );
 
@@ -174,7 +186,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesLight['primary'],
         isNotNull,
       );
     });
@@ -199,18 +214,18 @@ void main() {
 
       expect(find.text('Enter a hex color like #RRGGBB'), findsOneWidget);
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesDark['primary'],
         isNull,
       );
     });
 
-    testWidgets('reset icon appears after a change and clears the single '
-        'override, then disappears', (tester) async {
-      await settingsService.setCustomColorOverride(
-        'primary',
-        const Color(0xFF112233),
-      );
-
+    testWidgets('reset icon is disabled by default, becomes enabled after a '
+        'change, clears the override, then disables again (pkt 2)', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           const CustomStyleEditorScreen(),
@@ -219,16 +234,33 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final resetIcon = find.byKey(const ValueKey('resetIcon_primary'));
-      expect(resetIcon, findsOneWidget);
-      await tester.tap(resetIcon);
+      // No override yet — the icon is present but disabled, not hidden.
+      IconButton resetIcon() => tester.widget<IconButton>(
+        find.byKey(const ValueKey('resetIcon_primary')),
+      );
+      expect(resetIcon().onPressed, isNull);
+
+      // _wrap renders under a light theme, so the editor seeds its
+      // brightness switch to Light — the override lands there too.
+      await settingsService.setCustomColorOverride(
+        'primary',
+        const Color(0xFF112233),
+        brightness: Brightness.light,
+      );
+      await tester.pumpAndSettle();
+      expect(resetIcon().onPressed, isNotNull);
+
+      await tester.tap(find.byKey(const ValueKey('resetIcon_primary')));
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesLight['primary'],
         isNull,
       );
-      expect(find.byKey(const ValueKey('resetIcon_primary')), findsNothing);
+      expect(resetIcon().onPressed, isNull);
     });
 
     testWidgets('reset all requires confirmation and then clears every '
@@ -236,6 +268,7 @@ void main() {
       await settingsService.setCustomColorOverride(
         'primary',
         const Color(0xFF112233),
+        brightness: Brightness.dark,
       );
       await settingsService.setCustomFontSizeOverride('bodyMedium', 20);
 
@@ -260,7 +293,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides,
+        settingsService.settings.customStyleOverrides.colorOverridesDark,
         isNotEmpty,
       );
 
@@ -268,7 +301,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides,
+        settingsService.settings.customStyleOverrides.colorOverridesDark,
         isEmpty,
       );
       expect(
@@ -283,6 +316,7 @@ void main() {
       await settingsService.setCustomColorOverride(
         'primary',
         const Color(0xFF112233),
+        brightness: Brightness.dark,
       );
 
       await tester.pumpWidget(
@@ -304,8 +338,129 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverrides['primary'],
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesDark['primary'],
         isNotNull,
+      );
+    });
+  });
+
+  group('CustomStyleEditorScreen brightness switch (pkt 17)', () {
+    testWidgets('seeds the switch from the current theme — dark theme '
+        'starts on the Dark segment and edits colorOverridesDark', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          const CustomStyleEditorScreen(),
+          settingsService: settingsService,
+          theme: StyleRegistry.byId('default').dark,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Primary accent'));
+      await tester.pumpAndSettle();
+      final swatch = find.byKey(
+        ValueKey('swatch_${const Color(0xFFEF4444).toARGB32()}'),
+      );
+      await tester.tap(swatch);
+      await tester.pumpAndSettle();
+
+      expect(
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesDark['primary'],
+        const Color(0xFFEF4444).toARGB32(),
+      );
+      expect(
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesLight['primary'],
+        isNull,
+      );
+    });
+
+    testWidgets('tapping Light switches editing to colorOverridesLight, '
+        'leaving colorOverridesDark untouched', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const CustomStyleEditorScreen(),
+          settingsService: settingsService,
+          theme: StyleRegistry.byId('default').dark,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Light'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Primary accent'));
+      await tester.pumpAndSettle();
+      final swatch = find.byKey(
+        ValueKey('swatch_${const Color(0xFFEF4444).toARGB32()}'),
+      );
+      await tester.tap(swatch);
+      await tester.pumpAndSettle();
+
+      expect(
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesLight['primary'],
+        const Color(0xFFEF4444).toARGB32(),
+      );
+      expect(
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesDark['primary'],
+        isNull,
+      );
+    });
+
+    testWidgets('reset icon clears only the override for the currently '
+        'selected brightness', (tester) async {
+      await settingsService.setCustomColorOverride(
+        'primary',
+        const Color(0xFF112233),
+        brightness: Brightness.dark,
+      );
+      await settingsService.setCustomColorOverride(
+        'primary',
+        const Color(0xFF445566),
+        brightness: Brightness.light,
+      );
+
+      await tester.pumpWidget(
+        _wrap(
+          const CustomStyleEditorScreen(),
+          settingsService: settingsService,
+          theme: StyleRegistry.byId('default').dark,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const ValueKey('resetIcon_primary')));
+      await tester.pumpAndSettle();
+
+      expect(
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesDark['primary'],
+        isNull,
+      );
+      expect(
+        settingsService
+            .settings
+            .customStyleOverrides
+            .colorOverridesLight['primary'],
+        const Color(0xFF445566).toARGB32(),
       );
     });
   });

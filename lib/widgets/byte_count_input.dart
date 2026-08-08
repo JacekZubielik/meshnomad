@@ -118,9 +118,10 @@ class ByteCountedTextField extends StatelessWidget {
               textInputAction: textInputAction,
               onSubmitted: onSubmitted,
             ),
-            Opacity(
-              opacity: showCounter ? 1 : 0,
-              child: Padding(
+            // No reserved space while hidden — an invisible counter used to
+            // push the field ~10 px above the row's center line.
+            if (showCounter)
+              Padding(
                 padding: const EdgeInsets.only(top: 4, right: 4),
                 child: Align(
                   alignment: Alignment.centerRight,
@@ -132,7 +133,6 @@ class ByteCountedTextField extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
           ],
         );
       },

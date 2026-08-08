@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Color;
+import 'package:flutter/material.dart' show Brightness, Color;
 import '../models/app_settings.dart';
 import '../models/custom_style_overrides.dart';
 import '../models/translation_support.dart';
@@ -179,6 +179,12 @@ class AppSettingsService extends ChangeNotifier {
     }
   }
 
+  Future<void> setTxDutyCyclePercent(int value) async {
+    await updateSettings(
+      _settings.copyWith(txDutyCyclePercent: value.clamp(1, 100)),
+    );
+  }
+
   Future<void> setAutoRouteRotationEnabled(bool value) async {
     await updateSettings(_settings.copyWith(autoRouteRotationEnabled: value));
   }
@@ -215,15 +221,20 @@ class AppSettingsService extends ChangeNotifier {
     await updateSettings(_settings.copyWith(styleId: value));
   }
 
-  Future<void> setCustomColorOverride(String key, Color value) async {
+  Future<void> setCustomColorOverride(
+    String key,
+    Color value, {
+    required Brightness brightness,
+  }) async {
+    final overrides = _settings.customStyleOverrides;
     final colors = Map<String, int>.from(
-      _settings.customStyleOverrides.colorOverrides,
+      overrides.colorOverridesFor(brightness),
     )..[key] = value.toARGB32();
     await updateSettings(
       _settings.copyWith(
-        customStyleOverrides: _settings.customStyleOverrides.copyWith(
-          colorOverrides: colors,
-        ),
+        customStyleOverrides: brightness == Brightness.light
+            ? overrides.copyWith(colorOverridesLight: colors)
+            : overrides.copyWith(colorOverridesDark: colors),
       ),
     );
   }
@@ -241,17 +252,30 @@ class AppSettingsService extends ChangeNotifier {
     );
   }
 
-  Future<void> resetCustomOverride(String key) async {
+  Future<void> resetCustomColorOverride(
+    String key,
+    Brightness brightness,
+  ) async {
+    final overrides = _settings.customStyleOverrides;
     final colors = Map<String, int>.from(
-      _settings.customStyleOverrides.colorOverrides,
+      overrides.colorOverridesFor(brightness),
     )..remove(key);
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: brightness == Brightness.light
+            ? overrides.copyWith(colorOverridesLight: colors)
+            : overrides.copyWith(colorOverridesDark: colors),
+      ),
+    );
+  }
+
+  Future<void> resetCustomFontSizeOverride(String key) async {
     final fontSizes = Map<String, double>.from(
       _settings.customStyleOverrides.fontSizeOverrides,
     )..remove(key);
     await updateSettings(
       _settings.copyWith(
         customStyleOverrides: _settings.customStyleOverrides.copyWith(
-          colorOverrides: colors,
           fontSizeOverrides: fontSizes,
         ),
       ),

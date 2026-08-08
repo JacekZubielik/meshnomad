@@ -25,7 +25,6 @@ import '../widgets/empty_state.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/qr_code_display.dart';
 import '../widgets/quick_switch_bar.dart';
-import '../widgets/sync_progress_overlay.dart';
 import '../widgets/unread_badge.dart';
 import '../helpers/gif_helper.dart';
 import '../helpers/snack_bar_builder.dart';
@@ -118,57 +117,48 @@ class _ChannelsScreenState extends State<ChannelsScreen>
     return PopScope(
       canPop: allowBack,
       child: Scaffold(
-        appBar: AppBar(
-          title: AppBarTitle(context.l10n.channels_title),
-          centerTitle: true,
-          automaticallyImplyLeading: false,
-          bottom: const SyncProgressAppBarBottom(),
-          actions: [
-            PopupMenuButton(
-              // onTap handlers run after the menu route pops, so they must
-              // capture the screen's context — not the itemBuilder's menu
-              // context, which is deactivated by then.
-              itemBuilder: (menuContext) => [
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.logout,
-                        color: Theme.of(menuContext).colorScheme.error,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(menuContext.l10n.common_disconnect),
-                    ],
+        appBar: meshMainAppBar(
+          context,
+          title: context.l10n.channels_title,
+          // onTap handlers run after the menu route pops, so they must
+          // capture the screen's context — not the itemBuilder's menu
+          // context, which is deactivated by then.
+          menuItemBuilder: (menuContext) => [
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.logout,
+                    color: Theme.of(menuContext).colorScheme.error,
                   ),
-                  onTap: () => _disconnect(context),
-                ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.groups),
-                      const SizedBox(width: 8),
-                      Text(menuContext.l10n.community_manageCommunities),
-                    ],
-                  ),
-                  onTap: () => _showManageCommunitiesDialog(context),
-                ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.settings),
-                      const SizedBox(width: 8),
-                      Text(menuContext.l10n.settings_title),
-                    ],
-                  ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  ),
-                ),
-              ],
-              icon: const Icon(Icons.more_vert),
+                  const SizedBox(width: 8),
+                  Text(menuContext.l10n.common_disconnect),
+                ],
+              ),
+              onTap: () => _disconnect(context),
+            ),
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.groups),
+                  const SizedBox(width: 8),
+                  Text(menuContext.l10n.community_manageCommunities),
+                ],
+              ),
+              onTap: () => _showManageCommunitiesDialog(context),
+            ),
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.settings),
+                  const SizedBox(width: 8),
+                  Text(menuContext.l10n.settings_title),
+                ],
+              ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              ),
             ),
           ],
         ),
@@ -582,7 +572,18 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       ),
                       const SizedBox(width: 4),
                     ],
-                    if (unreadCount > 0) UnreadBadge(count: unreadCount),
+                    if (unreadCount > 0)
+                      UnreadBadge(count: unreadCount)
+                    else
+                      // Reserve the badge's footprint so a new unread count
+                      // never changes the tile height.
+                      const Visibility(
+                        visible: false,
+                        maintainSize: true,
+                        maintainAnimation: true,
+                        maintainState: true,
+                        child: UnreadBadge(count: 0),
+                      ),
                   ],
                 ),
               ],

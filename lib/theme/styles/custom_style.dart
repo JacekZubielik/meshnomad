@@ -11,8 +11,15 @@ import 'default_style.dart';
 /// [defaultStyle]'s exact values. Absent keys, or keys with no known
 /// matching field, silently fall back to the default value — never throws.
 MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
-  MeshTokens applyColorOverrides(MeshTokens base) {
-    int? colorFor(String key) => overrides.colorOverrides[key];
+  // Two-pass build (pkt 17): dark reads defaultTokens + the dark HSL automat
+  // (layers lighten off a dark base), light reads defaultTokensLight + the
+  // light automat (layers darken off a light base, see mesh_derived.dart).
+  // Accent derivers (primary/secondary/warn/alert/signal) stay shared — "dim"
+  // darkens either way and works on light accents too.
+  MeshTokens applyColorOverrides(MeshTokens base, Brightness brightness) {
+    final colors = overrides.colorOverridesFor(brightness);
+    final isLight = brightness == Brightness.light;
+    int? colorFor(String key) => colors[key];
     Color baseColorFor(String key, Color fallback) {
       final value = colorFor(key);
       return value != null ? Color(value) : fallback;
@@ -32,9 +39,13 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     final me = baseColorFor('me', base.me);
     final meInk = baseColorFor('meInk', base.meInk);
 
-    final bgLayers = deriveBgLayers(bg);
-    final inkLayers = deriveInkLayers(ink);
-    final lineLayers = deriveLineLayers(line);
+    final bgLayers = isLight ? deriveBgLayersLight(bg) : deriveBgLayers(bg);
+    final inkLayers = isLight
+        ? deriveInkLayersLight(ink)
+        : deriveInkLayers(ink);
+    final lineLayers = isLight
+        ? deriveLineLayersLight(line)
+        : deriveLineLayers(line);
     final primaryVariants = derivePrimaryVariants(primary);
     final secondaryVariants = deriveSecondaryVariants(secondary);
     final warnVariants = deriveWarnVariants(warn);
@@ -298,30 +309,36 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     return applyChromeFontSizes(withScheme);
   }
 
-  // MeshTokens.defaultTokens is shared between light/dark (see comment on
-  // that field) — still true after 01-font-role-infra.md, so one override
-  // pass covers both brightness variants.
-  final tokens = applyColorOverrides(MeshTokens.defaultTokens).copyWith(
-    monoCaptionSize: monoCaptionSizeFor(MeshTokens.defaultTokens),
-    monoBodySize: monoBodySizeFor(MeshTokens.defaultTokens),
-  );
+  final darkTokens =
+      applyColorOverrides(MeshTokens.defaultTokens, Brightness.dark).copyWith(
+        monoCaptionSize: monoCaptionSizeFor(MeshTokens.defaultTokens),
+        monoBodySize: monoBodySizeFor(MeshTokens.defaultTokens),
+      );
+  final lightTokens =
+      applyColorOverrides(
+        MeshTokens.defaultTokensLight,
+        Brightness.light,
+      ).copyWith(
+        monoCaptionSize: monoCaptionSizeFor(MeshTokens.defaultTokensLight),
+        monoBodySize: monoBodySizeFor(MeshTokens.defaultTokensLight),
+      );
 
   return MeshStyle(
     id: 'custom',
     displayName: 'Custom',
     light: applyColorSchemeAndChrome(
       defaultStyle.light.copyWith(
-        extensions: [tokens],
+        extensions: [lightTokens],
         textTheme: applyFontSizeOverrides(defaultStyle.light.textTheme),
       ),
-      tokens,
+      lightTokens,
     ),
     dark: applyColorSchemeAndChrome(
       defaultStyle.dark.copyWith(
-        extensions: [tokens],
+        extensions: [darkTokens],
         textTheme: applyFontSizeOverrides(defaultStyle.dark.textTheme),
       ),
-      tokens,
+      darkTokens,
     ),
   );
 }

@@ -683,10 +683,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_theme => 'Motyw';
 
   @override
-  String get appSettings_themeSystem => 'Domyślne ustawienia systemu';
+  String get appSettings_themeSystem => 'System';
 
   @override
-  String get appSettings_themeLight => 'Jasne';
+  String get appSettings_themeLight => 'Jasny';
 
   @override
   String get appSettings_themeDark => 'Ciemny';
@@ -4368,6 +4368,39 @@ class AppLocalizationsPl extends AppLocalizations {
   String get snrIndicator_nearByRepeaters => 'Pobliskie przekaźniki';
 
   @override
+  String get indicator_batteryTitle => 'Bateria';
+
+  @override
+  String get indicator_chargeLabel => 'Naładowanie';
+
+  @override
+  String get indicator_voltageLabel => 'Napięcie';
+
+  @override
+  String get indicator_connectionTitle => 'Połączenie';
+
+  @override
+  String get indicator_deviceLabel => 'Urządzenie';
+
+  @override
+  String get indicator_macLabel => 'MAC';
+
+  @override
+  String get indicator_rssiLabel => 'RSSI';
+
+  @override
+  String get indicator_portLabel => 'Port';
+
+  @override
+  String get indicator_baudLabel => 'Prędkość (baud)';
+
+  @override
+  String get indicator_endpointLabel => 'Adres';
+
+  @override
+  String get indicator_rangeSession => 'Sesja';
+
+  @override
   String get snrIndicator_lastSeen => 'Ostatnio widziany';
 
   @override
@@ -4514,6 +4547,27 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get radioStats_chartCaption =>
       'Poziom szumów (dBm) w ostatnich próbkach.';
+
+  @override
+  String get radioStats_bandChartCaption => 'Margines RSSI nad szumem + SNR';
+
+  @override
+  String get radioStats_seriesNoise => 'Szum';
+
+  @override
+  String radioStats_txWindow(int used, int limit) {
+    return 'TX (okno 1 h): $used/$limit s';
+  }
+
+  @override
+  String radioStats_txWindowPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String radioStats_txLimitCaption(int percent, int total) {
+    return 'limit: duty cycle $percent% (ETSI) · TX całkowity: $total s';
+  }
 
   @override
   String radioStats_stripNoise(int noiseDbm) {
@@ -4826,6 +4880,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_title => 'Styl niestandardowy';
 
   @override
+  String get styleEditor_brightnessLight => 'Jasny';
+
+  @override
+  String get styleEditor_brightnessDark => 'Ciemny';
+
+  @override
   String get styleEditor_colorsSection => 'Kolory';
 
   @override
@@ -4853,6 +4913,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get styleEditor_hexError => 'Wpisz kolor hex w formacie #RRGGBB';
+
+  @override
+  String get styleEditor_tintLabel => 'Jasność';
+
+  @override
+  String get styleEditor_hexExamplesCaption => 'Przykłady';
 
   @override
   String get styleEditor_mapSection => 'Mapa';

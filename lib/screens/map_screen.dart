@@ -25,7 +25,6 @@ import '../utils/contact_search.dart';
 import '../utils/battery_utils.dart';
 import '../utils/route_transitions.dart';
 import '../widgets/quick_switch_bar.dart';
-import '../widgets/sync_progress_overlay.dart';
 import '../icons/los_icon.dart';
 import 'channels_screen.dart';
 import 'chat_screen.dart';
@@ -619,110 +618,100 @@ class _MapScreenState extends State<MapScreen> {
         return PopScope(
           canPop: allowBack,
           child: Scaffold(
-            appBar: AppBar(
+            appBar: meshMainAppBar(
+              context,
+              title: context.l10n.map_title,
               backgroundColor: scheme.surface,
               foregroundColor: scheme.onSurface,
-              title: AppBarTitle(context.l10n.map_title),
-              centerTitle: true,
-              automaticallyImplyLeading: false,
-              bottom: const SyncProgressAppBarBottom(),
-              actions: [
-                PopupMenuButton(
-                  itemBuilder: (context) => [
-                    if (!_isBuildingPathTrace &&
-                        connector.selfLatitude != null &&
-                        connector.selfLongitude != null)
-                      PopupMenuItem(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.radar),
-                            const SizedBox(width: 8),
-                            Text(context.l10n.contacts_pathTrace),
-                          ],
-                        ),
-                        onTap: () => _startPath(
-                          LatLng(
-                            connector.selfLatitude!,
-                            connector.selfLongitude!,
-                          ),
-                        ),
-                      ),
-                    if (!_isBuildingPathTrace)
-                      PopupMenuItem(
-                        child: Row(
-                          children: [
-                            const LosIcon(),
-                            const SizedBox(width: 8),
-                            Text(context.l10n.map_lineOfSight),
-                          ],
-                        ),
-                        onTap: () {
-                          final candidates = <LineOfSightEndpoint>[];
-                          if (connector.selfLatitude != null &&
-                              connector.selfLongitude != null) {
-                            candidates.add(
-                              LineOfSightEndpoint(
-                                label: context.l10n.pathTrace_you,
-                                point: LatLng(
-                                  connector.selfLatitude!,
-                                  connector.selfLongitude!,
-                                ),
-                                color: MeshTokens.of(context).mapSelected,
-                                icon: Icons.person_pin_circle,
-                              ),
-                            );
-                          }
-                          for (final c in contactsWithLocation) {
-                            candidates.add(
-                              LineOfSightEndpoint(
-                                label: c.name,
-                                point: LatLng(c.latitude!, c.longitude!),
-                                color: _getNodeColor(c.type),
-                                icon: _getNodeIcon(c.type),
-                              ),
-                            );
-                          }
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LineOfSightMapScreen(
-                                title: context.l10n.map_losScreenTitle,
-                                candidates: candidates,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    PopupMenuItem(
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.logout,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(context.l10n.common_disconnect),
-                        ],
-                      ),
-                      onTap: () => _disconnect(context, connector),
+              menuItemBuilder: (context) => [
+                if (!_isBuildingPathTrace &&
+                    connector.selfLatitude != null &&
+                    connector.selfLongitude != null)
+                  PopupMenuItem(
+                    child: Row(
+                      children: [
+                        const Icon(Icons.radar),
+                        const SizedBox(width: 8),
+                        Text(context.l10n.contacts_pathTrace),
+                      ],
                     ),
-                    PopupMenuItem(
-                      child: Row(
-                        children: [
-                          const Icon(Icons.settings),
-                          const SizedBox(width: 8),
-                          Text(context.l10n.settings_title),
-                        ],
-                      ),
-                      onTap: () => Navigator.push(
+                    onTap: () => _startPath(
+                      LatLng(connector.selfLatitude!, connector.selfLongitude!),
+                    ),
+                  ),
+                if (!_isBuildingPathTrace)
+                  PopupMenuItem(
+                    child: Row(
+                      children: [
+                        const LosIcon(),
+                        const SizedBox(width: 8),
+                        Text(context.l10n.map_lineOfSight),
+                      ],
+                    ),
+                    onTap: () {
+                      final candidates = <LineOfSightEndpoint>[];
+                      if (connector.selfLatitude != null &&
+                          connector.selfLongitude != null) {
+                        candidates.add(
+                          LineOfSightEndpoint(
+                            label: context.l10n.pathTrace_you,
+                            point: LatLng(
+                              connector.selfLatitude!,
+                              connector.selfLongitude!,
+                            ),
+                            color: MeshTokens.of(context).mapSelected,
+                            icon: Icons.person_pin_circle,
+                          ),
+                        );
+                      }
+                      for (final c in contactsWithLocation) {
+                        candidates.add(
+                          LineOfSightEndpoint(
+                            label: c.name,
+                            point: LatLng(c.latitude!, c.longitude!),
+                            color: _getNodeColor(c.type),
+                            icon: _getNodeIcon(c.type),
+                          ),
+                        );
+                      }
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SettingsScreen(),
+                          builder: (context) => LineOfSightMapScreen(
+                            title: context.l10n.map_losScreenTitle,
+                            candidates: candidates,
+                          ),
                         ),
+                      );
+                    },
+                  ),
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.logout,
+                        color: Theme.of(context).colorScheme.error,
                       ),
+                      const SizedBox(width: 8),
+                      Text(context.l10n.common_disconnect),
+                    ],
+                  ),
+                  onTap: () => _disconnect(context, connector),
+                ),
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.settings),
+                      const SizedBox(width: 8),
+                      Text(context.l10n.settings_title),
+                    ],
+                  ),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
                     ),
-                  ],
-                  icon: const Icon(Icons.more_vert),
+                  ),
                 ),
               ],
             ),

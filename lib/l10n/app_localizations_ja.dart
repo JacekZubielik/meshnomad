@@ -4131,6 +4131,39 @@ class AppLocalizationsJa extends AppLocalizations {
   String get snrIndicator_nearByRepeaters => '近くのリピータ';
 
   @override
+  String get indicator_batteryTitle => 'Battery';
+
+  @override
+  String get indicator_chargeLabel => 'Charge';
+
+  @override
+  String get indicator_voltageLabel => 'Voltage';
+
+  @override
+  String get indicator_connectionTitle => 'Connection';
+
+  @override
+  String get indicator_deviceLabel => 'Device';
+
+  @override
+  String get indicator_macLabel => 'MAC';
+
+  @override
+  String get indicator_rssiLabel => 'RSSI';
+
+  @override
+  String get indicator_portLabel => 'Port';
+
+  @override
+  String get indicator_baudLabel => 'Baud rate';
+
+  @override
+  String get indicator_endpointLabel => 'Endpoint';
+
+  @override
+  String get indicator_rangeSession => 'Session';
+
+  @override
   String get snrIndicator_lastSeen => '最後に確認された場所';
 
   @override
@@ -4267,6 +4300,27 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get radioStats_chartCaption => '最近のサンプルのノイズレベル（dBm）。';
+
+  @override
+  String get radioStats_bandChartCaption => 'Signal margin over noise + SNR';
+
+  @override
+  String get radioStats_seriesNoise => 'Noise';
+
+  @override
+  String radioStats_txWindow(int used, int limit) {
+    return 'TX (1 h window): $used/$limit s';
+  }
+
+  @override
+  String radioStats_txWindowPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String radioStats_txLimitCaption(int percent, int total) {
+    return 'limit: duty cycle $percent% (ETSI) · TX total: $total s';
+  }
 
   @override
   String radioStats_stripNoise(int noiseDbm) {
@@ -4565,6 +4619,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get styleEditor_title => 'Custom style';
 
   @override
+  String get styleEditor_brightnessLight => 'Light';
+
+  @override
+  String get styleEditor_brightnessDark => 'Dark';
+
+  @override
   String get styleEditor_colorsSection => 'Colors';
 
   @override
@@ -4592,6 +4652,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get styleEditor_hexError => 'Enter a hex color like #RRGGBB';
+
+  @override
+  String get styleEditor_tintLabel => 'Lightness';
+
+  @override
+  String get styleEditor_hexExamplesCaption => 'Examples';
 
   @override
   String get styleEditor_mapSection => 'Map';

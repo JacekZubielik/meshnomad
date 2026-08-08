@@ -7,15 +7,17 @@ import 'package:meshcore_open/l10n/l10n.dart';
 import 'package:meshcore_open/screens/companion_radio_stats_screen.dart';
 import 'package:provider/provider.dart';
 
-import '../theme/mesh_tokens.dart';
+import 'indicator_caption.dart';
+import 'mesh_info_dialog.dart';
 import 'mesh_ui.dart';
 
 void pushCompanionRadioStatsScreen(BuildContext context) {
-  Navigator.push(
+  // Radio stats open as the shared info popup (MeshInfoDialog pattern),
+  // not as a full-screen route.
+  showMeshInfoDialog<void>(
     context,
-    MaterialPageRoute<void>(
-      builder: (context) => const CompanionRadioStatsScreen(),
-    ),
+    title: context.l10n.radioStats_screenTitle,
+    builder: (_) => const RadioStatsPanel(),
   );
 }
 
@@ -57,19 +59,34 @@ class _RadioStatsIconButtonState extends State<RadioStatsIconButton> {
         final connector = context.read<MeshCoreConnector>();
         return ValueListenableBuilder<CompanionRadioStats?>(
           valueListenable: connector.radioStatsNotifier,
-          builder: (context, _, child) {
+          builder: (context, stats, child) {
             final dot = AirActivityDot(
               active: connector.radioStatsAirActivityPulse,
             );
             if (widget.compact) {
+              final caption = stats == null ? '—' : '${stats.noiseFloorDbm}dBm';
               return Semantics(
                 label: context.l10n.radioStats_tooltip,
                 button: true,
-                child: GestureDetector(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
                   onTap: () => pushCompanionRadioStatsScreen(context),
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: dot,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 8,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AirActivityDot(
+                          active: connector.radioStatsAirActivityPulse,
+                          icon: Icons.wifi_tethering,
+                        ),
+                        const SizedBox(height: 2),
+                        IndicatorCaption(caption),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -95,8 +112,9 @@ class _RadioStatsIconButtonState extends State<RadioStatsIconButton> {
 
 class AirActivityDot extends StatefulWidget {
   final bool active;
+  final IconData? icon;
 
-  const AirActivityDot({super.key, required this.active});
+  const AirActivityDot({super.key, required this.active, this.icon});
 
   @override
   State<AirActivityDot> createState() => AirActivityDotState();
@@ -145,10 +163,13 @@ class AirActivityDotState extends State<AirActivityDot> {
   Widget build(BuildContext context) {
     final on = widget.active && _blink;
     final scheme = Theme.of(context).colorScheme;
-    return PulseDot(
-      color: on ? MeshTokens.of(context).primary : scheme.outline,
-      size: 11,
-      animate: false,
-    );
+    // Blink to the caption's white, not accent blue — the accent belongs to
+    // the BT transport icon.
+    final color = on ? scheme.onSurface : scheme.outline;
+    final icon = widget.icon;
+    if (icon != null) {
+      return Icon(icon, size: 18, color: color);
+    }
+    return PulseDot(color: color, size: 11, animate: false);
   }
 }

@@ -113,7 +113,7 @@ void main() {
     final rereadService = AppSettingsService();
     await rereadService.loadSettings();
     expect(
-      rereadService.settings.customStyleOverrides.colorOverrides['primary'],
+      rereadService.settings.customStyleOverrides.colorOverridesDark['primary'],
       0xFFEF4444,
     );
 

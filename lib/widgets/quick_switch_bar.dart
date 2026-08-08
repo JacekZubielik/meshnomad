@@ -81,7 +81,7 @@ class QuickSwitchBar extends StatelessWidget {
                 }),
               ),
               child: NavigationBar(
-                height: 60,
+                height: 72,
                 selectedIndex: selectedIndex,
                 onDestinationSelected: onDestinationSelected,
                 destinations: [

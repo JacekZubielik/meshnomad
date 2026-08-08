@@ -11,9 +11,17 @@ import '../theme/styles/default_style.dart';
 import '../widgets/mesh_ui.dart';
 
 class _ColorFieldSpec {
-  const _ColorFieldSpec(this.key, this.defaultColor);
+  const _ColorFieldSpec(
+    this.key,
+    this.defaultColorDark,
+    this.defaultColorLight,
+  );
   final String key;
-  final Color defaultColor;
+  final Color defaultColorDark;
+  final Color defaultColorLight;
+
+  Color defaultColorFor(Brightness brightness) =>
+      brightness == Brightness.light ? defaultColorLight : defaultColorDark;
 }
 
 class _FontFieldSpec {
@@ -23,65 +31,226 @@ class _FontFieldSpec {
 }
 
 final List<_ColorFieldSpec> _baseColorFields = [
-  _ColorFieldSpec('bg', MeshTokens.defaultTokens.bg),
-  _ColorFieldSpec('ink', MeshTokens.defaultTokens.ink),
-  _ColorFieldSpec('line', MeshTokens.defaultTokens.line),
-  _ColorFieldSpec('primary', MeshTokens.defaultTokens.primary),
-  _ColorFieldSpec('secondary', MeshTokens.defaultTokens.secondary),
-  _ColorFieldSpec('signal', MeshTokens.defaultTokens.signal),
-  _ColorFieldSpec('warn', MeshTokens.defaultTokens.warn),
-  _ColorFieldSpec('alert', MeshTokens.defaultTokens.alert),
-  _ColorFieldSpec('me', MeshTokens.defaultTokens.me),
-  _ColorFieldSpec('meInk', MeshTokens.defaultTokens.meInk),
+  _ColorFieldSpec(
+    'bg',
+    MeshTokens.defaultTokens.bg,
+    MeshTokens.defaultTokensLight.bg,
+  ),
+  _ColorFieldSpec(
+    'ink',
+    MeshTokens.defaultTokens.ink,
+    MeshTokens.defaultTokensLight.ink,
+  ),
+  _ColorFieldSpec(
+    'line',
+    MeshTokens.defaultTokens.line,
+    MeshTokens.defaultTokensLight.line,
+  ),
+  _ColorFieldSpec(
+    'primary',
+    MeshTokens.defaultTokens.primary,
+    MeshTokens.defaultTokensLight.primary,
+  ),
+  _ColorFieldSpec(
+    'secondary',
+    MeshTokens.defaultTokens.secondary,
+    MeshTokens.defaultTokensLight.secondary,
+  ),
+  _ColorFieldSpec(
+    'signal',
+    MeshTokens.defaultTokens.signal,
+    MeshTokens.defaultTokensLight.signal,
+  ),
+  _ColorFieldSpec(
+    'warn',
+    MeshTokens.defaultTokens.warn,
+    MeshTokens.defaultTokensLight.warn,
+  ),
+  _ColorFieldSpec(
+    'alert',
+    MeshTokens.defaultTokens.alert,
+    MeshTokens.defaultTokensLight.alert,
+  ),
+  _ColorFieldSpec(
+    'me',
+    MeshTokens.defaultTokens.me,
+    MeshTokens.defaultTokensLight.me,
+  ),
+  _ColorFieldSpec(
+    'meInk',
+    MeshTokens.defaultTokens.meInk,
+    MeshTokens.defaultTokensLight.meInk,
+  ),
 ];
 
 // A6/04-editor-ui.md: map/LOS palettes are semantically independent per
-// marker/state colors — every field is its own row, no automat.
+// marker/state colors — every field is its own row, no automat. They're
+// shared between brightnesses (defaultTokensLight mirrors defaultTokens for
+// every map*/los* field, pkt 17 prompt 01), so dark/light defaults are equal.
 final List<_ColorFieldSpec> _mapColorFields = [
-  _ColorFieldSpec('mapOnline', MeshTokens.defaultTokens.mapOnline),
-  _ColorFieldSpec('mapOffline', MeshTokens.defaultTokens.mapOffline),
-  _ColorFieldSpec('mapStale', MeshTokens.defaultTokens.mapStale),
-  _ColorFieldSpec('mapRepeater', MeshTokens.defaultTokens.mapRepeater),
-  _ColorFieldSpec('mapRouter', MeshTokens.defaultTokens.mapRouter),
-  _ColorFieldSpec('mapBatteryLow', MeshTokens.defaultTokens.mapBatteryLow),
-  _ColorFieldSpec('mapCluster', MeshTokens.defaultTokens.mapCluster),
-  _ColorFieldSpec('mapSelected', MeshTokens.defaultTokens.mapSelected),
-  _ColorFieldSpec('mapSensor', MeshTokens.defaultTokens.mapSensor),
-  _ColorFieldSpec('mapShared', MeshTokens.defaultTokens.mapShared),
-  _ColorFieldSpec('mapPanelLight', MeshTokens.defaultTokens.mapPanelLight),
-  _ColorFieldSpec('mapPanelDark', MeshTokens.defaultTokens.mapPanelDark),
-  _ColorFieldSpec('mapTextPrimary', MeshTokens.defaultTokens.mapTextPrimary),
+  _ColorFieldSpec(
+    'mapOnline',
+    MeshTokens.defaultTokens.mapOnline,
+    MeshTokens.defaultTokensLight.mapOnline,
+  ),
+  _ColorFieldSpec(
+    'mapOffline',
+    MeshTokens.defaultTokens.mapOffline,
+    MeshTokens.defaultTokensLight.mapOffline,
+  ),
+  _ColorFieldSpec(
+    'mapStale',
+    MeshTokens.defaultTokens.mapStale,
+    MeshTokens.defaultTokensLight.mapStale,
+  ),
+  _ColorFieldSpec(
+    'mapRepeater',
+    MeshTokens.defaultTokens.mapRepeater,
+    MeshTokens.defaultTokensLight.mapRepeater,
+  ),
+  _ColorFieldSpec(
+    'mapRouter',
+    MeshTokens.defaultTokens.mapRouter,
+    MeshTokens.defaultTokensLight.mapRouter,
+  ),
+  _ColorFieldSpec(
+    'mapBatteryLow',
+    MeshTokens.defaultTokens.mapBatteryLow,
+    MeshTokens.defaultTokensLight.mapBatteryLow,
+  ),
+  _ColorFieldSpec(
+    'mapCluster',
+    MeshTokens.defaultTokens.mapCluster,
+    MeshTokens.defaultTokensLight.mapCluster,
+  ),
+  _ColorFieldSpec(
+    'mapSelected',
+    MeshTokens.defaultTokens.mapSelected,
+    MeshTokens.defaultTokensLight.mapSelected,
+  ),
+  _ColorFieldSpec(
+    'mapSensor',
+    MeshTokens.defaultTokens.mapSensor,
+    MeshTokens.defaultTokensLight.mapSensor,
+  ),
+  _ColorFieldSpec(
+    'mapShared',
+    MeshTokens.defaultTokens.mapShared,
+    MeshTokens.defaultTokensLight.mapShared,
+  ),
+  _ColorFieldSpec(
+    'mapPanelLight',
+    MeshTokens.defaultTokens.mapPanelLight,
+    MeshTokens.defaultTokensLight.mapPanelLight,
+  ),
+  _ColorFieldSpec(
+    'mapPanelDark',
+    MeshTokens.defaultTokens.mapPanelDark,
+    MeshTokens.defaultTokensLight.mapPanelDark,
+  ),
+  _ColorFieldSpec(
+    'mapTextPrimary',
+    MeshTokens.defaultTokens.mapTextPrimary,
+    MeshTokens.defaultTokensLight.mapTextPrimary,
+  ),
   _ColorFieldSpec(
     'mapTextSecondary',
     MeshTokens.defaultTokens.mapTextSecondary,
+    MeshTokens.defaultTokensLight.mapTextSecondary,
   ),
-  _ColorFieldSpec('mapTextMuted', MeshTokens.defaultTokens.mapTextMuted),
-  _ColorFieldSpec('mapBorder', MeshTokens.defaultTokens.mapBorder),
+  _ColorFieldSpec(
+    'mapTextMuted',
+    MeshTokens.defaultTokens.mapTextMuted,
+    MeshTokens.defaultTokensLight.mapTextMuted,
+  ),
+  _ColorFieldSpec(
+    'mapBorder',
+    MeshTokens.defaultTokens.mapBorder,
+    MeshTokens.defaultTokensLight.mapBorder,
+  ),
   _ColorFieldSpec(
     'mapMarkerOutline',
     MeshTokens.defaultTokens.mapMarkerOutline,
+    MeshTokens.defaultTokensLight.mapMarkerOutline,
   ),
-  _ColorFieldSpec('mapMarkerShadow', MeshTokens.defaultTokens.mapMarkerShadow),
+  _ColorFieldSpec(
+    'mapMarkerShadow',
+    MeshTokens.defaultTokens.mapMarkerShadow,
+    MeshTokens.defaultTokensLight.mapMarkerShadow,
+  ),
 ];
 
 final List<_ColorFieldSpec> _losColorFields = [
-  _ColorFieldSpec('losTerrain', MeshTokens.defaultTokens.losTerrain),
-  _ColorFieldSpec('losBeam', MeshTokens.defaultTokens.losBeam),
-  _ColorFieldSpec('losHorizon', MeshTokens.defaultTokens.losHorizon),
-  _ColorFieldSpec('losBlocked', MeshTokens.defaultTokens.losBlocked),
-  _ColorFieldSpec('losMarginal', MeshTokens.defaultTokens.losMarginal),
-  _ColorFieldSpec('losClear', MeshTokens.defaultTokens.losClear),
-  _ColorFieldSpec('losSelected', MeshTokens.defaultTokens.losSelected),
+  _ColorFieldSpec(
+    'losTerrain',
+    MeshTokens.defaultTokens.losTerrain,
+    MeshTokens.defaultTokensLight.losTerrain,
+  ),
+  _ColorFieldSpec(
+    'losBeam',
+    MeshTokens.defaultTokens.losBeam,
+    MeshTokens.defaultTokensLight.losBeam,
+  ),
+  _ColorFieldSpec(
+    'losHorizon',
+    MeshTokens.defaultTokens.losHorizon,
+    MeshTokens.defaultTokensLight.losHorizon,
+  ),
+  _ColorFieldSpec(
+    'losBlocked',
+    MeshTokens.defaultTokens.losBlocked,
+    MeshTokens.defaultTokensLight.losBlocked,
+  ),
+  _ColorFieldSpec(
+    'losMarginal',
+    MeshTokens.defaultTokens.losMarginal,
+    MeshTokens.defaultTokensLight.losMarginal,
+  ),
+  _ColorFieldSpec(
+    'losClear',
+    MeshTokens.defaultTokens.losClear,
+    MeshTokens.defaultTokensLight.losClear,
+  ),
+  _ColorFieldSpec(
+    'losSelected',
+    MeshTokens.defaultTokens.losSelected,
+    MeshTokens.defaultTokensLight.losSelected,
+  ),
   _ColorFieldSpec(
     'losChartBackground',
     MeshTokens.defaultTokens.losChartBackground,
+    MeshTokens.defaultTokensLight.losChartBackground,
   ),
-  _ColorFieldSpec('losPanelDark', MeshTokens.defaultTokens.losPanelDark),
-  _ColorFieldSpec('losPanelLight', MeshTokens.defaultTokens.losPanelLight),
-  _ColorFieldSpec('losText', MeshTokens.defaultTokens.losText),
-  _ColorFieldSpec('losTextMuted', MeshTokens.defaultTokens.losTextMuted),
-  _ColorFieldSpec('losBorder', MeshTokens.defaultTokens.losBorder),
-  _ColorFieldSpec('losShadow', MeshTokens.defaultTokens.losShadow),
+  _ColorFieldSpec(
+    'losPanelDark',
+    MeshTokens.defaultTokens.losPanelDark,
+    MeshTokens.defaultTokensLight.losPanelDark,
+  ),
+  _ColorFieldSpec(
+    'losPanelLight',
+    MeshTokens.defaultTokens.losPanelLight,
+    MeshTokens.defaultTokensLight.losPanelLight,
+  ),
+  _ColorFieldSpec(
+    'losText',
+    MeshTokens.defaultTokens.losText,
+    MeshTokens.defaultTokensLight.losText,
+  ),
+  _ColorFieldSpec(
+    'losTextMuted',
+    MeshTokens.defaultTokens.losTextMuted,
+    MeshTokens.defaultTokensLight.losTextMuted,
+  ),
+  _ColorFieldSpec(
+    'losBorder',
+    MeshTokens.defaultTokens.losBorder,
+    MeshTokens.defaultTokensLight.losBorder,
+  ),
+  _ColorFieldSpec(
+    'losShadow',
+    MeshTokens.defaultTokens.losShadow,
+    MeshTokens.defaultTokensLight.losShadow,
+  ),
 ];
 
 final List<_FontFieldSpec> _fontFields = [
@@ -380,8 +549,25 @@ const List<Color> _presetSwatches = [
 /// [defaultStyle] via [CustomStyleOverrides]. Every row supports per-field
 /// reset; "Reset all" at the bottom clears every override after
 /// confirmation (D1, 04-editor-ui.md).
-class CustomStyleEditorScreen extends StatelessWidget {
+class CustomStyleEditorScreen extends StatefulWidget {
   const CustomStyleEditorScreen({super.key});
+
+  @override
+  State<CustomStyleEditorScreen> createState() =>
+      _CustomStyleEditorScreenState();
+}
+
+class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
+  Brightness? _editedBrightness;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Seed the switch from the app's current theme on first build only —
+    // afterwards the user's own tap on the segment is the source of truth,
+    // independent of whatever brightness the app happens to be rendering.
+    _editedBrightness ??= Theme.of(context).brightness;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -393,6 +579,7 @@ class CustomStyleEditorScreen extends StatelessWidget {
   }
 
   Widget _screenBody(BuildContext context) {
+    final brightness = _editedBrightness!;
     return Consumer<AppSettingsService>(
       builder: (context, settingsService, child) {
         final l10n = context.l10n;
@@ -408,6 +595,27 @@ class CustomStyleEditorScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
               children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Center(
+                    child: SegmentedButton<Brightness>(
+                      key: const ValueKey('brightnessSwitch'),
+                      segments: [
+                        ButtonSegment(
+                          value: Brightness.light,
+                          label: Text(l10n.styleEditor_brightnessLight),
+                        ),
+                        ButtonSegment(
+                          value: Brightness.dark,
+                          label: Text(l10n.styleEditor_brightnessDark),
+                        ),
+                      ],
+                      selected: {brightness},
+                      onSelectionChanged: (selection) =>
+                          setState(() => _editedBrightness = selection.first),
+                    ),
+                  ),
+                ),
                 SectionHeader(l10n.styleEditor_colorsSection),
                 MeshCard(
                   padding: EdgeInsets.zero,
@@ -420,6 +628,7 @@ class CustomStyleEditorScreen extends StatelessWidget {
                           spec: _baseColorFields[i],
                           overrides: overrides,
                           settingsService: settingsService,
+                          brightness: brightness,
                         ),
                       ],
                     ],
@@ -431,6 +640,7 @@ class CustomStyleEditorScreen extends StatelessWidget {
                   fields: _mapColorFields,
                   overrides: overrides,
                   settingsService: settingsService,
+                  brightness: brightness,
                 ),
                 _ColorSectionExpansionTile(
                   key: const ValueKey('losSection'),
@@ -438,6 +648,7 @@ class CustomStyleEditorScreen extends StatelessWidget {
                   fields: _losColorFields,
                   overrides: overrides,
                   settingsService: settingsService,
+                  brightness: brightness,
                 ),
                 SectionHeader(l10n.styleEditor_fontSizesSection),
                 Padding(
@@ -522,12 +733,14 @@ class _ColorSectionExpansionTile extends StatelessWidget {
     required this.fields,
     required this.overrides,
     required this.settingsService,
+    required this.brightness,
   });
 
   final String title;
   final List<_ColorFieldSpec> fields;
   final CustomStyleOverrides overrides;
   final AppSettingsService settingsService;
+  final Brightness brightness;
 
   @override
   Widget build(BuildContext context) {
@@ -543,6 +756,7 @@ class _ColorSectionExpansionTile extends StatelessWidget {
               spec: fields[i],
               overrides: overrides,
               settingsService: settingsService,
+              brightness: brightness,
             ),
           ],
         ],
@@ -557,18 +771,22 @@ class _ColorFieldRow extends StatelessWidget {
     required this.spec,
     required this.overrides,
     required this.settingsService,
+    required this.brightness,
   });
 
   final _ColorFieldSpec spec;
   final CustomStyleOverrides overrides;
   final AppSettingsService settingsService;
+  final Brightness brightness;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final (label, subtitle) = _colorFieldText(l10n, spec.key);
-    final override = overrides.colorOverrides[spec.key];
-    final currentColor = override != null ? Color(override) : spec.defaultColor;
+    final override = overrides.colorOverridesFor(brightness)[spec.key];
+    final currentColor = override != null
+        ? Color(override)
+        : spec.defaultColorFor(brightness);
     final scheme = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -589,14 +807,20 @@ class _ColorFieldRow extends StatelessWidget {
           border: Border.all(color: scheme.outline),
         ),
       ),
-      trailing: override == null
-          ? null
-          : IconButton(
-              key: ValueKey('resetIcon_${spec.key}'),
-              icon: const Icon(Icons.settings_backup_restore, size: 20),
-              tooltip: l10n.styleEditor_resetTooltip,
-              onPressed: () => settingsService.resetCustomOverride(spec.key),
-            ),
+      // pkt 2: the reset affordance stays visible on every row (disabled
+      // when there's nothing to reset) instead of disappearing — a hidden
+      // trailing widget reads as "no reset exists for this field".
+      trailing: IconButton(
+        key: ValueKey('resetIcon_${spec.key}'),
+        icon: const Icon(Icons.settings_backup_restore, size: 20),
+        tooltip: l10n.styleEditor_resetTooltip,
+        onPressed: override == null
+            ? null
+            : () => settingsService.resetCustomColorOverride(
+                spec.key,
+                brightness,
+              ),
+      ),
     );
   }
 
@@ -611,9 +835,18 @@ class _ColorFieldRow extends StatelessWidget {
         title: title,
         currentColor: currentColor,
         onColorSelected: (color) {
-          settingsService.setCustomColorOverride(spec.key, color);
+          settingsService.setCustomColorOverride(
+            spec.key,
+            color,
+            brightness: brightness,
+          );
           Navigator.of(sheetContext).pop();
         },
+        onPreviewChanged: (color) => settingsService.setCustomColorOverride(
+          spec.key,
+          color,
+          brightness: brightness,
+        ),
       ),
     );
   }
@@ -624,25 +857,107 @@ class _ColorPickerSheet extends StatefulWidget {
     required this.title,
     required this.currentColor,
     required this.onColorSelected,
+    this.onPreviewChanged,
   });
 
   final String title;
   final Color currentColor;
+  // One-shot pick (swatch tap, hex confirm, example chip) — applies AND
+  // closes the sheet, per the caller's wiring in _openColorPicker.
   final ValueChanged<Color> onColorSelected;
+  // Continuous adjustment (the tint slider) — applies live without
+  // closing. Optional because only the slider needs it.
+  final ValueChanged<Color>? onPreviewChanged;
 
   @override
   State<_ColorPickerSheet> createState() => _ColorPickerSheetState();
+}
+
+// A compact, functional reference — not the full preset grid above —
+// distinct base hues with their hex spelled out so a user unfamiliar with
+// the format can see what a value looks like. Tapping applies immediately,
+// same as tapping a preset swatch (pkt 3c).
+const List<Color> _exampleSwatches = [
+  Color(0xFFFFFFFF),
+  Color(0xFF000000),
+  Color(0xFFEF4444),
+  Color(0xFF22C55E),
+  Color(0xFF3B82F6),
+];
+
+// pkt 3b: tick marks stay a single color across the whole track (not
+// active/inactive-shaded) and are only differentiated by size — larger
+// every 25%, smaller every 5% in between. Flutter positions `center`
+// using the real track/thumb geometry, so alignment is exact regardless
+// of what this shape draws.
+class _TintTickMarkShape extends SliderTickMarkShape {
+  const _TintTickMarkShape();
+
+  static const double _minorRadius = 2;
+  static const double _majorRadius = 3;
+
+  @override
+  Size getPreferredSize({
+    required SliderThemeData sliderTheme,
+    required bool isEnabled,
+  }) => const Size.fromRadius(_majorRadius);
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required Animation<double> enableAnimation,
+    required TextDirection textDirection,
+    required bool isEnabled,
+    required Offset thumbCenter,
+  }) {
+    // `center` is this tick's own position; there's no direct "which
+    // division is this" parameter, so derive it from the track rect the
+    // same way Slider itself lays ticks out.
+    final trackRect = sliderTheme.trackShape!.getPreferredRect(
+      parentBox: parentBox,
+      sliderTheme: sliderTheme,
+      isDiscrete: true,
+    );
+    final fraction = trackRect.width == 0
+        ? 0.0
+        : ((center.dx - trackRect.left) / trackRect.width).clamp(0.0, 1.0);
+    final isMajor = (fraction * 100).round() % 25 == 0;
+    final paint = Paint()
+      ..color = sliderTheme.activeTickMarkColor ?? Colors.transparent;
+    context.canvas.drawCircle(
+      center,
+      isMajor ? _majorRadius : _minorRadius,
+      paint,
+    );
+  }
 }
 
 class _ColorPickerSheetState extends State<_ColorPickerSheet> {
   late final TextEditingController _hexController;
   String? _hexError;
 
+  // pkt 3b: hue/saturation are captured once and held fixed — the slider
+  // only ever moves lightness, so it can't drift the color's hue on
+  // repeated small adjustments (recomputing from the live preview color
+  // each time would compound rounding through the RGB<->HSL round trip).
+  late final double _hue;
+  late final double _saturation;
+  late double _lightness;
+  late Color _previewColor;
+
   static final RegExp _hexPattern = RegExp(r'^#?([0-9A-Fa-f]{6})$');
 
   @override
   void initState() {
     super.initState();
+    _previewColor = widget.currentColor;
+    final hsl = HSLColor.fromColor(widget.currentColor);
+    _hue = hsl.hue;
+    _saturation = hsl.saturation;
+    _lightness = hsl.lightness;
     _hexController = TextEditingController(
       text:
           '#${widget.currentColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
@@ -668,8 +983,11 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    // showMeshSheet's useSafeArea only guards the top edge — the sheet body
+    // must clear the system navigation bar itself.
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 16 + bottomInset),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -708,6 +1026,62 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.styleEditor_tintLabel,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                SliderTheme(
+                  data: Theme.of(context).sliderTheme.copyWith(
+                    showValueIndicator: ShowValueIndicator.alwaysVisible,
+                    tickMarkShape: const _TintTickMarkShape(),
+                    activeTickMarkColor: MeshTokens.of(
+                      context,
+                    ).ink.withValues(alpha: 0.55),
+                    inactiveTickMarkColor: MeshTokens.of(
+                      context,
+                    ).ink.withValues(alpha: 0.55),
+                  ),
+                  child: Slider(
+                    key: const ValueKey('tintSlider'),
+                    value: _lightness,
+                    divisions: 20,
+                    // Leading/trailing spaces widen the measured label text
+                    // beyond the digits themselves — the bubble shape sizes
+                    // itself to that measurement, so this buys visual
+                    // breathing room without fighting the shape's own
+                    // (otherwise tight) internal padding.
+                    label: ' ${(_lightness * 100).round()}% ',
+                    // Live-applies on every step WITHOUT closing the sheet —
+                    // unlike every other control here (swatches, hex), a
+                    // slider is inherently a multi-step adjustment, not a
+                    // single pick. Closing on each change (the original
+                    // bug) made it unusable.
+                    onChanged: (v) => setState(() {
+                      _lightness = v;
+                      _previewColor = HSLColor.fromAHSL(
+                        1.0,
+                        _hue,
+                        _saturation,
+                        v,
+                      ).toColor();
+                      _hexController.text =
+                          '#${_previewColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+                      _hexError = null;
+                      widget.onPreviewChanged?.call(_previewColor);
+                    }),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextField(
               controller: _hexController,
               inputFormatters: [
@@ -729,6 +1103,70 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
               ),
               onChanged: (_) => setState(() => _hexError = null),
               onSubmitted: (_) => _applyHex(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.styleEditor_hexExamplesCaption,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final example in _exampleSwatches)
+                      GestureDetector(
+                        key: ValueKey('example_${example.toARGB32()}'),
+                        onTap: () => widget.onColorSelected(example),
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(6, 4, 10, 4),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: example,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.outline,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '#${example.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
+                                style: MeshTokens.of(context).mono(
+                                  fontSize: 11,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -786,17 +1224,20 @@ class _FontFieldRow extends StatelessWidget {
         onChanged: (value) =>
             settingsService.setCustomFontSizeOverride(spec.key, value),
       ),
+      // pkt 2: reset stays visible (disabled when nothing to reset) — see
+      // the matching comment on _ColorFieldRow.
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text('${currentSize.toStringAsFixed(1)}pt'),
-          if (override != null)
-            IconButton(
-              key: ValueKey('resetIcon_${spec.key}'),
-              icon: const Icon(Icons.settings_backup_restore, size: 20),
-              tooltip: l10n.styleEditor_resetTooltip,
-              onPressed: () => settingsService.resetCustomOverride(spec.key),
-            ),
+          IconButton(
+            key: ValueKey('resetIcon_${spec.key}'),
+            icon: const Icon(Icons.settings_backup_restore, size: 20),
+            tooltip: l10n.styleEditor_resetTooltip,
+            onPressed: override == null
+                ? null
+                : () => settingsService.resetCustomFontSizeOverride(spec.key),
+          ),
         ],
       ),
     );

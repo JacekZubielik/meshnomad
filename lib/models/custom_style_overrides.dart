@@ -1,11 +1,20 @@
+import 'dart:ui' show Brightness;
+
 /// User-editable overrides for the "custom" [MeshStyle]. Every key is
 /// optional — an absent key means "inherit from [defaultStyle]". Keys are
 /// field names on [MeshTokens] (colors) or [TextTheme] roles / MeshTokens
 /// mono-size fields (fonts), NOT arbitrary strings — the editor UI
 /// (03-custom-style-editor-ui.md) exposes only a closed set of keys.
+///
+/// Colors are split per brightness (pkt 17) — [colorOverridesLight] and
+/// [colorOverridesDark] are edited independently in the style editor via its
+/// Jasny|Ciemny switch. Font sizes are NOT brightness-dependent (verified
+/// 2026-08-07 against `MeshTheme._build()`, which uses the same literals for
+/// both `light()`/`dark()`), so [fontSizeOverrides] stays a single map.
 class CustomStyleOverrides {
   const CustomStyleOverrides({
-    this.colorOverrides = const {},
+    this.colorOverridesLight = const {},
+    this.colorOverridesDark = const {},
     this.fontSizeOverrides = const {},
   });
 
@@ -74,27 +83,61 @@ class CustomStyleOverrides {
     'monoBodySize',
   ];
 
-  final Map<String, int> colorOverrides; // key -> Color.value (ARGB int)
+  final Map<String, int> colorOverridesLight; // key -> Color.value (ARGB int)
+  final Map<String, int> colorOverridesDark; // key -> Color.value (ARGB int)
   final Map<String, double> fontSizeOverrides;
 
+  /// Returns the color-override map for [brightness] — the single read path
+  /// callers (editor rows, `buildCustomStyle`) should use instead of picking
+  /// a field directly, so the branch lives in one place.
+  Map<String, int> colorOverridesFor(Brightness brightness) =>
+      brightness == Brightness.light ? colorOverridesLight : colorOverridesDark;
+
   CustomStyleOverrides copyWith({
-    Map<String, int>? colorOverrides,
+    Map<String, int>? colorOverridesLight,
+    Map<String, int>? colorOverridesDark,
     Map<String, double>? fontSizeOverrides,
   }) {
     return CustomStyleOverrides(
-      colorOverrides: colorOverrides ?? this.colorOverrides,
+      colorOverridesLight: colorOverridesLight ?? this.colorOverridesLight,
+      colorOverridesDark: colorOverridesDark ?? this.colorOverridesDark,
       fontSizeOverrides: fontSizeOverrides ?? this.fontSizeOverrides,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'colors': colorOverrides, 'font_sizes': fontSizeOverrides};
+    return {
+      'colors_light': colorOverridesLight,
+      'colors_dark': colorOverridesDark,
+      'font_sizes': fontSizeOverrides,
+    };
   }
 
+  /// Parses persisted settings JSON. Handles three shapes:
+  /// - v2 (`colors_light`/`colors_dark` present): read directly, each mapped
+  ///   through [_migrateColorKeys] in case an old backup still has legacy
+  ///   `blue`/`magenta` keys.
+  /// - legacy v1 (`colors` only): the whole map becomes [colorOverridesDark]
+  ///   — the editor only ever edited the dark palette before pkt 17, so a
+  ///   user's saved overrides visually applied to dark.
+  /// - neither present: both maps empty.
   factory CustomStyleOverrides.fromJson(Map<String, dynamic>? json) {
     if (json == null) return const CustomStyleOverrides();
+    final hasV2 =
+        json.containsKey('colors_light') || json.containsKey('colors_dark');
+    if (hasV2) {
+      return CustomStyleOverrides(
+        colorOverridesLight: _migrateColorKeys(
+          _parseIntMap(json['colors_light']),
+        ),
+        colorOverridesDark: _migrateColorKeys(
+          _parseIntMap(json['colors_dark']),
+        ),
+        fontSizeOverrides: _parseDoubleMap(json['font_sizes']),
+      );
+    }
     return CustomStyleOverrides(
-      colorOverrides: _migrateColorKeys(_parseIntMap(json['colors'])),
+      colorOverridesDark: _migrateColorKeys(_parseIntMap(json['colors'])),
       fontSizeOverrides: _parseDoubleMap(json['font_sizes']),
     );
   }

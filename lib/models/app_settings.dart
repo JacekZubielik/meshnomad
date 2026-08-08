@@ -102,6 +102,11 @@ class AppSettings {
   final bool notifyOnNewAdvert;
   final bool autoSendZeroHopAdvertOnGpsUpdate;
   final int gpsIntervalSeconds;
+
+  /// TX airtime budget as a duty-cycle percentage of a 1 h window, shown in
+  /// the radio stats popup. Regulatory (ETSI) default is 10%, but the full
+  /// range stays selectable.
+  final int txDutyCyclePercent;
   final bool autoRouteRotationEnabled;
   final double maxRouteWeight;
   final double initialRouteWeight;
@@ -173,6 +178,7 @@ class AppSettings {
     this.notifyOnNewAdvert = true,
     this.autoSendZeroHopAdvertOnGpsUpdate = false,
     this.gpsIntervalSeconds = 900,
+    this.txDutyCyclePercent = 10,
     this.autoRouteRotationEnabled = true,
     this.maxRouteWeight = 5.0,
     this.initialRouteWeight = 3.0,
@@ -242,6 +248,7 @@ class AppSettings {
       'auto_send_zero_hop_advert_on_gps_update':
           autoSendZeroHopAdvertOnGpsUpdate,
       'gps_interval_seconds': gpsIntervalSeconds,
+      'tx_duty_cycle_percent': txDutyCyclePercent,
       'auto_route_rotation_enabled': autoRouteRotationEnabled,
       'max_route_weight': maxRouteWeight,
       'initial_route_weight': initialRouteWeight,
@@ -316,6 +323,8 @@ class AppSettings {
           json['auto_send_zero_hop_advert_on_gps_update'] as bool? ?? false,
       gpsIntervalSeconds:
           (json['gps_interval_seconds'] as num?)?.toInt() ?? 900,
+      txDutyCyclePercent:
+          (json['tx_duty_cycle_percent'] as num?)?.toInt() ?? 10,
       autoRouteRotationEnabled:
           json['auto_route_rotation_enabled'] as bool? ?? true,
       maxRouteWeight: (json['max_route_weight'] as num?)?.toDouble() ?? 5.0,
@@ -433,6 +442,7 @@ class AppSettings {
     bool? notifyOnNewAdvert,
     bool? autoSendZeroHopAdvertOnGpsUpdate,
     int? gpsIntervalSeconds,
+    int? txDutyCyclePercent,
     bool? autoRouteRotationEnabled,
     double? maxRouteWeight,
     double? initialRouteWeight,
@@ -494,6 +504,7 @@ class AppSettings {
           autoSendZeroHopAdvertOnGpsUpdate ??
           this.autoSendZeroHopAdvertOnGpsUpdate,
       gpsIntervalSeconds: gpsIntervalSeconds ?? this.gpsIntervalSeconds,
+      txDutyCyclePercent: txDutyCyclePercent ?? this.txDutyCyclePercent,
       autoRouteRotationEnabled:
           autoRouteRotationEnabled ?? this.autoRouteRotationEnabled,
       maxRouteWeight: maxRouteWeight ?? this.maxRouteWeight,
