@@ -284,7 +284,13 @@ class UsbSerialService {
         throw StateError(error.message ?? error.code);
       }
     } else {
-      _serial!.write(data, timeout: 1000);
+      try {
+        _serial!.write(data, timeout: 1000);
+      } on SerialPortError catch (error) {
+        final msg = 'USB write failed: $error';
+        _debugLogService?.error(msg, tag: 'USB Serial');
+        throw StateError(msg);
+      }
     }
   }
 
@@ -303,7 +309,13 @@ class UsbSerialService {
         throw StateError(error.message ?? error.code);
       }
     } else {
-      _serial!.write(packet, timeout: 1000);
+      try {
+        _serial!.write(packet, timeout: 1000);
+      } on SerialPortError catch (error) {
+        final msg = 'USB write failed: $error';
+        _debugLogService?.error(msg, tag: 'USB Serial');
+        throw StateError(msg);
+      }
     }
   }
 
