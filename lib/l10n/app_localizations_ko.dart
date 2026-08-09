@@ -2416,6 +2416,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get repeater_codingRate => '코딩 속도';
 
   @override
+  String get repeater_bandwidthShort => 'Band';
+
+  @override
+  String get repeater_spreadingFactorShort => 'SF';
+
+  @override
+  String get repeater_codingRateShort => 'CR';
+
+  @override
   String get repeater_locationSettings => '위치 설정';
 
   @override

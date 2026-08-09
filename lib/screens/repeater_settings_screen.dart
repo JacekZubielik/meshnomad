@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../l10n/l10n.dart';
 import '../models/contact.dart';
+import '../models/radio_settings.dart';
 import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
 import '../services/repeater_command_service.dart';
@@ -93,8 +94,6 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
   final Set<_SettingField> _dirtyFields = {};
   bool _refreshingBasic = false;
   bool _refreshingRadio = false;
-  bool _refreshingTxPower = false;
-  bool _refreshingRxGain = false;
   bool _refreshingRepeat = false;
   bool _refreshingAllowReadOnly = false;
   bool _refreshingMultiAcks = false;
@@ -102,7 +101,6 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
   bool _refreshingLat = false;
   bool _refreshingLon = false;
   bool _refreshingLoopDetect = false;
-  bool _refreshingDutyCycle = false;
   bool _refreshingAdvertInterval = false;
   bool _refreshingFloodAdvertInterval = false;
   bool _refreshingFloodMax = false;
@@ -129,6 +127,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
   int? _bandwidth;
   int? _spreadingFactor;
   int? _codingRate;
+  int? _selectedRadioPresetIndex;
 
   // Location settings
   final TextEditingController _latController = TextEditingController();
@@ -403,13 +402,6 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
         lower == 'enabled';
   }
 
-  String _formatBandwidthLabel(int bandwidthHz) {
-    final bandwidthKHz = bandwidthHz / 1000;
-    var text = bandwidthKHz.toStringAsFixed(2);
-    text = text.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
-    return '$text kHz';
-  }
-
   /// Decode a `get <key>` response and apply it to local state.
   /// Returns true if a value was applied.
   ///
@@ -492,22 +484,52 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
     );
   }
 
-  Future<void> _refreshRadioSettings() async {
+  Future<void> _refreshAllRadioSettings() async {
     final l10n = context.l10n;
     await _refreshSection(
       label: l10n.repeater_radioSettings,
-      commands: const ['get radio'],
+      commands: const [
+        'get radio',
+        'get tx',
+        'get radio.rxgain',
+        'get dutycycle',
+      ],
       setRefreshing: (value) => _refreshingRadio = value,
     );
+    if (mounted) {
+      setState(
+        () => _selectedRadioPresetIndex = _findMatchingRadioPresetIndex(),
+      );
+    }
   }
 
-  Future<void> _refreshTxPower() async {
-    final l10n = context.l10n;
-    await _refreshSection(
-      label: l10n.repeater_txPower,
-      commands: const ['get tx'],
-      setRefreshing: (value) => _refreshingTxPower = value,
-    );
+  /// Matches the current radio fields against the known regional presets —
+  /// same comparison as the companion's own radio dialog
+  /// (`_findMatchingPresetIndexForSnapshot` in settings_screen.dart) — so
+  /// the Presety dropdown reflects what the repeater actually reported
+  /// after a refresh instead of staying on a stale manual selection.
+  int? _findMatchingRadioPresetIndex() {
+    final freqMhz = double.tryParse(_freqController.text);
+    final txPower = int.tryParse(_txPowerController.text);
+    if (freqMhz == null ||
+        txPower == null ||
+        _bandwidth == null ||
+        _spreadingFactor == null ||
+        _codingRate == null) {
+      return null;
+    }
+    final freqHz = (freqMhz * 1000).round();
+    for (var i = 0; i < RadioSettings.presets.length; i++) {
+      final preset = RadioSettings.presets[i].$2;
+      if (preset.frequencyHz == freqHz &&
+          preset.bandwidth.hz == _bandwidth &&
+          preset.spreadingFactor.value == _spreadingFactor &&
+          preset.codingRate.value == _codingRate &&
+          preset.txPowerDbm == txPower) {
+        return i;
+      }
+    }
+    return null;
   }
 
   Future<void> _refreshRepeat() async {
@@ -525,15 +547,6 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
       label: l10n.repeater_guestAccess,
       commands: const ['get allow.read.only'],
       setRefreshing: (value) => _refreshingAllowReadOnly = value,
-    );
-  }
-
-  Future<void> _refreshRxGain() async {
-    final l10n = context.l10n;
-    await _refreshSection(
-      label: l10n.repeater_rxGain,
-      commands: const ['get radio.rxgain'],
-      setRefreshing: (value) => _refreshingRxGain = value,
     );
   }
 
@@ -579,15 +592,6 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
       label: l10n.repeater_loopDetect,
       commands: const ['get loop.detect'],
       setRefreshing: (value) => _refreshingLoopDetect = value,
-    );
-  }
-
-  Future<void> _refreshDutyCycle() async {
-    final l10n = context.l10n;
-    await _refreshSection(
-      label: l10n.repeater_dutyCycle,
-      commands: const ['get dutycycle'],
-      setRefreshing: (value) => _refreshingDutyCycle = value,
     );
   }
 
@@ -1193,6 +1197,27 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
     );
   }
 
+  static String _formatBandwidthLabel(int bandwidthHz) {
+    final bandwidthKHz = bandwidthHz / 1000;
+    var text = bandwidthKHz.toStringAsFixed(2);
+    text = text.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    return '$text kHz';
+  }
+
+  void _applyRadioPreset(int index) {
+    final preset = RadioSettings.presets[index].$2;
+    setState(() {
+      _selectedRadioPresetIndex = index;
+      _freqController.text = preset.frequencyMHz.toString();
+      _txPowerController.text = preset.txPowerDbm.clamp(1, 30).toString();
+      _bandwidth = preset.bandwidth.hz;
+      _spreadingFactor = preset.spreadingFactor.value;
+      _codingRate = preset.codingRate.value;
+    });
+    _markChanged(_SettingField.radio);
+    _markChanged(_SettingField.txPower);
+  }
+
   Widget _buildRadioSettingsCard() {
     final l10n = context.l10n;
     final refreshButton = _refreshingRadio
@@ -1203,7 +1228,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
           )
         : IconButton(
             icon: const Icon(Icons.refresh, size: 18),
-            onPressed: _refreshRadioSettings,
+            onPressed: _refreshAllRadioSettings,
             tooltip: l10n.repeater_refreshRadioSettings,
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
@@ -1216,6 +1241,24 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              DropdownButtonFormField<int>(
+                initialValue: _selectedRadioPresetIndex,
+                decoration: InputDecoration(labelText: l10n.settings_presets),
+                items: [
+                  for (var i = 0; i < RadioSettings.presets.length; i++)
+                    DropdownMenuItem(
+                      value: i,
+                      child: Text(
+                        RadioSettings.presets[i].$1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+                onChanged: (index) {
+                  if (index != null) _applyRadioPreset(index);
+                },
+              ),
+              const SizedBox(height: 12),
               TextField(
                 controller: _freqController,
                 decoration: InputDecoration(
@@ -1229,32 +1272,36 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                 onChanged: (_) => _markChanged(_SettingField.radio),
               ),
               const SizedBox(height: 12),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _txPowerController,
-                      decoration: InputDecoration(
-                        labelText: l10n.repeater_txPower,
-                        helperText: l10n.repeater_txPowerHelper,
-                        suffixText: 'dBm',
-                      ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (_) => _markChanged(_SettingField.txPower),
-                    ),
-                  ),
-                  _buildInlineRefreshButton(
-                    isRefreshing: _refreshingTxPower,
-                    onRefresh: _refreshTxPower,
-                    tooltip: l10n.repeater_refreshTxPower,
-                  ),
-                ],
+              Text(
+                l10n.repeater_txPower,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  showValueIndicator: ShowValueIndicator.alwaysVisible,
+                  valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
+                ),
+                child: Slider(
+                  value: (int.tryParse(_txPowerController.text) ?? 22)
+                      .clamp(1, 30)
+                      .toDouble(),
+                  min: 1,
+                  max: 30,
+                  label: '${_txPowerController.text} dBm',
+                  onChanged: (v) {
+                    setState(
+                      () => _txPowerController.text = v.toInt().toString(),
+                    );
+                    _markChanged(_SettingField.txPower);
+                  },
+                ),
+              ),
               DropdownButtonFormField<int>(
                 initialValue: _bandwidth,
-                decoration: InputDecoration(labelText: l10n.repeater_bandwidth),
+                decoration: InputDecoration(
+                  labelText: l10n.repeater_bandwidthShort,
+                ),
                 items: _bandwidthOptions.map((bw) {
                   return DropdownMenuItem(
                     value: bw,
@@ -1263,9 +1310,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    setState(() {
-                      _bandwidth = value;
-                    });
+                    setState(() => _bandwidth = value);
                     _markChanged(_SettingField.radio);
                   }
                 },
@@ -1274,16 +1319,14 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               DropdownButtonFormField<int>(
                 initialValue: _spreadingFactor,
                 decoration: InputDecoration(
-                  labelText: l10n.repeater_spreadingFactor,
+                  labelText: l10n.repeater_spreadingFactorShort,
                 ),
                 items: _spreadingFactorOptions.map((sf) {
                   return DropdownMenuItem(value: sf, child: Text('SF$sf'));
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    setState(() {
-                      _spreadingFactor = value;
-                    });
+                    setState(() => _spreadingFactor = value);
                     _markChanged(_SettingField.radio);
                   }
                 },
@@ -1292,32 +1335,53 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               DropdownButtonFormField<int>(
                 initialValue: _codingRate,
                 decoration: InputDecoration(
-                  labelText: l10n.repeater_codingRate,
+                  labelText: l10n.repeater_codingRateShort,
                 ),
                 items: _codingRateOptions.map((cr) {
                   return DropdownMenuItem(value: cr, child: Text('4/$cr'));
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    setState(() {
-                      _codingRate = value;
-                    });
+                    setState(() => _codingRate = value);
                     _markChanged(_SettingField.radio);
                   }
                 },
               ),
-              const SizedBox(height: 4),
-              _buildFeatureToggleRow(
-                title: l10n.repeater_rxGain,
-                subtitle: l10n.repeater_rxGainHelper,
+              SwitchListTile(
+                title: Text(l10n.repeater_rxGain),
+                subtitle: Text(l10n.repeater_rxGainHelper),
                 value: _rxGainBoosted,
-                isRefreshing: _refreshingRxGain,
                 onChanged: (v) {
                   setState(() => _rxGainBoosted = v);
                   _markChanged(_SettingField.rxGain);
                 },
-                onRefresh: _refreshRxGain,
-                refreshTooltip: l10n.repeater_refreshRxGain,
+                contentPadding: EdgeInsets.zero,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.repeater_dutyCycle,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 20),
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  showValueIndicator: ShowValueIndicator.alwaysVisible,
+                  valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
+                ),
+                child: Slider(
+                  value: _dutyCycle.toDouble(),
+                  min: 1,
+                  max: 100,
+                  label: l10n.repeater_dutyCyclePercent(_dutyCycle),
+                  onChanged: (v) {
+                    setState(() => _dutyCycle = v.toInt());
+                    _markChanged(_SettingField.dutyCycle);
+                  },
+                ),
+              ),
+              Text(
+                l10n.repeater_dutyCycleHelper,
+                style: Theme.of(context).textTheme.labelSmall,
               ),
             ],
           ),
@@ -1744,45 +1808,6 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                     tooltip: l10n.repeater_loopDetect,
                   ),
                 ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: ListTile(
-                      title: Text(l10n.repeater_dutyCycle),
-                      subtitle: Text(l10n.repeater_dutyCycleHelper),
-                      trailing: Text(
-                        l10n.repeater_dutyCyclePercent(_dutyCycle),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                  IconButton(
-                    icon: _refreshingDutyCycle
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.refresh, size: 20),
-                    onPressed: _refreshingDutyCycle ? null : _refreshDutyCycle,
-                    tooltip: l10n.repeater_dutyCycle,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ],
-              ),
-              Slider(
-                value: _dutyCycle.toDouble(),
-                min: 1,
-                max: 100,
-                divisions: 99,
-                label: l10n.repeater_dutyCyclePercent(_dutyCycle),
-                onChanged: (v) {
-                  setState(() => _dutyCycle = v.toInt());
-                  _markChanged(_SettingField.dutyCycle);
-                },
               ),
             ],
           ),

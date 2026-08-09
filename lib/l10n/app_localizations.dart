@@ -4526,6 +4526,24 @@ abstract class AppLocalizations {
   /// **'Coding Rate'**
   String get repeater_codingRate;
 
+  /// No description provided for @repeater_bandwidthShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Band'**
+  String get repeater_bandwidthShort;
+
+  /// No description provided for @repeater_spreadingFactorShort.
+  ///
+  /// In en, this message translates to:
+  /// **'SF'**
+  String get repeater_spreadingFactorShort;
+
+  /// No description provided for @repeater_codingRateShort.
+  ///
+  /// In en, this message translates to:
+  /// **'CR'**
+  String get repeater_codingRateShort;
+
   /// No description provided for @repeater_locationSettings.
   ///
   /// In en, this message translates to:

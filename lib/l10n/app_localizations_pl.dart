@@ -2528,6 +2528,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_codingRate => 'Współczynnik kodowania';
 
   @override
+  String get repeater_bandwidthShort => 'Pasmo';
+
+  @override
+  String get repeater_spreadingFactorShort => 'SF';
+
+  @override
+  String get repeater_codingRateShort => 'CR';
+
+  @override
   String get repeater_locationSettings => 'Ustawienia Lokalizacji';
 
   @override

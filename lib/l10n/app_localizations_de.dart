@@ -2514,6 +2514,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get repeater_codingRate => 'Kodierungsrate';
 
   @override
+  String get repeater_bandwidthShort => 'Band';
+
+  @override
+  String get repeater_spreadingFactorShort => 'SF';
+
+  @override
+  String get repeater_codingRateShort => 'CR';
+
+  @override
   String get repeater_locationSettings => 'Standorteinstellungen';
 
   @override

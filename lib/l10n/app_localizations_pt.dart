@@ -2511,6 +2511,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get repeater_codingRate => 'Taxa de Codificação';
 
   @override
+  String get repeater_bandwidthShort => 'Band';
+
+  @override
+  String get repeater_spreadingFactorShort => 'SF';
+
+  @override
+  String get repeater_codingRateShort => 'CR';
+
+  @override
   String get repeater_locationSettings => 'Configurações de Localização';
 
   @override
