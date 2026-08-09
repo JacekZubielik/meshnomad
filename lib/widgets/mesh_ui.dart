@@ -59,6 +59,13 @@ class MeshCard extends StatelessWidget {
   final Color? borderColor;
   final double? radius;
 
+  /// Floating look: border dropped, fill bumped one surface level up
+  /// (surfaceContainerHigh), and a soft drop shadow added instead — mockup
+  /// .mockups/depth-shadows.html, "Wariant C bg + Wariant B shadow", accepted
+  /// 2026-08-09, extended to every MeshCard app-wide the same day. Pass
+  /// `elevated: false` at a call site to keep the old flat bordered look.
+  final bool elevated;
+
   const MeshCard({
     super.key,
     required this.child,
@@ -70,34 +77,61 @@ class MeshCard extends StatelessWidget {
     this.color,
     this.borderColor,
     this.radius,
+    this.elevated = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final effectiveRadius = radius ?? MeshTokens.of(context).md;
+    final borderRadius = BorderRadius.circular(effectiveRadius);
     final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(effectiveRadius),
-      side: BorderSide(color: borderColor ?? scheme.outlineVariant),
+      borderRadius: borderRadius,
+      side: elevated
+          ? BorderSide.none
+          : BorderSide(color: borderColor ?? scheme.outlineVariant),
+    );
+    final card = Material(
+      color:
+          color ??
+          (elevated ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow),
+      shape: shape,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress == null
+            ? null
+            : () {
+                HapticFeedback.selectionClick();
+                onLongPress!();
+              },
+        onSecondaryTap: onSecondaryTap,
+        child: Padding(padding: padding, child: child),
+      ),
     );
     return Padding(
       padding: margin,
-      child: Material(
-        color: color ?? scheme.surfaceContainerLow,
-        shape: shape,
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress == null
-              ? null
-              : () {
-                  HapticFeedback.selectionClick();
-                  onLongPress!();
-                },
-          onSecondaryTap: onSecondaryTap,
-          child: Padding(padding: padding, child: child),
-        ),
-      ),
+      child: elevated
+          ? DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: borderRadius,
+                // 0 1px 2px rgba(0,0,0,.15), 0 1px 3px rgba(0,0,0,.22) — mockup Wariant B.
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x26000000),
+                    offset: Offset(0, 1),
+                    blurRadius: 2,
+                  ),
+                  BoxShadow(
+                    color: Color(0x38000000),
+                    offset: Offset(0, 1),
+                    blurRadius: 3,
+                  ),
+                ],
+              ),
+              child: card,
+            )
+          : card,
     );
   }
 }

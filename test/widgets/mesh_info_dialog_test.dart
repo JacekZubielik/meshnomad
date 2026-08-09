@@ -37,10 +37,9 @@ void main() {
 
     final screen = tester.getRect(find.byType(MaterialApp));
     final dialog = tester.getRect(
-      find.descendant(
-        of: find.byType(Dialog),
-        matching: find.byType(Material),
-      ).first,
+      find
+          .descendant(of: find.byType(Dialog), matching: find.byType(Material))
+          .first,
     );
 
     expect(dialog.height, lessThan(300));
@@ -73,10 +72,9 @@ void main() {
 
     final screen = tester.getRect(find.byType(MaterialApp));
     final dialog = tester.getRect(
-      find.descendant(
-        of: find.byType(Dialog),
-        matching: find.byType(Material),
-      ).first,
+      find
+          .descendant(of: find.byType(Dialog), matching: find.byType(Material))
+          .first,
     );
 
     expect(dialog.top - screen.top, MeshInfoDialog.edgeInset);
