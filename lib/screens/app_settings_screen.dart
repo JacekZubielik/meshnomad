@@ -55,8 +55,14 @@ class AppSettingsScreen extends StatelessWidget {
                     translationService,
                     child,
                   ) {
+                    final t = MeshTokens.of(context);
                     return ListView(
-                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
+                      padding: EdgeInsets.fromLTRB(
+                        0,
+                        t.spacingXs,
+                        0,
+                        t.spacingLg,
+                      ),
                       children: [
                         // APPEARANCE
                         SectionHeader(context.l10n.appSettings_appearance),
@@ -91,7 +97,12 @@ class AppSettingsScreen extends StatelessWidget {
                         // BATTERY
                         SectionHeader(context.l10n.appSettings_battery),
                         MeshCard(
-                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                          padding: EdgeInsets.fromLTRB(
+                            t.spacingMd,
+                            t.spacingXxs,
+                            t.spacingMd,
+                            t.spacingMd,
+                          ),
                           child: _buildBatteryContent(
                             context,
                             settingsService,
@@ -124,7 +135,12 @@ class AppSettingsScreen extends StatelessWidget {
                           context.l10n.channels_cyr2latSettingsHeading,
                         ),
                         MeshCard(
-                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                          padding: EdgeInsets.fromLTRB(
+                            t.spacingMd,
+                            t.spacingXxs,
+                            t.spacingMd,
+                            t.spacingMd,
+                          ),
                           child: _buildCyr2LatContent(context, settingsService),
                         ),
 
@@ -155,11 +171,18 @@ class AppSettingsScreen extends StatelessWidget {
   ) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final t = MeshTokens.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+          // spacing: 14/10 rounded up to spacingMd/spacingSm (+2px)
+          padding: EdgeInsets.fromLTRB(
+            t.spacingMd,
+            t.spacingMd,
+            t.spacingMd,
+            t.spacingSm,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -170,7 +193,7 @@ class AppSettingsScreen extends StatelessWidget {
                     size: 20,
                     color: scheme.onSurfaceVariant,
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: t.spacingSm),
                   Text(
                     context.l10n.appSettings_theme,
                     style: textTheme.bodyMedium?.copyWith(
@@ -179,7 +202,7 @@ class AppSettingsScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: t.spacingSm), // spacing: 10, +2px
               SegmentedButton<String>(
                 segments: [
                   ButtonSegment(
@@ -200,7 +223,7 @@ class AppSettingsScreen extends StatelessWidget {
                   settingsService.setThemeMode(selection.first);
                 },
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               Row(
                 children: [
                   Icon(
@@ -208,7 +231,7 @@ class AppSettingsScreen extends StatelessWidget {
                     size: 20,
                     color: scheme.onSurfaceVariant,
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: t.spacingSm),
                   Text(
                     'Style',
                     style: textTheme.bodyMedium?.copyWith(
@@ -217,10 +240,10 @@ class AppSettingsScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: t.spacingSm), // spacing: 10, +2px
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: t.spacingXs,
+                runSpacing: t.spacingXs,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   for (final style in StyleRegistry.all)
@@ -258,7 +281,10 @@ class AppSettingsScreen extends StatelessWidget {
         InkWell(
           onTap: () => _showLanguageSheet(context, settingsService),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(
+              horizontal: t.spacingMd,
+              vertical: t.spacingSm,
+            ),
             child: Row(
               children: [
                 Icon(
@@ -266,7 +292,7 @@ class AppSettingsScreen extends StatelessWidget {
                   size: 20,
                   color: scheme.onSurfaceVariant,
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: t.spacingSm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,12 +334,13 @@ class AppSettingsScreen extends StatelessWidget {
     AppSettingsService settingsService,
   ) {
     final notifEnabled = settingsService.settings.notificationsEnabled;
+    final t = MeshTokens.of(context);
     return Column(
       children: [
         SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
           secondary: const Icon(Icons.notifications_outlined, size: 20),
           title: Text(context.l10n.appSettings_enableNotifications),
@@ -351,9 +378,9 @@ class AppSettingsScreen extends StatelessWidget {
         ),
         const Divider(height: 1, indent: 16),
         SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
           secondary: Icon(
             Icons.message_outlined,
@@ -379,9 +406,9 @@ class AppSettingsScreen extends StatelessWidget {
         ),
         const Divider(height: 1, indent: 16),
         SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
           secondary: Icon(
             Icons.forum_outlined,
@@ -407,9 +434,9 @@ class AppSettingsScreen extends StatelessWidget {
         ),
         const Divider(height: 1, indent: 16),
         SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
           secondary: Icon(
             Icons.cell_tower,
@@ -442,12 +469,13 @@ class AppSettingsScreen extends StatelessWidget {
     AppSettingsService settingsService,
   ) {
     final autoRouteEnabled = settingsService.settings.autoRouteRotationEnabled;
+    final t = MeshTokens.of(context);
     return Column(
       children: [
         SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
           secondary: const Icon(Icons.refresh_outlined, size: 20),
           title: Text(context.l10n.appSettings_clearPathOnMaxRetry),
@@ -468,9 +496,9 @@ class AppSettingsScreen extends StatelessWidget {
         ),
         const Divider(height: 1, indent: 16),
         SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
           secondary: const Icon(Icons.vertical_align_top, size: 20),
           title: Text(context.l10n.appSettings_jumpToOldestUnread),
@@ -480,9 +508,9 @@ class AppSettingsScreen extends StatelessWidget {
         ),
         const Divider(height: 1, indent: 16),
         SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
           secondary: const Icon(Icons.alt_route, size: 20),
           title: Text(context.l10n.appSettings_autoRouteRotation),
@@ -508,7 +536,7 @@ class AppSettingsScreen extends StatelessWidget {
           child: autoRouteEnabled
               ? Container(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  padding: const EdgeInsets.only(left: 16),
+                  padding: EdgeInsets.only(left: t.spacingMd),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -654,9 +682,9 @@ class AppSettingsScreen extends StatelessWidget {
         ),
         const Divider(height: 1, indent: 16),
         SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
           secondary: const Icon(Icons.location_searching, size: 20),
           title: Text(context.l10n.appSettings_enableMessageTracing),
@@ -682,12 +710,13 @@ class AppSettingsScreen extends StatelessWidget {
         : 'nmc';
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final t = MeshTokens.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 12, bottom: 4),
+          padding: EdgeInsets.only(top: t.spacingSm, bottom: t.spacingXxs),
           child: Row(
             children: [
               Icon(
@@ -695,7 +724,7 @@ class AppSettingsScreen extends StatelessWidget {
                 size: 20,
                 color: scheme.onSurfaceVariant,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: t.spacingSm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -725,7 +754,7 @@ class AppSettingsScreen extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: t.spacingXs),
         DropdownButtonFormField<String>(
           initialValue: selection,
           isExpanded: true,
@@ -768,9 +797,13 @@ class AppSettingsScreen extends StatelessWidget {
   ) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final t = MeshTokens.of(context);
     final children = <Widget>[
       SwitchListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: t.spacingMd,
+          vertical: t.spacingXxs,
+        ),
         secondary: const Icon(Icons.router_outlined, size: 20),
         title: Text(context.l10n.appSettings_showRepeaters),
         subtitle: Text(context.l10n.appSettings_showRepeatersSubtitle),
@@ -779,7 +812,10 @@ class AppSettingsScreen extends StatelessWidget {
       ),
       const Divider(height: 1, indent: 16),
       SwitchListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: t.spacingMd,
+          vertical: t.spacingXxs,
+        ),
         secondary: const Icon(Icons.chat_outlined, size: 20),
         title: Text(context.l10n.appSettings_showChatNodes),
         subtitle: Text(context.l10n.appSettings_showChatNodesSubtitle),
@@ -788,7 +824,10 @@ class AppSettingsScreen extends StatelessWidget {
       ),
       const Divider(height: 1, indent: 16),
       SwitchListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: t.spacingMd,
+          vertical: t.spacingXxs,
+        ),
         secondary: const Icon(Icons.people_outline, size: 20),
         title: Text(context.l10n.appSettings_showOtherNodes),
         subtitle: Text(context.l10n.appSettings_showOtherNodesSubtitle),
@@ -799,7 +838,10 @@ class AppSettingsScreen extends StatelessWidget {
       InkWell(
         onTap: () => _showTimeFilterSheet(context, settingsService),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingSm,
+          ),
           child: Row(
             children: [
               Icon(
@@ -807,7 +849,7 @@ class AppSettingsScreen extends StatelessWidget {
                 size: 20,
                 color: scheme.onSurfaceVariant,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: t.spacingSm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -846,11 +888,14 @@ class AppSettingsScreen extends StatelessWidget {
       InkWell(
         onTap: () => _showUnitsSheet(context, settingsService),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingSm,
+          ),
           child: Row(
             children: [
               Icon(Icons.straighten, size: 20, color: scheme.onSurfaceVariant),
-              const SizedBox(width: 12),
+              SizedBox(width: t.spacingSm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -891,7 +936,10 @@ class AppSettingsScreen extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingSm,
+          ),
           child: Row(
             children: [
               Icon(
@@ -899,7 +947,7 @@ class AppSettingsScreen extends StatelessWidget {
                 size: 20,
                 color: scheme.onSurfaceVariant,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: t.spacingSm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -938,7 +986,10 @@ class AppSettingsScreen extends StatelessWidget {
       InkWell(
         onTap: () => _showMapRasterSourceDialog(context, settingsService),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingSm,
+          ),
           child: Row(
             children: [
               Icon(
@@ -946,7 +997,7 @@ class AppSettingsScreen extends StatelessWidget {
                 size: 20,
                 color: scheme.onSurfaceVariant,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: t.spacingSm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -986,7 +1037,10 @@ class AppSettingsScreen extends StatelessWidget {
         InkWell(
           onTap: () => _showMapRasterEndpointDialog(context, settingsService),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(
+              horizontal: t.spacingMd,
+              vertical: t.spacingSm,
+            ),
             child: Row(
               children: [
                 Icon(
@@ -994,7 +1048,7 @@ class AppSettingsScreen extends StatelessWidget {
                   size: 20,
                   color: scheme.onSurfaceVariant,
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: t.spacingSm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1028,7 +1082,10 @@ class AppSettingsScreen extends StatelessWidget {
         InkWell(
           onTap: () => _showMapApiKeyDialog(context, settingsService),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(
+              horizontal: t.spacingMd,
+              vertical: t.spacingSm,
+            ),
             child: Row(
               children: [
                 Icon(
@@ -1036,7 +1093,7 @@ class AppSettingsScreen extends StatelessWidget {
                   size: 20,
                   color: scheme.onSurfaceVariant,
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: t.spacingSm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1224,6 +1281,7 @@ class AppSettingsScreen extends StatelessWidget {
       currentApiKey.isEmpty ? AppSettings.stadiaDemo : currentApiKey,
     );
     final controller = TextEditingController(text: maskedApiKey);
+    final t = MeshTokens.of(context);
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -1235,7 +1293,7 @@ class AppSettingsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(context.l10n.appSettings_stadiaApiKeyDialogDescription),
-              const SizedBox(height: 12),
+              SizedBox(height: t.spacingSm),
               TextField(
                 controller: controller,
                 autofocus: true,
@@ -1280,14 +1338,15 @@ class AppSettingsScreen extends StatelessWidget {
     final translationEnabled = settings.translationEnabled;
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final t = MeshTokens.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
           secondary: const Icon(Icons.translate, size: 20),
           title: Text(context.l10n.translation_enableTitle),
@@ -1297,9 +1356,9 @@ class AppSettingsScreen extends StatelessWidget {
         ),
         const Divider(height: 1, indent: 16),
         SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
           secondary: Icon(
             Icons.auto_awesome_outlined,
@@ -1329,9 +1388,9 @@ class AppSettingsScreen extends StatelessWidget {
         ),
         const Divider(height: 1, indent: 16),
         SwitchListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
           secondary: Icon(
             Icons.outgoing_mail,
@@ -1363,11 +1422,14 @@ class AppSettingsScreen extends StatelessWidget {
         InkWell(
           onTap: () => _showTranslationLanguageDialog(context, settingsService),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(
+              horizontal: t.spacingMd,
+              vertical: t.spacingSm,
+            ),
             child: Row(
               children: [
                 Icon(Icons.language, size: 20, color: scheme.onSurfaceVariant),
-                const SizedBox(width: 12),
+                SizedBox(width: t.spacingSm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1402,7 +1464,12 @@ class AppSettingsScreen extends StatelessWidget {
         ),
         const Divider(height: 1, indent: 16),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          padding: EdgeInsets.fromLTRB(
+            t.spacingMd,
+            t.spacingSm,
+            t.spacingMd,
+            t.spacingXxs,
+          ),
           child: DropdownButtonFormField<String>(
             initialValue: settings.translationSelectedModelId,
             isExpanded: true,
@@ -1425,7 +1492,12 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          padding: EdgeInsets.fromLTRB(
+            t.spacingMd,
+            t.spacingSm,
+            t.spacingMd,
+            t.spacingXxs,
+          ),
           child: DropdownButtonFormField<String>(
             initialValue: null,
             isExpanded: true,
@@ -1459,7 +1531,12 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          padding: EdgeInsets.fromLTRB(
+            t.spacingMd,
+            t.spacingSm,
+            t.spacingMd,
+            t.spacingMd,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1485,7 +1562,7 @@ class AppSettingsScreen extends StatelessWidget {
                 stopLabel: context.l10n.translation_stop,
               ),
               if (translationService.isDownloading) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: t.spacingSm),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(2),
                   child: LinearProgressIndicator(
@@ -1496,7 +1573,7 @@ class AppSettingsScreen extends StatelessWidget {
                         : translationService.downloadProgress,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: t.spacingXs),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -1508,7 +1585,7 @@ class AppSettingsScreen extends StatelessWidget {
                 ),
               ],
               if (settings.translationDownloadedModels.isNotEmpty) ...[
-                const SizedBox(height: 16),
+                SizedBox(height: t.spacingMd),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -1516,10 +1593,10 @@ class AppSettingsScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: t.spacingXs),
                 for (final model in settings.translationDownloadedModels)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: EdgeInsets.only(bottom: t.spacingXs),
                     child: Row(
                       children: [
                         Icon(
@@ -1531,7 +1608,7 @@ class AppSettingsScreen extends StatelessWidget {
                               ? scheme.primary
                               : scheme.onSurfaceVariant,
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: t.spacingSm),
                         Expanded(
                           child: InkWell(
                             borderRadius: BorderRadius.circular(
@@ -1574,7 +1651,7 @@ class AppSettingsScreen extends StatelessWidget {
                   ),
               ],
               if (translationService.lastError != null) ...[
-                const SizedBox(height: 8),
+                SizedBox(height: t.spacingXs),
                 Text(
                   translationService.lastError!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -1592,10 +1669,11 @@ class AppSettingsScreen extends StatelessWidget {
     AppSettingsService settingsService,
   ) {
     final selectedProfile = settingsService.getSelectedCyr2LatProfile();
+    final t = MeshTokens.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 8),
+        SizedBox(height: t.spacingXs),
         DropdownButtonFormField<String>(
           initialValue: settingsService.settings.selectedCyr2latProfileId,
           decoration: InputDecoration(
@@ -1614,7 +1692,7 @@ class AppSettingsScreen extends StatelessWidget {
             }
           },
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: t.spacingSm),
         Row(
           children: [
             Expanded(
@@ -1625,7 +1703,7 @@ class AppSettingsScreen extends StatelessWidget {
                 label: Text(context.l10n.common_add),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: t.spacingXs),
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => _showEditCyr2LatProfileDialog(
@@ -1637,7 +1715,7 @@ class AppSettingsScreen extends StatelessWidget {
                 label: Text(context.l10n.common_edit),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: t.spacingXs),
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: settingsService.settings.cyr2latProfiles.length > 1
@@ -1661,8 +1739,12 @@ class AppSettingsScreen extends StatelessWidget {
     BuildContext context,
     AppSettingsService settingsService,
   ) {
+    final t = MeshTokens.of(context);
     return SwitchListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: t.spacingMd,
+        vertical: t.spacingXxs,
+      ),
       secondary: const Icon(Icons.bug_report_outlined, size: 20),
       title: Text(context.l10n.appSettings_appDebugLogging),
       subtitle: Text(context.l10n.appSettings_appDebugLoggingSubtitle),
@@ -1930,7 +2012,11 @@ class AppSettingsScreen extends StatelessWidget {
                     Navigator.pop(ctx);
                   },
                 ),
-                SizedBox(height: MediaQuery.paddingOf(ctx).bottom + 8),
+                SizedBox(
+                  height:
+                      MediaQuery.paddingOf(ctx).bottom +
+                      MeshTokens.of(ctx).spacingXs,
+                ),
               ],
             ),
           ),
@@ -1950,7 +2036,12 @@ class AppSettingsScreen extends StatelessWidget {
         children: [
           BottomSheetHeader(title: context.l10n.appSettings_mapTimeFilter),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            padding: EdgeInsets.fromLTRB(
+              MeshTokens.of(ctx).spacingMd,
+              MeshTokens.of(ctx).spacingXxs,
+              MeshTokens.of(ctx).spacingMd,
+              MeshTokens.of(ctx).spacingXs,
+            ),
             child: Text(context.l10n.appSettings_showNodesDiscoveredWithin),
           ),
           _sheetOption<double>(
@@ -2003,7 +2094,10 @@ class AppSettingsScreen extends StatelessWidget {
               Navigator.pop(ctx);
             },
           ),
-          SizedBox(height: MediaQuery.paddingOf(ctx).bottom + 8),
+          SizedBox(
+            height:
+                MediaQuery.paddingOf(ctx).bottom + MeshTokens.of(ctx).spacingXs,
+          ),
         ],
       ),
     );
@@ -2040,7 +2134,10 @@ class AppSettingsScreen extends StatelessWidget {
               Navigator.pop(ctx);
             },
           ),
-          SizedBox(height: MediaQuery.paddingOf(ctx).bottom + 8),
+          SizedBox(
+            height:
+                MediaQuery.paddingOf(ctx).bottom + MeshTokens.of(ctx).spacingXs,
+          ),
         ],
       ),
     );
@@ -2213,7 +2310,7 @@ class AppSettingsScreen extends StatelessWidget {
                   border: const OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: MeshTokens.of(context).spacingMd),
               TextField(
                 controller: jsonController,
                 maxLines: 15,
@@ -2301,7 +2398,7 @@ class AppSettingsScreen extends StatelessWidget {
                   border: const OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: MeshTokens.of(context).spacingMd),
               TextField(
                 controller: jsonController,
                 maxLines: 15,
@@ -2442,6 +2539,7 @@ class _TranslationUrlFieldState extends State<_TranslationUrlField> {
 
   @override
   Widget build(BuildContext context) {
+    final t = MeshTokens.of(context);
     return Column(
       children: [
         TextField(
@@ -2452,7 +2550,7 @@ class _TranslationUrlFieldState extends State<_TranslationUrlField> {
           ),
           onChanged: widget.onChanged,
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: t.spacingXs),
         Row(
           children: [
             Expanded(
@@ -2465,7 +2563,7 @@ class _TranslationUrlFieldState extends State<_TranslationUrlField> {
               ),
             ),
             if (widget.isDownloading) ...[
-              const SizedBox(width: 8),
+              SizedBox(width: t.spacingXs),
               OutlinedButton.icon(
                 onPressed: widget.onCancel,
                 icon: const Icon(Icons.stop_circle_outlined),
@@ -2514,6 +2612,7 @@ class _TranslationLanguageDialogContentState
 
   @override
   Widget build(BuildContext context) {
+    final t = MeshTokens.of(context);
     return AlertDialog(
       title: Text(context.l10n.translation_targetLanguage),
       content: SizedBox(
@@ -2537,7 +2636,7 @@ class _TranslationLanguageDialogContentState
                 });
               },
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: t.spacingSm),
             Flexible(
               child: RadioGroup<String?>(
                 groupValue: widget.currentLanguageCode,
@@ -2604,6 +2703,7 @@ class _AboutTileState extends State<_AboutTile> {
 
   void _showAbout(BuildContext context) {
     final l10n = context.l10n;
+    final t = MeshTokens.of(context);
     showAboutDialog(
       context: context,
       applicationName: l10n.appTitle,
@@ -2612,7 +2712,7 @@ class _AboutTileState extends State<_AboutTile> {
           : _appVersion,
       applicationLegalese: l10n.settings_aboutLegalese,
       children: [
-        const SizedBox(height: 16),
+        SizedBox(height: t.spacingMd),
         Text(l10n.settings_aboutDescription),
       ],
     );
@@ -2622,8 +2722,12 @@ class _AboutTileState extends State<_AboutTile> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: t.spacingMd,
+        vertical: t.spacingXxs,
+      ),
       leading: Icon(Icons.info_outline, color: scheme.onSurfaceVariant),
       title: Text(l10n.appSettings_about),
       subtitle: Text(

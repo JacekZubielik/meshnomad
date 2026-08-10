@@ -383,6 +383,48 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
         ),
       ),
       iconTheme: base.iconTheme.copyWith(color: scheme.onSurfaceVariant),
+      // Input/select chrome bakes its colors the same way (fill, hint,
+      // switch thumb/track, segmented selection) — reported live 2026-08-10:
+      // fields kept the DEFAULT dark palette after switching Custom to light.
+      inputDecorationTheme: base.inputDecorationTheme.copyWith(
+        fillColor: scheme.surfaceContainerHigh,
+        hintStyle: TextStyle(color: scheme.onSurfaceVariant),
+      ),
+      switchTheme: base.switchTheme.copyWith(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? scheme.onPrimary
+              : scheme.onSurfaceVariant,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? scheme.primary
+              : scheme.surfaceContainerHighest,
+        ),
+        trackOutlineColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? Colors.transparent
+              : scheme.outline,
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: (base.segmentedButtonTheme.style ?? const ButtonStyle())
+            .copyWith(
+              backgroundColor: WidgetStateProperty.resolveWith(
+                (states) => states.contains(WidgetState.selected)
+                    ? scheme.primary.withValues(alpha: 0.16)
+                    : null,
+              ),
+              foregroundColor: WidgetStateProperty.resolveWith(
+                (states) => states.contains(WidgetState.selected)
+                    ? scheme.primary
+                    : scheme.onSurface,
+              ),
+              side: WidgetStatePropertyAll(
+                BorderSide(color: scheme.outlineVariant),
+              ),
+            ),
+      ),
     );
     return applyChromeRadii(applyChromeFontSizes(withScheme), tokens);
   }

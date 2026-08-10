@@ -206,7 +206,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   onTap: () =>
                       ContactRoutingSheet.show(context, contact: contact),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    padding: EdgeInsets.symmetric(
+                      vertical: MeshTokens.of(context).spacingXs,
+                    ),
                     child: Text(
                       '$pathLabel • $unreadLabel',
                       overflow: TextOverflow.ellipsis,
@@ -252,67 +254,70 @@ class _ChatScreenState extends State<ChatScreen> {
                       _confirmClearChat(context, connector);
                   }
                 },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'routing',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.route, size: 20),
-                        const SizedBox(width: 12),
-                        Text(context.l10n.routing_title),
-                      ],
+                itemBuilder: (context) {
+                  final t = MeshTokens.of(context);
+                  return [
+                    PopupMenuItem(
+                      value: 'routing',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.route, size: 20),
+                          SizedBox(width: t.spacingSm),
+                          Text(context.l10n.routing_title),
+                        ],
+                      ),
                     ),
-                  ),
-                  PopupMenuItem(
-                    value: 'info',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.info_outline, size: 20),
-                        const SizedBox(width: 12),
-                        Text(context.l10n.contact_info),
-                      ],
+                    PopupMenuItem(
+                      value: 'info',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.info_outline, size: 20),
+                          SizedBox(width: t.spacingSm),
+                          Text(context.l10n.contact_info),
+                        ],
+                      ),
                     ),
-                  ),
-                  PopupMenuItem(
-                    value: 'telemetry',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.bar_chart, size: 20),
-                        const SizedBox(width: 12),
-                        Text(context.l10n.contact_telemetry),
-                      ],
+                    PopupMenuItem(
+                      value: 'telemetry',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.bar_chart, size: 20),
+                          SizedBox(width: t.spacingSm),
+                          Text(context.l10n.contact_telemetry),
+                        ],
+                      ),
                     ),
-                  ),
-                  PopupMenuItem(
-                    value: 'settings',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.settings, size: 20),
-                        const SizedBox(width: 12),
-                        Text(context.l10n.contact_settings),
-                      ],
+                    PopupMenuItem(
+                      value: 'settings',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.settings, size: 20),
+                          SizedBox(width: t.spacingSm),
+                          Text(context.l10n.contact_settings),
+                        ],
+                      ),
                     ),
-                  ),
-                  PopupMenuItem(
-                    value: 'clearChat',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.delete,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          context.l10n.contact_clearChat,
-                          style: TextStyle(
+                    PopupMenuItem(
+                      value: 'clearChat',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete,
+                            size: 20,
                             color: Theme.of(context).colorScheme.error,
                           ),
-                        ),
-                      ],
+                          SizedBox(width: t.spacingSm),
+                          Text(
+                            context.l10n.contact_clearChat,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ];
+                },
               );
             },
           ),
@@ -366,17 +371,23 @@ class _ChatScreenState extends State<ChatScreen> {
       _scrollController.scrollToBottomIfAtBottom();
     });
 
+    final listTokens = MeshTokens.of(context);
     return ChatZoomWrapper(
       child: ListView.builder(
         reverse: true, // List grows from bottom up
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+        padding: EdgeInsets.symmetric(
+          horizontal: listTokens.spacingXs,
+          vertical: listTokens.spacingMd,
+        ),
         itemCount: itemCount,
         itemBuilder: (context, index) {
           // Loading indicator now appears at end (bottom) of reversed list
           if (_isLoadingOlder && index == itemCount - 1) {
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: MeshTokens.of(context).spacingMd,
+              ),
               child: Center(
                 child: SizedBox(
                   width: 20,
@@ -464,6 +475,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final maxBytes = maxContactMessageBytes();
     final scheme = Theme.of(context).colorScheme;
     final settings = context.watch<AppSettingsService>().settings;
+    final t = MeshTokens.of(context);
     return Container(
       decoration: BoxDecoration(
         color: scheme.surface,
@@ -471,7 +483,10 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          padding: EdgeInsets.symmetric(
+            horizontal: t.spacingXs,
+            vertical: t.spacingXs,
+          ),
           child: Row(
             // Top-aligned so the icons stay centered on the field's first
             // line even when the counter appears or the field grows.
@@ -522,7 +537,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: t.spacingXs),
                             IconButton(
                               icon: const Icon(Icons.close),
                               onPressed: () {
@@ -577,16 +592,16 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         filled: true,
                         fillColor: scheme.surfaceContainerLow,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 12,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: t.spacingMd,
+                          vertical: t.spacingSm,
                         ),
                       ),
                     );
                   },
                 ),
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: t.spacingXs),
               ValueListenableBuilder<TextEditingValue>(
                 valueListenable: _textController,
                 builder: (context, value, _) {
@@ -951,7 +966,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 if (cyr2latEnabled) ...[
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                    padding: EdgeInsets.fromLTRB(
+                      0,
+                      MeshTokens.of(context).spacingXs,
+                      0,
+                      MeshTokens.of(context).spacingXs,
+                    ),
                     child: DropdownButtonFormField<String>(
                       initialValue: selectedCyr2LatProfileId,
                       decoration: InputDecoration(
@@ -1033,7 +1053,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(
+        vertical: MeshTokens.of(context).spacingXxs,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1227,7 +1249,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 await _deleteMessage(message);
               },
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: MeshTokens.of(sheetContext).spacingXs),
           ],
         ),
       ),
@@ -1367,8 +1389,10 @@ class _MessageBubble extends StatelessWidget {
         ? message.originalText
         : (translatedDisplayText != messageText ? messageText : null);
 
+    final t = MeshTokens.of(context);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: EdgeInsets.symmetric(vertical: t.spacingXxs),
       child: Column(
         crossAxisAlignment: isOutgoing
             ? CrossAxisAlignment.end
@@ -1388,15 +1412,15 @@ class _MessageBubble extends StatelessWidget {
                 children: [
                   if (!isOutgoing) ...[
                     _buildAvatar(senderName),
-                    const SizedBox(width: 6),
+                    SizedBox(width: t.spacingXs),
                   ],
                   Flexible(
                     child: Container(
                       padding: gifId != null
-                          ? const EdgeInsets.all(4)
-                          : const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
+                          ? EdgeInsets.all(t.spacingXxs)
+                          : EdgeInsets.symmetric(
+                              horizontal: t.spacingSm,
+                              vertical: t.spacingXs,
                             ),
                       constraints: BoxConstraints(
                         maxWidth: constraints.maxWidth * 0.72,
@@ -1412,10 +1436,10 @@ class _MessageBubble extends StatelessWidget {
                           if (!isOutgoing) ...[
                             Padding(
                               padding: gifId != null
-                                  ? const EdgeInsets.only(
-                                      left: 8,
-                                      top: 4,
-                                      bottom: 4,
+                                  ? EdgeInsets.only(
+                                      left: t.spacingXs,
+                                      top: t.spacingXxs,
+                                      bottom: t.spacingXxs,
                                     )
                                   : EdgeInsets.zero,
                               child: Text(
@@ -1505,10 +1529,12 @@ class _MessageBubble extends StatelessWidget {
                           if (enableTracing &&
                               isOutgoing &&
                               message.retryCount > 0) ...[
-                            const SizedBox(height: 3),
+                            SizedBox(height: t.spacingXxs),
                             Padding(
                               padding: gifId != null
-                                  ? const EdgeInsets.symmetric(horizontal: 8)
+                                  ? EdgeInsets.symmetric(
+                                      horizontal: t.spacingXs,
+                                    )
                                   : EdgeInsets.zero,
                               child: Text(
                                 context.l10n.chat_retryCount(
@@ -1527,18 +1553,18 @@ class _MessageBubble extends StatelessWidget {
                               ),
                             ),
                           ],
-                          const SizedBox(height: 3),
+                          SizedBox(height: t.spacingXxs),
                           // Meta row: timestamp + status icon + optional tracing
                           Padding(
                             padding: gifId != null
-                                ? const EdgeInsets.only(
-                                    left: 8,
-                                    right: 8,
-                                    bottom: 4,
+                                ? EdgeInsets.only(
+                                    left: t.spacingXs,
+                                    right: t.spacingXs,
+                                    bottom: t.spacingXxs,
                                   )
                                 : EdgeInsets.zero,
                             child: Wrap(
-                              spacing: 4,
+                              spacing: t.spacingXxs,
                               crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 Text(
@@ -1602,7 +1628,7 @@ class _MessageBubble extends StatelessWidget {
             ),
           ),
           if (message.reactions.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            SizedBox(height: t.spacingXxs),
             Padding(
               padding: EdgeInsets.only(left: isOutgoing ? 0 : 42),
               child: _buildReactionsDisplay(context, message, scheme),
@@ -1622,6 +1648,7 @@ class _MessageBubble extends StatelessWidget {
     String senderName, {
     Widget? trailing,
   }) {
+    final t = MeshTokens.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -1653,7 +1680,7 @@ class _MessageBubble extends StatelessWidget {
             );
           },
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: t.spacingXs),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1693,7 +1720,7 @@ class _MessageBubble extends StatelessWidget {
             ],
           ),
         ),
-        if (trailing != null) ...[const SizedBox(width: 4), trailing],
+        if (trailing != null) ...[SizedBox(width: t.spacingXxs), trailing],
       ],
     );
   }
@@ -1703,9 +1730,10 @@ class _MessageBubble extends StatelessWidget {
     Message message,
     ColorScheme scheme,
   ) {
+    final t = MeshTokens.of(context);
     return Wrap(
-      spacing: 6,
-      runSpacing: 6,
+      spacing: t.spacingXs,
+      runSpacing: t.spacingXs,
       children: message.reactions.entries.map((entry) {
         final emoji = entry.key;
         final count = entry.value;
@@ -1721,7 +1749,10 @@ class _MessageBubble extends StatelessWidget {
           child: Opacity(
             opacity: isPending ? 0.5 : 1.0,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: EdgeInsets.symmetric(
+                horizontal: t.spacingXs,
+                vertical: t.spacingXxs,
+              ),
               decoration: BoxDecoration(
                 color: isFailed
                     ? scheme.errorContainer
@@ -1746,7 +1777,7 @@ class _MessageBubble extends StatelessWidget {
                     ),
                   ),
                   if (count > 1) ...[
-                    const SizedBox(width: 4),
+                    SizedBox(width: t.spacingXxs),
                     Text(
                       '$count',
                       style: MeshTokens.of(context).monoBody(
@@ -1792,15 +1823,7 @@ class _MessageBubble extends StatelessWidget {
 
 /// Deterministic name-to-hue mapping consistent with [AvatarCircle].
 Color _colorForName(BuildContext context, String name) {
-  final tokens = MeshTokens.of(context);
-  final hues = [
-    tokens.primary,
-    tokens.secondary,
-    tokens.signal,
-    tokens.warn,
-    const Color(0xFF8FA8F0),
-    const Color(0xFF6FD9CE),
-  ];
+  final hues = avatarTintPalette(MeshTokens.of(context));
   var h = 0;
   for (final c in name.codeUnits) {
     h = (h * 31 + c) & 0x7fffffff;

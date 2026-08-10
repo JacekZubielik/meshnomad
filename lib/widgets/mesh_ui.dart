@@ -263,6 +263,17 @@ class StatTile extends StatelessWidget {
   }
 }
 
+/// Deterministic avatar tint palette shared by contact tiles and chat
+/// headers — keep the single source here; do not copy the literals.
+List<Color> avatarTintPalette(MeshTokens tokens) => [
+  tokens.primary,
+  tokens.secondary,
+  tokens.signal,
+  tokens.warn,
+  const Color(0xFF8FA8F0),
+  const Color(0xFF6FD9CE),
+];
+
 /// Initials avatar with a deterministic per-name hue, or a fixed [color]
 /// for node-type coloring. Optional [icon] replaces initials.
 class AvatarCircle extends StatelessWidget {
@@ -280,15 +291,7 @@ class AvatarCircle extends StatelessWidget {
   });
 
   Color _colorFor(BuildContext context, String s) {
-    final tokens = MeshTokens.of(context);
-    final hues = [
-      tokens.primary,
-      tokens.secondary,
-      tokens.signal,
-      tokens.warn,
-      const Color(0xFF8FA8F0),
-      const Color(0xFF6FD9CE),
-    ];
+    final hues = avatarTintPalette(MeshTokens.of(context));
     var h = 0;
     for (final c in s.codeUnits) {
       h = (h * 31 + c) & 0x7fffffff;

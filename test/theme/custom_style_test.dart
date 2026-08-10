@@ -297,5 +297,25 @@ void main() {
       expect(theme.navigationBarTheme.backgroundColor, scheme.surface);
       expect(theme.chipTheme.backgroundColor, scheme.surfaceContainerLow);
     });
+
+    test('overrides re-derive baked input fill and switch chrome '
+        '(light variant follows the light custom palette)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(
+          colorOverridesLight: {'bg': 0xFFEEEEEE, 'primary': 0xFF112233},
+        ),
+      );
+      final theme = style.light;
+      final scheme = theme.colorScheme;
+      expect(theme.inputDecorationTheme.fillColor, scheme.surfaceContainerHigh);
+      expect(
+        theme.switchTheme.trackColor!.resolve({WidgetState.selected}),
+        scheme.primary,
+      );
+      expect(
+        theme.switchTheme.thumbColor!.resolve({}),
+        scheme.onSurfaceVariant,
+      );
+    });
   });
 }

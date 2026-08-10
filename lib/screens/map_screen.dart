@@ -111,29 +111,23 @@ class _MapScreenState extends State<MapScreen> {
 
   bool get _useDarkOverlay => Theme.of(context).brightness == Brightness.dark;
 
-  Color get _overlayPanelColor => _useDarkOverlay
-      ? MeshTokens.of(context).mapPanelDark
-      : _overlayScheme.surfaceContainerLow.withValues(alpha: 0.96);
+  // Map overlays (search pill, filter chips, stats/node panels) follow the
+  // active style's scheme in BOTH brightnesses — user decision 2026-08-10;
+  // previously dark mode read the fixed mapPanel*/mapText* palette, so a
+  // custom background never reached these panels.
+  Color get _overlayPanelColor =>
+      _overlayScheme.surfaceContainerLow.withValues(alpha: 0.96);
 
-  Color get _overlayPrimaryTextColor => _useDarkOverlay
-      ? MeshTokens.of(context).mapTextPrimary
-      : _overlayScheme.onSurface;
+  Color get _overlayPrimaryTextColor => _overlayScheme.onSurface;
 
-  Color get _overlaySecondaryTextColor => _useDarkOverlay
-      ? MeshTokens.of(context).mapTextSecondary
-      : _overlayScheme.onSurfaceVariant;
+  Color get _overlaySecondaryTextColor => _overlayScheme.onSurfaceVariant;
 
-  Color get _overlayMutedTextColor => _useDarkOverlay
-      ? MeshTokens.of(context).mapTextMuted
-      : _overlayScheme.onSurfaceVariant;
+  Color get _overlayMutedTextColor => _overlayScheme.onSurfaceVariant;
 
-  Color get _overlayBorderColor => _useDarkOverlay
-      ? MeshTokens.of(context).mapBorder
-      : _overlayScheme.outlineVariant;
+  Color get _overlayBorderColor => _overlayScheme.outlineVariant;
 
-  Color get _overlayShadowColor => _useDarkOverlay
-      ? MeshTokens.of(context).mapMarkerShadow
-      : Colors.black.withValues(alpha: 0.18);
+  Color get _overlayShadowColor =>
+      Colors.black.withValues(alpha: _useDarkOverlay ? 0.55 : 0.18);
 
   _NodeAge _ageOf(Contact contact) {
     final d = DateTime.now().difference(contact.lastSeen);
@@ -354,6 +348,7 @@ class _MapScreenState extends State<MapScreen> {
               _MapConnectorSnapshot.fromConnector,
             );
         final connector = connectorSnapshot.connector;
+        final t = MeshTokens.of(context);
         final settings = context.select<AppSettingsService, AppSettings>(
           (service) => service.settings,
         );
@@ -631,7 +626,7 @@ class _MapScreenState extends State<MapScreen> {
                     child: Row(
                       children: [
                         const Icon(Icons.radar),
-                        const SizedBox(width: 8),
+                        SizedBox(width: t.spacingXs),
                         Text(context.l10n.contacts_pathTrace),
                       ],
                     ),
@@ -644,7 +639,7 @@ class _MapScreenState extends State<MapScreen> {
                     child: Row(
                       children: [
                         const LosIcon(),
-                        const SizedBox(width: 8),
+                        SizedBox(width: t.spacingXs),
                         Text(context.l10n.map_lineOfSight),
                       ],
                     ),
@@ -692,7 +687,7 @@ class _MapScreenState extends State<MapScreen> {
                         Icons.logout,
                         color: Theme.of(context).colorScheme.error,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: t.spacingXs),
                       Text(context.l10n.common_disconnect),
                     ],
                   ),
@@ -702,7 +697,7 @@ class _MapScreenState extends State<MapScreen> {
                   child: Row(
                     children: [
                       const Icon(Icons.settings),
-                      const SizedBox(width: 8),
+                      SizedBox(width: t.spacingXs),
                       Text(context.l10n.settings_title),
                     ],
                   ),
@@ -944,7 +939,6 @@ class _MapScreenState extends State<MapScreen> {
                     _handleQuickSwitch(index, context),
                 contactsUnreadCount: connector.getTotalContactsUnreadCount(),
                 channelsUnreadCount: connector.getTotalChannelsUnreadCount(),
-                highContrast: _useDarkOverlay,
               ),
             ),
             floatingActionButton:
@@ -1588,6 +1582,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Marker _buildNodeLabelMarker({required LatLng point, required String label}) {
+    final t = MeshTokens.of(context);
     return Marker(
       point: point,
       width: 140,
@@ -1601,7 +1596,7 @@ class _MapScreenState extends State<MapScreen> {
           // despite sharing the same monoBody role. A fixed font size +
           // the Text's own maxLines/ellipsis handles long names instead.
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: EdgeInsets.symmetric(horizontal: t.spacingXs, vertical: 2),
             decoration: BoxDecoration(
               color: _overlayPanelColor,
               borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
@@ -1755,13 +1750,14 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Widget _buildLegendItem(IconData icon, String label, Color color) {
+    final t = MeshTokens.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1.5),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 15, color: color),
-          const SizedBox(width: 8),
+          SizedBox(width: t.spacingXs),
           Expanded(
             child: Text(
               label,
@@ -1813,6 +1809,7 @@ class _MapScreenState extends State<MapScreen> {
   }) {
     final settings = settingsService.settings;
     final hasQuery = _searchQuery.trim().isNotEmpty;
+    final t = MeshTokens.of(context);
     return Positioned(
       top: 8,
       left: 12,
@@ -1858,9 +1855,9 @@ class _MapScreenState extends State<MapScreen> {
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 12,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: t.spacingXxs,
+                        vertical: t.spacingSm,
                       ),
                     ),
                     style: TextStyle(
@@ -1875,7 +1872,7 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: t.spacingXs),
               Material(
                 color: _overlayPanelColor,
                 shape: StadiumBorder(
@@ -1885,9 +1882,9 @@ class _MapScreenState extends State<MapScreen> {
                 child: InkWell(
                   onTap: () => setState(() => _statsExpanded = !_statsExpanded),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 11,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: t.spacingSm,
+                      vertical: t.spacingSm,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -1897,7 +1894,7 @@ class _MapScreenState extends State<MapScreen> {
                           size: 15,
                           color: MeshTokens.of(context).mapSelected,
                         ),
-                        const SizedBox(width: 6),
+                        SizedBox(width: t.spacingXs),
                         Text(
                           '$visibleCount',
                           style: MeshTokens.of(context).monoBody(
@@ -1922,7 +1919,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: t.spacingXs),
           LayoutBuilder(
             builder: (context, constraints) {
               final chips = <Widget>[
@@ -1968,7 +1965,7 @@ class _MapScreenState extends State<MapScreen> {
               ];
 
               if (constraints.maxWidth < 600) {
-                return Wrap(runSpacing: 6, children: chips);
+                return Wrap(runSpacing: t.spacingXs, children: chips);
               }
 
               return SingleChildScrollView(
@@ -2005,8 +2002,9 @@ class _MapScreenState extends State<MapScreen> {
     Color? color,
   }) {
     final accent = color ?? MeshTokens.of(context).mapSelected;
+    final t = MeshTokens.of(context);
     return Padding(
-      padding: const EdgeInsets.only(right: 6),
+      padding: EdgeInsets.only(right: t.spacingXs),
       child: Material(
         color: selected
             ? Color.alphaBlend(
@@ -2027,13 +2025,16 @@ class _MapScreenState extends State<MapScreen> {
             onTap();
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            padding: EdgeInsets.symmetric(
+              horizontal: t.spacingSm,
+              vertical: t.spacingXs,
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (selected) ...[
                   Icon(Icons.check, size: 13, color: _overlayPrimaryTextColor),
-                  const SizedBox(width: 4),
+                  SizedBox(width: t.spacingXxs),
                 ],
                 Text(
                   label,
@@ -2068,8 +2069,9 @@ class _MapScreenState extends State<MapScreen> {
             return b.lastSeen.compareTo(a.lastSeen);
           });
     final results = matches.take(8).toList();
+    final t = MeshTokens.of(context);
     return Container(
-      margin: const EdgeInsets.only(top: 6),
+      margin: EdgeInsets.only(top: t.spacingXs),
       constraints: const BoxConstraints(maxHeight: 300),
       decoration: BoxDecoration(
         color: _overlayPanelColor,
@@ -2085,7 +2087,7 @@ class _MapScreenState extends State<MapScreen> {
       ),
       child: results.isEmpty
           ? Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(t.spacingMd),
               child: Text(
                 context.l10n.map_noResults,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -2095,7 +2097,7 @@ class _MapScreenState extends State<MapScreen> {
             )
           : ListView.separated(
               shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(vertical: 4),
+              padding: EdgeInsets.symmetric(vertical: t.spacingXxs),
               itemCount: results.length,
               separatorBuilder: (_, _) =>
                   Divider(height: 1, color: _overlayBorderColor),
@@ -2105,14 +2107,14 @@ class _MapScreenState extends State<MapScreen> {
                 return InkWell(
                   onTap: () => _onSearchResultTap(c, guessedLocations),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: t.spacingSm,
+                      vertical: t.spacingXs,
                     ),
                     child: Row(
                       children: [
                         Icon(_getNodeIcon(c.type), size: 18, color: color),
-                        const SizedBox(width: 10),
+                        SizedBox(width: t.spacingSm),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2200,10 +2202,16 @@ class _MapScreenState extends State<MapScreen> {
     required int pinCount,
     required int guessedCount,
   }) {
+    final t = MeshTokens.of(context);
     return Container(
-      margin: const EdgeInsets.only(top: 6),
+      margin: EdgeInsets.only(top: t.spacingXs),
       width: 230,
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      padding: EdgeInsets.fromLTRB(
+        t.spacingMd,
+        t.spacingSm,
+        t.spacingMd,
+        t.spacingSm,
+      ),
       decoration: BoxDecoration(
         color: _overlayPanelColor,
         borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
@@ -2283,6 +2291,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Widget _statRow(String label, int value, Color color) {
+    final t = MeshTokens.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -2292,7 +2301,7 @@ class _MapScreenState extends State<MapScreen> {
             height: 7,
             decoration: BoxDecoration(shape: BoxShape.circle, color: color),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: t.spacingXs),
           Expanded(
             child: Text(
               label,
@@ -2325,6 +2334,7 @@ class _MapScreenState extends State<MapScreen> {
     final pos = contact.hasLocation
         ? LatLng(contact.latitude!, contact.longitude!)
         : _selectedGuessPos;
+    final t = MeshTokens.of(context);
     return Positioned(
       left: 12,
       right: 12,
@@ -2339,7 +2349,12 @@ class _MapScreenState extends State<MapScreen> {
         ),
         child: MeshCard(
           margin: EdgeInsets.zero,
-          padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+          padding: EdgeInsets.fromLTRB(
+            t.spacingMd,
+            t.spacingSm,
+            t.spacingXs,
+            t.spacingSm,
+          ),
           color: _overlayPanelColor,
           borderColor: _overlayBorderColor,
           child: Column(
@@ -2354,7 +2369,7 @@ class _MapScreenState extends State<MapScreen> {
                     color: color,
                     icon: _getNodeIcon(contact.type),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: t.spacingSm),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2373,7 +2388,7 @@ class _MapScreenState extends State<MapScreen> {
                               ),
                             ),
                             if (contact.isFavorite) ...[
-                              const SizedBox(width: 4),
+                              SizedBox(width: t.spacingXxs),
                               Icon(
                                 Icons.star,
                                 size: 14,
@@ -2382,7 +2397,7 @@ class _MapScreenState extends State<MapScreen> {
                             ],
                           ],
                         ),
-                        const SizedBox(height: 3),
+                        SizedBox(height: t.spacingXxs),
                         Row(
                           children: [
                             StatusChip(
@@ -2391,7 +2406,7 @@ class _MapScreenState extends State<MapScreen> {
                               fontSize: 9.5,
                               pulse: age == _NodeAge.online,
                             ),
-                            const SizedBox(width: 6),
+                            SizedBox(width: t.spacingXs),
                             Flexible(
                               child: Text(
                                 contact.typeLabel(context.l10n),
@@ -2421,10 +2436,10 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: t.spacingXs),
               Wrap(
-                spacing: 14,
-                runSpacing: 4,
+                spacing: t.spacingMd,
+                runSpacing: t.spacingXxs,
                 children: [
                   _miniMeta(
                     context.l10n.map_lastSeen,
@@ -2445,7 +2460,7 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                 ],
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: t.spacingSm),
               Row(
                 children: [
                   ..._selectedNodeActions(context, contact, connector),
@@ -2498,12 +2513,16 @@ class _MapScreenState extends State<MapScreen> {
     Contact contact,
     MeshCoreConnector connector,
   ) {
+    final t = MeshTokens.of(context);
     Widget action(String label, IconData icon, VoidCallback onPressed) {
       return Padding(
-        padding: const EdgeInsets.only(right: 8),
+        padding: EdgeInsets.only(right: t.spacingXs),
         child: FilledButton.icon(
           style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: t.spacingMd,
+              vertical: t.spacingXs,
+            ),
             visualDensity: VisualDensity.compact,
           ),
           onPressed: onPressed,
@@ -2763,6 +2782,7 @@ class _MapScreenState extends State<MapScreen> {
     LatLng? guessedPosition,
   }) {
     final connector = context.read<MeshCoreConnector>();
+    final t = MeshTokens.of(context);
     showMeshSheet(
       context,
       // 06-map-bugs.md: default enableDrag competes with long-press text
@@ -2840,7 +2860,12 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  padding: EdgeInsets.fromLTRB(
+                    t.spacingMd,
+                    0,
+                    t.spacingMd,
+                    t.spacingMd,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -2869,7 +2894,7 @@ class _MapScreenState extends State<MapScreen> {
                         context.l10n.map_publicKey,
                         contact.publicKeyHex,
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: t.spacingMd),
                       ...actions,
                     ],
                   ),
@@ -2988,8 +3013,9 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Widget _buildInfoRow(String label, String value) {
+    final t = MeshTokens.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: EdgeInsets.symmetric(vertical: t.spacingXxs),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -3164,6 +3190,7 @@ class _MapScreenState extends State<MapScreen> {
       connector.getChannels();
     }
     String query = '';
+    final t = MeshTokens.of(context);
 
     await showModalBottomSheet(
       context: context,
@@ -3185,14 +3212,24 @@ class _MapScreenState extends State<MapScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                        padding: EdgeInsets.fromLTRB(
+                          t.spacingMd,
+                          t.spacingSm,
+                          t.spacingMd,
+                          t.spacingXxs,
+                        ),
                         child: Text(
                           context.l10n.map_sendToContact,
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                        padding: EdgeInsets.fromLTRB(
+                          t.spacingMd,
+                          t.spacingXxs,
+                          t.spacingMd,
+                          t.spacingXs,
+                        ),
                         child: TextField(
                           decoration: InputDecoration(
                             hintText:
@@ -3201,9 +3238,9 @@ class _MapScreenState extends State<MapScreen> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: t.spacingMd,
+                              vertical: t.spacingSm,
                             ),
                           ),
                           onChanged: (value) {
@@ -3230,27 +3267,32 @@ class _MapScreenState extends State<MapScreen> {
                             );
                           }),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                        padding: EdgeInsets.fromLTRB(
+                          t.spacingMd,
+                          t.spacingSm,
+                          t.spacingMd,
+                          t.spacingXxs,
+                        ),
                         child: Text(
                           context.l10n.map_sendToChannel,
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                       if (liveConnector.isLoadingChannels)
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
+                            horizontal: t.spacingMd,
+                            vertical: t.spacingXs,
                           ),
-                          child: LinearProgressIndicator(),
+                          child: const LinearProgressIndicator(),
                         )
                       else if (liveConnector.channels
                           .where((c) => !c.isEmpty)
                           .isEmpty)
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: t.spacingMd,
+                            vertical: t.spacingXs,
                           ),
                           child: Text(context.l10n.map_noChannelsAvailable),
                         )
@@ -3329,6 +3371,7 @@ class _MapScreenState extends State<MapScreen> {
     BuildContext context,
     AppSettingsService settingsService,
   ) {
+    final t = MeshTokens.of(context);
     showMeshSheet(
       context,
       builder: (sheetContext) => StatefulBuilder(
@@ -3388,10 +3431,12 @@ class _MapScreenState extends State<MapScreen> {
                         ),
                         SectionHeader(sheetContext.l10n.map_activity),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: t.spacingMd,
+                          ),
                           child: Wrap(
-                            spacing: 8,
-                            runSpacing: 4,
+                            spacing: t.spacingXs,
+                            runSpacing: t.spacingXxs,
                             children: [
                               freshnessChip(
                                 _Freshness.all,
@@ -3422,7 +3467,9 @@ class _MapScreenState extends State<MapScreen> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: t.spacingXs,
+                          ),
                           child: Slider(
                             value: _hoursToSliderValue(
                               settings.mapTimeFilterHours,
@@ -3500,7 +3547,12 @@ class _MapScreenState extends State<MapScreen> {
                               service.setMapKeyPrefixEnabled(value),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+                          padding: EdgeInsets.fromLTRB(
+                            t.spacingMd,
+                            t.spacingXxs,
+                            t.spacingMd,
+                            t.spacingLg,
+                          ),
                           child: TextFormField(
                             initialValue: settings.mapKeyPrefix,
                             enabled: settings.mapKeyPrefixEnabled,
@@ -3656,6 +3708,7 @@ class _MapScreenState extends State<MapScreen> {
     final isImperial =
         context.read<AppSettingsService>().settings.unitSystem ==
         UnitSystem.imperial;
+    final t = MeshTokens.of(context);
     return Positioned(
       top: 16,
       left: 16,
@@ -3676,7 +3729,7 @@ class _MapScreenState extends State<MapScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: EdgeInsets.all(t.spacingSm),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -3687,7 +3740,7 @@ class _MapScreenState extends State<MapScreen> {
                     color: _overlayPrimaryTextColor,
                   ),
                 ),
-                if (_pathTrace.isEmpty) const SizedBox(height: 8),
+                if (_pathTrace.isEmpty) SizedBox(height: t.spacingXs),
                 if (_pathTrace.isEmpty)
                   Text(
                     l10n.map_tapToAdd,
@@ -3695,7 +3748,7 @@ class _MapScreenState extends State<MapScreen> {
                       color: _overlaySecondaryTextColor,
                     ),
                   ),
-                const SizedBox(height: 6),
+                SizedBox(height: t.spacingXs),
                 if (_pathTrace.isNotEmpty)
                   Text(
                     "${l10n.path_currentPathLabel} ${formatDistance(getPathDistanceMeters(_points), isImperial: isImperial)}",

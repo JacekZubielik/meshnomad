@@ -121,32 +121,44 @@ class ChannelMessagePathScreen extends StatelessWidget {
           body: SafeArea(
             top: false,
             child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: EdgeInsets.symmetric(
+                vertical: MeshTokens.of(context).spacingXs,
+              ),
               children: [
                 _buildSummaryCard(
                   context,
                   observedLabel: observedLabel,
                   effectiveHopCount: effectiveHopCount,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: MeshTokens.of(context).spacingMd),
                 if (extraPaths.isNotEmpty) ...[
                   SectionHeader(
                     l10n.channelPath_otherObservedPaths,
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: EdgeInsets.fromLTRB(
+                      MeshTokens.of(context).spacingMd,
+                      MeshTokens.of(context).spacingMd,
+                      MeshTokens.of(context).spacingMd,
+                      MeshTokens.of(context).spacingXs,
+                    ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: MeshTokens.of(context).spacingXs),
                   _buildPathVariants(context, extraPaths, hashByteWidth),
-                  const SizedBox(height: 16),
+                  SizedBox(height: MeshTokens.of(context).spacingMd),
                 ],
                 SectionHeader(
                   l10n.channelPath_repeaterHops,
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  padding: EdgeInsets.fromLTRB(
+                    MeshTokens.of(context).spacingMd,
+                    MeshTokens.of(context).spacingMd,
+                    MeshTokens.of(context).spacingMd,
+                    MeshTokens.of(context).spacingXs,
+                  ),
                 ),
                 if (!hasHopDetails)
                   _buildNoHopCard(context, l10n)
                 else
                   _buildHopTimeline(context, hops, l10n),
-                const SizedBox(height: 16),
+                SizedBox(height: MeshTokens.of(context).spacingMd),
               ],
             ),
           ),
@@ -169,8 +181,11 @@ class ChannelMessagePathScreen extends StatelessWidget {
         : RouteChip(isDirect: true, hops: effectiveHopCount);
 
     return MeshCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.all(14),
+      margin: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+        vertical: MeshTokens.of(context).spacingXxs,
+      ),
+      padding: EdgeInsets.all(MeshTokens.of(context).spacingMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -185,7 +200,7 @@ class ChannelMessagePathScreen extends StatelessWidget {
               ?routeChip,
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: MeshTokens.of(context).spacingSm),
           _buildDetailRow(
             context,
             l10n.channelPath_senderLabel,
@@ -234,8 +249,14 @@ class ChannelMessagePathScreen extends StatelessWidget {
       children: [
         for (int i = 0; i < variants.length; i++)
           MeshCard(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            margin: EdgeInsets.symmetric(
+              horizontal: MeshTokens.of(context).spacingMd,
+              vertical: MeshTokens.of(context).spacingXxs,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: MeshTokens.of(context).spacingMd,
+              vertical: MeshTokens.of(context).spacingSm,
+            ),
             onTap: () => _openPathMap(
               context,
               initialPath: variants[i],
@@ -270,7 +291,7 @@ class ChannelMessagePathScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: MeshTokens.of(context).spacingXs),
                 Icon(
                   Icons.map_outlined,
                   size: 20,
@@ -286,12 +307,15 @@ class ChannelMessagePathScreen extends StatelessWidget {
   Widget _buildNoHopCard(BuildContext context, AppLocalizations l10n) {
     final scheme = Theme.of(context).colorScheme;
     return MeshCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.all(14),
+      margin: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+        vertical: MeshTokens.of(context).spacingXxs,
+      ),
+      padding: EdgeInsets.all(MeshTokens.of(context).spacingMd),
       child: Row(
         children: [
           Icon(Icons.route_outlined, size: 20, color: scheme.onSurfaceVariant),
-          const SizedBox(width: 10),
+          SizedBox(width: MeshTokens.of(context).spacingSm),
           Expanded(
             child: Text(
               l10n.channelPath_noHopDetails,
@@ -310,7 +334,9 @@ class ChannelMessagePathScreen extends StatelessWidget {
   ) {
     if (hops.isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+      ),
       child: Column(
         children: [
           for (int i = 0; i < hops.length; i++)
@@ -384,19 +410,24 @@ class ChannelMessagePathScreen extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: 2,
-                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      margin: EdgeInsets.symmetric(
+                        vertical: MeshTokens.of(context).spacingXxs,
+                      ),
                       color: MeshTokens.of(context).primaryLine,
                     ),
                   )
                 else
-                  const SizedBox(height: 12),
+                  SizedBox(height: MeshTokens.of(context).spacingSm),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: MeshTokens.of(context).spacingSm),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 16, top: 4),
+              padding: EdgeInsets.only(
+                bottom: MeshTokens.of(context).spacingMd,
+                top: MeshTokens.of(context).spacingXxs,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -477,7 +508,9 @@ class ChannelMessagePathScreen extends StatelessWidget {
     required ColorScheme scheme,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(
+        vertical: 3,
+      ), // spacing: kept tighter than grid
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -490,7 +523,7 @@ class ChannelMessagePathScreen extends StatelessWidget {
               ).accentLabel(color: scheme.onSurfaceVariant),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: MeshTokens.of(context).spacingXs),
           Expanded(child: Text(value)),
         ],
       ),
@@ -1117,8 +1150,8 @@ class _ChannelMessagePathMapScreenState
                 if (points.isEmpty)
                   Center(
                     child: Container(
-                      margin: const EdgeInsets.all(24),
-                      padding: const EdgeInsets.all(14),
+                      margin: EdgeInsets.all(MeshTokens.of(context).spacingLg),
+                      padding: EdgeInsets.all(MeshTokens.of(context).spacingMd),
                       decoration: BoxDecoration(
                         color: mapScheme.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(
@@ -1166,7 +1199,10 @@ class _ChannelMessagePathMapScreenState
       child: SafeArea(
         child: Card(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: MeshTokens.of(context).spacingSm,
+              vertical: MeshTokens.of(context).spacingXs,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1174,7 +1210,7 @@ class _ChannelMessagePathMapScreenState
                   l10n.channelPath_observedPathHeader,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: MeshTokens.of(context).spacingXxs),
                 DropdownButtonHideUnderline(
                   child: DropdownButton<int>(
                     isExpanded: true,
@@ -1195,7 +1231,7 @@ class _ChannelMessagePathMapScreenState
                     },
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: MeshTokens.of(context).spacingXxs),
                 Text(
                   l10n.channelPath_selectedPathLabel(
                     label,
@@ -1458,7 +1494,10 @@ class _ChannelMessagePathMapScreenState
           child: FittedBox(
             fit: BoxFit.contain,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: EdgeInsets.symmetric(
+                horizontal: MeshTokens.of(context).spacingXs,
+                vertical: 2, // hairline
+              ),
               decoration: BoxDecoration(
                 color: Colors.black54,
                 borderRadius: BorderRadius.circular(8),
@@ -1540,7 +1579,12 @@ class _ChannelMessagePathMapScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 8, 4, 0),
+                      padding: EdgeInsets.fromLTRB(
+                        MeshTokens.of(context).spacingSm,
+                        MeshTokens.of(context).spacingXs,
+                        MeshTokens.of(context).spacingXxs,
+                        0,
+                      ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1570,7 +1614,9 @@ class _ChannelMessagePathMapScreenState
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(
+                                  height: MeshTokens.of(context).spacingXxs,
+                                ),
                                 PathMiniLegend(
                                   combined: combined,
                                   showInferred: false,
@@ -1611,7 +1657,12 @@ class _ChannelMessagePathMapScreenState
                       if (selectedDisplay != null &&
                           selectedDisplay.unresolvedHops > 0)
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
+                          padding: EdgeInsets.fromLTRB(
+                            MeshTokens.of(context).spacingSm,
+                            0,
+                            MeshTokens.of(context).spacingSm,
+                            MeshTokens.of(context).spacingXxs,
+                          ),
                           child: Text(
                             l10n.pathMap_partialAnimation(
                               selectedDisplay.unresolvedHops,
@@ -1686,7 +1737,9 @@ class _ChannelMessagePathMapScreenState
             (selectedDisplay?.color ?? MeshTokens.of(context).primary)
                 .withValues(alpha: 0.14);
         return ListView.separated(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          padding: EdgeInsets.symmetric(
+            vertical: MeshTokens.of(context).spacingXxs,
+          ),
           itemCount: hops.length,
           separatorBuilder: (_, _) => const Divider(height: 1),
           itemBuilder: (context, index) {
@@ -1701,9 +1754,9 @@ class _ChannelMessagePathMapScreenState
                     : isFocused
                     ? MeshTokens.of(context).primaryBg
                     : Colors.transparent,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
+                padding: EdgeInsets.symmetric(
+                  horizontal: MeshTokens.of(context).spacingSm,
+                  vertical: MeshTokens.of(context).spacingXs,
                 ),
                 child: Row(
                   children: [
@@ -1730,7 +1783,7 @@ class _ChannelMessagePathMapScreenState
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: MeshTokens.of(context).spacingSm),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
