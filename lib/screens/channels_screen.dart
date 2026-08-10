@@ -275,7 +275,8 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                             left: 0,
                             right: 0,
                             top: MeshTokens.of(context).spacingXs,
-                            bottom: 88, // spacing: rozmiar-specjalny (>25% od najblizszego stopnia)
+                            bottom:
+                                88, // spacing: rozmiar-specjalny (>25% od najblizszego stopnia)
                           ),
                           buildDefaultDragHandles: false,
                           itemCount: filteredChannels.length,
@@ -309,7 +310,8 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                             left: 0,
                             right: 0,
                             top: MeshTokens.of(context).spacingXs,
-                            bottom: 88, // spacing: rozmiar-specjalny (>25% od najblizszego stopnia)
+                            bottom:
+                                88, // spacing: rozmiar-specjalny (>25% od najblizszego stopnia)
                           ),
                           itemCount: filteredChannels.length,
                           itemBuilder: (context, index) {
@@ -425,8 +427,14 @@ class _ChannelsScreenState extends State<ChannelsScreen>
       index: dragIndex ?? listIndex,
       child: MeshCard(
         key: ValueKey('channel_${channel.index}'),
-        margin: EdgeInsets.symmetric(horizontal: MeshTokens.of(context).spacingMd, vertical: MeshTokens.of(context).spacingXxs),
-        padding: EdgeInsets.symmetric(horizontal: MeshTokens.of(context).spacingSm, vertical: MeshTokens.of(context).spacingSm), // spacing: vertical 10->Sm (+2px)
+        margin: EdgeInsets.symmetric(
+          horizontal: MeshTokens.of(context).spacingMd,
+          vertical: MeshTokens.of(context).spacingXxs,
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: MeshTokens.of(context).spacingSm,
+          vertical: MeshTokens.of(context).spacingSm,
+        ), // spacing: vertical 10->Sm (+2px)
         onTap: () {
           HapticFeedback.selectionClick();
           final unread = connector.getUnreadCountForChannelIndex(channel.index);
@@ -595,7 +603,11 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 // Top-aligned with the "CH n" / time line. Bottom padding keeps
                 // a comfortable drag target without pushing the icon down.
                 child: Padding(
-                  padding: EdgeInsets.only(left: MeshTokens.of(context).spacingXs, right: MeshTokens.of(context).spacingXs, bottom: MeshTokens.of(context).spacingMd),
+                  padding: EdgeInsets.only(
+                    left: MeshTokens.of(context).spacingXs,
+                    right: MeshTokens.of(context).spacingXs,
+                    bottom: MeshTokens.of(context).spacingMd,
+                  ),
                   child: Icon(
                     Icons.drag_handle,
                     size: 18,
@@ -844,8 +856,14 @@ class _ChannelsScreenState extends State<ChannelsScreen>
             final isSelected = selectedOption == optionIndex;
             final cardScheme = Theme.of(sheetContext).colorScheme;
             return MeshCard(
-              margin: EdgeInsets.symmetric(horizontal: MeshTokens.of(sheetContext).spacingMd, vertical: MeshTokens.of(sheetContext).spacingXxs),
-              padding: EdgeInsets.symmetric(horizontal: MeshTokens.of(sheetContext).spacingSm, vertical: MeshTokens.of(sheetContext).spacingSm), // spacing: vertical 10->Sm (+2px)
+              margin: EdgeInsets.symmetric(
+                horizontal: MeshTokens.of(sheetContext).spacingMd,
+                vertical: MeshTokens.of(sheetContext).spacingXxs,
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: MeshTokens.of(sheetContext).spacingSm,
+                vertical: MeshTokens.of(sheetContext).spacingSm,
+              ), // spacing: vertical 10->Sm (+2px)
               borderColor: isSelected && enabled
                   ? MeshTokens.of(sheetContext).primaryLine
                   : null,
@@ -938,7 +956,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: MeshTokens.of(sheetContext).spacingMd),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -1016,7 +1036,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: MeshTokens.of(sheetContext).spacingMd),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -1196,7 +1218,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     // Privacy hint for community hashtags
                     if (!isRegularHashtag)
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: MeshTokens.of(sheetContext).spacingMd),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: MeshTokens.of(sheetContext).spacingMd,
+                        ),
                         child: Text(
                           sheetContext.l10n.community_hashtagPrivacyHint,
                           style: Theme.of(sheetContext).textTheme.bodyMedium
@@ -1365,7 +1389,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: MeshTokens.of(sheetContext).spacingMd),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -1462,7 +1488,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 Expanded(
                   child: ListView(
                     controller: scrollController,
-                    padding: EdgeInsets.only(bottom: MeshTokens.of(sheetContext).spacingLg),
+                    padding: EdgeInsets.only(
+                      bottom: MeshTokens.of(sheetContext).spacingLg,
+                    ),
                     children: [
                       buildOptionCard(
                         optionIndex: 0,
@@ -1564,7 +1592,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
               Expanded(
                 child: ListView(
                   controller: scrollController,
-                  padding: EdgeInsets.symmetric(horizontal: MeshTokens.of(sheetContext).spacingMd),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MeshTokens.of(sheetContext).spacingMd,
+                  ),
                   children: [
                     SizedBox(height: MeshTokens.of(sheetContext).spacingXs),
                     TextField(
@@ -1621,7 +1651,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     ),
                     if (cyr2latEnabled) ...[
                       Padding(
-                        padding: EdgeInsets.fromLTRB(0, MeshTokens.of(sheetContext).spacingXs, 0, MeshTokens.of(sheetContext).spacingXs),
+                        padding: EdgeInsets.fromLTRB(
+                          0,
+                          MeshTokens.of(sheetContext).spacingXs,
+                          0,
+                          MeshTokens.of(sheetContext).spacingXs,
+                        ),
                         child: DropdownButtonFormField<String>(
                           initialValue: selectedCyr2LatProfileId,
                           decoration: InputDecoration(
@@ -1649,7 +1684,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 ),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(MeshTokens.of(sheetContext).spacingMd, MeshTokens.of(sheetContext).spacingXs, MeshTokens.of(sheetContext).spacingMd, MeshTokens.of(sheetContext).spacingMd),
+                padding: EdgeInsets.fromLTRB(
+                  MeshTokens.of(sheetContext).spacingMd,
+                  MeshTokens.of(sheetContext).spacingXs,
+                  MeshTokens.of(sheetContext).spacingMd,
+                  MeshTokens.of(sheetContext).spacingMd,
+                ),
                 child: Row(
                   children: [
                     Expanded(
@@ -1833,7 +1873,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                 .onSurfaceVariant
                                 .withValues(alpha: 0.6),
                           ),
-                          SizedBox(height: MeshTokens.of(sheetContext).spacingMd),
+                          SizedBox(
+                            height: MeshTokens.of(sheetContext).spacingMd,
+                          ),
                           Text(
                             sheetContext.l10n.community_noCommunities,
                             style: TextStyle(
@@ -1843,7 +1885,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                               ).colorScheme.onSurfaceVariant,
                             ),
                           ),
-                          SizedBox(height: MeshTokens.of(sheetContext).spacingXs),
+                          SizedBox(
+                            height: MeshTokens.of(sheetContext).spacingXs,
+                          ),
                           Text(
                             sheetContext.l10n.community_scanOrCreate,
                             style: TextStyle(
@@ -1900,7 +1944,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                 child: Row(
                                   children: [
                                     const Icon(Icons.qr_code),
-                                    SizedBox(width: MeshTokens.of(context).spacingSm),
+                                    SizedBox(
+                                      width: MeshTokens.of(context).spacingSm,
+                                    ),
                                     Text(context.l10n.community_showQr),
                                   ],
                                 ),
@@ -1915,7 +1961,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                         context,
                                       ).colorScheme.error,
                                     ),
-                                    SizedBox(width: MeshTokens.of(context).spacingSm),
+                                    SizedBox(
+                                      width: MeshTokens.of(context).spacingSm,
+                                    ),
                                     Text(
                                       context.l10n.community_delete,
                                       style: TextStyle(
