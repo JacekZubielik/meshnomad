@@ -205,5 +205,48 @@ void main() {
       expect(tokens.mapOffline, MeshTokens.defaultTokens.mapOffline);
       expect(tokens.losTerrain, MeshTokens.defaultTokens.losTerrain);
     });
+
+    test(
+      'default spacing scale is 4/8/12/16/24/32/48 in both brightnesses',
+      () {
+        for (final tokens in [
+          MeshTokens.defaultTokens,
+          MeshTokens.defaultTokensLight,
+        ]) {
+          expect(tokens.spacingXxs, 4);
+          expect(tokens.spacingXs, 8);
+          expect(tokens.spacingSm, 12);
+          expect(tokens.spacingMd, 16);
+          expect(tokens.spacingLg, 24);
+          expect(tokens.spacingXlg, 32);
+          expect(tokens.spacingXxlg, 48);
+        }
+      },
+    );
+
+    test(
+      'a present spacing override wins over the default in both variants',
+      () {
+        final style = buildCustomStyle(
+          const CustomStyleOverrides(spacingOverrides: {'spacingMd': 24.0}),
+        );
+        expect(style.dark.extension<MeshTokens>()!.spacingMd, 24.0);
+        expect(style.light.extension<MeshTokens>()!.spacingMd, 24.0);
+        expect(
+          style.dark.extension<MeshTokens>()!.spacingXs,
+          MeshTokens.defaultTokens.spacingXs,
+        );
+      },
+    );
+
+    test('an unknown spacing key silently falls back to defaults', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(spacingOverrides: {'notARealStep': 99.0}),
+      );
+      expect(
+        style.dark.extension<MeshTokens>()!.spacingMd,
+        MeshTokens.defaultTokens.spacingMd,
+      );
+    });
   });
 }

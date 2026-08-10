@@ -16,6 +16,7 @@ class CustomStyleOverrides {
     this.colorOverridesLight = const {},
     this.colorOverridesDark = const {},
     this.fontSizeOverrides = const {},
+    this.spacingOverrides = const {},
   });
 
   /// The closed set of `MeshTokens` color fields the editor UI exposes.
@@ -83,9 +84,22 @@ class CustomStyleOverrides {
     'monoBodySize',
   ];
 
+  /// The closed set of `MeshTokens` spacing fields the editor UI exposes —
+  /// keys mirror the Dart field names 1:1.
+  static const List<String> editableSpacingKeys = [
+    'spacingXxs',
+    'spacingXs',
+    'spacingSm',
+    'spacingMd',
+    'spacingLg',
+    'spacingXlg',
+    'spacingXxlg',
+  ];
+
   final Map<String, int> colorOverridesLight; // key -> Color.value (ARGB int)
   final Map<String, int> colorOverridesDark; // key -> Color.value (ARGB int)
   final Map<String, double> fontSizeOverrides;
+  final Map<String, double> spacingOverrides;
 
   /// Returns the color-override map for [brightness] — the single read path
   /// callers (editor rows, `buildCustomStyle`) should use instead of picking
@@ -97,11 +111,13 @@ class CustomStyleOverrides {
     Map<String, int>? colorOverridesLight,
     Map<String, int>? colorOverridesDark,
     Map<String, double>? fontSizeOverrides,
+    Map<String, double>? spacingOverrides,
   }) {
     return CustomStyleOverrides(
       colorOverridesLight: colorOverridesLight ?? this.colorOverridesLight,
       colorOverridesDark: colorOverridesDark ?? this.colorOverridesDark,
       fontSizeOverrides: fontSizeOverrides ?? this.fontSizeOverrides,
+      spacingOverrides: spacingOverrides ?? this.spacingOverrides,
     );
   }
 
@@ -110,6 +126,7 @@ class CustomStyleOverrides {
       'colors_light': colorOverridesLight,
       'colors_dark': colorOverridesDark,
       'font_sizes': fontSizeOverrides,
+      'spacing': spacingOverrides,
     };
   }
 
@@ -134,11 +151,13 @@ class CustomStyleOverrides {
           _parseIntMap(json['colors_dark']),
         ),
         fontSizeOverrides: _parseDoubleMap(json['font_sizes']),
+        spacingOverrides: _parseDoubleMap(json['spacing']),
       );
     }
     return CustomStyleOverrides(
       colorOverridesDark: _migrateColorKeys(_parseIntMap(json['colors'])),
       fontSizeOverrides: _parseDoubleMap(json['font_sizes']),
+      spacingOverrides: _parseDoubleMap(json['spacing']),
     );
   }
 

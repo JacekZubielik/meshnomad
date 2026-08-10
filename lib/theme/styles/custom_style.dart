@@ -162,6 +162,9 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
   double monoBodySizeFor(MeshTokens base) =>
       overrides.fontSizeOverrides['monoBodySize'] ?? base.monoBodySize;
 
+  double spacingFor(String key, double base) =>
+      overrides.spacingOverrides[key] ?? base;
+
   // C3: Material widgets reading `Theme.of(context).colorScheme.*` (not
   // `MeshTokens.of(context)`) must also see the overridden accent — rebuild
   // both brightness variants' [ColorScheme] from the same tokens, mirroring
@@ -313,6 +316,22 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       applyColorOverrides(MeshTokens.defaultTokens, Brightness.dark).copyWith(
         monoCaptionSize: monoCaptionSizeFor(MeshTokens.defaultTokens),
         monoBodySize: monoBodySizeFor(MeshTokens.defaultTokens),
+        spacingXxs: spacingFor(
+          'spacingXxs',
+          MeshTokens.defaultTokens.spacingXxs,
+        ),
+        spacingXs: spacingFor('spacingXs', MeshTokens.defaultTokens.spacingXs),
+        spacingSm: spacingFor('spacingSm', MeshTokens.defaultTokens.spacingSm),
+        spacingMd: spacingFor('spacingMd', MeshTokens.defaultTokens.spacingMd),
+        spacingLg: spacingFor('spacingLg', MeshTokens.defaultTokens.spacingLg),
+        spacingXlg: spacingFor(
+          'spacingXlg',
+          MeshTokens.defaultTokens.spacingXlg,
+        ),
+        spacingXxlg: spacingFor(
+          'spacingXxlg',
+          MeshTokens.defaultTokens.spacingXxlg,
+        ),
       );
   final lightTokens =
       applyColorOverrides(
@@ -321,6 +340,34 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       ).copyWith(
         monoCaptionSize: monoCaptionSizeFor(MeshTokens.defaultTokensLight),
         monoBodySize: monoBodySizeFor(MeshTokens.defaultTokensLight),
+        spacingXxs: spacingFor(
+          'spacingXxs',
+          MeshTokens.defaultTokensLight.spacingXxs,
+        ),
+        spacingXs: spacingFor(
+          'spacingXs',
+          MeshTokens.defaultTokensLight.spacingXs,
+        ),
+        spacingSm: spacingFor(
+          'spacingSm',
+          MeshTokens.defaultTokensLight.spacingSm,
+        ),
+        spacingMd: spacingFor(
+          'spacingMd',
+          MeshTokens.defaultTokensLight.spacingMd,
+        ),
+        spacingLg: spacingFor(
+          'spacingLg',
+          MeshTokens.defaultTokensLight.spacingLg,
+        ),
+        spacingXlg: spacingFor(
+          'spacingXlg',
+          MeshTokens.defaultTokensLight.spacingXlg,
+        ),
+        spacingXxlg: spacingFor(
+          'spacingXxlg',
+          MeshTokens.defaultTokensLight.spacingXxlg,
+        ),
       );
 
   return MeshStyle(

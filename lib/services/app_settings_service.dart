@@ -282,6 +282,32 @@ class AppSettingsService extends ChangeNotifier {
     );
   }
 
+  Future<void> setCustomSpacingOverride(String key, double value) async {
+    final spacing = Map<String, double>.from(
+      _settings.customStyleOverrides.spacingOverrides,
+    )..[key] = value;
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: _settings.customStyleOverrides.copyWith(
+          spacingOverrides: spacing,
+        ),
+      ),
+    );
+  }
+
+  Future<void> resetCustomSpacingOverride(String key) async {
+    final spacing = Map<String, double>.from(
+      _settings.customStyleOverrides.spacingOverrides,
+    )..remove(key);
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: _settings.customStyleOverrides.copyWith(
+          spacingOverrides: spacing,
+        ),
+      ),
+    );
+  }
+
   Future<void> resetAllCustomOverrides() async {
     await updateSettings(
       _settings.copyWith(customStyleOverrides: const CustomStyleOverrides()),
