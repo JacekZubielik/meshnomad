@@ -61,6 +61,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
   }
 
   Widget _buildThemedOverlay(BuildContext context) {
+    final t = MeshTokens.of(context);
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -104,11 +105,13 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 250 + 24),
+              const SizedBox(
+                height: 250 + 24,
+              ), // spacing: coupled to QR overlay geometry (scanWindowSize + cornerLength), not a spacing token
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
+                padding: EdgeInsets.symmetric(
+                  horizontal: t.spacingLg,
+                  vertical: t.spacingSm,
                 ),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.72),
@@ -192,13 +195,19 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
       context,
       builder: (sheetContext) {
         final sheetScheme = Theme.of(sheetContext).colorScheme;
+        final t = MeshTokens.of(sheetContext);
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             BottomSheetHeader(title: context.l10n.community_alreadyMember),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+              padding: EdgeInsets.fromLTRB(
+                t.spacingLg,
+                0,
+                t.spacingLg,
+                t.spacingXxs,
+              ),
               child: Text(
                 context.l10n.community_alreadyMemberMessage(community.name),
                 style: TextStyle(color: sheetScheme.onSurfaceVariant),
@@ -212,7 +221,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                     color: MeshTokens.of(sheetContext).secondary,
                     size: 32,
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: t.spacingMd),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,7 +244,12 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              padding: EdgeInsets.fromLTRB(
+                t.spacingMd,
+                t.spacingXs,
+                t.spacingMd,
+                t.spacingMd,
+              ),
               child: FilledButton(
                 onPressed: () {
                   Navigator.pop(sheetContext);
@@ -262,13 +276,19 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
       builder: (sheetContext) => StatefulBuilder(
         builder: (sheetContext, setSheetState) {
           final joinScheme = Theme.of(sheetContext).colorScheme;
+          final t = MeshTokens.of(sheetContext);
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               BottomSheetHeader(title: context.l10n.community_joinTitle),
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+                padding: EdgeInsets.fromLTRB(
+                  t.spacingLg,
+                  0,
+                  t.spacingLg,
+                  t.spacingXxs,
+                ),
                 child: Text(
                   context.l10n.community_joinConfirmation(community.name),
                   style: TextStyle(color: joinScheme.onSurfaceVariant),
@@ -283,7 +303,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                       color: MeshTokens.of(sheetContext).secondary,
                       size: 44,
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: t.spacingMd),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,10 +335,15 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                 title: Text(context.l10n.community_addPublicChannel),
                 subtitle: Text(context.l10n.community_addPublicChannelHint),
                 controlAffinity: ListTileControlAffinity.leading,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                contentPadding: EdgeInsets.symmetric(horizontal: t.spacingMd),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                padding: EdgeInsets.fromLTRB(
+                  t.spacingMd,
+                  t.spacingXs,
+                  t.spacingMd,
+                  t.spacingMd,
+                ),
                 child: Row(
                   children: [
                     Expanded(
@@ -330,7 +355,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
                         child: Text(context.l10n.common_cancel),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: t.spacingSm),
                     Expanded(
                       child: FilledButton(
                         onPressed: () {

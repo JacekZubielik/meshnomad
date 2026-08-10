@@ -235,6 +235,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
     final connector = context.watch<MeshCoreConnector>();
     final repeater = _resolveRepeater(connector);
     final isFloodMode = repeater.pathOverride == -1;
+    final t = MeshTokens.of(context);
     return AlertDialog(
       title: Row(
         children: [
@@ -244,7 +245,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
             color: MeshTokens.of(context).secondary,
             icon: Icons.group,
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: t.spacingSm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,10 +271,10 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
         ],
       ),
       content: _isLoading
-          ? const Center(
+          ? Center(
               child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: CircularProgressIndicator(),
+                padding: EdgeInsets.all(t.spacingLg),
+                child: const CircularProgressIndicator(),
               ),
             )
           : SingleChildScrollView(
@@ -287,7 +288,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                       fontSize: descriptionFontSize,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: t.spacingMd),
                   TextField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
@@ -313,7 +314,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                         !PlatformInfo.isMobile &&
                         _passwordController.text.isEmpty,
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: t.spacingSm),
                   CheckboxListTile(
                     value: _savePassword,
                     onChanged: (value) {
@@ -371,7 +372,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                                   size: 20,
                                   color: !isFloodMode ? scheme.primary : null,
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: t.spacingXs),
                                 Text(
                                   l10n.login_autoUseSavedPath,
                                   style: TextStyle(
@@ -392,7 +393,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                                   size: 20,
                                   color: isFloodMode ? scheme.primary : null,
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: t.spacingXs),
                                 Text(
                                   l10n.login_forceFloodMode,
                                   style: TextStyle(
@@ -408,7 +409,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: t.spacingXxs),
                   Text(
                     repeater.pathLabel(
                       context.l10n,
@@ -418,7 +419,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                       color: scheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: t.spacingXs),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: TextButton.icon(
@@ -452,7 +453,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                       color: scheme.onPrimary,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: t.spacingSm),
                   Text(l10n.login_attempt(_currentAttempt, _maxAttempts)),
                 ],
               ),

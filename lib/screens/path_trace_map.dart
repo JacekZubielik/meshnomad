@@ -1066,7 +1066,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                           CircularProgressIndicator(
                             color: MeshTokens.of(context).primary,
                           ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: MeshTokens.of(context).spacingMd),
                         if (!_isLoading && _failed2Loaded)
                           Text(
                             context.l10n.pathTrace_notAvailable,
@@ -1098,7 +1098,9 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                         border: Border.all(color: scheme.outlineVariant),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(12),
+                        padding: EdgeInsets.all(
+                          MeshTokens.of(context).spacingSm,
+                        ),
                         child: Text(
                           context.l10n.channelPath_noRepeaterLocations,
                           style: TextStyle(color: scheme.onSurfaceVariant),
@@ -1463,7 +1465,11 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
           child: FittedBox(
             fit: BoxFit.contain,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              // spacing: horizontal kept at spacingXs (+2px, table rule); vertical 2 hairline, kept as literal
+              padding: EdgeInsets.symmetric(
+                horizontal: MeshTokens.of(context).spacingXs,
+                vertical: 2,
+              ),
               decoration: BoxDecoration(
                 color: MeshTokens.of(context).bg.withValues(alpha: 0.82),
                 borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
@@ -1705,7 +1711,12 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 4, 0),
+                  padding: EdgeInsets.fromLTRB(
+                    MeshTokens.of(context).spacingSm,
+                    MeshTokens.of(context).spacingXs,
+                    MeshTokens.of(context).spacingXxs,
+                    0,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1720,7 +1731,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                                 color: MeshTokens.of(context).ink,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: MeshTokens.of(context).spacingXxs),
                             PathMiniLegend(combined: combined),
                           ],
                         ),
@@ -1756,7 +1767,12 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                 if (!_panelCollapsed) ...[
                   if (selected != null && selected.unresolvedHops > 0)
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
+                      padding: EdgeInsets.fromLTRB(
+                        MeshTokens.of(context).spacingSm,
+                        0,
+                        MeshTokens.of(context).spacingSm,
+                        MeshTokens.of(context).spacingXxs,
+                      ),
                       child: Text(
                         l10n.pathMap_partialAnimation(selected.unresolvedHops),
                         style: TextStyle(
@@ -1819,7 +1835,9 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
     }
     return Scrollbar(
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: EdgeInsets.symmetric(
+          vertical: MeshTokens.of(context).spacingXxs,
+        ),
         itemCount: pathTraceData.pathData.length + 1,
         separatorBuilder: (_, _) => const Divider(height: 1),
         itemBuilder: (context, index) {
@@ -1884,7 +1902,9 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
 
     return Scrollbar(
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: EdgeInsets.symmetric(
+          vertical: MeshTokens.of(context).spacingXxs,
+        ),
         itemCount: path.totalTransmissions,
         separatorBuilder: (_, _) => const Divider(height: 1),
         itemBuilder: (context, index) {

@@ -57,7 +57,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       case advTypeRoom:
         return MeshTokens.of(context).secondary;
       case advTypeSensor:
-        return const Color(0xFF4ACCC4); // teal
+        return sensorTypeAccent;
       default:
         return MeshTokens.of(context).primary;
     }
@@ -88,6 +88,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   Widget _screenBody(BuildContext context) {
     final l10n = context.l10n;
     final connector = context.watch<MeshCoreConnector>();
+    final t = MeshTokens.of(context);
 
     final discoveredContacts = connector.discoveredContacts;
     final filteredAndSorted = _filterAndSortContacts(
@@ -113,7 +114,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                       Icons.delete,
                       color: Theme.of(context).colorScheme.error,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: MeshTokens.of(context).spacingXs),
                     Text(context.l10n.discoveredContacts_deleteContactAll),
                   ],
                 ),
@@ -144,7 +145,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                     )
                   : ListView.builder(
                       key: const ValueKey('list'),
-                      padding: const EdgeInsets.only(bottom: 24),
+                      padding: EdgeInsets.only(bottom: t.spacingLg),
                       itemCount: filteredAndSorted.length,
                       itemBuilder: (context, index) {
                         final contact = filteredAndSorted[index];
@@ -172,6 +173,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   ) {
     final scheme = Theme.of(context).colorScheme;
     final isChat = contact.type == advTypeChat;
+    final t = MeshTokens.of(context);
 
     return ListEntrance(
       index: index,
@@ -207,7 +209,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
         onSecondaryTap: PlatformInfo.isDesktop
             ? () => _showContactContextMenu(contact, connector)
             : null,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: EdgeInsets.symmetric(
+          horizontal: t.spacingMd,
+          vertical: t.spacingSm,
+        ),
         child: Row(
           children: [
             AvatarCircle(
@@ -216,7 +221,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               color: isChat ? null : _avatarColor(contact.type),
               icon: _avatarIcon(contact.type),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: t.spacingSm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,7 +239,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                               ?.copyWith(fontWeight: FontWeight.w500),
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      SizedBox(width: t.spacingXs),
                       StatusChip(
                         label: contact.typeLabel(context.l10n).toUpperCase(),
                         color: _avatarColor(contact.type),
@@ -242,7 +247,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 3),
+                  SizedBox(height: t.spacingXxs),
                   // Short pub key
                   Row(
                     children: [
@@ -257,7 +262,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                         ),
                       ),
                       if (contact.hasLocation) ...[
-                        const SizedBox(width: 6),
+                        SizedBox(width: t.spacingXs),
                         Icon(
                           Icons.location_on,
                           size: 13,
@@ -267,7 +272,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                         ),
                       ],
                       if (contact.rawPacket != null) ...[
-                        const SizedBox(width: 4),
+                        SizedBox(width: t.spacingXxs),
                         Icon(
                           Icons.cell_tower,
                           size: 13,
@@ -281,7 +286,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 ],
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: t.spacingSm),
             // Last seen time
             MediaQuery(
               data: MediaQuery.of(context).copyWith(
@@ -313,6 +318,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       context,
       builder: (sheetContext) {
         final l10n = context.l10n;
+        final t = MeshTokens.of(context);
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -331,7 +337,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 title: Text(l10n.discoveredContacts_deleteContact),
                 onTap: () => Navigator.of(sheetContext).pop('delete_contact'),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: t.spacingXs),
             ],
           ),
         );
@@ -385,6 +391,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
     List<Contact> filteredAndSorted,
     MeshCoreConnector connector,
   ) {
+    final t = MeshTokens.of(context);
     String hintText = "";
     switch (typeFilter) {
       case ContactTypeFilter.all:
@@ -422,7 +429,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(t.spacingXs),
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
@@ -447,9 +454,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: t.spacingMd,
+                vertical: t.spacingSm,
               ),
             ),
             onChanged: (value) {

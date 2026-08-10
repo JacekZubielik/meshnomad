@@ -10,6 +10,7 @@ import '../models/contact.dart';
 import '../models/path_history.dart';
 import '../screens/path_trace_map.dart';
 import '../services/path_history_service.dart';
+import '../theme/mesh_tokens.dart';
 import 'path_editor_sheet.dart';
 
 enum _RoutingMode { auto, flood, manual }
@@ -311,7 +312,7 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SelectableText(formattedPath),
-            const SizedBox(height: 8),
+            SizedBox(height: MeshTokens.of(context).spacingXs),
             SelectableText(
               resolvedNames,
               style: Theme.of(dialogContext).textTheme.titleSmall?.copyWith(
@@ -351,12 +352,18 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final t = MeshTokens.of(context);
     final displayBytes = _displayBytes(contact, mode);
 
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        padding: EdgeInsets.fromLTRB(
+          t.spacingMd,
+          t.spacingMd,
+          t.spacingMd,
+          t.spacingXs,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -367,14 +374,14 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
                   size: 18,
                   color: scheme.primary,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: t.spacingXs),
                 Text(
                   l10n.routing_currentRoute,
                   style: theme.textTheme.titleSmall,
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: t.spacingXs),
             Text(
               _routeText(context, connector, contact, mode),
               style: theme.textTheme.bodyMedium,
@@ -383,7 +390,7 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
                 floodStats != null &&
                 (floodStats.successCount > 0 || floodStats.failureCount > 0))
               Padding(
-                padding: const EdgeInsets.only(top: 4),
+                padding: EdgeInsets.only(top: t.spacingXxs),
                 child: Text(
                   _floodStatsLine(context, floodStats),
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -393,7 +400,7 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
               ),
             if (_syncStatus != null)
               Padding(
-                padding: const EdgeInsets.only(top: 4),
+                padding: EdgeInsets.only(top: t.spacingXxs),
                 child: Text(
                   _syncStatus!,
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -402,7 +409,7 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
                 ),
               ),
             Wrap(
-              spacing: 8,
+              spacing: t.spacingXs,
               children: [
                 if (displayBytes.isNotEmpty)
                   TextButton.icon(
@@ -473,7 +480,7 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
     final scheme = Theme.of(context).colorScheme;
 
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
+      margin: EdgeInsets.symmetric(vertical: MeshTokens.of(context).spacingXxs),
       child: ListTile(
         leading: CircleAvatar(
           radius: 18,
@@ -572,7 +579,9 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
                 _showPathDetail(context, connector, contact, record.pathBytes)
           : null,
       child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 4),
+        margin: EdgeInsets.symmetric(
+          vertical: MeshTokens.of(context).spacingXxs,
+        ),
         child: ListTile(
           enabled: hasBytes,
           leading: CircleAvatar(
@@ -635,6 +644,7 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final t = MeshTokens.of(context);
 
     return Consumer2<MeshCoreConnector, PathHistoryService>(
       builder: (context, connector, pathService, _) {
@@ -671,7 +681,12 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
 
         return ListView(
           controller: widget.scrollController,
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          padding: EdgeInsets.fromLTRB(
+            t.spacingMd,
+            t.spacingXs,
+            t.spacingMd,
+            t.spacingLg,
+          ),
           children: [
             Center(
               child: Container(
@@ -683,7 +698,7 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: t.spacingSm),
             Text(l10n.routing_title, style: theme.textTheme.titleLarge),
             Text(
               contact.name,
@@ -693,7 +708,7 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
                 color: scheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             SegmentedButton<_RoutingMode>(
               style: const ButtonStyle(
                 minimumSize: WidgetStatePropertyAll(Size.fromHeight(44)),
@@ -719,16 +734,16 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
               onSelectionChanged: (selection) =>
                   _selectMode(connector, contact, selection.first),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: t.spacingXs),
             Text(
               _modeHint(context, mode),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: scheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             _currentRouteCard(context, connector, contact, mode, floodStats),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             Text(l10n.routing_knownPaths, style: theme.textTheme.titleSmall),
             Text(
               l10n.routing_knownPathsHint,
@@ -736,12 +751,12 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
                 color: scheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: t.spacingXs),
             if (hasFloodStats)
               _floodTile(context, connector, contact, mode, floodStats),
             if (entries.isEmpty && !hasFloodStats)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: EdgeInsets.symmetric(vertical: t.spacingXs),
                 child: Text(
                   l10n.chat_noPathHistoryYet,
                   style: theme.textTheme.bodySmall?.copyWith(

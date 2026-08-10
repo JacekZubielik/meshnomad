@@ -384,7 +384,7 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(MeshTokens.of(context).spacingMd),
           children: [
             if (!_isLoaded &&
                 !_hasData &&
@@ -421,12 +421,24 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
     int channel,
     bool isImperialUnits,
   ) {
+    final t = MeshTokens.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(title, padding: const EdgeInsets.fromLTRB(16, 16, 16, 8)),
+        SectionHeader(
+          title,
+          padding: EdgeInsets.fromLTRB(
+            t.spacingMd,
+            t.spacingMd,
+            t.spacingMd,
+            t.spacingXs,
+          ),
+        ),
         MeshCard(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXs,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -594,15 +606,21 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
     final l10n = context.l10n;
     final counterText = _autoRefreshCounterText();
 
+    final t = MeshTokens.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHeader(
           l10n.common_autoRefresh,
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: EdgeInsets.fromLTRB(
+            t.spacingMd,
+            t.spacingMd,
+            t.spacingMd,
+            t.spacingXs,
+          ),
         ),
         MeshCard(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(t.spacingMd),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -613,7 +631,7 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
                 max: _autoRefreshMaxIntervalSeconds,
                 fallback: _autoRefreshIntervalSeconds,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: t.spacingSm),
               _buildAutoRefreshNumberField(
                 controller: _autoRefreshQuantityController,
                 label: l10n.telemetry_autoFetchQuantity,
@@ -622,7 +640,7 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
                 fallback: _autoRefreshDefaultQuantity,
               ),
               if (counterText != null) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: t.spacingSm),
                 Text(
                   counterText,
                   textAlign: TextAlign.center,
@@ -634,7 +652,7 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
                   ),
                 ),
               ],
-              const SizedBox(height: 12),
+              SizedBox(height: t.spacingSm),
               FilledButton(
                 onPressed: _isLoading && !_isAutoRefreshEnabled
                     ? null
@@ -900,7 +918,7 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
   Widget _buildInfoRow(String label, String value) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(vertical: MeshTokens.of(context).spacingXs),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -913,7 +931,7 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: MeshTokens.of(context).spacingXs),
           SelectableText(
             value,
             style: MeshTokens.of(context).monoBody(color: scheme.onSurface),

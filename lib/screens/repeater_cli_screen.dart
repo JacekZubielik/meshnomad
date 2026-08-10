@@ -266,6 +266,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
     final connector = context.watch<MeshCoreConnector>();
     final repeater = _resolveRepeater(connector);
     final isFloodMode = repeater.pathOverride == -1;
+    final t = MeshTokens.of(context);
 
     return Scaffold(
       backgroundColor: MeshTokens.of(context).bg,
@@ -310,7 +311,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                 child: Row(
                   children: [
                     const Icon(Icons.bug_report),
-                    const SizedBox(width: 8),
+                    SizedBox(width: MeshTokens.of(context).spacingXs),
                     Text(l10n.repeater_debugNextCommand),
                   ],
                 ),
@@ -324,14 +325,19 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
           // Quick commands bar
           Container(
             color: MeshTokens.of(context).bg1,
-            padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+            padding: EdgeInsets.fromLTRB(
+              t.spacingXs,
+              t.spacingXs,
+              t.spacingXs,
+              t.spacingXs,
+            ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: _quickCommands.map((cmd) {
                   final label = _quickCommandLabel(cmd['labelKey']!);
                   return Padding(
-                    padding: const EdgeInsets.only(right: 6),
+                    padding: EdgeInsets.only(right: t.spacingXs),
                     child: ActionChip(
                       label: Text(
                         label,
@@ -365,7 +371,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
           // Command input
           Container(
             color: MeshTokens.of(context).bg1,
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+            padding: EdgeInsets.all(t.spacingXs),
             child: SafeArea(
               child: Row(
                 children: [
@@ -389,7 +395,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                     onPressed: () => _navigateHistory(false),
                     visualDensity: VisualDensity.compact,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: t.spacingXxs),
                   Expanded(
                     child: TextField(
                       controller: _commandController,
@@ -409,9 +415,9 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                         ),
                         filled: true,
                         fillColor: MeshTokens.of(context).bg2,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: t.spacingSm,
+                          vertical: t.spacingSm,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
@@ -443,7 +449,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                       onSubmitted: (_) => _sendCommand(),
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: t.spacingXs),
                   Material(
                     color: MeshTokens.of(
                       context,
@@ -460,7 +466,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                         _sendCommand();
                       },
                       child: Padding(
-                        padding: const EdgeInsets.all(10),
+                        padding: EdgeInsets.all(t.spacingSm),
                         child: Icon(
                           Icons.send,
                           size: 18,
@@ -480,19 +486,20 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
 
   Widget _buildEmptyState() {
     final l10n = context.l10n;
+    final t = MeshTokens.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.terminal, size: 48, color: MeshTokens.of(context).ink4),
-          const SizedBox(height: 12),
+          SizedBox(height: t.spacingSm),
           Text(
             l10n.repeater_noCommandsSent,
             style: MeshTokens.of(
               context,
             ).monoCaption(color: MeshTokens.of(context).ink3),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: t.spacingXxs),
           Text(
             l10n.repeater_typeCommandOrUseQuick,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -505,9 +512,13 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
   }
 
   Widget _buildCommandHistory() {
+    final t = MeshTokens.of(context);
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: t.spacingSm,
+        vertical: t.spacingXs,
+      ),
       itemCount: _commandHistory.length,
       itemBuilder: (context, index) {
         final entry = _commandHistory[index];
@@ -532,7 +543,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                       .copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: t.spacingXs),
               Expanded(
                 child: SelectableText(
                   entry['text']!,
@@ -565,6 +576,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
 
   void _showCommandHelp(BuildContext context) {
     final l10n = context.l10n;
+    final t = MeshTokens.of(context);
     final generalCommands = [
       _CommandHelpEntry(
         command: 'advert',
@@ -1097,54 +1109,54 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                 l10n.repeater_commandsListNote,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               _buildHelpSection(
                 context,
                 l10n.repeater_general,
                 generalCommands,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               _buildHelpSection(
                 context,
                 l10n.repeater_getCategory,
                 getCommands,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               _buildHelpSection(
                 context,
                 l10n.repeater_settingsCategory,
                 settingsCommands,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               _buildHelpSection(
                 context,
                 l10n.repeater_powerMgmt,
                 powerMgmtCommands,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               _buildHelpSection(context, l10n.repeater_sensors, sensorCommands),
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               _buildHelpSection(context, l10n.repeater_bridge, bridgeCommands),
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               _buildHelpSection(
                 context,
                 l10n.repeater_logging,
                 loggingCommands,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               _buildHelpSection(
                 context,
                 l10n.repeater_neighborsRepeaterOnly,
                 neighborCommands,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               _buildHelpSection(
                 context,
                 l10n.repeater_regionManagementRepeaterOnly,
                 regionCommands,
                 note: l10n.repeater_regionNote,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               _buildHelpSection(
                 context,
                 l10n.repeater_gpsManagement,
@@ -1171,6 +1183,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
     String? note,
   }) {
     final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1181,7 +1194,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         if (note != null) ...[
-          const SizedBox(height: 4),
+          SizedBox(height: t.spacingXxs),
           Text(
             note,
             style: Theme.of(
@@ -1189,7 +1202,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
             ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
         ],
-        const SizedBox(height: 8),
+        SizedBox(height: t.spacingXs),
         ...commands.map((entry) => _buildHelpCommandCard(context, entry)),
       ],
     );
@@ -1197,9 +1210,10 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
 
   Widget _buildHelpCommandCard(BuildContext context, _CommandHelpEntry entry) {
     final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
     return Card(
       elevation: 0,
-      margin: const EdgeInsets.only(bottom: 6),
+      margin: EdgeInsets.only(bottom: t.spacingXs),
       color: scheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(MeshTokens.of(context).sm),
@@ -1209,7 +1223,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
         borderRadius: BorderRadius.circular(MeshTokens.of(context).sm),
         onTap: () => _applyHelpCommand(entry.command),
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(t.spacingSm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1219,7 +1233,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                     .monoCaption(color: MeshTokens.of(context).primary)
                     .copyWith(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: t.spacingXxs),
               Text(
                 entry.description,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(

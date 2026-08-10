@@ -363,6 +363,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
         '${context.l10n.mapCache_summaryApproxCacheSize(_formatBytes(_cachedTileBytes))}';
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
     final isDesktop = _isDesktopPlatform(defaultTargetPlatform);
     final progressValue = _estimatedTiles == 0
         ? 0.0
@@ -436,7 +437,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                   left: isDesktop ? 84 : 12,
                   child: Card(
                     child: Padding(
-                      padding: const EdgeInsets.all(8),
+                      padding: EdgeInsets.all(t.spacingXs),
                       child: Text(
                         'Z: ${_overlayZoom.round()}:',
                         style: Theme.of(context).textTheme.bodyMedium,
@@ -456,9 +457,9 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                       border: Border.all(color: MeshTokens.of(context).line2),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: t.spacingSm,
+                        vertical: t.spacingXs,
                       ),
                       child: Text(
                         selectedBounds == null
@@ -482,14 +483,24 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                 border: Border(top: BorderSide(color: scheme.outlineVariant)),
               ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                padding: EdgeInsets.fromLTRB(
+                  t.spacingMd,
+                  t.spacingXxs,
+                  t.spacingMd,
+                  t.spacingMd,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SectionHeader(
                       l10n.mapCache_cacheArea,
-                      padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
+                      padding: EdgeInsets.fromLTRB(
+                        0,
+                        t.spacingSm,
+                        0,
+                        t.spacingXs,
+                      ),
                     ),
                     Row(
                       children: [
@@ -502,7 +513,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                                 : _setBoundsFromView,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: t.spacingSm),
                         TextButton(
                           onPressed: _isDownloading || selectedBounds == null
                               ? null
@@ -511,10 +522,10 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: t.spacingSm),
                     SectionHeader(
                       l10n.mapCache_zoomRange,
-                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                      padding: EdgeInsets.fromLTRB(0, t.spacingXs, 0, 0),
                     ),
                     RangeSlider(
                       values: RangeValues(
@@ -545,7 +556,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                         context,
                       ).monoCaption(color: scheme.onSurfaceVariant),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: t.spacingSm),
                     TextFormField(
                       key: ValueKey(
                         '$cacheSummary|${activeCachedTiles.length}|$cachedInSelection|$_cachedTileBytes',
@@ -562,7 +573,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                       ),
                     ),
                     if (!source.allowsBulkDownload) ...[
-                      const SizedBox(height: 8),
+                      SizedBox(height: t.spacingXs),
                       Text(
                         l10n.mapCache_bulkDownloadDisabledForSource(
                           source.label,
@@ -573,13 +584,13 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                       ),
                     ],
                     if (_isDownloading) ...[
-                      const SizedBox(height: 8),
+                      SizedBox(height: t.spacingXs),
                       LinearProgressIndicator(
                         value: progressValue,
                         color: MeshTokens.of(context).primary,
                         backgroundColor: scheme.surfaceContainerHighest,
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: t.spacingXxs),
                       Text(
                         l10n.mapCache_downloadedTiles(
                           _completedTiles,
@@ -590,7 +601,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                         ).monoCaption(color: scheme.onSurfaceVariant),
                       ),
                     ],
-                    const SizedBox(height: 12),
+                    SizedBox(height: t.spacingSm),
                     Row(
                       children: [
                         Expanded(
@@ -605,7 +616,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                                 : _startDownload,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: t.spacingSm),
                         OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             foregroundColor: MeshTokens.of(context).alert,
@@ -620,7 +631,7 @@ class _MapCacheScreenState extends State<MapCacheScreen> {
                     ),
                     if (_failedTiles > 0 && !_isDownloading)
                       Padding(
-                        padding: const EdgeInsets.only(top: 8),
+                        padding: EdgeInsets.only(top: t.spacingXs),
                         child: Text(
                           l10n.mapCache_failedDownloads(_failedTiles),
                           style: MeshTokens.of(

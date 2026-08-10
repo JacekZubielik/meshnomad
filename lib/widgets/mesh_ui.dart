@@ -274,6 +274,10 @@ List<Color> avatarTintPalette(MeshTokens tokens) => [
   const Color(0xFF6FD9CE),
 ];
 
+/// Accent for sensor-type nodes (advTypeSensor) — single source; do not
+/// copy the literal into screens.
+const Color sensorTypeAccent = Color(0xFF4ACCC4);
+
 /// Initials avatar with a deterministic per-name hue, or a fixed [color]
 /// for node-type coloring. Optional [icon] replaces initials.
 class AvatarCircle extends StatelessWidget {

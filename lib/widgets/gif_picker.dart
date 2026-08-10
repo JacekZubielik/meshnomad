@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../l10n/l10n.dart';
+import '../theme/mesh_tokens.dart';
 
 class GifPicker extends StatefulWidget {
   final Function(String gifId) onGifSelected;
@@ -116,16 +117,17 @@ class _GifPickerState extends State<GifPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final t = MeshTokens.of(context);
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(t.spacingMd),
       child: Column(
         children: [
           // Header
           Row(
             children: [
               const Icon(Icons.gif_box, size: 28),
-              const SizedBox(width: 8),
+              SizedBox(width: t.spacingXs),
               Text(
                 context.l10n.gifPicker_title,
                 style: TextStyle(
@@ -143,7 +145,7 @@ class _GifPickerState extends State<GifPicker> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: t.spacingMd),
 
           // Search bar
           TextField(
@@ -163,9 +165,9 @@ class _GifPickerState extends State<GifPicker> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: t.spacingMd,
+                vertical: t.spacingSm,
               ),
             ),
             textInputAction: TextInputAction.search,
@@ -174,13 +176,13 @@ class _GifPickerState extends State<GifPicker> {
               setState(() {}); // Update to show/hide clear button
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: t.spacingMd),
 
           // GIF grid
           Expanded(child: _buildContent()),
 
           // Powered by Giphy attribution
-          const SizedBox(height: 8),
+          SizedBox(height: t.spacingXs),
           Text(
             context.l10n.gifPicker_poweredBy,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -193,6 +195,7 @@ class _GifPickerState extends State<GifPicker> {
   }
 
   Widget _buildContent() {
+    final t = MeshTokens.of(context);
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -207,7 +210,7 @@ class _GifPickerState extends State<GifPicker> {
               size: 64,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             Text(
               _error!,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -215,7 +218,7 @@ class _GifPickerState extends State<GifPicker> {
                 fontWeight: FontWeight.normal,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             ElevatedButton.icon(
               onPressed: _loadTrendingGifs,
               icon: const Icon(Icons.refresh),
@@ -236,7 +239,7 @@ class _GifPickerState extends State<GifPicker> {
               size: 64,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             Text(
               context.l10n.gifPicker_noGifsFound,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -250,10 +253,10 @@ class _GifPickerState extends State<GifPicker> {
     }
 
     return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
+        crossAxisSpacing: t.spacingXs,
+        mainAxisSpacing: t.spacingXs,
         childAspectRatio: 1.0,
       ),
       itemCount: _gifs.length,

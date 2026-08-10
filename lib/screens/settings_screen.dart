@@ -89,8 +89,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         top: false,
         child: Consumer<MeshCoreConnector>(
           builder: (context, connector, child) {
+            final t = MeshTokens.of(context);
             return ListView(
-              padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
+              padding: EdgeInsets.fromLTRB(0, t.spacingXs, 0, t.spacingLg),
               children: [
                 // IDENTITY section
                 SectionHeader(l10n.settings_deviceInfo),
@@ -182,10 +183,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final t = MeshTokens.of(context);
     return Row(
       children: [
         Icon(icon, size: 20, color: scheme.onSurfaceVariant),
-        const SizedBox(width: 12),
+        SizedBox(width: t.spacingSm),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,6 +220,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,7 +233,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             });
           },
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+            padding: EdgeInsets.all(t.spacingMd),
             child: Row(
               children: [
                 Expanded(
@@ -245,7 +248,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           color: scheme.onSurface,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: t.spacingXxs),
                       StatusChip(
                         label: connector.isConnected
                             ? l10n.common_connected
@@ -277,12 +280,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           alignment: Alignment.topCenter,
           child: _deviceInfoExpanded
               ? Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                  padding: EdgeInsets.fromLTRB(
+                    t.spacingMd,
+                    0,
+                    t.spacingMd,
+                    t.spacingMd,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Divider(height: 1),
-                      const SizedBox(height: 10),
+                      SizedBox(height: t.spacingSm),
                       _infoRow(
                         context,
                         label: l10n.settings_infoId,
@@ -333,15 +341,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final t = MeshTokens.of(context);
 
     final content = Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(vertical: t.spacingXs),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              if (leading != null) ...[leading, const SizedBox(width: 6)],
+              if (leading != null) ...[leading, SizedBox(width: t.spacingXs)],
               Text(
                 label,
                 style: textTheme.bodySmall?.copyWith(
@@ -696,15 +705,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final effectiveIconColor = iconColor ?? scheme.onSurfaceVariant;
+    final t = MeshTokens.of(context);
 
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(
+          horizontal: t.spacingMd,
+          vertical: t.spacingSm,
+        ),
         child: Row(
           children: [
             Icon(icon, size: 20, color: effectiveIconColor),
-            const SizedBox(width: 12),
+            SizedBox(width: t.spacingSm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -830,7 +843,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   setDialogState(() => selectedMode = value);
                 },
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: MeshTokens.of(context).spacingSm),
               Text(
                 l10n.repeater_pathHashModeHelper,
                 style: Theme.of(context).textTheme.bodySmall,
@@ -909,7 +922,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   signed: true,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: MeshTokens.of(context).spacingMd),
               TextField(
                 controller: lonController,
                 decoration: InputDecoration(
@@ -922,7 +935,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               if (hasGPS) ...[
-                const SizedBox(height: 16),
+                SizedBox(height: MeshTokens.of(context).spacingMd),
                 TextField(
                   controller: intervalController,
                   onChanged: (_) {
@@ -940,7 +953,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     signed: false,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: MeshTokens.of(context).spacingMd),
                 FeatureToggleRow(
                   title: l10n.settings_locationGPSEnable,
                   subtitle: l10n.settings_locationGPSEnableSubtitle,
@@ -1119,7 +1132,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           : _appVersion,
       applicationLegalese: l10n.settings_aboutLegalese,
       children: [
-        const SizedBox(height: 16),
+        SizedBox(height: MeshTokens.of(context).spacingMd),
         Text(l10n.settings_aboutDescription),
       ],
     );
@@ -1201,7 +1214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     setDialogState(() => autoAddChat = value);
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: MeshTokens.of(context).spacingXs),
                 FeatureToggleRow(
                   title: l10n.contactsSettings_autoAddRepeatersTitle,
                   subtitle: l10n.contactsSettings_autoAddRepeatersSubtitle,
@@ -1210,7 +1223,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     setDialogState(() => autoAddRepeater = value);
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: MeshTokens.of(context).spacingXs),
                 FeatureToggleRow(
                   title: l10n.contactsSettings_autoAddRoomServersTitle,
                   subtitle: l10n.contactsSettings_autoAddRoomServersSubtitle,
@@ -1219,7 +1232,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     setDialogState(() => autoAddRoomServer = value);
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: MeshTokens.of(context).spacingXs),
                 FeatureToggleRow(
                   title: l10n.contactsSettings_autoAddSensorsTitle,
                   subtitle: l10n.contactsSettings_autoAddSensorsSubtitle,
@@ -1320,7 +1333,7 @@ void _privacySettings(BuildContext context, MeshCoreConnector connector) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(l10n.settings_privacySettingsDescription),
-              const SizedBox(height: 16),
+              SizedBox(height: MeshTokens.of(context).spacingMd),
               FeatureToggleRow(
                 title: l10n.settings_advertLocation,
                 subtitle: l10n.settings_advertLocationSubtitle,
@@ -1329,7 +1342,7 @@ void _privacySettings(BuildContext context, MeshCoreConnector connector) {
                   setDialogState(() => advertLocPolicy = value);
                 },
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: MeshTokens.of(context).spacingXs),
               FeatureToggleRow(
                 title: l10n.settings_autoZeroHopAdvertOnGpsUpdate,
                 subtitle: l10n.settings_autoZeroHopAdvertOnGpsUpdateSubtitle,
@@ -1343,7 +1356,7 @@ void _privacySettings(BuildContext context, MeshCoreConnector connector) {
                       }
                     : null,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: MeshTokens.of(context).spacingXs),
               SwitchListTile(
                 title: Text(l10n.settings_multiAck),
                 value: multiAcks == 1,
@@ -1352,7 +1365,7 @@ void _privacySettings(BuildContext context, MeshCoreConnector connector) {
                 },
                 contentPadding: EdgeInsets.zero,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: MeshTokens.of(context).spacingMd),
               DropdownButtonFormField<int>(
                 initialValue: telemetryMode,
                 decoration: InputDecoration(
@@ -1366,7 +1379,7 @@ void _privacySettings(BuildContext context, MeshCoreConnector connector) {
                   }
                 },
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: MeshTokens.of(context).spacingMd),
               DropdownButtonFormField<int>(
                 initialValue: telemetryLocMode,
                 decoration: InputDecoration(
@@ -1380,7 +1393,7 @@ void _privacySettings(BuildContext context, MeshCoreConnector connector) {
                   }
                 },
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: MeshTokens.of(context).spacingMd),
               DropdownButtonFormField<int>(
                 initialValue: telemetryEnvMode,
                 decoration: InputDecoration(
@@ -1907,6 +1920,7 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final t = MeshTokens.of(context);
     return AlertDialog(
       title: Text(l10n.settings_radioSettings),
       content: SingleChildScrollView(
@@ -1934,7 +1948,7 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
                 }
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             TextField(
               controller: _frequencyController,
               onChanged: (_) => _handleManualSettingsChanged('frequency'),
@@ -1948,7 +1962,7 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
                 decimal: true,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             DropdownButtonFormField<LoRaBandwidth>(
               initialValue: _bandwidth,
               decoration: InputDecoration(
@@ -1970,7 +1984,7 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
                 }
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             DropdownButtonFormField<LoRaSpreadingFactor>(
               initialValue: _spreadingFactor,
               decoration: InputDecoration(
@@ -1994,7 +2008,7 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
                 }
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             DropdownButtonFormField<LoRaCodingRate>(
               initialValue: _codingRate,
               decoration: InputDecoration(
@@ -2016,7 +2030,7 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
                 }
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             TextField(
               controller: _txPowerController,
               onChanged: (_) => _handleManualSettingsChanged('tx power'),
@@ -2030,7 +2044,7 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
               ),
               keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: t.spacingMd),
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(l10n.repeater_dutyCycle),
@@ -2049,7 +2063,7 @@ class _RadioSettingsDialogState extends State<_RadioSettingsDialog> {
               onChanged: (value) => setState(() => _dutyCycle = value.toInt()),
             ),
             if (widget.connector.clientRepeat != null) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: t.spacingMd),
               SwitchListTile(
                 title: Text(l10n.settings_clientRepeat),
                 subtitle: Text(l10n.settings_clientRepeatSubtitle),
