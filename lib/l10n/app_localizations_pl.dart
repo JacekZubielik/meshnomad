@@ -171,7 +171,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get tcpErrorHostRequired => 'Wymagana jest adresa IP.';
+  String get tcpErrorHostRequired => 'Wymagany jest adres IP.';
 
   @override
   String get tcpErrorPortInvalid =>
@@ -2290,7 +2290,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get login_forceFloodMode => 'Wymuś tryb zalewowy';
 
   @override
-  String get login_managePaths => 'Zarządzaj Ścieżkami';
+  String get login_managePaths => 'Zarządzaj ścieżkami';
 
   @override
   String get login_login => 'Zaloguj się';
@@ -2302,7 +2302,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String login_failed(String error) {
-    return 'Zalogowanie się nie powiodło: $error';
+    return 'Zalogowanie nie powiodło się: $error';
   }
 
   @override
@@ -2326,7 +2326,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_management => 'Zarządzanie przekaźnikami';
 
   @override
-  String get room_management => 'Zarządzanie Serwerem Pokoju';
+  String get room_management => 'Zarządzanie serwerem pokoju';
 
   @override
   String get repeater_guest => 'Informacje dotyczące urządzenia powtarzającego';
@@ -2335,7 +2335,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get room_guest => 'Informacje o serwerze';
 
   @override
-  String get repeater_managementTools => 'Narzędzia Zarządzania';
+  String get repeater_managementTools => 'Narzędzia zarządzania';
 
   @override
   String get repeater_guestTools => 'Narzędzia dla gości';
@@ -2390,8 +2390,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_refresh => 'Odśwież';
 
   @override
-  String get repeater_statusRequestTimeout =>
-      'Przekroczono czas oczekiwania na status.';
+  String get repeater_statusRequestTimeout => 'Przekroczono czas oczekiwania.';
 
   @override
   String repeater_errorLoadingStatus(String error) {
@@ -2417,7 +2416,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_debugFlags => 'Opcje debugowania';
 
   @override
-  String get repeater_radioStatistics => 'Statystyki Radia';
+  String get repeater_radioStatistics => 'Statystyki radia';
 
   @override
   String get repeater_lastRssi => 'Ostatni RSSI';
@@ -2483,7 +2482,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_settingsTitle => 'Ustawienia przekaźnika';
 
   @override
-  String get repeater_basicSettings => 'Podstawowe Ustawienia';
+  String get repeater_basicSettings => 'Podstawowe ustawienia';
 
   @override
   String get repeater_repeaterName => 'Nazwa przekaźnika';
@@ -2492,7 +2491,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_repeaterNameHelper => 'Wyświetl nazwę tego przekaźnika';
 
   @override
-  String get repeater_adminPassword => 'Hasło Administracyjne';
+  String get repeater_adminPassword => 'Hasło administracyjne';
 
   @override
   String get repeater_adminPasswordHelper => 'Hasło z pełnym dostępem';
@@ -2528,7 +2527,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_codingRate => 'Współczynnik kodowania';
 
   @override
-  String get repeater_locationSettings => 'Ustawienia Lokalizacji';
+  String get repeater_bandwidthShort => 'Pasmo';
+
+  @override
+  String get repeater_spreadingFactorShort => 'SF';
+
+  @override
+  String get repeater_codingRateShort => 'CR';
+
+  @override
+  String get repeater_locationSettings => 'Ustawienia lokalizacji';
 
   @override
   String get repeater_latitude => 'Szerokość';
@@ -2587,13 +2595,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get repeater_encryptedAdvertInterval =>
-      'Interwał Zaszyfrowanego Rozgłoszenia';
+      'Interwał zaszyfrowanego rozgłoszenia';
 
   @override
-  String get repeater_dangerZone => 'Strefa Zagrożeń';
+  String get repeater_dangerZone => 'Strefa zagrożeń';
 
   @override
-  String get repeater_rebootRepeater => 'Zrestartuj Przekaźnik';
+  String get repeater_rebootRepeater => 'Zrestartuj przekaźnik';
 
   @override
   String get repeater_rebootRepeaterSubtitle => 'Zrestartuj przekaźnik.';
@@ -2858,7 +2866,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_refreshGuestAccess => 'Odśwież dostęp gościa';
 
   @override
-  String get repeater_refreshPrivacyMode => 'Odśwież Tryb Prywatności';
+  String get repeater_refreshPrivacyMode => 'Odśwież tryb prywatności';
 
   @override
   String repeater_refreshed(String label) {
@@ -2874,7 +2882,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_cliTitle => 'Przekaźnik CLI';
 
   @override
-  String get repeater_debugNextCommand => 'Debug Następną Komendę';
+  String get repeater_debugNextCommand => 'Debug następna komenda';
 
   @override
   String get repeater_commandHelp => 'Pomoc';
@@ -5248,6 +5256,94 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get styleEditor_monoBodySize_subtitle =>
       'Tekst techniczny: klucze, dane RF, etykiety na mapie';
+
+  @override
+  String get styleEditor_spacingSection => 'Odstępy';
+
+  @override
+  String get styleEditor_spacingXxs_label => 'Mikro (xxs)';
+
+  @override
+  String get styleEditor_spacingXxs_subtitle =>
+      'Mikro-odstępy wewnątrz wierszy';
+
+  @override
+  String get styleEditor_spacingXs_label => 'Bardzo mały (xs)';
+
+  @override
+  String get styleEditor_spacingXs_subtitle => 'Odstęp ikon i pól w wierszu';
+
+  @override
+  String get styleEditor_spacingSm_label => 'Mały (sm)';
+
+  @override
+  String get styleEditor_spacingSm_subtitle => 'Ciasne wypełnienia';
+
+  @override
+  String get styleEditor_spacingMd_label => 'Średni (md)';
+
+  @override
+  String get styleEditor_spacingMd_subtitle => 'Padding kart i ekranów';
+
+  @override
+  String get styleEditor_spacingLg_label => 'Duży (lg)';
+
+  @override
+  String get styleEditor_spacingLg_subtitle => 'Odstępy między sekcjami';
+
+  @override
+  String get styleEditor_spacingXlg_label => 'Bardzo duży (xlg)';
+
+  @override
+  String get styleEditor_spacingXlg_subtitle => 'Duże przerwy między sekcjami';
+
+  @override
+  String get styleEditor_spacingXxlg_label => 'Ogromny (xxlg)';
+
+  @override
+  String get styleEditor_spacingXxlg_subtitle => 'Największe odstępy układu';
+
+  @override
+  String get styleEditor_radiusSection => 'Zaokrąglenia';
+
+  @override
+  String get styleEditor_radiusXs_label => 'Małe (xs)';
+
+  @override
+  String get styleEditor_radiusXs_subtitle => 'Chipy, małe pola';
+
+  @override
+  String get styleEditor_radiusSm_label => 'Pomniejszone (sm)';
+
+  @override
+  String get styleEditor_radiusSm_subtitle => 'Menu, panele list';
+
+  @override
+  String get styleEditor_radiusMd_label => 'Średnie (md)';
+
+  @override
+  String get styleEditor_radiusMd_subtitle => 'Karty, pola tekstowe';
+
+  @override
+  String get styleEditor_radiusLg_label => 'Duże (lg)';
+
+  @override
+  String get styleEditor_radiusLg_subtitle => 'Dymki czatu, arkusze';
+
+  @override
+  String get styleEditor_radiusXl_label => 'Bardzo duże (xl)';
+
+  @override
+  String get styleEditor_radiusXl_subtitle => 'Duże panele';
+
+  @override
+  String get styleEditor_cardSection => 'Styl karty';
+
+  @override
+  String get styleEditor_cardShadow_label => 'Cień karty';
+
+  @override
+  String get styleEditor_cardShadow_subtitle => 'Unoszący cień pod kartami';
 
   @override
   String get appSettings_about => 'O aplikacji';

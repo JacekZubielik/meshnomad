@@ -910,7 +910,7 @@
   "login_routingMode": "Tryb routingu",
   "login_autoUseSavedPath": "Automatycznie (użyj zapisanej ścieżki)",
   "login_forceFloodMode": "Wymuś tryb zalewowy",
-  "login_managePaths": "Zarządzaj Ścieżkami",
+  "login_managePaths": "Zarządzaj ścieżkami",
   "login_login": "Zaloguj się",
   "login_attempt": "Próba {current}/{max}",
   "@login_attempt": {
@@ -923,7 +923,7 @@
       }
     }
   },
-  "login_failed": "Zalogowanie się nie powiodło: {error}",
+  "login_failed": "Zalogowanie nie powiodło się: {error}",
   "@login_failed": {
     "placeholders": {
       "error": {
@@ -970,7 +970,7 @@
   "path_tooLong": "Ścieżka jest zbyt długa. Dozwolonych skoków wynosi 64.",
   "path_setPath": "Ustaw Ścieżkę",
   "repeater_management": "Zarządzanie przekaźnikami",
-  "repeater_managementTools": "Narzędzia Zarządzania",
+  "repeater_managementTools": "Narzędzia zarządzania",
   "repeater_status": "Stan",
   "repeater_statusSubtitle": "Wyświetl status przekaźnika, statystyki i sąsiadów.",
   "repeater_telemetry": "Telemetria",
@@ -985,7 +985,7 @@
   "repeater_forceFloodMode": "Wymuś tryb zalewowy",
   "repeater_pathManagement": "Zarządzanie ścieżkami",
   "repeater_refresh": "Odśwież",
-  "repeater_statusRequestTimeout": "Przekroczono czas oczekiwania na status.",
+  "repeater_statusRequestTimeout": "Przekroczono czas oczekiwania.",
   "repeater_errorLoadingStatus": "Błąd podczas ładowania statusu: {error}",
   "@repeater_errorLoadingStatus": {
     "placeholders": {
@@ -1000,7 +1000,7 @@
   "repeater_uptime": "Czas pracy",
   "repeater_queueLength": "Długość kolejki",
   "repeater_debugFlags": "Opcje debugowania",
-  "repeater_radioStatistics": "Statystyki Radia",
+  "repeater_radioStatistics": "Statystyki radia",
   "repeater_lastRssi": "Ostatni RSSI",
   "repeater_lastSnr": "Ostatnie SNR",
   "repeater_noiseFloor": "Poziom Szumów",
@@ -1075,10 +1075,10 @@
     }
   },
   "repeater_settingsTitle": "Ustawienia przekaźnika",
-  "repeater_basicSettings": "Podstawowe Ustawienia",
+  "repeater_basicSettings": "Podstawowe ustawienia",
   "repeater_repeaterName": "Nazwa przekaźnika",
   "repeater_repeaterNameHelper": "Wyświetl nazwę tego przekaźnika",
-  "repeater_adminPassword": "Hasło Administracyjne",
+  "repeater_adminPassword": "Hasło administracyjne",
   "repeater_adminPasswordHelper": "Hasło z pełnym dostępem",
   "repeater_guestPassword": "Hasło gościa",
   "repeater_guestPasswordHelper": "Hasło tylko do odczytu",
@@ -1090,7 +1090,10 @@
   "repeater_bandwidth": "Przepustowość",
   "repeater_spreadingFactor": "Współczynnik rozpraszania",
   "repeater_codingRate": "Współczynnik kodowania",
-  "repeater_locationSettings": "Ustawienia Lokalizacji",
+  "repeater_bandwidthShort": "Pasmo",
+  "repeater_spreadingFactorShort": "SF",
+  "repeater_codingRateShort": "CR",
+  "repeater_locationSettings": "Ustawienia lokalizacji",
   "repeater_latitude": "Szerokość",
   "repeater_latitudeHelper": "Stopnie dziesiętne (np. 37.7749)",
   "repeater_longitude": "Długość",
@@ -1121,9 +1124,9 @@
       }
     }
   },
-  "repeater_encryptedAdvertInterval": "Interwał Zaszyfrowanego Rozgłoszenia",
-  "repeater_dangerZone": "Strefa Zagrożeń",
-  "repeater_rebootRepeater": "Zrestartuj Przekaźnik",
+  "repeater_encryptedAdvertInterval": "Interwał zaszyfrowanego rozgłoszenia",
+  "repeater_dangerZone": "Strefa zagrożeń",
+  "repeater_rebootRepeater": "Zrestartuj przekaźnik",
   "repeater_rebootRepeaterSubtitle": "Zrestartuj przekaźnik.",
   "repeater_rebootRepeaterConfirm": "Czy na pewno chcesz zrestartować ten przekaźnik?",
   "repeater_regenerateIdentityKey": "Wygeneruj klucz tożsamości",
@@ -1239,7 +1242,7 @@
   "repeater_refreshTxPower": "Odśwież moc TX",
   "repeater_refreshPacketForwarding": "Odśwież trasowanie pakietów",
   "repeater_refreshGuestAccess": "Odśwież dostęp gościa",
-  "repeater_refreshPrivacyMode": "Odśwież Tryb Prywatności",
+  "repeater_refreshPrivacyMode": "Odśwież tryb prywatności",
   "repeater_refreshed": "{label} odświeżone",
   "@repeater_refreshed": {
     "placeholders": {
@@ -1257,7 +1260,7 @@
     }
   },
   "repeater_cliTitle": "Przekaźnik CLI",
-  "repeater_debugNextCommand": "Debug Następną Komendę",
+  "repeater_debugNextCommand": "Debug następna komenda",
   "repeater_commandHelp": "Pomoc",
   "repeater_clearHistory": "Wyczyść historię",
   "repeater_noCommandsSent": "Nie wysłano jeszcze żadnych poleceń",
@@ -1604,7 +1607,7 @@
   "settings_locationIntervalSec": "Interwał dla GPS (Sekundy)",
   "settings_locationIntervalInvalid": "Interwał musi wynosić co najmniej 60 sekund i mniej niż 86400 sekund.",
   "contacts_manageRoom": "Zarządzaj Serwerem Pokoju",
-  "room_management": "Zarządzanie Serwerem Pokoju",
+  "room_management": "Zarządzanie serwerem pokoju",
   "@community_joinConfirmation": {
     "placeholders": {
       "name": {
@@ -2124,7 +2127,7 @@
   "tcpPortHint": "5000",
   "tcpStatus_notConnected": "Wprowadź adres URL i połącz",
   "tcpStatus_connectingTo": "Połączenie z {endpoint}...",
-  "tcpErrorHostRequired": "Wymagana jest adresa IP.",
+  "tcpErrorHostRequired": "Wymagany jest adres IP.",
   "tcpErrorPortInvalid": "Numer portu musi mieścić się w zakresie od 1 do 65535.",
   "tcpErrorUnsupported": "Transport TCP nie jest obsługiwany na tej platformie.",
   "tcpErrorTimedOut": "Połączenie TCP zakończyło się bez powodzenia.",
@@ -2774,6 +2777,35 @@
   "styleEditor_monoCaptionSize_subtitle": "Drobny tekst techniczny: ID, współrzędne, logi",
   "styleEditor_monoBodySize_label": "Mono — treść",
   "styleEditor_monoBodySize_subtitle": "Tekst techniczny: klucze, dane RF, etykiety na mapie",
+  "styleEditor_spacingSection": "Odstępy",
+  "styleEditor_spacingXxs_label": "Mikro (xxs)",
+  "styleEditor_spacingXxs_subtitle": "Mikro-odstępy wewnątrz wierszy",
+  "styleEditor_spacingXs_label": "Bardzo mały (xs)",
+  "styleEditor_spacingXs_subtitle": "Odstęp ikon i pól w wierszu",
+  "styleEditor_spacingSm_label": "Mały (sm)",
+  "styleEditor_spacingSm_subtitle": "Ciasne wypełnienia",
+  "styleEditor_spacingMd_label": "Średni (md)",
+  "styleEditor_spacingMd_subtitle": "Padding kart i ekranów",
+  "styleEditor_spacingLg_label": "Duży (lg)",
+  "styleEditor_spacingLg_subtitle": "Odstępy między sekcjami",
+  "styleEditor_spacingXlg_label": "Bardzo duży (xlg)",
+  "styleEditor_spacingXlg_subtitle": "Duże przerwy między sekcjami",
+  "styleEditor_spacingXxlg_label": "Ogromny (xxlg)",
+  "styleEditor_spacingXxlg_subtitle": "Największe odstępy układu",
+  "styleEditor_radiusSection": "Zaokrąglenia",
+  "styleEditor_radiusXs_label": "Małe (xs)",
+  "styleEditor_radiusXs_subtitle": "Chipy, małe pola",
+  "styleEditor_radiusSm_label": "Pomniejszone (sm)",
+  "styleEditor_radiusSm_subtitle": "Menu, panele list",
+  "styleEditor_radiusMd_label": "Średnie (md)",
+  "styleEditor_radiusMd_subtitle": "Karty, pola tekstowe",
+  "styleEditor_radiusLg_label": "Duże (lg)",
+  "styleEditor_radiusLg_subtitle": "Dymki czatu, arkusze",
+  "styleEditor_radiusXl_label": "Bardzo duże (xl)",
+  "styleEditor_radiusXl_subtitle": "Duże panele",
+  "styleEditor_cardSection": "Styl karty",
+  "styleEditor_cardShadow_label": "Cień karty",
+  "styleEditor_cardShadow_subtitle": "Unoszący cień pod kartami",
   "appSettings_about": "O aplikacji",
   "appSettings_editCustomStyleTooltip": "Edytuj styl Custom"
 }

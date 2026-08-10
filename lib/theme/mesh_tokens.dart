@@ -77,8 +77,16 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.lg,
     required this.xl,
     required this.pill,
+    required this.spacingXxs,
+    required this.spacingXs,
+    required this.spacingSm,
+    required this.spacingMd,
+    required this.spacingLg,
+    required this.spacingXlg,
+    required this.spacingXxlg,
     required this.monoCaptionSize,
     required this.monoBodySize,
+    required this.cardElevated,
   });
 
   final Color bg;
@@ -154,6 +162,17 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   final double xl;
   final double pill;
 
+  /// Spacing scale (gap/padding tokens) — names carry the `spacing` prefix
+  /// to stay unambiguous next to the radius fields above (`xs/sm/...`),
+  /// which use the same short suffixes for an unrelated scale.
+  final double spacingXxs;
+  final double spacingXs;
+  final double spacingSm;
+  final double spacingMd;
+  final double spacingLg;
+  final double spacingXlg;
+  final double spacingXxlg;
+
   /// Dominant `.mono(fontSize: ...)` size for secondary/muted mono text
   /// (metadata, badges) — see docs/superpowers/prompts/2026-08-02-custom-
   /// style-editor/01-font-role-infra.md.
@@ -161,6 +180,9 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
 
   /// Dominant `.mono(fontSize: ...)` size for primary-colored mono content.
   final double monoBodySize;
+
+  /// Whether MeshCard draws its floating shadow by default (issue #23).
+  final bool cardElevated;
 
   /// The default style's tokens — identical values to today's
   /// [MeshPalette]/[MapPalette]/[LosPalette]/[MeshRadii]. The same instance
@@ -238,8 +260,16 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     lg: MeshRadii.lg,
     xl: MeshRadii.xl,
     pill: MeshRadii.pill,
+    spacingXxs: 4,
+    spacingXs: 8,
+    spacingSm: 12,
+    spacingMd: 16,
+    spacingLg: 24,
+    spacingXlg: 32,
+    spacingXxlg: 48,
     monoCaptionSize: 11,
     monoBodySize: 13,
+    cardElevated: true,
   );
 
   /// Light-variant base tokens for the custom style (pkt 17). Values borrowed
@@ -319,8 +349,16 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     lg: MeshRadii.lg,
     xl: MeshRadii.xl,
     pill: MeshRadii.pill,
+    spacingXxs: 4,
+    spacingXs: 8,
+    spacingSm: 12,
+    spacingMd: 16,
+    spacingLg: 24,
+    spacingXlg: 32,
+    spacingXxlg: 48,
     monoCaptionSize: 11,
     monoBodySize: 13,
+    cardElevated: true,
   );
 
   static MeshTokens of(BuildContext context) {
@@ -495,8 +533,16 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     double? lg,
     double? xl,
     double? pill,
+    double? spacingXxs,
+    double? spacingXs,
+    double? spacingSm,
+    double? spacingMd,
+    double? spacingLg,
+    double? spacingXlg,
+    double? spacingXxlg,
     double? monoCaptionSize,
     double? monoBodySize,
+    bool? cardElevated,
   }) {
     return MeshTokens(
       bg: bg ?? this.bg,
@@ -568,8 +614,16 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       lg: lg ?? this.lg,
       xl: xl ?? this.xl,
       pill: pill ?? this.pill,
+      spacingXxs: spacingXxs ?? this.spacingXxs,
+      spacingXs: spacingXs ?? this.spacingXs,
+      spacingSm: spacingSm ?? this.spacingSm,
+      spacingMd: spacingMd ?? this.spacingMd,
+      spacingLg: spacingLg ?? this.spacingLg,
+      spacingXlg: spacingXlg ?? this.spacingXlg,
+      spacingXxlg: spacingXxlg ?? this.spacingXxlg,
       monoCaptionSize: monoCaptionSize ?? this.monoCaptionSize,
       monoBodySize: monoBodySize ?? this.monoBodySize,
+      cardElevated: cardElevated ?? this.cardElevated,
     );
   }
 

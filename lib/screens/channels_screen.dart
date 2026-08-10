@@ -131,7 +131,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     Icons.logout,
                     color: Theme.of(menuContext).colorScheme.error,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: MeshTokens.of(menuContext).spacingXs),
                   Text(menuContext.l10n.common_disconnect),
                 ],
               ),
@@ -141,7 +141,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
               child: Row(
                 children: [
                   const Icon(Icons.groups),
-                  const SizedBox(width: 8),
+                  SizedBox(width: MeshTokens.of(menuContext).spacingXs),
                   Text(menuContext.l10n.community_manageCommunities),
                 ],
               ),
@@ -151,7 +151,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
               child: Row(
                 children: [
                   const Icon(Icons.settings),
-                  const SizedBox(width: 8),
+                  SizedBox(width: MeshTokens.of(menuContext).spacingXs),
                   Text(menuContext.l10n.settings_title),
                 ],
               ),
@@ -206,7 +206,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
             return Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(MeshTokens.of(context).spacingXs),
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
@@ -230,9 +230,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                           _buildFilterButton(viewState),
                         ],
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(context).spacingMd,
+                        vertical: MeshTokens.of(context).spacingSm,
                       ),
                     ),
                     onChanged: (value) {
@@ -271,11 +271,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                 ChannelSortOption.manual &&
                             viewState.channelsSearchText.isEmpty)
                       ? ReorderableListView.builder(
-                          padding: const EdgeInsets.only(
+                          padding: EdgeInsets.only(
                             left: 0,
                             right: 0,
-                            top: 8,
-                            bottom: 88,
+                            top: MeshTokens.of(context).spacingXs,
+                            bottom:
+                                88, // spacing: rozmiar-specjalny (>25% od najblizszego stopnia)
                           ),
                           buildDefaultDragHandles: false,
                           itemCount: filteredChannels.length,
@@ -305,11 +306,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                           },
                         )
                       : ListView.builder(
-                          padding: const EdgeInsets.only(
+                          padding: EdgeInsets.only(
                             left: 0,
                             right: 0,
-                            top: 8,
-                            bottom: 88,
+                            top: MeshTokens.of(context).spacingXs,
+                            bottom:
+                                88, // spacing: rozmiar-specjalny (>25% od najblizszego stopnia)
                           ),
                           itemCount: filteredChannels.length,
                           itemBuilder: (context, index) {
@@ -425,8 +427,14 @@ class _ChannelsScreenState extends State<ChannelsScreen>
       index: dragIndex ?? listIndex,
       child: MeshCard(
         key: ValueKey('channel_${channel.index}'),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        margin: EdgeInsets.symmetric(
+          horizontal: MeshTokens.of(context).spacingMd,
+          vertical: MeshTokens.of(context).spacingXxs,
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: MeshTokens.of(context).spacingSm,
+          vertical: MeshTokens.of(context).spacingSm,
+        ), // spacing: vertical 10->Sm (+2px)
         onTap: () {
           HapticFeedback.selectionClick();
           final unread = connector.getUnreadCountForChannelIndex(channel.index);
@@ -494,7 +502,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                   ),
               ],
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: MeshTokens.of(context).spacingSm),
             // Title + subtitle + ch chip
             Expanded(
               child: Column(
@@ -513,7 +521,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      SizedBox(width: MeshTokens.of(context).spacingXs),
                       Text(
                         'CH ${channel.index}',
                         style: MeshTokens.of(context).monoCaption(
@@ -547,7 +555,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: MeshTokens.of(context).spacingXs),
             // Right side: time + unread badge + muted + drag handle
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -560,7 +568,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       context,
                     ).monoCaption(color: scheme.onSurfaceVariant),
                   ),
-                const SizedBox(height: 4),
+                SizedBox(height: MeshTokens.of(context).spacingXxs),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -570,7 +578,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         size: 14,
                         color: scheme.onSurfaceVariant,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: MeshTokens.of(context).spacingXxs),
                     ],
                     if (unreadCount > 0)
                       UnreadBadge(count: unreadCount)
@@ -589,13 +597,17 @@ class _ChannelsScreenState extends State<ChannelsScreen>
               ],
             ),
             if (showDragHandle && dragIndex != null) ...[
-              const SizedBox(width: 4),
+              SizedBox(width: MeshTokens.of(context).spacingXxs),
               ReorderableDragStartListener(
                 index: dragIndex,
                 // Top-aligned with the "CH n" / time line. Bottom padding keeps
                 // a comfortable drag target without pushing the icon down.
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
+                  padding: EdgeInsets.only(
+                    left: MeshTokens.of(context).spacingXs,
+                    right: MeshTokens.of(context).spacingXs,
+                    bottom: MeshTokens.of(context).spacingMd,
+                  ),
                   child: Icon(
                     Icons.drag_handle,
                     size: 18,
@@ -844,8 +856,14 @@ class _ChannelsScreenState extends State<ChannelsScreen>
             final isSelected = selectedOption == optionIndex;
             final cardScheme = Theme.of(sheetContext).colorScheme;
             return MeshCard(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              margin: EdgeInsets.symmetric(
+                horizontal: MeshTokens.of(sheetContext).spacingMd,
+                vertical: MeshTokens.of(sheetContext).spacingXxs,
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: MeshTokens.of(sheetContext).spacingSm,
+                vertical: MeshTokens.of(sheetContext).spacingSm,
+              ), // spacing: vertical 10->Sm (+2px)
               borderColor: isSelected && enabled
                   ? MeshTokens.of(sheetContext).primaryLine
                   : null,
@@ -874,7 +892,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         : cardScheme.outline,
                     icon: icon,
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: MeshTokens.of(sheetContext).spacingSm),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -924,9 +942,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 return Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                        vertical: MeshTokens.of(sheetContext).spacingXs,
                       ),
                       child: TextField(
                         controller: nameController,
@@ -938,7 +956,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -981,7 +1001,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: MeshTokens.of(sheetContext).spacingXs),
                   ],
                 );
 
@@ -989,9 +1009,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 return Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                        vertical: MeshTokens.of(sheetContext).spacingXs,
                       ),
                       child: TextField(
                         controller: nameController,
@@ -1003,9 +1023,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                        vertical: MeshTokens.of(sheetContext).spacingXs,
                       ),
                       child: TextField(
                         controller: pskController,
@@ -1016,7 +1036,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -1064,15 +1086,15 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: MeshTokens.of(sheetContext).spacingXs),
                   ],
                 );
 
               case 2: // Join Public Channel
                 return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MeshTokens.of(sheetContext).spacingMd,
+                    vertical: MeshTokens.of(sheetContext).spacingXs,
                   ),
                   child: Row(
                     children: [
@@ -1152,9 +1174,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     // Community dropdown (only if community hashtag selected)
                     if (!isRegularHashtag && _communities.isNotEmpty)
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: MeshTokens.of(sheetContext).spacingMd,
+                          vertical: MeshTokens.of(sheetContext).spacingXs,
                         ),
                         child: DropdownButtonFormField<Community>(
                           initialValue: selectedCommunity,
@@ -1178,9 +1200,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       ),
                     // Hashtag name input
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                        vertical: MeshTokens.of(sheetContext).spacingXs,
                       ),
                       child: TextField(
                         controller: hashtagController,
@@ -1196,7 +1218,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     // Privacy hint for community hashtags
                     if (!isRegularHashtag)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: MeshTokens.of(sheetContext).spacingMd,
+                        ),
                         child: Text(
                           sheetContext.l10n.community_hashtagPrivacyHint,
                           style: Theme.of(sheetContext).textTheme.bodyMedium
@@ -1209,9 +1233,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         ),
                       ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                        vertical: MeshTokens.of(sheetContext).spacingXs,
                       ),
                       child: Row(
                         children: [
@@ -1297,9 +1321,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
 
               case 4: // Scan Community QR
                 return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MeshTokens.of(sheetContext).spacingMd,
+                    vertical: MeshTokens.of(sheetContext).spacingXs,
                   ),
                   child: Row(
                     children: [
@@ -1333,9 +1357,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 return Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                        vertical: MeshTokens.of(sheetContext).spacingXs,
                       ),
                       child: TextField(
                         controller: nameController,
@@ -1360,12 +1384,14 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         sheetContext.l10n.community_addPublicChannelHint,
                       ),
                       controlAffinity: ListTileControlAffinity.leading,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(sheetContext).spacingMd,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -1442,7 +1468,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: MeshTokens.of(sheetContext).spacingXs),
                   ],
                 );
 
@@ -1462,7 +1488,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 Expanded(
                   child: ListView(
                     controller: scrollController,
-                    padding: const EdgeInsets.only(bottom: 24),
+                    padding: EdgeInsets.only(
+                      bottom: MeshTokens.of(sheetContext).spacingLg,
+                    ),
                     children: [
                       buildOptionCard(
                         optionIndex: 0,
@@ -1564,9 +1592,11 @@ class _ChannelsScreenState extends State<ChannelsScreen>
               Expanded(
                 child: ListView(
                   controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MeshTokens.of(sheetContext).spacingMd,
+                  ),
                   children: [
-                    const SizedBox(height: 8),
+                    SizedBox(height: MeshTokens.of(sheetContext).spacingXs),
                     TextField(
                       controller: nameController,
                       decoration: InputDecoration(
@@ -1575,7 +1605,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       ),
                       maxLength: 31,
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: MeshTokens.of(sheetContext).spacingMd),
                     TextField(
                       controller: pskController,
                       decoration: InputDecoration(
@@ -1591,7 +1621,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: MeshTokens.of(sheetContext).spacingMd),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text(sheetContext.l10n.channels_smazCompression),
@@ -1621,7 +1651,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                     ),
                     if (cyr2latEnabled) ...[
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                        padding: EdgeInsets.fromLTRB(
+                          0,
+                          MeshTokens.of(sheetContext).spacingXs,
+                          0,
+                          MeshTokens.of(sheetContext).spacingXs,
+                        ),
                         child: DropdownButtonFormField<String>(
                           initialValue: selectedCyr2LatProfileId,
                           decoration: InputDecoration(
@@ -1644,12 +1679,17 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         ),
                       ),
                     ],
-                    const SizedBox(height: 24),
+                    SizedBox(height: MeshTokens.of(sheetContext).spacingLg),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                padding: EdgeInsets.fromLTRB(
+                  MeshTokens.of(sheetContext).spacingMd,
+                  MeshTokens.of(sheetContext).spacingXs,
+                  MeshTokens.of(sheetContext).spacingMd,
+                  MeshTokens.of(sheetContext).spacingMd,
+                ),
                 child: Row(
                   children: [
                     Expanded(
@@ -1658,7 +1698,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         child: Text(sheetContext.l10n.common_cancel),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: MeshTokens.of(sheetContext).spacingSm),
                     Expanded(
                       child: FilledButton(
                         onPressed: () async {
@@ -1833,7 +1873,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                 .onSurfaceVariant
                                 .withValues(alpha: 0.6),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: MeshTokens.of(sheetContext).spacingMd,
+                          ),
                           Text(
                             sheetContext.l10n.community_noCommunities,
                             style: TextStyle(
@@ -1843,7 +1885,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                               ).colorScheme.onSurfaceVariant,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: MeshTokens.of(sheetContext).spacingXs,
+                          ),
                           Text(
                             sheetContext.l10n.community_scanOrCreate,
                             style: TextStyle(
@@ -1900,7 +1944,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                 child: Row(
                                   children: [
                                     const Icon(Icons.qr_code),
-                                    const SizedBox(width: 12),
+                                    SizedBox(
+                                      width: MeshTokens.of(context).spacingSm,
+                                    ),
                                     Text(context.l10n.community_showQr),
                                   ],
                                 ),
@@ -1915,7 +1961,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                         context,
                                       ).colorScheme.error,
                                     ),
-                                    const SizedBox(width: 12),
+                                    SizedBox(
+                                      width: MeshTokens.of(context).spacingSm,
+                                    ),
                                     Text(
                                       context.l10n.community_delete,
                                       style: TextStyle(

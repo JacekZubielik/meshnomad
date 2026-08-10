@@ -247,7 +247,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     return Stack(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
+          padding: EdgeInsets.symmetric(
+            vertical: MeshTokens.of(context).spacingXxs,
+          ),
           child: _communitiesLoaded
               ? Icon(icon, size: 20)
               : SizedBox.square(dimension: 20),
@@ -291,7 +293,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
           child: Row(
             children: [
               _channelIcon(widget.channel),
-              const SizedBox(width: 8),
+              SizedBox(width: MeshTokens.of(context).spacingXs),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,7 +362,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                       size: 20,
                       color: Theme.of(context).colorScheme.error,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: MeshTokens.of(context).spacingSm),
                     Text(
                       context.l10n.contact_clearChat,
                       style: TextStyle(
@@ -438,13 +440,17 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                         child: ListView.builder(
                           reverse: true, // List grows from bottom up
                           controller: _scrollController,
-                          padding: const EdgeInsets.all(8),
+                          padding: EdgeInsets.all(
+                            MeshTokens.of(context).spacingXs,
+                          ),
                           itemCount: itemCount,
                           itemBuilder: (context, index) {
                             // Loading indicator now appears at end (bottom) of reversed list
                             if (_isLoadingOlder && index == itemCount - 1) {
-                              return const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 16),
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: MeshTokens.of(context).spacingMd,
+                                ),
                                 child: Center(
                                   child: SizedBox(
                                     width: 20,
@@ -581,7 +587,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
               ),
         ),
         if (enableTracing && message.repeatCount > 0) ...[
-          const SizedBox(width: 6),
+          SizedBox(width: MeshTokens.of(context).spacingXs),
           Icon(Icons.repeat, size: 11 * textScale, color: metaColor),
           const SizedBox(width: 2),
           SelectableText(
@@ -599,7 +605,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
           ),
         ],
         if (isOutgoing) ...[
-          const SizedBox(width: 4),
+          SizedBox(width: MeshTokens.of(context).spacingXxs),
           MessageStatusIcon(
             isAcked: message.status == ChannelMessageStatus.sent,
             isRepeated:
@@ -644,7 +650,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             children: [
               if (!isOutgoing) ...[
                 _buildAvatar(message.senderName, textScale),
-                const SizedBox(width: 6),
+                SizedBox(width: MeshTokens.of(context).spacingXs),
               ],
               Flexible(
                 child: GestureDetector(
@@ -654,10 +660,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                       : null,
                   child: Container(
                     padding: gifId != null
-                        ? const EdgeInsets.all(4)
-                        : const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
+                        ? EdgeInsets.all(MeshTokens.of(context).spacingXxs)
+                        : EdgeInsets.symmetric(
+                            horizontal: MeshTokens.of(context).spacingSm,
+                            vertical: MeshTokens.of(context).spacingXs,
                           ),
                     constraints: BoxConstraints(
                       maxWidth: constraints.maxWidth * 0.72,
@@ -676,10 +682,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                           if (!isOutgoing) ...[
                             Padding(
                               padding: gifId != null
-                                  ? const EdgeInsets.only(
-                                      left: 8,
-                                      top: 4,
-                                      bottom: 4,
+                                  ? EdgeInsets.only(
+                                      left: MeshTokens.of(context).spacingXs,
+                                      top: MeshTokens.of(context).spacingXxs,
+                                      bottom: MeshTokens.of(context).spacingXxs,
                                     )
                                   : EdgeInsets.zero,
                               child: SelectableText(
@@ -704,7 +710,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                           ],
                           if (message.replyToMessageId != null) ...[
                             _buildReplyPreview(message, textScale),
-                            const SizedBox(height: 8),
+                            SizedBox(height: MeshTokens.of(context).spacingXs),
                           ],
                           if (poi != null)
                             _buildPoiMessage(
@@ -756,16 +762,20 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                               ],
                             ),
                           if (enableTracing && displayPath.isNotEmpty) ...[
-                            const SizedBox(height: 6),
+                            SizedBox(height: MeshTokens.of(context).spacingXs),
                             // Delicate rule cutting the technical footer off
                             // the message content at a glance.
                             Padding(
                               padding: gifId != null
-                                  ? const EdgeInsets.symmetric(horizontal: 8)
+                                  ? EdgeInsets.symmetric(
+                                      horizontal: MeshTokens.of(
+                                        context,
+                                      ).spacingXs,
+                                    )
                                   : EdgeInsets.zero,
                               child: DottedSeparator(color: textColor),
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: MeshTokens.of(context).spacingXxs),
                             // The whole RPT bar is one tap target opening the
                             // route map popup, so the via list is plain Text —
                             // SelectableText would swallow the taps.
@@ -774,7 +784,11 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                               onTap: () => _showMessagePathInfo(message),
                               child: Padding(
                                 padding: gifId != null
-                                    ? const EdgeInsets.symmetric(horizontal: 8)
+                                    ? EdgeInsets.symmetric(
+                                        horizontal: MeshTokens.of(
+                                          context,
+                                        ).spacingXs,
+                                      )
                                     : EdgeInsets.zero,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -784,7 +798,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                       isDirect: (message.pathLength ?? -1) >= 0,
                                       hops: displayHopCount,
                                     ),
-                                    const SizedBox(width: 4),
+                                    SizedBox(
+                                      width: MeshTokens.of(context).spacingXxs,
+                                    ),
                                     Flexible(
                                       child: Text(
                                         context.l10n.channels_via(
@@ -811,13 +827,13 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 3),
+                            SizedBox(height: MeshTokens.of(context).spacingXxs),
                             Padding(
                               padding: gifId != null
-                                  ? const EdgeInsets.only(
-                                      left: 8,
-                                      right: 8,
-                                      bottom: 4,
+                                  ? EdgeInsets.only(
+                                      left: MeshTokens.of(context).spacingXs,
+                                      right: MeshTokens.of(context).spacingXs,
+                                      bottom: MeshTokens.of(context).spacingXxs,
                                     )
                                   : EdgeInsets.zero,
                               child: timeRow,
@@ -826,13 +842,13 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                             // No technical block (tracing off or no path):
                             // a short rule the width of the time row still
                             // cuts the footer off the content.
-                            const SizedBox(height: 6),
+                            SizedBox(height: MeshTokens.of(context).spacingXs),
                             Padding(
                               padding: gifId != null
-                                  ? const EdgeInsets.only(
-                                      left: 8,
-                                      right: 8,
-                                      bottom: 4,
+                                  ? EdgeInsets.only(
+                                      left: MeshTokens.of(context).spacingXs,
+                                      right: MeshTokens.of(context).spacingXs,
+                                      bottom: MeshTokens.of(context).spacingXxs,
                                     )
                                   : EdgeInsets.zero,
                               child: IntrinsicWidth(
@@ -841,7 +857,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                       CrossAxisAlignment.stretch,
                                   children: [
                                     DottedSeparator(color: textColor),
-                                    const SizedBox(height: 4),
+                                    SizedBox(
+                                      height: MeshTokens.of(context).spacingXxs,
+                                    ),
                                     timeRow,
                                   ],
                                 ),
@@ -857,8 +875,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             ],
           ),
           if (message.reactions.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            SizedBox(height: MeshTokens.of(context).spacingXxs),
             Padding(
+              // 42 = avatar width (32) + gap (6) + fine alignment (4);
+              // not a spacing token — tied to avatar geometry.
               padding: EdgeInsets.only(left: isOutgoing ? 0 : 42),
               child: _buildReactionsDisplay(message),
             ),
@@ -878,7 +898,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       );
     } else {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
+        padding: EdgeInsets.symmetric(
+          vertical: MeshTokens.of(context).spacingXxs,
+        ),
         child: messageBody,
       );
     }
@@ -890,7 +912,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(Icons.reply, color: colorScheme.primary),
-        const SizedBox(width: 6),
+        SizedBox(width: MeshTokens.of(context).spacingXs),
         Text(
           context.l10n.chat_reply,
           style: TextStyle(
@@ -903,7 +925,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
 
     return Container(
       alignment: isStart ? Alignment.centerLeft : Alignment.centerRight,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+      ),
       color: colorScheme.primary.withValues(alpha: 0.08),
       child: isStart
           ? content
@@ -917,7 +941,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: MeshTokens.of(context).spacingXs),
                 Icon(Icons.reply, color: colorScheme.primary),
               ],
             ),
@@ -949,7 +973,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       contentPreview = Row(
         children: [
           Icon(Icons.location_on_outlined, size: 14, color: previewTextColor),
-          const SizedBox(width: 4),
+          SizedBox(width: MeshTokens.of(context).spacingXxs),
           Text(
             context.l10n.chat_location,
             style: (Theme.of(context).textTheme.bodyMedium ?? const TextStyle())
@@ -981,7 +1005,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     return GestureDetector(
       onTap: () => _scrollToMessage(message.replyToMessageId!),
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(MeshTokens.of(context).spacingXs),
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(MeshTokens.of(context).sm),
@@ -1018,14 +1042,17 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   Widget _buildReactionsDisplay(ChannelMessage message) {
     final scheme = Theme.of(context).colorScheme;
     return Wrap(
-      spacing: 6,
-      runSpacing: 6,
+      spacing: MeshTokens.of(context).spacingXs,
+      runSpacing: MeshTokens.of(context).spacingXs,
       children: message.reactions.entries.map((entry) {
         final emoji = entry.key;
         final count = entry.value;
 
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: EdgeInsets.symmetric(
+            horizontal: MeshTokens.of(context).spacingXs,
+            vertical: MeshTokens.of(context).spacingXxs,
+          ),
           decoration: BoxDecoration(
             color: scheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(MeshTokens.of(context).pill),
@@ -1043,7 +1070,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                 ),
               ),
               if (count > 1) ...[
-                const SizedBox(width: 4),
+                SizedBox(width: MeshTokens.of(context).spacingXxs),
                 Text(
                   '$count',
                   style: MeshTokens.of(context).monoBody(
@@ -1104,7 +1131,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             );
           },
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: MeshTokens.of(context).spacingXs),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1136,7 +1163,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
             ],
           ),
         ),
-        if (trailing != null) ...[const SizedBox(width: 4), trailing],
+        if (trailing != null) ...[
+          SizedBox(width: MeshTokens.of(context).spacingXxs),
+          trailing,
+        ],
       ],
     );
   }
@@ -1165,7 +1195,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingSm,
+        vertical: MeshTokens.of(context).spacingXs,
+      ),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHigh,
         border: Border(
@@ -1175,7 +1208,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       child: Row(
         children: [
           Icon(Icons.reply, size: 18, color: scheme.primary),
-          const SizedBox(width: 8),
+          SizedBox(width: MeshTokens.of(context).spacingXs),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1255,7 +1288,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              padding: EdgeInsets.symmetric(
+                horizontal: MeshTokens.of(context).spacingXs,
+                vertical: MeshTokens.of(context).spacingXs,
+              ),
               child: Row(
                 // Top-aligned so the icons stay centered on the field's first
                 // line even when the counter appears or the field grows.
@@ -1307,7 +1343,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(
+                                  width: MeshTokens.of(context).spacingXs,
+                                ),
                                 IconButton(
                                   icon: const Icon(Icons.close),
                                   onPressed: () {
@@ -1366,16 +1404,16 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                             ),
                             filled: true,
                             fillColor: scheme.surfaceContainerLow,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 12,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: MeshTokens.of(context).spacingMd,
+                              vertical: MeshTokens.of(context).spacingSm,
                             ),
                           ),
                         );
                       },
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: MeshTokens.of(context).spacingXs),
                   ValueListenableBuilder<TextEditingValue>(
                     valueListenable: _textController,
                     builder: (context, value, _) {
@@ -1647,7 +1685,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                 await _deleteMessage(message);
               },
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: MeshTokens.of(context).spacingXs),
           ],
         ),
       ),
@@ -1788,7 +1826,7 @@ class _RegionSelectDialogState extends State<_RegionSelectDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(MeshTokens.of(context).spacingXs),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1820,7 +1858,7 @@ class _RegionSelectDialogState extends State<_RegionSelectDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 15),
+            SizedBox(height: MeshTokens.of(context).spacingMd),
             Expanded(
               child: ListView.builder(
                 itemCount: regions.length,
@@ -1999,7 +2037,10 @@ class _SwipeReplyBubbleState extends State<_SwipeReplyBubble> {
       onPointerUp: (event) => _handleSwipePointerUp(event.position),
       onPointerCancel: (_) => _resetSwipe(),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+        padding: EdgeInsets.symmetric(
+          vertical: MeshTokens.of(context).spacingXxs,
+          horizontal: MeshTokens.of(context).spacingXs,
+        ),
         child: Stack(
           alignment: Alignment.center,
           children: [

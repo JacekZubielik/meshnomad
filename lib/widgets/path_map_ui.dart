@@ -19,7 +19,9 @@ const Color kPrimaryPathColor = Colors.blueAccent;
 /// the switchable style), the rest are theme-aware since they double as the
 /// app's signal/warn/accent colors elsewhere.
 List<Color> alternatePathColors(BuildContext context) => [
-  const Color(0xFF8B5CF6), // purple
+  MeshTokens.of(
+    context,
+  ).mapRouter, // reuse of near-duplicate purple literal (audit); slight hue shift vs prior value
   MeshTokens.of(context).signal, // green
   MeshTokens.of(context).warn, // amber
   MeshTokens.of(context).secondary,
@@ -238,7 +240,12 @@ void showSharedNodeSheet(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+            padding: EdgeInsets.fromLTRB(
+              MeshTokens.of(context).spacingMd,
+              MeshTokens.of(context).spacingMd,
+              MeshTokens.of(context).spacingMd,
+              MeshTokens.of(context).spacingXxs,
+            ),
             child: Text(
               title,
               style: MeshTokens.of(context).monoBody(
@@ -248,7 +255,9 @@ void showSharedNodeSheet(
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(
+              horizontal: MeshTokens.of(context).spacingMd,
+            ),
             child: Text(
               l10n.pathMap_sharedNodeCount(paths.length),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -256,7 +265,7 @@ void showSharedNodeSheet(
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: MeshTokens.of(context).spacingXs),
           for (final path in paths)
             ListTile(
               dense: true,
@@ -278,7 +287,7 @@ void showSharedNodeSheet(
                 onSelect(path);
               },
             ),
-          const SizedBox(height: 8),
+          SizedBox(height: MeshTokens.of(context).spacingXs),
         ],
       ),
     ),
@@ -398,7 +407,13 @@ class PathAnimationControls extends StatelessWidget {
         );
 
         return Padding(
-          padding: const EdgeInsets.fromLTRB(4, 0, 12, 2),
+          // spacing: vertical 2 hairline, kept as literal
+          padding: EdgeInsets.fromLTRB(
+            MeshTokens.of(context).spacingXxs,
+            0,
+            MeshTokens.of(context).spacingSm,
+            2,
+          ),
           child: Row(
             children: [
               controlButton(
@@ -447,7 +462,9 @@ class PathAnimationControls extends StatelessWidget {
                 onPressed: enabled ? playback.cycleSpeed : null,
                 style: TextButton.styleFrom(
                   visualDensity: VisualDensity.compact,
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MeshTokens.of(context).spacingXs,
+                  ),
                   minimumSize: const Size(36, 30),
                 ),
                 child: Text(
@@ -492,7 +509,7 @@ class PathMiniLegend extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         swatch,
-        const SizedBox(width: 4),
+        SizedBox(width: MeshTokens.of(context).spacingXxs),
         Text(
           text,
           style: Theme.of(
@@ -514,7 +531,8 @@ class PathMiniLegend extends StatelessWidget {
       ],
     );
     return Wrap(
-      spacing: 12,
+      // spacing: runSpacing 2 hairline, kept as literal
+      spacing: MeshTokens.of(context).spacingSm,
       runSpacing: 2,
       children: [
         item(
@@ -575,7 +593,13 @@ class PathSummaryList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+          // spacing: 2 hairline, kept as literal
+          padding: EdgeInsets.fromLTRB(
+            MeshTokens.of(context).spacingSm,
+            2,
+            MeshTokens.of(context).spacingSm,
+            0,
+          ),
           child: Row(
             children: [
               Text(
@@ -590,7 +614,9 @@ class PathSummaryList extends StatelessWidget {
                   onPressed: onShowAll,
                   style: TextButton.styleFrom(
                     visualDensity: VisualDensity.compact,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MeshTokens.of(context).spacingXs,
+                    ),
                     minimumSize: const Size(0, 26),
                   ),
                   child: Text(
@@ -602,7 +628,7 @@ class PathSummaryList extends StatelessWidget {
           ),
         ),
         for (final path in paths) _buildRow(context, path),
-        const SizedBox(height: 4),
+        SizedBox(height: MeshTokens.of(context).spacingXxs),
       ],
     );
   }
@@ -621,7 +647,11 @@ class PathSummaryList extends StatelessWidget {
     return InkWell(
       onTap: () => onSelect(path),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+        // spacing: vertical 1 kept tighter than grid (deviation >25% from any token); horizontal 6/vertical 2 unmigratable hairline pair
+        margin: EdgeInsets.symmetric(
+          horizontal: MeshTokens.of(context).spacingXs,
+          vertical: 1,
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
           color: isSelected ? MeshTokens.of(context).bg3 : Colors.transparent,
@@ -635,7 +665,7 @@ class PathSummaryList extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _colorDot(path.color),
-                  const SizedBox(width: 8),
+                  SizedBox(width: MeshTokens.of(context).spacingXs),
                   Text(
                     path.label,
                     style: MeshTokens.of(context).monoBody(
@@ -648,7 +678,7 @@ class PathSummaryList extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: MeshTokens.of(context).spacingXs),
             Expanded(
               child: Opacity(
                 opacity: hidden ? 0.45 : 1,

@@ -201,9 +201,178 @@ void main() {
       final tokens = style.dark.extension<MeshTokens>()!;
       expect(tokens.mapOnline, const Color(0xFF00FF00));
       expect(tokens.losBeam, const Color(0xFF123456));
-      // Unrelated map/LOS fields stay at their default value.
+      // Map fields stay independent (fixed defaults, no theme derivation).
       expect(tokens.mapOffline, MeshTokens.defaultTokens.mapOffline);
-      expect(tokens.losTerrain, MeshTokens.defaultTokens.losTerrain);
+    });
+
+    test('un-overridden LOS tokens now follow the active scheme '
+        '(chrome from surfaces/ink, status from accents)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(
+          colorOverridesDark: {'bg': 0xFF102010, 'primary': 0xFFFF8800},
+        ),
+      );
+      final tokens = style.dark.extension<MeshTokens>()!;
+      // Chrome derives: chart bg == bg, text == ink.
+      expect(tokens.losChartBackground, tokens.bg);
+      expect(tokens.losText, tokens.ink);
+      // Status derives from accents (bit-identical to the old fixed palette
+      // when accents are unchanged; here primary was overridden).
+      expect(tokens.losBlocked, tokens.alert);
+      expect(tokens.losClear, tokens.signal);
+      expect(tokens.losSelected, tokens.primary);
+      // An explicit LOS override still wins over the derived default.
+      final pinned = buildCustomStyle(
+        const CustomStyleOverrides(
+          colorOverridesDark: {'losSelected': 0xFF123456},
+        ),
+      );
+      expect(
+        pinned.dark.extension<MeshTokens>()!.losSelected,
+        const Color(0xFF123456),
+      );
+    });
+
+    test(
+      'default spacing scale is 4/8/12/16/24/32/48 in both brightnesses',
+      () {
+        for (final tokens in [
+          MeshTokens.defaultTokens,
+          MeshTokens.defaultTokensLight,
+        ]) {
+          expect(tokens.spacingXxs, 4);
+          expect(tokens.spacingXs, 8);
+          expect(tokens.spacingSm, 12);
+          expect(tokens.spacingMd, 16);
+          expect(tokens.spacingLg, 24);
+          expect(tokens.spacingXlg, 32);
+          expect(tokens.spacingXxlg, 48);
+        }
+      },
+    );
+
+    test(
+      'a present spacing override wins over the default in both variants',
+      () {
+        final style = buildCustomStyle(
+          const CustomStyleOverrides(spacingOverrides: {'spacingMd': 24.0}),
+        );
+        expect(style.dark.extension<MeshTokens>()!.spacingMd, 24.0);
+        expect(style.light.extension<MeshTokens>()!.spacingMd, 24.0);
+        expect(
+          style.dark.extension<MeshTokens>()!.spacingXs,
+          MeshTokens.defaultTokens.spacingXs,
+        );
+      },
+    );
+
+    test('an unknown spacing key silently falls back to defaults', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(spacingOverrides: {'notARealStep': 99.0}),
+      );
+      expect(
+        style.dark.extension<MeshTokens>()!.spacingMd,
+        MeshTokens.defaultTokens.spacingMd,
+      );
+    });
+
+    test('a radius override wins over the default and reshapes chrome', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(radiusOverrides: {'md': 2.0}),
+      );
+      expect(style.dark.extension<MeshTokens>()!.md, 2.0);
+      expect(style.light.extension<MeshTokens>()!.md, 2.0);
+      final border = style.dark.inputDecorationTheme.border;
+      expect(border, isA<OutlineInputBorder>());
+      expect((border! as OutlineInputBorder).borderRadius.topLeft.x, 2.0);
+    });
+
+    test('pill stays fixed even if smuggled into radiusOverrides', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(radiusOverrides: {'pill': 4.0}),
+      );
+      expect(style.dark.extension<MeshTokens>()!.pill, 999.0);
+    });
+
+    test('cardElevated override flows into tokens; null inherits default', () {
+      final off = buildCustomStyle(
+        const CustomStyleOverrides(cardElevated: false),
+      );
+      expect(off.dark.extension<MeshTokens>()!.cardElevated, false);
+      final inherit = buildCustomStyle(const CustomStyleOverrides());
+      expect(inherit.dark.extension<MeshTokens>()!.cardElevated, true);
+    });
+
+    test('a bg override re-derives popup chrome backgrounds '
+        '(dialog/sheet/snackbar/menu follow the custom surface)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(colorOverridesDark: {'bg': 0xFF808080}),
+      );
+      final theme = style.dark;
+      final scheme = theme.colorScheme;
+      expect(theme.dialogTheme.backgroundColor, scheme.surfaceContainerLow);
+      expect(
+        theme.bottomSheetTheme.backgroundColor,
+        scheme.surfaceContainerLow,
+      );
+      expect(
+        theme.bottomSheetTheme.modalBackgroundColor,
+        scheme.surfaceContainerLow,
+      );
+      expect(theme.snackBarTheme.backgroundColor, scheme.surfaceContainerHigh);
+      expect(theme.popupMenuTheme.color, scheme.surfaceContainerHigh);
+      expect(theme.navigationBarTheme.backgroundColor, scheme.surface);
+      expect(theme.chipTheme.backgroundColor, scheme.surfaceContainerLow);
+    });
+
+    test('overrides re-derive baked input fill and switch chrome '
+        '(light variant follows the light custom palette)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(
+          colorOverridesLight: {'bg': 0xFFEEEEEE, 'primary': 0xFF112233},
+        ),
+      );
+      final theme = style.light;
+      final scheme = theme.colorScheme;
+      expect(theme.inputDecorationTheme.fillColor, scheme.surfaceContainerHigh);
+      expect(
+        theme.switchTheme.trackColor!.resolve({WidgetState.selected}),
+        scheme.primary,
+      );
+      expect(
+        theme.switchTheme.thumbColor!.resolve({}),
+        scheme.onSurfaceVariant,
+      );
+    });
+
+    test('a primary override re-derives button/FAB/progress accents '
+        'and container colors', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(colorOverridesDark: {'primary': 0xFFFF8800}),
+      );
+      final theme = style.dark;
+      final scheme = theme.colorScheme;
+      expect(scheme.primary, const Color(0xFFFF8800));
+      expect(theme.floatingActionButtonTheme.backgroundColor, scheme.primary);
+      expect(
+        theme.filledButtonTheme.style!.backgroundColor!.resolve({}),
+        scheme.primary,
+      );
+      expect(
+        theme.textButtonTheme.style!.foregroundColor!.resolve({}),
+        scheme.primary,
+      );
+      expect(theme.progressIndicatorTheme.color, scheme.primary);
+      expect(theme.sliderTheme.activeTrackColor, scheme.primary);
+      expect(theme.sliderTheme.thumbColor, scheme.primary);
+      expect(theme.cardTheme.color, scheme.surfaceContainerLow);
+      // Containers (used e.g. by the path editor sheet) must follow the
+      // overridden accent instead of inheriting the default style's blue.
+      expect(
+        scheme.primaryContainer,
+        isNot(defaultStyle.dark.colorScheme.primaryContainer),
+      );
+      expect(scheme.onPrimaryContainer, scheme.onSurface);
     });
   });
 }

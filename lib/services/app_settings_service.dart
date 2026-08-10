@@ -282,6 +282,78 @@ class AppSettingsService extends ChangeNotifier {
     );
   }
 
+  Future<void> setCustomSpacingOverride(String key, double value) async {
+    final spacing = Map<String, double>.from(
+      _settings.customStyleOverrides.spacingOverrides,
+    )..[key] = value;
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: _settings.customStyleOverrides.copyWith(
+          spacingOverrides: spacing,
+        ),
+      ),
+    );
+  }
+
+  Future<void> resetCustomSpacingOverride(String key) async {
+    final spacing = Map<String, double>.from(
+      _settings.customStyleOverrides.spacingOverrides,
+    )..remove(key);
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: _settings.customStyleOverrides.copyWith(
+          spacingOverrides: spacing,
+        ),
+      ),
+    );
+  }
+
+  Future<void> setCustomRadiusOverride(String key, double value) async {
+    final radii = Map<String, double>.from(
+      _settings.customStyleOverrides.radiusOverrides,
+    )..[key] = value;
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: _settings.customStyleOverrides.copyWith(
+          radiusOverrides: radii,
+        ),
+      ),
+    );
+  }
+
+  Future<void> resetCustomRadiusOverride(String key) async {
+    final radii = Map<String, double>.from(
+      _settings.customStyleOverrides.radiusOverrides,
+    )..remove(key);
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: _settings.customStyleOverrides.copyWith(
+          radiusOverrides: radii,
+        ),
+      ),
+    );
+  }
+
+  Future<void> setCustomCardElevated(bool value) async {
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: _settings.customStyleOverrides.withCardElevated(
+          value,
+        ),
+      ),
+    );
+  }
+
+  Future<void> resetCustomCardElevated() async {
+    await updateSettings(
+      _settings.copyWith(
+        customStyleOverrides: _settings.customStyleOverrides.withCardElevated(
+          null,
+        ),
+      ),
+    );
+  }
+
   Future<void> resetAllCustomOverrides() async {
     await updateSettings(
       _settings.copyWith(customStyleOverrides: const CustomStyleOverrides()),

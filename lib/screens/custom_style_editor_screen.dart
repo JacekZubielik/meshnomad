@@ -180,6 +180,13 @@ final List<_ColorFieldSpec> _mapColorFields = [
   ),
 ];
 
+// Only the LOS colors with NO equivalent in the main palette stay editable
+// here — the chrome/status LOS tokens (panels, text, border, blocked/clear/
+// marginal/selected, chart bg) now derive from the main Colors tab
+// (bg/ink/line/alert/signal/warn/primary), so editing them separately was
+// redundant (user decision 2026-08-10). These three are genuine chart data
+// hues; their default swatch is read LIVE (they derive from the accents),
+// so the picker shows the actually-applied color for the edited brightness.
 final List<_ColorFieldSpec> _losColorFields = [
   _ColorFieldSpec(
     'losTerrain',
@@ -196,62 +203,16 @@ final List<_ColorFieldSpec> _losColorFields = [
     MeshTokens.defaultTokens.losHorizon,
     MeshTokens.defaultTokensLight.losHorizon,
   ),
-  _ColorFieldSpec(
-    'losBlocked',
-    MeshTokens.defaultTokens.losBlocked,
-    MeshTokens.defaultTokensLight.losBlocked,
-  ),
-  _ColorFieldSpec(
-    'losMarginal',
-    MeshTokens.defaultTokens.losMarginal,
-    MeshTokens.defaultTokensLight.losMarginal,
-  ),
-  _ColorFieldSpec(
-    'losClear',
-    MeshTokens.defaultTokens.losClear,
-    MeshTokens.defaultTokensLight.losClear,
-  ),
-  _ColorFieldSpec(
-    'losSelected',
-    MeshTokens.defaultTokens.losSelected,
-    MeshTokens.defaultTokensLight.losSelected,
-  ),
-  _ColorFieldSpec(
-    'losChartBackground',
-    MeshTokens.defaultTokens.losChartBackground,
-    MeshTokens.defaultTokensLight.losChartBackground,
-  ),
-  _ColorFieldSpec(
-    'losPanelDark',
-    MeshTokens.defaultTokens.losPanelDark,
-    MeshTokens.defaultTokensLight.losPanelDark,
-  ),
-  _ColorFieldSpec(
-    'losPanelLight',
-    MeshTokens.defaultTokens.losPanelLight,
-    MeshTokens.defaultTokensLight.losPanelLight,
-  ),
-  _ColorFieldSpec(
-    'losText',
-    MeshTokens.defaultTokens.losText,
-    MeshTokens.defaultTokensLight.losText,
-  ),
-  _ColorFieldSpec(
-    'losTextMuted',
-    MeshTokens.defaultTokens.losTextMuted,
-    MeshTokens.defaultTokensLight.losTextMuted,
-  ),
-  _ColorFieldSpec(
-    'losBorder',
-    MeshTokens.defaultTokens.losBorder,
-    MeshTokens.defaultTokensLight.losBorder,
-  ),
-  _ColorFieldSpec(
-    'losShadow',
-    MeshTokens.defaultTokens.losShadow,
-    MeshTokens.defaultTokensLight.losShadow,
-  ),
 ];
+
+/// The live (currently-applied) value of an editable LOS data token — used as
+/// the picker's default swatch so it matches the derived-from-accent color.
+Color _liveLosColor(MeshTokens tokens, String key) => switch (key) {
+  'losTerrain' => tokens.losTerrain,
+  'losBeam' => tokens.losBeam,
+  'losHorizon' => tokens.losHorizon,
+  _ => throw ArgumentError('Not a live-default LOS key: $key'),
+};
 
 final List<_FontFieldSpec> _fontFields = [
   _FontFieldSpec(
@@ -276,6 +237,37 @@ final List<_FontFieldSpec> _fontFields = [
   ),
   _FontFieldSpec('monoCaptionSize', MeshTokens.defaultTokens.monoCaptionSize),
   _FontFieldSpec('monoBodySize', MeshTokens.defaultTokens.monoBodySize),
+];
+
+class _SpacingFieldSpec {
+  const _SpacingFieldSpec(this.key, this.defaultValue, this.min, this.max);
+  final String key;
+  final double defaultValue;
+  final double min;
+  final double max;
+}
+
+final List<_SpacingFieldSpec> _spacingFields = [
+  _SpacingFieldSpec('spacingXxs', MeshTokens.defaultTokens.spacingXxs, 2, 12),
+  _SpacingFieldSpec('spacingXs', MeshTokens.defaultTokens.spacingXs, 4, 16),
+  _SpacingFieldSpec('spacingSm', MeshTokens.defaultTokens.spacingSm, 6, 20),
+  _SpacingFieldSpec('spacingMd', MeshTokens.defaultTokens.spacingMd, 8, 28),
+  _SpacingFieldSpec('spacingLg', MeshTokens.defaultTokens.spacingLg, 16, 40),
+  _SpacingFieldSpec('spacingXlg', MeshTokens.defaultTokens.spacingXlg, 20, 52),
+  _SpacingFieldSpec(
+    'spacingXxlg',
+    MeshTokens.defaultTokens.spacingXxlg,
+    32,
+    72,
+  ),
+];
+
+final List<_SpacingFieldSpec> _radiusFields = [
+  _SpacingFieldSpec('xs', MeshTokens.defaultTokens.xs, 0, 16),
+  _SpacingFieldSpec('sm', MeshTokens.defaultTokens.sm, 4, 20),
+  _SpacingFieldSpec('md', MeshTokens.defaultTokens.md, 6, 24),
+  _SpacingFieldSpec('lg', MeshTokens.defaultTokens.lg, 10, 32),
+  _SpacingFieldSpec('xl', MeshTokens.defaultTokens.xl, 14, 40),
 ];
 
 /// Maps a color field key to its localized (label, subtitle) pair. One
@@ -473,6 +465,80 @@ final List<_FontFieldSpec> _fontFields = [
   }
 }
 
+(String, String) _spacingFieldText(AppLocalizations l10n, String key) {
+  switch (key) {
+    case 'spacingXxs':
+      return (
+        l10n.styleEditor_spacingXxs_label,
+        l10n.styleEditor_spacingXxs_subtitle,
+      );
+    case 'spacingXs':
+      return (
+        l10n.styleEditor_spacingXs_label,
+        l10n.styleEditor_spacingXs_subtitle,
+      );
+    case 'spacingSm':
+      return (
+        l10n.styleEditor_spacingSm_label,
+        l10n.styleEditor_spacingSm_subtitle,
+      );
+    case 'spacingMd':
+      return (
+        l10n.styleEditor_spacingMd_label,
+        l10n.styleEditor_spacingMd_subtitle,
+      );
+    case 'spacingLg':
+      return (
+        l10n.styleEditor_spacingLg_label,
+        l10n.styleEditor_spacingLg_subtitle,
+      );
+    case 'spacingXlg':
+      return (
+        l10n.styleEditor_spacingXlg_label,
+        l10n.styleEditor_spacingXlg_subtitle,
+      );
+    case 'spacingXxlg':
+      return (
+        l10n.styleEditor_spacingXxlg_label,
+        l10n.styleEditor_spacingXxlg_subtitle,
+      );
+    default:
+      throw ArgumentError('Unknown spacing field key: $key');
+  }
+}
+
+(String, String) _radiusFieldText(AppLocalizations l10n, String key) {
+  switch (key) {
+    case 'xs':
+      return (
+        l10n.styleEditor_radiusXs_label,
+        l10n.styleEditor_radiusXs_subtitle,
+      );
+    case 'sm':
+      return (
+        l10n.styleEditor_radiusSm_label,
+        l10n.styleEditor_radiusSm_subtitle,
+      );
+    case 'md':
+      return (
+        l10n.styleEditor_radiusMd_label,
+        l10n.styleEditor_radiusMd_subtitle,
+      );
+    case 'lg':
+      return (
+        l10n.styleEditor_radiusLg_label,
+        l10n.styleEditor_radiusLg_subtitle,
+      );
+    case 'xl':
+      return (
+        l10n.styleEditor_radiusXl_label,
+        l10n.styleEditor_radiusXl_subtitle,
+      );
+    default:
+      throw ArgumentError('Unknown radius field key: $key');
+  }
+}
+
 String _fontFieldLabel(AppLocalizations l10n, String key) {
   switch (key) {
     case 'bodyMedium':
@@ -611,8 +677,17 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                         ),
                       ],
                       selected: {brightness},
-                      onSelectionChanged: (selection) =>
-                          setState(() => _editedBrightness = selection.first),
+                      // Switching the edited palette also switches the APP
+                      // theme to that brightness (user decision 2026-08-10)
+                      // — otherwise you edit light values while looking at
+                      // the dark UI and never see what you're changing.
+                      onSelectionChanged: (selection) {
+                        final next = selection.first;
+                        setState(() => _editedBrightness = next);
+                        settingsService.setThemeMode(
+                          next == Brightness.light ? 'light' : 'dark',
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -649,6 +724,7 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                   overrides: overrides,
                   settingsService: settingsService,
                   brightness: brightness,
+                  liveLosDefaults: true,
                 ),
                 SectionHeader(l10n.styleEditor_fontSizesSection),
                 Padding(
@@ -674,6 +750,91 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                         ),
                       ],
                     ],
+                  ),
+                ),
+                SectionHeader(l10n.styleEditor_spacingSection),
+                MeshCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < _spacingFields.length; i++) ...[
+                        if (i > 0) const Divider(height: 1, indent: 16),
+                        Builder(
+                          builder: (context) {
+                            final spec = _spacingFields[i];
+                            final (label, subtitle) = _spacingFieldText(
+                              l10n,
+                              spec.key,
+                            );
+                            final override =
+                                overrides.spacingOverrides[spec.key];
+                            return _TokenFieldRow(
+                              key: ValueKey('spacingRow_${spec.key}'),
+                              spec: spec,
+                              kind: _TokenPreviewKind.spacing,
+                              currentValue: override ?? spec.defaultValue,
+                              hasOverride: override != null,
+                              label: label,
+                              subtitle: subtitle,
+                              onChanged: (v) => settingsService
+                                  .setCustomSpacingOverride(spec.key, v),
+                              onReset: () => settingsService
+                                  .resetCustomSpacingOverride(spec.key),
+                            );
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                SectionHeader(l10n.styleEditor_radiusSection),
+                MeshCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < _radiusFields.length; i++) ...[
+                        if (i > 0) const Divider(height: 1, indent: 16),
+                        Builder(
+                          builder: (context) {
+                            final spec = _radiusFields[i];
+                            final (label, subtitle) = _radiusFieldText(
+                              l10n,
+                              spec.key,
+                            );
+                            final override =
+                                overrides.radiusOverrides[spec.key];
+                            return _TokenFieldRow(
+                              key: ValueKey('radiusRow_${spec.key}'),
+                              spec: spec,
+                              kind: _TokenPreviewKind.radius,
+                              currentValue: override ?? spec.defaultValue,
+                              hasOverride: override != null,
+                              label: label,
+                              subtitle: subtitle,
+                              onChanged: (v) => settingsService
+                                  .setCustomRadiusOverride(spec.key, v),
+                              onReset: () => settingsService
+                                  .resetCustomRadiusOverride(spec.key),
+                            );
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                SectionHeader(l10n.styleEditor_cardSection),
+                MeshCard(
+                  padding: EdgeInsets.zero,
+                  // Live preview ON THIS CARD (Wariant C): the switch drives
+                  // the shadow of its own section card, regardless of which
+                  // style is currently active in the app.
+                  elevated: overrides.cardElevated ?? true,
+                  child: SwitchListTile(
+                    key: const ValueKey('cardShadowSwitch'),
+                    title: Text(l10n.styleEditor_cardShadow_label),
+                    subtitle: Text(l10n.styleEditor_cardShadow_subtitle),
+                    value: overrides.cardElevated ?? true,
+                    onChanged: (v) => settingsService.setCustomCardElevated(v),
                   ),
                 ),
                 Padding(
@@ -734,6 +895,7 @@ class _ColorSectionExpansionTile extends StatelessWidget {
     required this.overrides,
     required this.settingsService,
     required this.brightness,
+    this.liveLosDefaults = false,
   });
 
   final String title;
@@ -742,8 +904,14 @@ class _ColorSectionExpansionTile extends StatelessWidget {
   final AppSettingsService settingsService;
   final Brightness brightness;
 
+  /// When true, each row's default swatch reads the live applied token
+  /// (via [_liveLosColor]) instead of the spec's fixed default — used for the
+  /// LOS data colors, whose defaults derive from the theme accents.
+  final bool liveLosDefaults;
+
   @override
   Widget build(BuildContext context) {
+    final tokens = liveLosDefaults ? MeshTokens.of(context) : null;
     return MeshCard(
       padding: EdgeInsets.zero,
       child: ExpansionTile(
@@ -757,6 +925,9 @@ class _ColorSectionExpansionTile extends StatelessWidget {
               overrides: overrides,
               settingsService: settingsService,
               brightness: brightness,
+              liveDefaultColor: tokens == null
+                  ? null
+                  : _liveLosColor(tokens, fields[i].key),
             ),
           ],
         ],
@@ -772,12 +943,17 @@ class _ColorFieldRow extends StatelessWidget {
     required this.overrides,
     required this.settingsService,
     required this.brightness,
+    this.liveDefaultColor,
   });
 
   final _ColorFieldSpec spec;
   final CustomStyleOverrides overrides;
   final AppSettingsService settingsService;
   final Brightness brightness;
+
+  /// Overrides the swatch shown when there's no explicit override — used for
+  /// LOS data colors whose default derives live from the theme accents.
+  final Color? liveDefaultColor;
 
   @override
   Widget build(BuildContext context) {
@@ -786,7 +962,7 @@ class _ColorFieldRow extends StatelessWidget {
     final override = overrides.colorOverridesFor(brightness)[spec.key];
     final currentColor = override != null
         ? Color(override)
-        : spec.defaultColorFor(brightness);
+        : (liveDefaultColor ?? spec.defaultColorFor(brightness));
     final scheme = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -1237,6 +1413,125 @@ class _FontFieldRow extends StatelessWidget {
             onPressed: override == null
                 ? null
                 : () => settingsService.resetCustomFontSizeOverride(spec.key),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Wariant C (mockup 2026-08-10): slider row with a LIVE mini-preview.
+/// kind == spacing: two 16x16 blocks with a gap bar whose width == value.
+/// kind == radius: a 34x26 outlined box whose top-left corner radius == value.
+enum _TokenPreviewKind { spacing, radius }
+
+class _TokenFieldRow extends StatelessWidget {
+  const _TokenFieldRow({
+    super.key,
+    required this.spec,
+    required this.kind,
+    required this.currentValue,
+    required this.hasOverride,
+    required this.label,
+    required this.subtitle,
+    required this.onChanged,
+    required this.onReset,
+  });
+
+  final _SpacingFieldSpec spec;
+  final _TokenPreviewKind kind;
+  final double currentValue;
+  final bool hasOverride;
+  final String label;
+  final String subtitle;
+  final ValueChanged<double> onChanged;
+  final VoidCallback onReset;
+
+  Widget _preview(BuildContext context) {
+    final accent = Theme.of(context).colorScheme.primary;
+    switch (kind) {
+      case _TokenPreviewKind.spacing:
+        Widget block() => Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.75),
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            block(),
+            Container(
+              width: currentValue,
+              height: 6,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            ),
+            block(),
+          ],
+        );
+      case _TokenPreviewKind.radius:
+        return Container(
+          width: 34,
+          height: 26,
+          decoration: BoxDecoration(
+            border: Border.all(color: accent, width: 2),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(currentValue),
+              topRight: const Radius.circular(4),
+              bottomLeft: const Radius.circular(4),
+              bottomRight: const Radius.circular(4),
+            ),
+          ),
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final value = currentValue.clamp(spec.min, spec.max).toDouble();
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label),
+          Text(
+            subtitle,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+          ),
+        ],
+      ),
+      subtitle: Row(
+        children: [
+          _preview(context),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Slider(
+              value: value,
+              min: spec.min,
+              max: spec.max,
+              divisions: (spec.max - spec.min).round(),
+              label: value.toStringAsFixed(0),
+              onChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('${value.toStringAsFixed(0)}dp'),
+          IconButton(
+            key: ValueKey('resetIcon_${spec.key}'),
+            icon: const Icon(Icons.settings_backup_restore, size: 20),
+            tooltip: l10n.styleEditor_resetTooltip,
+            onPressed: hasOverride ? onReset : null,
           ),
         ],
       ),

@@ -19,7 +19,6 @@ import '../connector/meshcore_connector.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/quick_switch_bar.dart';
 import '../icons/los_icon.dart';
-import '../theme/mesh_theme.dart';
 import '../theme/mesh_tokens.dart';
 
 class LineOfSightEndpoint {
@@ -398,7 +397,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                 child: Row(
                   children: [
                     const Icon(Icons.delete_outline),
-                    const SizedBox(width: 10),
+                    SizedBox(width: MeshTokens.of(context).spacingSm),
                     Text(context.l10n.losClearAllPoints),
                   ],
                 ),
@@ -476,12 +475,13 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               maxChildSize: 0.88,
               snap: true,
               snapSizes: const [0.14, 0.43, 0.88],
-              builder: (context, scrollController) => Theme(
-                data: MeshTheme.dark().copyWith(
-                  extensions: [MeshTokens.of(context)],
-                ),
-                child: _buildControlPanel(isImperial, scrollController),
-              ),
+              // Inherit the ACTIVE style's theme (custom or default) so the
+              // panel's M3 widgets — sliders, buttons, progress — follow the
+              // user's accent instead of a hardcoded dark-blue scheme. The
+              // los* tokens now derive from that same scheme, so the panel
+              // stays internally consistent (user report 2026-08-10).
+              builder: (context, scrollController) =>
+                  _buildControlPanel(isImperial, scrollController),
             ),
           if (_loading)
             Positioned(
@@ -506,7 +506,6 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
           channelsUnreadCount: context
               .watch<MeshCoreConnector>()
               .getTotalChannelsUnreadCount(),
-          highContrast: true,
         ),
       ),
     );
@@ -530,7 +529,10 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
           shadowColor: MeshTokens.of(context).losShadow,
           elevation: 4,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: EdgeInsets.symmetric(
+              horizontal: MeshTokens.of(context).spacingSm,
+              vertical: MeshTokens.of(context).spacingSm,
+            ),
             child: Row(
               children: [
                 Container(
@@ -547,7 +549,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: MeshTokens.of(context).spacingSm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -584,7 +586,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                   Icons.battery_5_bar,
                   battery == null ? '--' : '$battery%',
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: MeshTokens.of(context).spacingSm),
                 _headerMetric(
                   Icons.network_cell,
                   snr == null ? '--' : '${snr.toStringAsFixed(1)} dB',
@@ -712,7 +714,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
         ? '${_formatHeightValue(minClearance ?? 0, isImperial)} $heightUnit'
         : '${_formatHeightValue(segment.maxObstructionMeters, isImperial)} $heightUnit';
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(MeshTokens.of(context).spacingMd),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
@@ -723,7 +725,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
           Row(
             children: [
               Icon(_statusIcon(status), color: color, size: 24),
-              const SizedBox(width: 9),
+              SizedBox(width: MeshTokens.of(context).spacingXs),
               Expanded(
                 child: Text(
                   _statusLabel(status),
@@ -742,7 +744,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: MeshTokens.of(context).spacingSm),
           Row(
             children: [
               _summaryMetric(
@@ -772,7 +774,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
   Widget _summaryMetric(String label, String value, {Color? valueColor}) {
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.only(right: 8),
+        padding: EdgeInsets.only(right: MeshTokens.of(context).spacingXs),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -814,7 +816,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
       borderRadius: BorderRadius.circular(MeshTokens.of(context).sm),
       child: Container(
         width: 154,
-        padding: const EdgeInsets.all(10),
+        padding: EdgeInsets.all(MeshTokens.of(context).spacingSm),
         decoration: BoxDecoration(
           color: selected
               ? MeshTokens.of(context).losSelected.withValues(alpha: 0.18)
@@ -837,7 +839,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                   color: MeshTokens.of(context).losBlocked,
                   size: 17,
                 ),
-                const SizedBox(width: 5),
+                SizedBox(width: MeshTokens.of(context).spacingXxs),
                 Expanded(
                   child: Text(
                     '${_formatDistanceValue(obstruction.distanceMeters, isImperial)} $distanceUnit',
@@ -849,8 +851,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                 ),
                 if (isWorst)
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 5,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MeshTokens.of(context).spacingXxs,
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
@@ -890,7 +892,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
     final distanceUnit = isImperial ? 'mi' : 'km';
     final heightUnit = isImperial ? 'ft' : 'm';
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(MeshTokens.of(context).spacingMd),
       decoration: BoxDecoration(
         color: MeshTokens.of(context).losSelected.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
@@ -907,10 +909,10 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: MeshTokens.of(context).spacingSm),
           Wrap(
-            spacing: 18,
-            runSpacing: 10,
+            spacing: MeshTokens.of(context).spacingMd,
+            runSpacing: MeshTokens.of(context).spacingSm,
             children: [
               _detailValue(
                 'Blocked by',
@@ -930,7 +932,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: MeshTokens.of(context).spacingSm),
           Align(
             alignment: Alignment.centerRight,
             child: OutlinedButton.icon(
@@ -1003,7 +1005,12 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
       clipBehavior: Clip.antiAlias,
       child: ListView(
         controller: scrollController,
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+        padding: EdgeInsets.fromLTRB(
+          MeshTokens.of(context).spacingMd,
+          MeshTokens.of(context).spacingXs,
+          MeshTokens.of(context).spacingMd,
+          MeshTokens.of(context).spacingXlg,
+        ),
         children: [
           Center(
             child: Container(
@@ -1017,12 +1024,12 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: MeshTokens.of(context).spacingSm),
           _buildResultSummary(segment, isImperial),
           if (segment != null) ...[
-            const SizedBox(height: 14),
+            SizedBox(height: MeshTokens.of(context).spacingMd),
             _buildProfileView(segment, distanceUnit, heightUnit, isImperial),
-            const SizedBox(height: 10),
+            SizedBox(height: MeshTokens.of(context).spacingSm),
             _LosLegend(
               terrainLabel: context.l10n.losLegendTerrain,
               losBeamLabel: context.l10n.losLegendLosBeam,
@@ -1030,7 +1037,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             ),
           ],
           if (obstructions.isNotEmpty) ...[
-            const SizedBox(height: 18),
+            SizedBox(height: MeshTokens.of(context).spacingMd),
             Text(
               context.l10n.losBlockedSpotsTitle,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -1038,20 +1045,21 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: MeshTokens.of(context).spacingXxs),
             Text(
               context.l10n.losBlockedSpotsHint,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: MeshTokens.of(context).losTextMuted,
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: MeshTokens.of(context).spacingSm),
             SizedBox(
               height: 86,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: obstructions.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) =>
+                    SizedBox(width: MeshTokens.of(context).spacingXs),
                 itemBuilder: (context, index) {
                   final obstruction = obstructions[index];
                   return _buildObstructionCard(
@@ -1064,14 +1072,14 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             ),
           ],
           if (_selectedObstruction != null && segment != null) ...[
-            const SizedBox(height: 14),
+            SizedBox(height: MeshTokens.of(context).spacingMd),
             _buildSelectedObstructionCard(
               _selectedObstruction!,
               segment,
               isImperial,
             ),
           ],
-          const SizedBox(height: 12),
+          SizedBox(height: MeshTokens.of(context).spacingSm),
           ExpansionTile(
             initiallyExpanded: _menuExpanded,
             onExpansionChanged: (value) =>
@@ -1113,7 +1121,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                 },
               ),
               if (_customEndpoints.isNotEmpty) ...[
-                const SizedBox(height: 6),
+                SizedBox(height: MeshTokens.of(context).spacingXs),
                 Text(
                   context.l10n.losCustomPoints,
                   style: Theme.of(
@@ -1149,7 +1157,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                     ),
                   ),
               ],
-              const SizedBox(height: 8),
+              SizedBox(height: MeshTokens.of(context).spacingXs),
               _buildEndpointRow(
                 label: context.l10n.losPointA,
                 value: _start,
@@ -1165,7 +1173,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                   }
                 },
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: MeshTokens.of(context).spacingXs),
               _buildEndpointRow(
                 label: context.l10n.losPointB,
                 value: _end,
@@ -1181,7 +1189,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                   }
                 },
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: MeshTokens.of(context).spacingSm),
               Text(
                 context.l10n.losAntennaA(
                   antennaADisplay.toStringAsFixed(1),
@@ -1229,7 +1237,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
             ],
           ),
           if (displayFrequencyMHz != null) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: MeshTokens.of(context).spacingSm),
             Row(
               children: [
                 Text(
@@ -1630,8 +1638,8 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                 child: FittedBox(
                   fit: BoxFit.contain,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MeshTokens.of(context).spacingXs,
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
@@ -2284,8 +2292,8 @@ class _LosLegend extends StatelessWidget {
     const swatchSize = 12.0;
 
     return Wrap(
-      spacing: 16,
-      runSpacing: 6,
+      spacing: MeshTokens.of(context).spacingMd,
+      runSpacing: MeshTokens.of(context).spacingXs,
       children: entries
           .map(
             (entry) => Row(
@@ -2299,7 +2307,7 @@ class _LosLegend extends StatelessWidget {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: MeshTokens.of(context).spacingXs),
                 Text(entry.label, style: textStyle),
               ],
             ),

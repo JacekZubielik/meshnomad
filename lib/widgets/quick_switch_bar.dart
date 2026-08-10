@@ -1,15 +1,11 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
-import '../theme/mesh_tokens.dart';
 
 class QuickSwitchBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onDestinationSelected;
   final int contactsUnreadCount;
   final int channelsUnreadCount;
-  final bool highContrast;
 
   const QuickSwitchBar({
     super.key,
@@ -17,7 +13,6 @@ class QuickSwitchBar extends StatelessWidget {
     required this.onDestinationSelected,
     this.contactsUnreadCount = 0,
     this.channelsUnreadCount = 0,
-    this.highContrast = false,
   });
 
   @override
@@ -25,100 +20,78 @@ class QuickSwitchBar extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final labelStyle = theme.textTheme.labelMedium ?? const TextStyle();
-    final background = highContrast
-        ? MeshTokens.of(context).mapPanelDark
-        : Colors.transparent;
+    // Solid theme surface on every tab (user decision 2026-08-10) — the old
+    // translucent "glass" pill read the map tiles through itself on the map
+    // tab and drew visible rounded corners over the uniform backdrop.
     // The selected icon sits on the primary indicator pill, so it uses
     // onPrimary. The label sits below on the bar background, so it must use a
     // foreground color that contrasts with the surface (not onPrimary, which
     // is white-on-white in the light theme).
-    final selectedIconColor = highContrast
-        ? MeshTokens.of(context).mapTextPrimary
-        : colorScheme.onPrimary;
-    final selectedLabelColor = highContrast
-        ? MeshTokens.of(context).mapTextPrimary
-        : colorScheme.onSurface;
-    final unselectedColor = highContrast
-        ? MeshTokens.of(context).mapTextSecondary
-        : colorScheme.onSurfaceVariant;
-    final indicator = highContrast
-        ? MeshTokens.of(context).mapSelected
-        : colorScheme.primary;
-
     return SizedBox(
       width: double.infinity,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: background,
-              border: Border.all(
-                color: highContrast
-                    ? MeshTokens.of(context).mapBorder
-                    : colorScheme.outlineVariant.withValues(alpha: 0.4),
+      child: ColoredBox(
+        color: colorScheme.surface,
+        child: NavigationBarTheme(
+          data: NavigationBarThemeData(
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            indicatorColor: colorScheme.primary,
+            labelTextStyle: WidgetStateProperty.resolveWith((states) {
+              final isSelected = states.contains(WidgetState.selected);
+              return labelStyle.copyWith(
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected
+                    ? colorScheme.onSurface
+                    : colorScheme.onSurfaceVariant,
+              );
+            }),
+            iconTheme: WidgetStateProperty.resolveWith((states) {
+              final isSelected = states.contains(WidgetState.selected);
+              return IconThemeData(
+                color: isSelected
+                    ? colorScheme.onPrimary
+                    : colorScheme.onSurfaceVariant,
+              );
+            }),
+          ),
+          child: NavigationBar(
+            height: 72,
+            selectedIndex: selectedIndex,
+            onDestinationSelected: onDestinationSelected,
+            destinations: [
+              NavigationDestination(
+                icon: _buildIconWithBadge(
+                  context,
+                  const Icon(Icons.people_outline),
+                  contactsUnreadCount,
+                ),
+                selectedIcon: _buildIconWithBadge(
+                  context,
+                  const Icon(Icons.people),
+                  contactsUnreadCount,
+                ),
+                label: context.l10n.nav_contacts,
               ),
-            ),
-            child: NavigationBarTheme(
-              data: NavigationBarThemeData(
-                backgroundColor: Colors.transparent,
-                surfaceTintColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                indicatorColor: indicator,
-                labelTextStyle: WidgetStateProperty.resolveWith((states) {
-                  final isSelected = states.contains(WidgetState.selected);
-                  return labelStyle.copyWith(
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? selectedLabelColor : unselectedColor,
-                  );
-                }),
-                iconTheme: WidgetStateProperty.resolveWith((states) {
-                  final isSelected = states.contains(WidgetState.selected);
-                  return IconThemeData(
-                    color: isSelected ? selectedIconColor : unselectedColor,
-                  );
-                }),
+              NavigationDestination(
+                icon: _buildIconWithBadge(
+                  context,
+                  const Icon(Icons.tag),
+                  channelsUnreadCount,
+                ),
+                selectedIcon: _buildIconWithBadge(
+                  context,
+                  const Icon(Icons.tag),
+                  channelsUnreadCount,
+                ),
+                label: context.l10n.nav_channels,
               ),
-              child: NavigationBar(
-                height: 72,
-                selectedIndex: selectedIndex,
-                onDestinationSelected: onDestinationSelected,
-                destinations: [
-                  NavigationDestination(
-                    icon: _buildIconWithBadge(
-                      context,
-                      const Icon(Icons.people_outline),
-                      contactsUnreadCount,
-                    ),
-                    selectedIcon: _buildIconWithBadge(
-                      context,
-                      const Icon(Icons.people),
-                      contactsUnreadCount,
-                    ),
-                    label: context.l10n.nav_contacts,
-                  ),
-                  NavigationDestination(
-                    icon: _buildIconWithBadge(
-                      context,
-                      const Icon(Icons.tag),
-                      channelsUnreadCount,
-                    ),
-                    selectedIcon: _buildIconWithBadge(
-                      context,
-                      const Icon(Icons.tag),
-                      channelsUnreadCount,
-                    ),
-                    label: context.l10n.nav_channels,
-                  ),
-                  NavigationDestination(
-                    icon: const Icon(Icons.map_outlined),
-                    selectedIcon: const Icon(Icons.map),
-                    label: context.l10n.nav_map,
-                  ),
-                ],
+              NavigationDestination(
+                icon: const Icon(Icons.map_outlined),
+                selectedIcon: const Icon(Icons.map),
+                label: context.l10n.nav_map,
               ),
-            ),
+            ],
           ),
         ),
       ),

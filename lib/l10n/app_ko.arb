@@ -2495,13 +2495,10 @@
       }
     }
   },
-  "messageStatus_pending": "발송",
-  "messageStatus_sent": "발송",
-  "messageStatus_delivered": "배송 완료",
-  "common_undo": "되돌리기",
   "messageStatus_pending": "전송 중",
   "messageStatus_sent": "전송됨",
   "messageStatus_delivered": "전달됨",
+  "common_undo": "되돌리기",
   "messageStatus_failed": "전송 실패",
   "messageStatus_repeated": "반복 수신됨",
   "contacts_searchOpen": "연락처 검색",
@@ -2742,5 +2739,34 @@
         "type": "String"
       }
     }
-  }
+  },
+  "styleEditor_spacingSection": "Spacing",
+  "styleEditor_spacingXxs_label": "Micro (xxs)",
+  "styleEditor_spacingXxs_subtitle": "Micro-gaps inside rows",
+  "styleEditor_spacingXs_label": "Extra small (xs)",
+  "styleEditor_spacingXs_subtitle": "Icon and field gaps in a row",
+  "styleEditor_spacingSm_label": "Small (sm)",
+  "styleEditor_spacingSm_subtitle": "Compact paddings",
+  "styleEditor_spacingMd_label": "Medium (md)",
+  "styleEditor_spacingMd_subtitle": "Card and screen padding",
+  "styleEditor_spacingLg_label": "Large (lg)",
+  "styleEditor_spacingLg_subtitle": "Gaps between sections",
+  "styleEditor_spacingXlg_label": "Extra large (xlg)",
+  "styleEditor_spacingXlg_subtitle": "Large section breaks",
+  "styleEditor_spacingXxlg_label": "Huge (xxlg)",
+  "styleEditor_spacingXxlg_subtitle": "Largest layout gaps",
+  "styleEditor_radiusSection": "Corner radius",
+  "styleEditor_radiusXs_label": "Small (xs)",
+  "styleEditor_radiusXs_subtitle": "Chips, small fields",
+  "styleEditor_radiusSm_label": "Reduced (sm)",
+  "styleEditor_radiusSm_subtitle": "Menus, list panels",
+  "styleEditor_radiusMd_label": "Medium (md)",
+  "styleEditor_radiusMd_subtitle": "Cards, text fields",
+  "styleEditor_radiusLg_label": "Large (lg)",
+  "styleEditor_radiusLg_subtitle": "Chat bubbles, sheets",
+  "styleEditor_radiusXl_label": "Extra large (xl)",
+  "styleEditor_radiusXl_subtitle": "Large panels",
+  "styleEditor_cardSection": "Card style",
+  "styleEditor_cardShadow_label": "Card shadow",
+  "styleEditor_cardShadow_subtitle": "Floating shadow under cards"
 }

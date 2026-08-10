@@ -83,12 +83,16 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
 
   Widget _tile(String text, IconData icon, Color color) {
     final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: EdgeInsets.symmetric(
+        horizontal: t.spacingSm,
+        vertical: t.spacingSm,
+      ),
       child: Row(
         children: [
           Icon(icon, size: 16, color: color),
-          const SizedBox(width: 10),
+          SizedBox(width: t.spacingSm),
           Expanded(
             child: Text(
               text,
@@ -114,17 +118,23 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
     final txLimit = 3600 * dutyCyclePercent ~/ 100;
     final txPct = txLimit > 0 ? (txUsed * 100 / txLimit).round() : 0;
     return MeshCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.all(4),
+      margin: EdgeInsets.symmetric(
+        horizontal: tokens.spacingMd,
+        vertical: tokens.spacingXxs,
+      ),
+      padding: EdgeInsets.all(tokens.spacingXxs),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: EdgeInsets.symmetric(
+              horizontal: tokens.spacingSm,
+              vertical: tokens.spacingSm,
+            ),
             child: Row(
               children: [
                 Icon(Icons.upload, size: 16, color: tokens.primary),
-                const SizedBox(width: 10),
+                SizedBox(width: tokens.spacingSm),
                 Expanded(
                   child: Text(
                     l10n.radioStats_txWindow(txUsed, txLimit),
@@ -139,7 +149,7 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: EdgeInsets.symmetric(horizontal: tokens.spacingSm),
             child: SizedBox(
               height: 1,
               child: CustomPaint(
@@ -148,7 +158,12 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
+            padding: EdgeInsets.fromLTRB(
+              tokens.spacingSm,
+              tokens.spacingXs,
+              tokens.spacingSm,
+              tokens.spacingSm,
+            ),
             child: Text(
               l10n.radioStats_txLimitCaption(dutyCyclePercent, stats.txAirSecs),
               style: Theme.of(
@@ -178,13 +193,14 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
       selector: (_, c) =>
           (connected: c.isConnected, supported: c.supportsCompanionRadioStats),
       builder: (context, state, _) {
+        final t = MeshTokens.of(context);
         if (!state.connected) {
           return Center(child: Text(l10n.radioStats_notConnected));
         }
         if (!state.supported) {
           return Center(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(t.spacingLg),
               child: Text(
                 l10n.radioStats_firmwareTooOld,
                 textAlign: TextAlign.center,
@@ -205,16 +221,21 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (stats != null) ...[
-                  const SectionHeader(
+                  SectionHeader(
                     'Signal',
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: EdgeInsets.fromLTRB(
+                      t.spacingMd,
+                      t.spacingMd,
+                      t.spacingMd,
+                      t.spacingXs,
+                    ),
                   ),
                   MeshCard(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 4,
+                    margin: EdgeInsets.symmetric(
+                      horizontal: t.spacingMd,
+                      vertical: t.spacingXxs,
                     ),
-                    padding: const EdgeInsets.all(4),
+                    padding: EdgeInsets.all(t.spacingXxs),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -242,9 +263,14 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
                       ],
                     ),
                   ),
-                  const SectionHeader(
+                  SectionHeader(
                     'Airtime',
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: EdgeInsets.fromLTRB(
+                      t.spacingMd,
+                      t.spacingMd,
+                      t.spacingMd,
+                      t.spacingXs,
+                    ),
                   ),
                   _airtimeCard(l10n, stats, connector, dutyCyclePercent),
                 ] else ...[
@@ -254,7 +280,7 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: t.spacingXs),
                   Center(
                     child: Text(
                       l10n.radioStats_waiting,
@@ -264,10 +290,15 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
                 ],
                 SectionHeader(
                   l10n.radioStats_bandChartCaption,
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  padding: EdgeInsets.fromLTRB(
+                    t.spacingMd,
+                    t.spacingMd,
+                    t.spacingMd,
+                    t.spacingXs,
+                  ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.symmetric(horizontal: t.spacingMd),
                   child: RadioStatsBandChart(
                     rssi: _rssiHistory,
                     noise: _noiseHistory,
@@ -275,7 +306,7 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
                     noiseLabel: l10n.radioStats_seriesNoise,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: t.spacingXs),
               ],
             );
           },

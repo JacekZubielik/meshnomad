@@ -358,7 +358,7 @@ class _ContactsScreenState extends State<ContactsScreen>
               child: Row(
                 children: [
                   const Icon(Icons.person_add_rounded),
-                  const SizedBox(width: 8),
+                  SizedBox(width: MeshTokens.of(context).spacingXs),
                   Text(context.l10n.discoveredContacts_Title),
                 ],
               ),
@@ -373,7 +373,7 @@ class _ContactsScreenState extends State<ContactsScreen>
               child: Row(
                 children: [
                   const Icon(Icons.paste),
-                  const SizedBox(width: 8),
+                  SizedBox(width: MeshTokens.of(context).spacingXs),
                   Text(context.l10n.contacts_addContactFromClipboard),
                 ],
               ),
@@ -384,7 +384,7 @@ class _ContactsScreenState extends State<ContactsScreen>
               child: Row(
                 children: [
                   const Icon(Icons.connect_without_contact),
-                  const SizedBox(width: 8),
+                  SizedBox(width: MeshTokens.of(context).spacingXs),
                   Text(context.l10n.contacts_zeroHopAdvert),
                 ],
               ),
@@ -400,7 +400,7 @@ class _ContactsScreenState extends State<ContactsScreen>
               child: Row(
                 children: [
                   const Icon(Icons.cell_tower),
-                  const SizedBox(width: 8),
+                  SizedBox(width: MeshTokens.of(context).spacingXs),
                   Text(context.l10n.contacts_floodAdvert),
                 ],
               ),
@@ -416,7 +416,7 @@ class _ContactsScreenState extends State<ContactsScreen>
               child: Row(
                 children: [
                   const Icon(Icons.copy),
-                  const SizedBox(width: 8),
+                  SizedBox(width: MeshTokens.of(context).spacingXs),
                   Text(context.l10n.contacts_copyAdvertToClipboard),
                 ],
               ),
@@ -430,7 +430,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                     Icons.logout,
                     color: Theme.of(context).colorScheme.error,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: MeshTokens.of(context).spacingXs),
                   Text(context.l10n.common_disconnect),
                 ],
               ),
@@ -440,7 +440,7 @@ class _ContactsScreenState extends State<ContactsScreen>
               child: Row(
                 children: [
                   const Icon(Icons.settings),
-                  const SizedBox(width: 8),
+                  SizedBox(width: MeshTokens.of(context).spacingXs),
                   Text(context.l10n.settings_title),
                 ],
               ),
@@ -499,7 +499,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                 );
               },
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: MeshTokens.of(context).spacingXs),
           ],
         ),
       ),
@@ -571,6 +571,7 @@ class _ContactsScreenState extends State<ContactsScreen>
     List<ContactGroup> sortedGroups,
   ) {
     final canManageGroups = _hasGroupStoreScope(connector);
+    final t = MeshTokens.of(context);
     final selectedGroupName =
         _selectedGroupForName(viewState.contactsSelectedGroupName)?.name ??
         context.l10n.listFilter_all;
@@ -634,7 +635,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                           () => _showGroupsUnavailableMessage(this.context),
                         ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: MeshTokens.of(menuContext).spacingXs),
                 IconButton(
                   tooltip: menuContext.l10n.contacts_deleteGroup,
                   icon: Icon(
@@ -665,7 +666,10 @@ class _ContactsScreenState extends State<ContactsScreen>
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: EdgeInsets.symmetric(
+              horizontal: t.spacingSm,
+              vertical: t.spacingSm,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -674,7 +678,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: t.spacingXs),
                 const Icon(Icons.arrow_drop_down),
               ],
             ),
@@ -685,6 +689,7 @@ class _ContactsScreenState extends State<ContactsScreen>
   }
 
   Widget _buildContactsBody(BuildContext context, MeshCoreConnector connector) {
+    final t = MeshTokens.of(context);
     final viewState = context.watch<UiViewStateService>();
     final contacts = connector.contacts;
     final waitingForInitialContacts =
@@ -785,7 +790,7 @@ class _ContactsScreenState extends State<ContactsScreen>
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(t.spacingXs),
           child: Row(
             children: [
               Expanded(
@@ -797,7 +802,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                   sortedGroups,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: t.spacingXs),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
@@ -822,9 +827,9 @@ class _ContactsScreenState extends State<ContactsScreen>
                                 decoration: InputDecoration(
                                   hintText: hintText,
                                   border: InputBorder.none,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 10,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: t.spacingSm,
+                                    vertical: t.spacingSm,
                                   ),
                                 ),
                                 onChanged: (value) {
@@ -903,7 +908,9 @@ class _ContactsScreenState extends State<ContactsScreen>
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 88),
+                    padding: const EdgeInsets.only(
+                      bottom: 88,
+                    ), // spacing: size-special (>25% off nearest token)
                     itemCount: filteredAndSorted.length,
                     itemBuilder: (context, index) {
                       final contact = filteredAndSorted[index];
@@ -1161,6 +1168,7 @@ class _ContactsScreenState extends State<ContactsScreen>
       _showGroupsUnavailableMessage(context);
       return;
     }
+    final t = MeshTokens.of(context);
     final isEditing = group != null;
     final nameController = TextEditingController(text: group?.name ?? '');
     final selectedKeys = <String>{...group?.memberKeys ?? []};
@@ -1201,7 +1209,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                         border: const OutlineInputBorder(),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: t.spacingSm),
                     TextField(
                       decoration: InputDecoration(
                         hintText: context.l10n.contacts_filterContacts,
@@ -1215,7 +1223,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                         });
                       },
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: t.spacingSm),
                     Expanded(
                       child: filteredContacts.isEmpty
                           ? Center(
@@ -1342,6 +1350,7 @@ class _ContactsScreenState extends State<ContactsScreen>
     MeshCoreConnector connector,
     Contact contact,
   ) {
+    final t = MeshTokens.of(context);
     final isRepeater = contact.type == advTypeRepeater;
     final isRoom = contact.type == advTypeRoom;
     final isFavorite = contact.isFavorite;
@@ -1529,7 +1538,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                 _confirmDelete(context, connector, contact);
               },
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: t.spacingXs),
           ],
         ),
       ),
@@ -1604,7 +1613,7 @@ class _ContactTile extends StatelessWidget {
       case advTypeRoom:
         return MeshTokens.of(context).secondary;
       case advTypeSensor:
-        return const Color(0xFF4ACCC4); // teal
+        return sensorTypeAccent;
       default:
         return MeshTokens.of(
           context,
@@ -1629,6 +1638,7 @@ class _ContactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
     final emoji = firstEmoji(contact.name);
     final isChat = contact.type == advTypeChat;
     final pathLen = contact.pathBytesForDisplay.length;
@@ -1640,7 +1650,10 @@ class _ContactTile extends StatelessWidget {
       child: MeshCard(
         onTap: onTap,
         onLongPress: onLongPress,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: EdgeInsets.symmetric(
+          horizontal: t.spacingMd,
+          vertical: t.spacingSm,
+        ),
         child: Row(
           children: [
             // Avatar
@@ -1663,7 +1676,7 @@ class _ContactTile extends StatelessWidget {
                 color: isChat ? null : _avatarColor(context),
                 icon: _avatarIcon(),
               ),
-            const SizedBox(width: 12),
+            SizedBox(width: t.spacingSm),
             // Main content
             Expanded(
               child: Column(
@@ -1687,7 +1700,7 @@ class _ContactTile extends StatelessWidget {
                         ),
                       ),
                       if (isFavorite) ...[
-                        const SizedBox(width: 4),
+                        SizedBox(width: t.spacingXxs),
                         Icon(
                           Icons.star,
                           size: 13,
@@ -1695,7 +1708,7 @@ class _ContactTile extends StatelessWidget {
                         ),
                       ],
                       if (contact.hasLocation) ...[
-                        const SizedBox(width: 4),
+                        SizedBox(width: t.spacingXxs),
                         Icon(
                           Icons.location_on,
                           size: 13,
@@ -1706,7 +1719,7 @@ class _ContactTile extends StatelessWidget {
                       ],
                     ],
                   ),
-                  const SizedBox(height: 3),
+                  SizedBox(height: t.spacingXxs),
                   // Path / subtitle row
                   Row(
                     children: [
@@ -1722,7 +1735,7 @@ class _ContactTile extends StatelessWidget {
                         ),
                       ),
                       if (hasPath) ...[
-                        const SizedBox(width: 6),
+                        SizedBox(width: t.spacingXs),
                         RouteChip(
                           isDirect: isDirect,
                           hops: isDirect ? contact.pathLength : null,
@@ -1733,7 +1746,7 @@ class _ContactTile extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: t.spacingSm),
             // Trailing: time + unread badge
             // Clamp text scale to prevent overflow in trailing section.
             MediaQuery(
@@ -1759,7 +1772,7 @@ class _ContactTile extends StatelessWidget {
                       maintainState: true,
                       child: UnreadBadge(count: 0),
                     ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: t.spacingXxs),
                   Text(
                     _formatLastSeen(context, lastSeen),
                     maxLines: 1,

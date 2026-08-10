@@ -64,7 +64,7 @@ class MeshCard extends StatelessWidget {
   /// .mockups/depth-shadows.html, "Wariant C bg + Wariant B shadow", accepted
   /// 2026-08-09, extended to every MeshCard app-wide the same day. Pass
   /// `elevated: false` at a call site to keep the old flat bordered look.
-  final bool elevated;
+  final bool? elevated;
 
   const MeshCard({
     super.key,
@@ -77,24 +77,27 @@ class MeshCard extends StatelessWidget {
     this.color,
     this.borderColor,
     this.radius,
-    this.elevated = true,
+    this.elevated,
   });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final effectiveRadius = radius ?? MeshTokens.of(context).md;
+    final effectiveElevated = elevated ?? MeshTokens.of(context).cardElevated;
     final borderRadius = BorderRadius.circular(effectiveRadius);
     final shape = RoundedRectangleBorder(
       borderRadius: borderRadius,
-      side: elevated
+      side: effectiveElevated
           ? BorderSide.none
           : BorderSide(color: borderColor ?? scheme.outlineVariant),
     );
     final card = Material(
       color:
           color ??
-          (elevated ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow),
+          (effectiveElevated
+              ? scheme.surfaceContainerHigh
+              : scheme.surfaceContainerLow),
       shape: shape,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -111,7 +114,7 @@ class MeshCard extends StatelessWidget {
     );
     return Padding(
       padding: margin,
-      child: elevated
+      child: effectiveElevated
           ? DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: borderRadius,
@@ -260,6 +263,21 @@ class StatTile extends StatelessWidget {
   }
 }
 
+/// Deterministic avatar tint palette shared by contact tiles and chat
+/// headers — keep the single source here; do not copy the literals.
+List<Color> avatarTintPalette(MeshTokens tokens) => [
+  tokens.primary,
+  tokens.secondary,
+  tokens.signal,
+  tokens.warn,
+  const Color(0xFF8FA8F0),
+  const Color(0xFF6FD9CE),
+];
+
+/// Accent for sensor-type nodes (advTypeSensor) — single source; do not
+/// copy the literal into screens.
+const Color sensorTypeAccent = Color(0xFF4ACCC4);
+
 /// Initials avatar with a deterministic per-name hue, or a fixed [color]
 /// for node-type coloring. Optional [icon] replaces initials.
 class AvatarCircle extends StatelessWidget {
@@ -277,15 +295,7 @@ class AvatarCircle extends StatelessWidget {
   });
 
   Color _colorFor(BuildContext context, String s) {
-    final tokens = MeshTokens.of(context);
-    final hues = [
-      tokens.primary,
-      tokens.secondary,
-      tokens.signal,
-      tokens.warn,
-      const Color(0xFF8FA8F0),
-      const Color(0xFF6FD9CE),
-    ];
+    final hues = avatarTintPalette(MeshTokens.of(context));
     var h = 0;
     for (final c in s.codeUnits) {
       h = (h * 31 + c) & 0x7fffffff;

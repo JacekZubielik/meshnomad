@@ -7,6 +7,7 @@ import '../helpers/path_helper.dart';
 import '../l10n/contact_localization.dart';
 import '../l10n/l10n.dart';
 import '../models/contact.dart';
+import '../theme/mesh_tokens.dart';
 
 class PathEditorSheet extends StatefulWidget {
   final List<Contact> availableContacts;
@@ -231,9 +232,12 @@ class _PathEditorSheetState extends State<PathEditorSheet> {
           ),
           ReorderableDragStartListener(
             index: index,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              child: Icon(Icons.drag_handle),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: MeshTokens.of(context).spacingSm,
+                vertical: MeshTokens.of(context).spacingSm,
+              ),
+              child: const Icon(Icons.drag_handle),
             ),
           ),
         ],
@@ -281,7 +285,7 @@ class _PathEditorSheetState extends State<PathEditorSheet> {
 
     return Column(
       children: [
-        const SizedBox(height: 8),
+        SizedBox(height: MeshTokens.of(context).spacingXs),
         Container(
           width: 32,
           height: 4,
@@ -291,7 +295,12 @@ class _PathEditorSheetState extends State<PathEditorSheet> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          padding: EdgeInsets.fromLTRB(
+            MeshTokens.of(context).spacingMd,
+            MeshTokens.of(context).spacingSm,
+            MeshTokens.of(context).spacingMd,
+            0,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -307,11 +316,18 @@ class _PathEditorSheetState extends State<PathEditorSheet> {
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            padding: EdgeInsets.fromLTRB(
+              MeshTokens.of(context).spacingMd,
+              MeshTokens.of(context).spacingXs,
+              MeshTokens.of(context).spacingMd,
+              MeshTokens.of(context).spacingXs,
+            ),
             children: [
               if (_hops.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(
+                    vertical: MeshTokens.of(context).spacingSm,
+                  ),
                   child: Text(
                     l10n.pathEditor_noHops,
                     style: theme.textTheme.bodySmall?.copyWith(
@@ -329,9 +345,9 @@ class _PathEditorSheetState extends State<PathEditorSheet> {
                   itemBuilder: _hopTile,
                 ),
               const Divider(),
-              const SizedBox(height: 8),
+              SizedBox(height: MeshTokens.of(context).spacingXs),
               Text(l10n.pathEditor_addHops, style: theme.textTheme.titleSmall),
-              const SizedBox(height: 8),
+              SizedBox(height: MeshTokens.of(context).spacingXs),
               TextField(
                 onChanged: (value) => setState(() => _search = value),
                 decoration: InputDecoration(
@@ -341,10 +357,12 @@ class _PathEditorSheetState extends State<PathEditorSheet> {
                   isDense: true,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: MeshTokens.of(context).spacingXxs),
               if (repeaters.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(
+                    vertical: MeshTokens.of(context).spacingSm,
+                  ),
                   child: Text(
                     l10n.path_noRepeatersFound,
                     style: theme.textTheme.bodySmall?.copyWith(
@@ -362,7 +380,9 @@ class _PathEditorSheetState extends State<PathEditorSheet> {
                 ),
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
+                    padding: EdgeInsets.only(
+                      bottom: MeshTokens.of(context).spacingSm,
+                    ),
                     child: TextField(
                       controller: _hexController,
                       onChanged: _onHexChanged,
@@ -385,7 +405,12 @@ class _PathEditorSheetState extends State<PathEditorSheet> {
         SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            padding: EdgeInsets.fromLTRB(
+              MeshTokens.of(context).spacingMd,
+              MeshTokens.of(context).spacingXs,
+              MeshTokens.of(context).spacingMd,
+              MeshTokens.of(context).spacingMd,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -397,7 +422,7 @@ class _PathEditorSheetState extends State<PathEditorSheet> {
                     child: Text(l10n.common_cancel),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: MeshTokens.of(context).spacingSm),
                 Expanded(
                   child: FilledButton(
                     style: FilledButton.styleFrom(
