@@ -37,4 +37,20 @@ void main() {
       'spacingXxlg',
     ]);
   });
+
+  test('toJson/fromJson roundtrips radius overrides', () {
+    const overrides = CustomStyleOverrides(radiusOverrides: {'md': 20.0});
+    final decoded = CustomStyleOverrides.fromJson(overrides.toJson());
+    expect(decoded.radiusOverrides, {'md': 20.0});
+  });
+
+  test('editableRadiusKeys lists 5 editable steps (pill excluded)', () {
+    expect(CustomStyleOverrides.editableRadiusKeys, [
+      'xs',
+      'sm',
+      'md',
+      'lg',
+      'xl',
+    ]);
+  });
 }

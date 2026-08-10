@@ -248,5 +248,54 @@ void main() {
         MeshTokens.defaultTokens.spacingMd,
       );
     });
+
+    test('a radius override wins over the default and reshapes chrome', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(radiusOverrides: {'md': 2.0}),
+      );
+      expect(style.dark.extension<MeshTokens>()!.md, 2.0);
+      expect(style.light.extension<MeshTokens>()!.md, 2.0);
+      final border = style.dark.inputDecorationTheme.border;
+      expect(border, isA<OutlineInputBorder>());
+      expect((border! as OutlineInputBorder).borderRadius.topLeft.x, 2.0);
+    });
+
+    test('pill stays fixed even if smuggled into radiusOverrides', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(radiusOverrides: {'pill': 4.0}),
+      );
+      expect(style.dark.extension<MeshTokens>()!.pill, 999.0);
+    });
+
+    test('cardElevated override flows into tokens; null inherits default', () {
+      final off = buildCustomStyle(
+        const CustomStyleOverrides(cardElevated: false),
+      );
+      expect(off.dark.extension<MeshTokens>()!.cardElevated, false);
+      final inherit = buildCustomStyle(const CustomStyleOverrides());
+      expect(inherit.dark.extension<MeshTokens>()!.cardElevated, true);
+    });
+
+    test('a bg override re-derives popup chrome backgrounds '
+        '(dialog/sheet/snackbar/menu follow the custom surface)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(colorOverridesDark: {'bg': 0xFF808080}),
+      );
+      final theme = style.dark;
+      final scheme = theme.colorScheme;
+      expect(theme.dialogTheme.backgroundColor, scheme.surfaceContainerLow);
+      expect(
+        theme.bottomSheetTheme.backgroundColor,
+        scheme.surfaceContainerLow,
+      );
+      expect(
+        theme.bottomSheetTheme.modalBackgroundColor,
+        scheme.surfaceContainerLow,
+      );
+      expect(theme.snackBarTheme.backgroundColor, scheme.surfaceContainerHigh);
+      expect(theme.popupMenuTheme.color, scheme.surfaceContainerHigh);
+      expect(theme.navigationBarTheme.backgroundColor, scheme.surface);
+      expect(theme.chipTheme.backgroundColor, scheme.surfaceContainerLow);
+    });
   });
 }

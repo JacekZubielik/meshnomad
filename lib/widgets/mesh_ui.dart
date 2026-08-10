@@ -64,7 +64,7 @@ class MeshCard extends StatelessWidget {
   /// .mockups/depth-shadows.html, "Wariant C bg + Wariant B shadow", accepted
   /// 2026-08-09, extended to every MeshCard app-wide the same day. Pass
   /// `elevated: false` at a call site to keep the old flat bordered look.
-  final bool elevated;
+  final bool? elevated;
 
   const MeshCard({
     super.key,
@@ -77,24 +77,27 @@ class MeshCard extends StatelessWidget {
     this.color,
     this.borderColor,
     this.radius,
-    this.elevated = true,
+    this.elevated,
   });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final effectiveRadius = radius ?? MeshTokens.of(context).md;
+    final effectiveElevated = elevated ?? MeshTokens.of(context).cardElevated;
     final borderRadius = BorderRadius.circular(effectiveRadius);
     final shape = RoundedRectangleBorder(
       borderRadius: borderRadius,
-      side: elevated
+      side: effectiveElevated
           ? BorderSide.none
           : BorderSide(color: borderColor ?? scheme.outlineVariant),
     );
     final card = Material(
       color:
           color ??
-          (elevated ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow),
+          (effectiveElevated
+              ? scheme.surfaceContainerHigh
+              : scheme.surfaceContainerLow),
       shape: shape,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -111,7 +114,7 @@ class MeshCard extends StatelessWidget {
     );
     return Padding(
       padding: margin,
-      child: elevated
+      child: effectiveElevated
           ? DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: borderRadius,

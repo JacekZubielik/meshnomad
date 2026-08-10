@@ -9016,6 +9016,180 @@ abstract class AppLocalizations {
   /// **'Technical text: keys, RF data, map labels'**
   String get styleEditor_monoBodySize_subtitle;
 
+  /// No description provided for @styleEditor_spacingSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Spacing'**
+  String get styleEditor_spacingSection;
+
+  /// No description provided for @styleEditor_spacingXxs_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Micro (xxs)'**
+  String get styleEditor_spacingXxs_label;
+
+  /// No description provided for @styleEditor_spacingXxs_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Micro-gaps inside rows'**
+  String get styleEditor_spacingXxs_subtitle;
+
+  /// No description provided for @styleEditor_spacingXs_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra small (xs)'**
+  String get styleEditor_spacingXs_label;
+
+  /// No description provided for @styleEditor_spacingXs_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon and field gaps in a row'**
+  String get styleEditor_spacingXs_subtitle;
+
+  /// No description provided for @styleEditor_spacingSm_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Small (sm)'**
+  String get styleEditor_spacingSm_label;
+
+  /// No description provided for @styleEditor_spacingSm_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact paddings'**
+  String get styleEditor_spacingSm_subtitle;
+
+  /// No description provided for @styleEditor_spacingMd_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium (md)'**
+  String get styleEditor_spacingMd_label;
+
+  /// No description provided for @styleEditor_spacingMd_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Card and screen padding'**
+  String get styleEditor_spacingMd_subtitle;
+
+  /// No description provided for @styleEditor_spacingLg_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Large (lg)'**
+  String get styleEditor_spacingLg_label;
+
+  /// No description provided for @styleEditor_spacingLg_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gaps between sections'**
+  String get styleEditor_spacingLg_subtitle;
+
+  /// No description provided for @styleEditor_spacingXlg_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra large (xlg)'**
+  String get styleEditor_spacingXlg_label;
+
+  /// No description provided for @styleEditor_spacingXlg_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Large section breaks'**
+  String get styleEditor_spacingXlg_subtitle;
+
+  /// No description provided for @styleEditor_spacingXxlg_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Huge (xxlg)'**
+  String get styleEditor_spacingXxlg_label;
+
+  /// No description provided for @styleEditor_spacingXxlg_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Largest layout gaps'**
+  String get styleEditor_spacingXxlg_subtitle;
+
+  /// No description provided for @styleEditor_radiusSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Corner radius'**
+  String get styleEditor_radiusSection;
+
+  /// No description provided for @styleEditor_radiusXs_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Small (xs)'**
+  String get styleEditor_radiusXs_label;
+
+  /// No description provided for @styleEditor_radiusXs_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chips, small fields'**
+  String get styleEditor_radiusXs_subtitle;
+
+  /// No description provided for @styleEditor_radiusSm_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduced (sm)'**
+  String get styleEditor_radiusSm_label;
+
+  /// No description provided for @styleEditor_radiusSm_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Menus, list panels'**
+  String get styleEditor_radiusSm_subtitle;
+
+  /// No description provided for @styleEditor_radiusMd_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium (md)'**
+  String get styleEditor_radiusMd_label;
+
+  /// No description provided for @styleEditor_radiusMd_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards, text fields'**
+  String get styleEditor_radiusMd_subtitle;
+
+  /// No description provided for @styleEditor_radiusLg_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Large (lg)'**
+  String get styleEditor_radiusLg_label;
+
+  /// No description provided for @styleEditor_radiusLg_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat bubbles, sheets'**
+  String get styleEditor_radiusLg_subtitle;
+
+  /// No description provided for @styleEditor_radiusXl_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra large (xl)'**
+  String get styleEditor_radiusXl_label;
+
+  /// No description provided for @styleEditor_radiusXl_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Large panels'**
+  String get styleEditor_radiusXl_subtitle;
+
+  /// No description provided for @styleEditor_cardSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Card style'**
+  String get styleEditor_cardSection;
+
+  /// No description provided for @styleEditor_cardShadow_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Card shadow'**
+  String get styleEditor_cardShadow_label;
+
+  /// No description provided for @styleEditor_cardShadow_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Floating shadow under cards'**
+  String get styleEditor_cardShadow_subtitle;
+
   /// No description provided for @appSettings_about.
   ///
   /// In en, this message translates to:

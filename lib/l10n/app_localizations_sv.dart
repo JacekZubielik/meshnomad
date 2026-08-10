@@ -5182,6 +5182,93 @@ class AppLocalizationsSv extends AppLocalizations {
       'Technical text: keys, RF data, map labels';
 
   @override
+  String get styleEditor_spacingSection => 'Spacing';
+
+  @override
+  String get styleEditor_spacingXxs_label => 'Micro (xxs)';
+
+  @override
+  String get styleEditor_spacingXxs_subtitle => 'Micro-gaps inside rows';
+
+  @override
+  String get styleEditor_spacingXs_label => 'Extra small (xs)';
+
+  @override
+  String get styleEditor_spacingXs_subtitle => 'Icon and field gaps in a row';
+
+  @override
+  String get styleEditor_spacingSm_label => 'Small (sm)';
+
+  @override
+  String get styleEditor_spacingSm_subtitle => 'Compact paddings';
+
+  @override
+  String get styleEditor_spacingMd_label => 'Medium (md)';
+
+  @override
+  String get styleEditor_spacingMd_subtitle => 'Card and screen padding';
+
+  @override
+  String get styleEditor_spacingLg_label => 'Large (lg)';
+
+  @override
+  String get styleEditor_spacingLg_subtitle => 'Gaps between sections';
+
+  @override
+  String get styleEditor_spacingXlg_label => 'Extra large (xlg)';
+
+  @override
+  String get styleEditor_spacingXlg_subtitle => 'Large section breaks';
+
+  @override
+  String get styleEditor_spacingXxlg_label => 'Huge (xxlg)';
+
+  @override
+  String get styleEditor_spacingXxlg_subtitle => 'Largest layout gaps';
+
+  @override
+  String get styleEditor_radiusSection => 'Corner radius';
+
+  @override
+  String get styleEditor_radiusXs_label => 'Small (xs)';
+
+  @override
+  String get styleEditor_radiusXs_subtitle => 'Chips, small fields';
+
+  @override
+  String get styleEditor_radiusSm_label => 'Reduced (sm)';
+
+  @override
+  String get styleEditor_radiusSm_subtitle => 'Menus, list panels';
+
+  @override
+  String get styleEditor_radiusMd_label => 'Medium (md)';
+
+  @override
+  String get styleEditor_radiusMd_subtitle => 'Cards, text fields';
+
+  @override
+  String get styleEditor_radiusLg_label => 'Large (lg)';
+
+  @override
+  String get styleEditor_radiusLg_subtitle => 'Chat bubbles, sheets';
+
+  @override
+  String get styleEditor_radiusXl_label => 'Extra large (xl)';
+
+  @override
+  String get styleEditor_radiusXl_subtitle => 'Large panels';
+
+  @override
+  String get styleEditor_cardSection => 'Card style';
+
+  @override
+  String get styleEditor_cardShadow_label => 'Card shadow';
+
+  @override
+  String get styleEditor_cardShadow_subtitle => 'Floating shadow under cards';
+
+  @override
   String get appSettings_about => 'About';
 
   @override

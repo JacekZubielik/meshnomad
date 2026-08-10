@@ -86,6 +86,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.spacingXxlg,
     required this.monoCaptionSize,
     required this.monoBodySize,
+    required this.cardElevated,
   });
 
   final Color bg;
@@ -180,6 +181,9 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   /// Dominant `.mono(fontSize: ...)` size for primary-colored mono content.
   final double monoBodySize;
 
+  /// Whether MeshCard draws its floating shadow by default (issue #23).
+  final bool cardElevated;
+
   /// The default style's tokens — identical values to today's
   /// [MeshPalette]/[MapPalette]/[LosPalette]/[MeshRadii]. The same instance
   /// is used for both light and dark [ThemeData] since none of these values
@@ -265,6 +269,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     spacingXxlg: 48,
     monoCaptionSize: 11,
     monoBodySize: 13,
+    cardElevated: true,
   );
 
   /// Light-variant base tokens for the custom style (pkt 17). Values borrowed
@@ -353,6 +358,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     spacingXxlg: 48,
     monoCaptionSize: 11,
     monoBodySize: 13,
+    cardElevated: true,
   );
 
   static MeshTokens of(BuildContext context) {
@@ -536,6 +542,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     double? spacingXxlg,
     double? monoCaptionSize,
     double? monoBodySize,
+    bool? cardElevated,
   }) {
     return MeshTokens(
       bg: bg ?? this.bg,
@@ -616,6 +623,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       spacingXxlg: spacingXxlg ?? this.spacingXxlg,
       monoCaptionSize: monoCaptionSize ?? this.monoCaptionSize,
       monoBodySize: monoBodySize ?? this.monoBodySize,
+      cardElevated: cardElevated ?? this.cardElevated,
     );
   }
 

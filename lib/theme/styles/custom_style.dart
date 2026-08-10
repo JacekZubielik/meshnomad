@@ -165,6 +165,9 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
   double spacingFor(String key, double base) =>
       overrides.spacingOverrides[key] ?? base;
 
+  double radiusFor(String key, double base) =>
+      overrides.radiusOverrides[key] ?? base;
+
   // C3: Material widgets reading `Theme.of(context).colorScheme.*` (not
   // `MeshTokens.of(context)`) must also see the overridden accent — rebuild
   // both brightness variants' [ColorScheme] from the same tokens, mirroring
@@ -284,6 +287,45 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     );
   }
 
+  // Chrome sub-themes bake their corner radii from MeshRadii at
+  // ThemeData-construction time (mesh_theme.dart) — a radius override must
+  // re-derive these too, mirroring applyChromeFontSizes 1:1.
+  ThemeData applyChromeRadii(ThemeData base, MeshTokens t) {
+    RoundedRectangleBorder rrb(double r) =>
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(r));
+    OutlineInputBorder? oib(InputBorder? b, double r) => b is OutlineInputBorder
+        ? b.copyWith(borderRadius: BorderRadius.circular(r))
+        : null;
+    final input = base.inputDecorationTheme;
+    return base.copyWith(
+      cardTheme: base.cardTheme.copyWith(
+        shape: base.cardTheme.shape is RoundedRectangleBorder
+            ? (base.cardTheme.shape! as RoundedRectangleBorder).copyWith(
+                borderRadius: BorderRadius.circular(t.md),
+              )
+            : rrb(t.md),
+      ),
+      inputDecorationTheme: input.copyWith(
+        border: oib(input.border, t.md),
+        enabledBorder: oib(input.enabledBorder, t.md),
+        focusedBorder: oib(input.focusedBorder, t.md),
+      ),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        indicatorShape: rrb(t.md),
+      ),
+      snackBarTheme: base.snackBarTheme.copyWith(shape: rrb(t.md)),
+      popupMenuTheme: base.popupMenuTheme.copyWith(shape: rrb(t.md)),
+      dialogTheme: base.dialogTheme.copyWith(shape: rrb(t.lg)),
+      bottomSheetTheme: base.bottomSheetTheme.copyWith(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(t.lg)),
+        ),
+      ),
+      // pill-based shapes (FAB, buttons, chips) intentionally untouched —
+      // pill is not editable, so their baked MeshRadii.pill stays correct.
+    );
+  }
+
   // Widget-themes that mesh_theme.dart bakes directly from the brightness's
   // surface color at ThemeData-construction time — `ThemeData.copyWith`
   // alone wouldn't refresh these, since they aren't looked up from
@@ -308,8 +350,41 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
           color: scheme.onSurfaceVariant,
         ),
       ),
+      // Popup/overlay chrome bakes its backgrounds from the scheme at
+      // ThemeData-construction time (mesh_theme.dart) — without re-deriving
+      // them here, dialogs/sheets/snackbars/menus keep the DEFAULT style's
+      // surfaces while their content follows the overridden scheme (reported
+      // live 2026-08-10: navy popups with a gray chart on a custom gray bg).
+      dialogTheme: base.dialogTheme.copyWith(
+        backgroundColor: scheme.surfaceContainerLow,
+      ),
+      bottomSheetTheme: base.bottomSheetTheme.copyWith(
+        backgroundColor: scheme.surfaceContainerLow,
+        modalBackgroundColor: scheme.surfaceContainerLow,
+      ),
+      snackBarTheme: base.snackBarTheme.copyWith(
+        backgroundColor: scheme.surfaceContainerHigh,
+        contentTextStyle: base.snackBarTheme.contentTextStyle?.copyWith(
+          color: scheme.onSurface,
+        ),
+      ),
+      popupMenuTheme: base.popupMenuTheme.copyWith(
+        color: scheme.surfaceContainerHigh,
+      ),
+      navigationBarTheme: base.navigationBarTheme.copyWith(
+        backgroundColor: scheme.surface,
+        indicatorColor: scheme.primary,
+      ),
+      chipTheme: base.chipTheme.copyWith(
+        backgroundColor: scheme.surfaceContainerLow,
+        side: BorderSide(color: scheme.outlineVariant),
+        labelStyle: base.chipTheme.labelStyle?.copyWith(
+          color: scheme.onSurfaceVariant,
+        ),
+      ),
+      iconTheme: base.iconTheme.copyWith(color: scheme.onSurfaceVariant),
     );
-    return applyChromeFontSizes(withScheme);
+    return applyChromeRadii(applyChromeFontSizes(withScheme), tokens);
   }
 
   final darkTokens =
@@ -332,6 +407,12 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
           'spacingXxlg',
           MeshTokens.defaultTokens.spacingXxlg,
         ),
+        xs: radiusFor('xs', MeshTokens.defaultTokens.xs),
+        sm: radiusFor('sm', MeshTokens.defaultTokens.sm),
+        md: radiusFor('md', MeshTokens.defaultTokens.md),
+        lg: radiusFor('lg', MeshTokens.defaultTokens.lg),
+        xl: radiusFor('xl', MeshTokens.defaultTokens.xl),
+        cardElevated: overrides.cardElevated ?? true,
       );
   final lightTokens =
       applyColorOverrides(
@@ -368,6 +449,12 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
           'spacingXxlg',
           MeshTokens.defaultTokensLight.spacingXxlg,
         ),
+        xs: radiusFor('xs', MeshTokens.defaultTokensLight.xs),
+        sm: radiusFor('sm', MeshTokens.defaultTokensLight.sm),
+        md: radiusFor('md', MeshTokens.defaultTokensLight.md),
+        lg: radiusFor('lg', MeshTokens.defaultTokensLight.lg),
+        xl: radiusFor('xl', MeshTokens.defaultTokensLight.xl),
+        cardElevated: overrides.cardElevated ?? true,
       );
 
   return MeshStyle(

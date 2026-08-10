@@ -5259,6 +5259,94 @@ class AppLocalizationsPl extends AppLocalizations {
       'Tekst techniczny: klucze, dane RF, etykiety na mapie';
 
   @override
+  String get styleEditor_spacingSection => 'Odstępy';
+
+  @override
+  String get styleEditor_spacingXxs_label => 'Mikro (xxs)';
+
+  @override
+  String get styleEditor_spacingXxs_subtitle =>
+      'Mikro-odstępy wewnątrz wierszy';
+
+  @override
+  String get styleEditor_spacingXs_label => 'Bardzo mały (xs)';
+
+  @override
+  String get styleEditor_spacingXs_subtitle => 'Odstęp ikon i pól w wierszu';
+
+  @override
+  String get styleEditor_spacingSm_label => 'Mały (sm)';
+
+  @override
+  String get styleEditor_spacingSm_subtitle => 'Ciasne wypełnienia';
+
+  @override
+  String get styleEditor_spacingMd_label => 'Średni (md)';
+
+  @override
+  String get styleEditor_spacingMd_subtitle => 'Padding kart i ekranów';
+
+  @override
+  String get styleEditor_spacingLg_label => 'Duży (lg)';
+
+  @override
+  String get styleEditor_spacingLg_subtitle => 'Odstępy między sekcjami';
+
+  @override
+  String get styleEditor_spacingXlg_label => 'Bardzo duży (xlg)';
+
+  @override
+  String get styleEditor_spacingXlg_subtitle => 'Duże przerwy między sekcjami';
+
+  @override
+  String get styleEditor_spacingXxlg_label => 'Ogromny (xxlg)';
+
+  @override
+  String get styleEditor_spacingXxlg_subtitle => 'Największe odstępy układu';
+
+  @override
+  String get styleEditor_radiusSection => 'Zaokrąglenia';
+
+  @override
+  String get styleEditor_radiusXs_label => 'Małe (xs)';
+
+  @override
+  String get styleEditor_radiusXs_subtitle => 'Chipy, małe pola';
+
+  @override
+  String get styleEditor_radiusSm_label => 'Pomniejszone (sm)';
+
+  @override
+  String get styleEditor_radiusSm_subtitle => 'Menu, panele list';
+
+  @override
+  String get styleEditor_radiusMd_label => 'Średnie (md)';
+
+  @override
+  String get styleEditor_radiusMd_subtitle => 'Karty, pola tekstowe';
+
+  @override
+  String get styleEditor_radiusLg_label => 'Duże (lg)';
+
+  @override
+  String get styleEditor_radiusLg_subtitle => 'Dymki czatu, arkusze';
+
+  @override
+  String get styleEditor_radiusXl_label => 'Bardzo duże (xl)';
+
+  @override
+  String get styleEditor_radiusXl_subtitle => 'Duże panele';
+
+  @override
+  String get styleEditor_cardSection => 'Styl karty';
+
+  @override
+  String get styleEditor_cardShadow_label => 'Cień karty';
+
+  @override
+  String get styleEditor_cardShadow_subtitle => 'Unoszący cień pod kartami';
+
+  @override
   String get appSettings_about => 'O aplikacji';
 
   @override
