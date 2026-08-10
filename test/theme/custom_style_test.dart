@@ -201,9 +201,36 @@ void main() {
       final tokens = style.dark.extension<MeshTokens>()!;
       expect(tokens.mapOnline, const Color(0xFF00FF00));
       expect(tokens.losBeam, const Color(0xFF123456));
-      // Unrelated map/LOS fields stay at their default value.
+      // Map fields stay independent (fixed defaults, no theme derivation).
       expect(tokens.mapOffline, MeshTokens.defaultTokens.mapOffline);
-      expect(tokens.losTerrain, MeshTokens.defaultTokens.losTerrain);
+    });
+
+    test('un-overridden LOS tokens now follow the active scheme '
+        '(chrome from surfaces/ink, status from accents)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(
+          colorOverridesDark: {'bg': 0xFF102010, 'primary': 0xFFFF8800},
+        ),
+      );
+      final tokens = style.dark.extension<MeshTokens>()!;
+      // Chrome derives: chart bg == bg, text == ink.
+      expect(tokens.losChartBackground, tokens.bg);
+      expect(tokens.losText, tokens.ink);
+      // Status derives from accents (bit-identical to the old fixed palette
+      // when accents are unchanged; here primary was overridden).
+      expect(tokens.losBlocked, tokens.alert);
+      expect(tokens.losClear, tokens.signal);
+      expect(tokens.losSelected, tokens.primary);
+      // An explicit LOS override still wins over the derived default.
+      final pinned = buildCustomStyle(
+        const CustomStyleOverrides(
+          colorOverridesDark: {'losSelected': 0xFF123456},
+        ),
+      );
+      expect(
+        pinned.dark.extension<MeshTokens>()!.losSelected,
+        const Color(0xFF123456),
+      );
     });
 
     test(
@@ -316,6 +343,36 @@ void main() {
         theme.switchTheme.thumbColor!.resolve({}),
         scheme.onSurfaceVariant,
       );
+    });
+
+    test('a primary override re-derives button/FAB/progress accents '
+        'and container colors', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(colorOverridesDark: {'primary': 0xFFFF8800}),
+      );
+      final theme = style.dark;
+      final scheme = theme.colorScheme;
+      expect(scheme.primary, const Color(0xFFFF8800));
+      expect(theme.floatingActionButtonTheme.backgroundColor, scheme.primary);
+      expect(
+        theme.filledButtonTheme.style!.backgroundColor!.resolve({}),
+        scheme.primary,
+      );
+      expect(
+        theme.textButtonTheme.style!.foregroundColor!.resolve({}),
+        scheme.primary,
+      );
+      expect(theme.progressIndicatorTheme.color, scheme.primary);
+      expect(theme.sliderTheme.activeTrackColor, scheme.primary);
+      expect(theme.sliderTheme.thumbColor, scheme.primary);
+      expect(theme.cardTheme.color, scheme.surfaceContainerLow);
+      // Containers (used e.g. by the path editor sheet) must follow the
+      // overridden accent instead of inheriting the default style's blue.
+      expect(
+        scheme.primaryContainer,
+        isNot(defaultStyle.dark.colorScheme.primaryContainer),
+      );
+      expect(scheme.onPrimaryContainer, scheme.onSurface);
     });
   });
 }

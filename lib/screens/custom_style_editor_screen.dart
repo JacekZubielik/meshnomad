@@ -180,6 +180,13 @@ final List<_ColorFieldSpec> _mapColorFields = [
   ),
 ];
 
+// Only the LOS colors with NO equivalent in the main palette stay editable
+// here — the chrome/status LOS tokens (panels, text, border, blocked/clear/
+// marginal/selected, chart bg) now derive from the main Colors tab
+// (bg/ink/line/alert/signal/warn/primary), so editing them separately was
+// redundant (user decision 2026-08-10). These three are genuine chart data
+// hues; their default swatch is read LIVE (they derive from the accents),
+// so the picker shows the actually-applied color for the edited brightness.
 final List<_ColorFieldSpec> _losColorFields = [
   _ColorFieldSpec(
     'losTerrain',
@@ -196,62 +203,16 @@ final List<_ColorFieldSpec> _losColorFields = [
     MeshTokens.defaultTokens.losHorizon,
     MeshTokens.defaultTokensLight.losHorizon,
   ),
-  _ColorFieldSpec(
-    'losBlocked',
-    MeshTokens.defaultTokens.losBlocked,
-    MeshTokens.defaultTokensLight.losBlocked,
-  ),
-  _ColorFieldSpec(
-    'losMarginal',
-    MeshTokens.defaultTokens.losMarginal,
-    MeshTokens.defaultTokensLight.losMarginal,
-  ),
-  _ColorFieldSpec(
-    'losClear',
-    MeshTokens.defaultTokens.losClear,
-    MeshTokens.defaultTokensLight.losClear,
-  ),
-  _ColorFieldSpec(
-    'losSelected',
-    MeshTokens.defaultTokens.losSelected,
-    MeshTokens.defaultTokensLight.losSelected,
-  ),
-  _ColorFieldSpec(
-    'losChartBackground',
-    MeshTokens.defaultTokens.losChartBackground,
-    MeshTokens.defaultTokensLight.losChartBackground,
-  ),
-  _ColorFieldSpec(
-    'losPanelDark',
-    MeshTokens.defaultTokens.losPanelDark,
-    MeshTokens.defaultTokensLight.losPanelDark,
-  ),
-  _ColorFieldSpec(
-    'losPanelLight',
-    MeshTokens.defaultTokens.losPanelLight,
-    MeshTokens.defaultTokensLight.losPanelLight,
-  ),
-  _ColorFieldSpec(
-    'losText',
-    MeshTokens.defaultTokens.losText,
-    MeshTokens.defaultTokensLight.losText,
-  ),
-  _ColorFieldSpec(
-    'losTextMuted',
-    MeshTokens.defaultTokens.losTextMuted,
-    MeshTokens.defaultTokensLight.losTextMuted,
-  ),
-  _ColorFieldSpec(
-    'losBorder',
-    MeshTokens.defaultTokens.losBorder,
-    MeshTokens.defaultTokensLight.losBorder,
-  ),
-  _ColorFieldSpec(
-    'losShadow',
-    MeshTokens.defaultTokens.losShadow,
-    MeshTokens.defaultTokensLight.losShadow,
-  ),
 ];
+
+/// The live (currently-applied) value of an editable LOS data token — used as
+/// the picker's default swatch so it matches the derived-from-accent color.
+Color _liveLosColor(MeshTokens tokens, String key) => switch (key) {
+  'losTerrain' => tokens.losTerrain,
+  'losBeam' => tokens.losBeam,
+  'losHorizon' => tokens.losHorizon,
+  _ => throw ArgumentError('Not a live-default LOS key: $key'),
+};
 
 final List<_FontFieldSpec> _fontFields = [
   _FontFieldSpec(
@@ -763,6 +724,7 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                   overrides: overrides,
                   settingsService: settingsService,
                   brightness: brightness,
+                  liveLosDefaults: true,
                 ),
                 SectionHeader(l10n.styleEditor_fontSizesSection),
                 Padding(
@@ -933,6 +895,7 @@ class _ColorSectionExpansionTile extends StatelessWidget {
     required this.overrides,
     required this.settingsService,
     required this.brightness,
+    this.liveLosDefaults = false,
   });
 
   final String title;
@@ -941,8 +904,14 @@ class _ColorSectionExpansionTile extends StatelessWidget {
   final AppSettingsService settingsService;
   final Brightness brightness;
 
+  /// When true, each row's default swatch reads the live applied token
+  /// (via [_liveLosColor]) instead of the spec's fixed default — used for the
+  /// LOS data colors, whose defaults derive from the theme accents.
+  final bool liveLosDefaults;
+
   @override
   Widget build(BuildContext context) {
+    final tokens = liveLosDefaults ? MeshTokens.of(context) : null;
     return MeshCard(
       padding: EdgeInsets.zero,
       child: ExpansionTile(
@@ -956,6 +925,9 @@ class _ColorSectionExpansionTile extends StatelessWidget {
               overrides: overrides,
               settingsService: settingsService,
               brightness: brightness,
+              liveDefaultColor: tokens == null
+                  ? null
+                  : _liveLosColor(tokens, fields[i].key),
             ),
           ],
         ],
@@ -971,12 +943,17 @@ class _ColorFieldRow extends StatelessWidget {
     required this.overrides,
     required this.settingsService,
     required this.brightness,
+    this.liveDefaultColor,
   });
 
   final _ColorFieldSpec spec;
   final CustomStyleOverrides overrides;
   final AppSettingsService settingsService;
   final Brightness brightness;
+
+  /// Overrides the swatch shown when there's no explicit override — used for
+  /// LOS data colors whose default derives live from the theme accents.
+  final Color? liveDefaultColor;
 
   @override
   Widget build(BuildContext context) {
@@ -985,7 +962,7 @@ class _ColorFieldRow extends StatelessWidget {
     final override = overrides.colorOverridesFor(brightness)[spec.key];
     final currentColor = override != null
         ? Color(override)
-        : spec.defaultColorFor(brightness);
+        : (liveDefaultColor ?? spec.defaultColorFor(brightness));
     final scheme = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

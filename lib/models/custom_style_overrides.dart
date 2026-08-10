@@ -57,20 +57,13 @@ class CustomStyleOverrides {
     'mapBorder',
     'mapMarkerOutline',
     'mapMarkerShadow',
+    // LOS chrome/status colors are intentionally NOT here — they derive from
+    // the base palette (bg/ink/line/alert/signal/warn/primary) so editing
+    // them separately would duplicate the main Colors section (decision
+    // 2026-08-10). Only the three genuine chart data hues stay editable.
     'losTerrain',
     'losBeam',
     'losHorizon',
-    'losBlocked',
-    'losMarginal',
-    'losClear',
-    'losSelected',
-    'losChartBackground',
-    'losPanelDark',
-    'losPanelLight',
-    'losText',
-    'losTextMuted',
-    'losBorder',
-    'losShadow',
   ];
 
   /// The closed set of `textTheme` roles / `MeshTokens` mono-size fields the

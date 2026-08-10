@@ -102,22 +102,35 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       mapBorder: baseColorFor('mapBorder', base.mapBorder),
       mapMarkerOutline: baseColorFor('mapMarkerOutline', base.mapMarkerOutline),
       mapMarkerShadow: baseColorFor('mapMarkerShadow', base.mapMarkerShadow),
-      losTerrain: baseColorFor('losTerrain', base.losTerrain),
-      losBeam: baseColorFor('losBeam', base.losBeam),
-      losHorizon: baseColorFor('losHorizon', base.losHorizon),
-      losBlocked: baseColorFor('losBlocked', base.losBlocked),
-      losMarginal: baseColorFor('losMarginal', base.losMarginal),
-      losClear: baseColorFor('losClear', base.losClear),
-      losSelected: baseColorFor('losSelected', base.losSelected),
-      losChartBackground: baseColorFor(
-        'losChartBackground',
-        base.losChartBackground,
+      // LOS palette (14 tokens) — every one stays user-editable in the LOS
+      // editor section, but its DEFAULT now derives from the active scheme
+      // instead of a fixed dark palette, so the Line-of-sight screen follows
+      // the custom theme out of the box (user decision 2026-08-10).
+      //   chrome  → surface/ink/line layers (panels, text, borders, chart bg)
+      //   status  → accent tokens (blocked=alert, clear=signal, marginal=warn,
+      //             selected=primary) — semantically correct AND bit-for-bit
+      //             identical to the old fixed defaults.
+      //   terrain/beam/horizon → distinct data hues with no theme equivalent;
+      //             derived off warn/primary but still overridable per taste.
+      losTerrain: baseColorFor('losTerrain', signal),
+      losBeam: baseColorFor('losBeam', primary),
+      losHorizon: baseColorFor('losHorizon', warn),
+      losBlocked: baseColorFor('losBlocked', alert),
+      losMarginal: baseColorFor('losMarginal', warn),
+      losClear: baseColorFor('losClear', signal),
+      losSelected: baseColorFor('losSelected', primary),
+      losChartBackground: baseColorFor('losChartBackground', bg),
+      losPanelDark: baseColorFor(
+        'losPanelDark',
+        bgLayers.bg1.withValues(alpha: 0xF0 / 0xFF),
       ),
-      losPanelDark: baseColorFor('losPanelDark', base.losPanelDark),
       losPanelLight: baseColorFor('losPanelLight', base.losPanelLight),
-      losText: baseColorFor('losText', base.losText),
-      losTextMuted: baseColorFor('losTextMuted', base.losTextMuted),
-      losBorder: baseColorFor('losBorder', base.losBorder),
+      losText: baseColorFor('losText', ink),
+      losTextMuted: baseColorFor('losTextMuted', inkLayers.ink2),
+      losBorder: baseColorFor(
+        'losBorder',
+        lineLayers.line2.withValues(alpha: 0x52 / 0xFF),
+      ),
       losShadow: baseColorFor('losShadow', base.losShadow),
     );
   }
@@ -168,6 +181,43 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
   double radiusFor(String key, double base) =>
       overrides.radiusOverrides[key] ?? base;
 
+  // Accent that steps aside for the disabled state, so M3's own
+  // disabled styling (onSurface @ 12%/38%) keeps applying.
+  WidgetStateProperty<Color?> accentUnlessDisabled(Color color) =>
+      WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.disabled) ? null : color,
+      );
+
+  // Container tint derived from an overridden accent over the custom
+  // surface; keeps the hand-picked default container when neither the
+  // accent nor the surface changed (bit-for-bit parity with defaultStyle).
+  bool containerUntouched(
+    Color accent,
+    Color baseAccent,
+    MeshTokens tokens,
+    ColorScheme base,
+  ) => accent == baseAccent && tokens.bg1 == base.surfaceContainerLow;
+
+  Color containerFor(
+    Color accent,
+    Color baseAccent,
+    Color baseContainer,
+    MeshTokens tokens,
+    ColorScheme base,
+  ) => containerUntouched(accent, baseAccent, tokens, base)
+      ? baseContainer
+      : Color.alphaBlend(accent.withValues(alpha: 0.30), tokens.bg1);
+
+  Color onContainerFor(
+    Color accent,
+    Color baseAccent,
+    Color baseOnContainer,
+    MeshTokens tokens,
+    ColorScheme base,
+  ) => containerUntouched(accent, baseAccent, tokens, base)
+      ? baseOnContainer
+      : tokens.ink;
+
   // C3: Material widgets reading `Theme.of(context).colorScheme.*` (not
   // `MeshTokens.of(context)`) must also see the overridden accent — rebuild
   // both brightness variants' [ColorScheme] from the same tokens, mirroring
@@ -194,6 +244,69 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       inverseSurface: tokens.ink,
       onInverseSurface: tokens.bg,
       inversePrimary: tokens.primaryDim,
+      // Containers were originally left inherited (C3) — but sheets/dialogs
+      // (e.g. the path editor) paint primary/secondaryContainer surfaces, so
+      // an inherited default-blue container ignores the user's accents
+      // (reported live 2026-08-10). Derive them as an accent tint over the
+      // custom surface — but ONLY once the accent (or surface) actually
+      // changed, so an empty overrides set stays bit-for-bit identical to
+      // the default scheme (variant-automat parity test).
+      primaryContainer: containerFor(
+        tokens.primary,
+        base.primary,
+        base.primaryContainer,
+        tokens,
+        base,
+      ),
+      onPrimaryContainer: onContainerFor(
+        tokens.primary,
+        base.primary,
+        base.onPrimaryContainer,
+        tokens,
+        base,
+      ),
+      secondaryContainer: containerFor(
+        tokens.secondary,
+        base.secondary,
+        base.secondaryContainer,
+        tokens,
+        base,
+      ),
+      onSecondaryContainer: onContainerFor(
+        tokens.secondary,
+        base.secondary,
+        base.onSecondaryContainer,
+        tokens,
+        base,
+      ),
+      tertiaryContainer: containerFor(
+        tokens.warn,
+        base.tertiary,
+        base.tertiaryContainer,
+        tokens,
+        base,
+      ),
+      onTertiaryContainer: onContainerFor(
+        tokens.warn,
+        base.tertiary,
+        base.onTertiaryContainer,
+        tokens,
+        base,
+      ),
+      errorContainer: containerFor(
+        tokens.alert,
+        base.error,
+        base.errorContainer,
+        tokens,
+        base,
+      ),
+      onErrorContainer: onContainerFor(
+        tokens.alert,
+        base.error,
+        base.onErrorContainer,
+        tokens,
+        base,
+      ),
     );
   }
 
@@ -405,6 +518,56 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
           (states) => states.contains(WidgetState.selected)
               ? Colors.transparent
               : scheme.outline,
+        ),
+      ),
+      // Button-family accents bake scheme.primary at ThemeData construction
+      // (FAB, filled/elevated/text buttons, progress) — third instance of the
+      // baked-chrome class (after popups and inputs), reported live
+      // 2026-08-10: default-blue buttons on a custom orange accent.
+      floatingActionButtonTheme: base.floatingActionButtonTheme.copyWith(
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+      ),
+      cardTheme: base.cardTheme.copyWith(
+        color: scheme.surfaceContainerLow,
+        shape: base.cardTheme.shape is RoundedRectangleBorder
+            ? (base.cardTheme.shape! as RoundedRectangleBorder).copyWith(
+                side: BorderSide(color: scheme.outlineVariant),
+              )
+            : base.cardTheme.shape,
+      ),
+      sliderTheme: base.sliderTheme.copyWith(
+        activeTrackColor: scheme.primary,
+        inactiveTrackColor: scheme.surfaceContainerHighest,
+        thumbColor: scheme.primary,
+        overlayColor: scheme.primary.withValues(alpha: 0.12),
+        valueIndicatorColor: scheme.surfaceContainerHighest,
+        valueIndicatorTextStyle: base.sliderTheme.valueIndicatorTextStyle
+            ?.copyWith(color: scheme.onSurface),
+      ),
+      progressIndicatorTheme: base.progressIndicatorTheme.copyWith(
+        color: scheme.primary,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: (base.elevatedButtonTheme.style ?? const ButtonStyle()).copyWith(
+          backgroundColor: accentUnlessDisabled(scheme.primary),
+          foregroundColor: accentUnlessDisabled(scheme.onPrimary),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: (base.filledButtonTheme.style ?? const ButtonStyle()).copyWith(
+          backgroundColor: accentUnlessDisabled(scheme.primary),
+          foregroundColor: accentUnlessDisabled(scheme.onPrimary),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: (base.textButtonTheme.style ?? const ButtonStyle()).copyWith(
+          foregroundColor: accentUnlessDisabled(scheme.primary),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: (base.outlinedButtonTheme.style ?? const ButtonStyle()).copyWith(
+          foregroundColor: accentUnlessDisabled(scheme.onSurface),
         ),
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(

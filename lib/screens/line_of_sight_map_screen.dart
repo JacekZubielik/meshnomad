@@ -19,7 +19,6 @@ import '../connector/meshcore_connector.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/quick_switch_bar.dart';
 import '../icons/los_icon.dart';
-import '../theme/mesh_theme.dart';
 import '../theme/mesh_tokens.dart';
 
 class LineOfSightEndpoint {
@@ -476,12 +475,13 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               maxChildSize: 0.88,
               snap: true,
               snapSizes: const [0.14, 0.43, 0.88],
-              builder: (context, scrollController) => Theme(
-                data: MeshTheme.dark().copyWith(
-                  extensions: [MeshTokens.of(context)],
-                ),
-                child: _buildControlPanel(isImperial, scrollController),
-              ),
+              // Inherit the ACTIVE style's theme (custom or default) so the
+              // panel's M3 widgets — sliders, buttons, progress — follow the
+              // user's accent instead of a hardcoded dark-blue scheme. The
+              // los* tokens now derive from that same scheme, so the panel
+              // stays internally consistent (user report 2026-08-10).
+              builder: (context, scrollController) =>
+                  _buildControlPanel(isImperial, scrollController),
             ),
           if (_loading)
             Positioned(
