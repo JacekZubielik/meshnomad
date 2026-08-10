@@ -716,8 +716,17 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                         ),
                       ],
                       selected: {brightness},
-                      onSelectionChanged: (selection) =>
-                          setState(() => _editedBrightness = selection.first),
+                      // Switching the edited palette also switches the APP
+                      // theme to that brightness (user decision 2026-08-10)
+                      // — otherwise you edit light values while looking at
+                      // the dark UI and never see what you're changing.
+                      onSelectionChanged: (selection) {
+                        final next = selection.first;
+                        setState(() => _editedBrightness = next);
+                        settingsService.setThemeMode(
+                          next == Brightness.light ? 'light' : 'dark',
+                        );
+                      },
                     ),
                   ),
                 ),
