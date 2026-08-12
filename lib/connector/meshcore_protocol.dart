@@ -264,6 +264,52 @@ const int respCodeCustomVars = 21;
 const int respCodeAutoAddConfig = 25;
 const int respCodeStats = 24;
 
+// Firmware error codes carried in byte [1] of a RESP_CODE_ERR frame.
+// Source: firmware MyMesh.cpp:130-135, v1.17.0.
+const int errCodeUnsupportedCmd = 1;
+const int errCodeNotFound = 2;
+const int errCodeTableFull = 3;
+const int errCodeBadState = 4;
+const int errCodeFileIoError = 5;
+const int errCodeIllegalArg = 6;
+
+/// Human-readable name for a RESP_CODE_ERR error code. Unknown codes fall
+/// back to `UNKNOWN_ERR_<code>` so logs stay readable for firmware versions
+/// that add new codes.
+String errorCodeName(int code) {
+  switch (code) {
+    case errCodeUnsupportedCmd:
+      return 'UNSUPPORTED_CMD';
+    case errCodeNotFound:
+      return 'NOT_FOUND';
+    case errCodeTableFull:
+      return 'TABLE_FULL';
+    case errCodeBadState:
+      return 'BAD_STATE';
+    case errCodeFileIoError:
+      return 'FILE_IO_ERROR';
+    case errCodeIllegalArg:
+      return 'ILLEGAL_ARG';
+    default:
+      return 'UNKNOWN_ERR_$code';
+  }
+}
+
+/// Human-readable name for a command code tracked in
+/// MeshCoreConnector's generic-ack queue. Only covers codes actually sent
+/// with expectsGenericAck/waitForGenericAck; unknown codes fall back to
+/// `cmd#<code>`.
+String commandCodeName(int code) {
+  switch (code) {
+    case cmdSendChannelTxtMsg:
+      return 'cmdSendChannelTxtMsg';
+    case cmdAddUpdateContact:
+      return 'cmdAddUpdateContact';
+    default:
+      return 'cmd#$code';
+  }
+}
+
 const int statsTypeCore = 0;
 const int statsTypeRadio = 1;
 const int statsTypePackets = 2;
