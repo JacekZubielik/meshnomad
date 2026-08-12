@@ -24,6 +24,8 @@ class UsbSerialService {
   );
   final StreamController<Uint8List> _frameController =
       StreamController<Uint8List>.broadcast();
+  final StreamController<Uint8List> _rawByteController =
+      StreamController<Uint8List>.broadcast();
   final UsbSerialFrameDecoder _frameDecoder = UsbSerialFrameDecoder();
   StreamSubscription<dynamic>? _androidDataSubscription;
   StreamSubscription<Uint8List>? _dataSubscription;
@@ -40,6 +42,7 @@ class UsbSerialService {
   String? get activePortDisplayLabel =>
       _connectedPortLabel ?? _connectedPortKey;
   Stream<Uint8List> get frameStream => _frameController.stream;
+  Stream<Uint8List> get rawByteStream => _rawByteController.stream;
   Object? get lastError => _lastError;
   bool get _useAndroidUsbHost =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
@@ -450,6 +453,7 @@ class UsbSerialService {
   }
 
   void _ingestRawBytes(Uint8List bytes) {
+    if (!_rawByteController.isClosed) _rawByteController.add(bytes);
     for (final packet in _frameDecoder.ingest(bytes)) {
       if (!packet.isRxFrame) {
         _debugLogService?.info(
@@ -478,10 +482,12 @@ class UsbSerialService {
   }
 
   Future<void> _closeFrameController() async {
-    if (_frameController.isClosed) {
-      return;
+    if (!_frameController.isClosed) {
+      await _frameController.close();
     }
-    await _frameController.close();
+    if (!_rawByteController.isClosed) {
+      await _rawByteController.close();
+    }
   }
 
   // void _logFrameSummary(String prefix, Uint8List bytes) {

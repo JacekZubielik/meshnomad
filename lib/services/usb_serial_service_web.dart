@@ -35,6 +35,8 @@ class UsbSerialService {
 
   final StreamController<Uint8List> _frameController =
       StreamController<Uint8List>.broadcast();
+  final StreamController<Uint8List> _rawByteController =
+      StreamController<Uint8List>.broadcast();
   final UsbSerialFrameDecoder _frameDecoder = UsbSerialFrameDecoder();
 
   UsbSerialStatus _status = UsbSerialStatus.disconnected;
@@ -52,6 +54,7 @@ class UsbSerialService {
   String? get activePortKey => _connectedPortKey;
   String? get activePortDisplayLabel => _connectedPortName ?? _connectedPortKey;
   Stream<Uint8List> get frameStream => _frameController.stream;
+  Stream<Uint8List> get rawByteStream => _rawByteController.stream;
   bool get isConnected => _status == UsbSerialStatus.connected;
   Object? get lastError => _lastError;
 
@@ -573,6 +576,7 @@ class UsbSerialService {
   }
 
   void _ingestRawBytes(Uint8List bytes) {
+    if (!_rawByteController.isClosed) _rawByteController.add(bytes);
     for (final packet in _frameDecoder.ingest(bytes)) {
       if (!packet.isRxFrame) {
         _debugLogService?.info(
@@ -600,10 +604,12 @@ class UsbSerialService {
   }
 
   Future<void> _closeFrameController() async {
-    if (_frameController.isClosed) {
-      return;
+    if (!_frameController.isClosed) {
+      await _frameController.close();
     }
-    await _frameController.close();
+    if (!_rawByteController.isClosed) {
+      await _rawByteController.close();
+    }
   }
 
   void _logFrameSummary(String prefix, Uint8List bytes) {

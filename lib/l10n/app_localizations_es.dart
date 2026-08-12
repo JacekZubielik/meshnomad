@@ -2359,6 +2359,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String get repeater_settingsSubtitle => 'Configurar parámetros del repetidor';
 
   @override
+  String get repeaterHub_directConsole => 'Direct console (TCP/USB)';
+
+  @override
+  String get repeaterHub_directConsoleSubtitle =>
+      'Raw CLI session, bypassing companion pairing';
+
+  @override
+  String get repeaterDirectConsole_password => 'Password';
+
+  @override
+  String get repeaterDirectConsole_rememberPassword => 'Remember password';
+
+  @override
+  String get repeaterDirectConsole_emptyLog =>
+      'No output yet. Connect and send a command.';
+
+  @override
   String get repeater_clockSyncAfterLogin =>
       'Sincronización del reloj después de iniciar sesión';
 

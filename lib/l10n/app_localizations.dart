@@ -4263,6 +4263,36 @@ abstract class AppLocalizations {
   /// **'Configure repeater parameters'**
   String get repeater_settingsSubtitle;
 
+  /// No description provided for @repeaterHub_directConsole.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct console (TCP/USB)'**
+  String get repeaterHub_directConsole;
+
+  /// No description provided for @repeaterHub_directConsoleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Raw CLI session, bypassing companion pairing'**
+  String get repeaterHub_directConsoleSubtitle;
+
+  /// No description provided for @repeaterDirectConsole_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get repeaterDirectConsole_password;
+
+  /// No description provided for @repeaterDirectConsole_rememberPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember password'**
+  String get repeaterDirectConsole_rememberPassword;
+
+  /// No description provided for @repeaterDirectConsole_emptyLog.
+  ///
+  /// In en, this message translates to:
+  /// **'No output yet. Connect and send a command.'**
+  String get repeaterDirectConsole_emptyLog;
+
   /// Repeater setting: auto sync device clock after successful login
   ///
   /// In en, this message translates to:

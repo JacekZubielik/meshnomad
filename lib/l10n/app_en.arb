@@ -1271,6 +1271,11 @@
   "repeater_neighborsSubtitle": "View zero hop neighbors.",
   "repeater_settings": "Settings",
   "repeater_settingsSubtitle": "Configure repeater parameters",
+  "repeaterHub_directConsole": "Direct console (TCP/USB)",
+  "repeaterHub_directConsoleSubtitle": "Raw CLI session, bypassing companion pairing",
+  "repeaterDirectConsole_password": "Password",
+  "repeaterDirectConsole_rememberPassword": "Remember password",
+  "repeaterDirectConsole_emptyLog": "No output yet. Connect and send a command.",
   "repeater_clockSyncAfterLogin": "Clock sync after login",
   "@repeater_clockSyncAfterLogin": {
     "description": "Repeater setting: auto sync device clock after successful login"

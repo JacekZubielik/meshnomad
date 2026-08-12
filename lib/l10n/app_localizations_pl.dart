@@ -2379,6 +2379,23 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_settingsSubtitle => 'Skonfiguruj parametry przekaźnika';
 
   @override
+  String get repeaterHub_directConsole => 'Konsola bezpośrednia (TCP/USB)';
+
+  @override
+  String get repeaterHub_directConsoleSubtitle =>
+      'Surowa sesja CLI, z pominięciem parowania companion';
+
+  @override
+  String get repeaterDirectConsole_password => 'Hasło';
+
+  @override
+  String get repeaterDirectConsole_rememberPassword => 'Zapamiętaj hasło';
+
+  @override
+  String get repeaterDirectConsole_emptyLog =>
+      'Brak jeszcze danych wyjściowych. Połącz się i wyślij polecenie.';
+
+  @override
   String get repeater_clockSyncAfterLogin =>
       'Synchronizacja zegara po zalogowaniu';
 
