@@ -5373,4 +5373,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get appSettings_editCustomStyleTooltip => 'Edytuj styl Custom';
+
+  @override
+  String get protocol_contactsFullWarning =>
+      'Tabela kontaktów urządzenia pełna — najstarsze kontakty mogą być nadpisywane';
 }

@@ -263,6 +263,7 @@ const int respCodeChannelInfo = 18;
 const int respCodeCustomVars = 21;
 const int respCodeAutoAddConfig = 25;
 const int respCodeStats = 24;
+const int respCodeDisabled = 15;
 
 // Firmware error codes carried in byte [1] of a RESP_CODE_ERR frame.
 // Source: firmware MyMesh.cpp:130-135, v1.17.0.
@@ -328,6 +329,11 @@ const int pushCodeNewAdvert = 0x8A;
 const int pushCodeTelemetryResponse = 0x8B;
 const int pushCodeBinaryResponse = 0x8C;
 const int pushCodeControlData = 0x8E;
+// Firmware since v1.16 (MyMesh.cpp): notifies the app that a contact was
+// deleted device-side (e.g. auto-add overwrite-oldest) or that the
+// contacts table is full.
+const int pushCodeContactDeleted = 0x8F;
+const int pushCodeContactsFull = 0x90;
 
 // Contact/advertisement types
 const int advTypeChat = 1;
@@ -381,7 +387,7 @@ const int signatureSize = 64;
 const int maxPathSize = 64;
 const int pathHashSize = 1;
 const int maxNameSize = 32;
-const int maxFrameSize = 172;
+const int maxFrameSize = 176; // firmware MAX_FRAME_SIZE since v1.16
 const int appProtocolVersion = 4;
 // Matches firmware MAX_TEXT_LEN (10 * CIPHER_BLOCK_SIZE).
 const int maxTextPayloadBytes = 160;

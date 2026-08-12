@@ -5350,4 +5350,8 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get appSettings_editCustomStyleTooltip => 'Edit custom style';
+
+  @override
+  String get protocol_contactsFullWarning =>
+      'Device contact table is full — oldest contacts may be overwritten';
 }

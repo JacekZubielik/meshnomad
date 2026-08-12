@@ -205,6 +205,21 @@ class MeshCoreConnector extends ChangeNotifier {
   final Map<String, Set<String>> _processedContactReactions =
       {}; // contactPubKeyHex -> Set of "targetHash_emoji"
 
+  /// Rate-limit gate for CONTACTS_FULL warnings (PUSH_CODE_CONTACTS_FULL):
+  /// firmware can send this repeatedly while auto-add keeps overwriting
+  /// contacts, so the UI-facing event is throttled to at most one per
+  /// [_contactsFullWarningCooldown]. The debug log entry is NOT throttled.
+  DateTime? _lastContactsFullWarningAt;
+  static const Duration _contactsFullWarningCooldown = Duration(minutes: 10);
+  final StreamController<DateTime> _contactsFullController =
+      StreamController<DateTime>.broadcast();
+
+  /// Fires (rate-limited) when the device reports its contacts table is
+  /// full. No global snackbar messenger exists in this app yet (see
+  /// 02-transza-S report) — this stream is the hook a future UI layer can
+  /// subscribe to.
+  Stream<DateTime> get contactsFullWarnings => _contactsFullController.stream;
+
   StreamSubscription<List<ScanResult>>? _scanSubscription;
   StreamSubscription<bool>? _isScanningSubscription;
   StreamSubscription<BluetoothConnectionState>? _connectionSubscription;
@@ -4347,6 +4362,12 @@ class MeshCoreConnector extends ChangeNotifier {
       case pushCodePathUpdated:
         _handlePathUpdated(frame);
         break;
+      case pushCodeContactDeleted:
+        _handleContactDeleted(frame);
+        break;
+      case pushCodeContactsFull:
+        _handleContactsFull();
+        break;
       case pushCodeControlData:
         // Optional feature-specific services listen to receivedFrames directly.
         break;
@@ -4380,6 +4401,12 @@ class MeshCoreConnector extends ChangeNotifier {
       // RESP_CODE_ERR is a defined firmware response (code 1), not an unknown frame.
       case respCodeErr:
         _handleErrorFrame(frame);
+        break;
+      case respCodeCurrTime:
+        _handleCurrTime(frame);
+        break;
+      case respCodeDisabled:
+        _handleDisabledFrame();
         break;
       default:
         debugPrint('Unknown frame code: $code');
@@ -4425,6 +4452,50 @@ class MeshCoreConnector extends ChangeNotifier {
     _markPendingChannelMessageFailedById(failedAck.channelSendQueueId!);
   }
 
+  /// RESP_CODE_DISABLED (15): firmware sends this in place of OK/ERR when
+  /// the requested feature is compiled out (e.g. CMD_EXPORT_PRIVATE_KEY,
+  /// CMD_IMPORT_PRIVATE_KEY without ENABLE_PRIVATE_KEY_EXPORT/IMPORT —
+  /// verified in MyMesh.cpp). Neither command is currently sent by this
+  /// app, but the reply is handled the same way RESP_CODE_ERR is: if a
+  /// command is waiting for a generic ack, treat DISABLED as its failure
+  /// so the completer isn't left hanging.
+  void _handleDisabledFrame() {
+    if (_pendingGenericAckQueue.isEmpty) {
+      _appDebugLogService?.warn(
+        'Command rejected: feature disabled on device',
+        tag: 'Protocol',
+      );
+      return;
+    }
+
+    final failedAck = _pendingGenericAckQueue.removeAt(0);
+
+    if (failedAck.expired) {
+      final ageMs = DateTime.now().difference(failedAck.sentAt).inMilliseconds;
+      _appDebugLogService?.info(
+        'late reply consumed by tombstone (cmd=${commandCodeName(failedAck.commandCode)}, age=${ageMs}ms)',
+        tag: 'Protocol',
+      );
+      return;
+    }
+
+    _appDebugLogService?.warn(
+      'Firmware rejected ${commandCodeName(failedAck.commandCode)} with DISABLED (feature not compiled into device firmware)',
+      tag: 'Protocol',
+    );
+    failedAck.completer?.completeError(
+      Exception(
+        'Firmware rejected ${commandCodeName(failedAck.commandCode)} with DISABLED',
+      ),
+    );
+    if (failedAck.commandCode != cmdSendChannelTxtMsg ||
+        failedAck.channelSendQueueId == null) {
+      return;
+    }
+    _pendingChannelSentQueue.remove(failedAck.channelSendQueueId);
+    _markPendingChannelMessageFailedById(failedAck.channelSendQueueId!);
+  }
+
   void _handlePathUpdated(Uint8List frame) {
     // Frame format: [0]=code, [1-32]=pub_key
     if (frame.length >= 33 && _pathHistoryService != null) {
@@ -4442,6 +4513,74 @@ class MeshCoreConnector extends ChangeNotifier {
         getContactByKey(pubKey);
       }
     }
+  }
+
+  /// PUSH_CODE_CONTACT_DELETED (0x8F): firmware already removed the contact
+  /// device-side (e.g. auto-add overwrite-oldest) and is only notifying us.
+  /// Mirrors the local-state part of [removeContact] but must NOT send
+  /// CMD_REMOVE_CONTACT (firmware already deleted it) and must NOT touch
+  /// message history — the user decision for this feature is that deleting
+  /// a contact this way keeps its past messages.
+  void _handleContactDeleted(Uint8List frame) {
+    if (frame.length < 1 + pubKeySize) return;
+    final pubKey = Uint8List.fromList(frame.sublist(1, 1 + pubKeySize));
+    final contact = _contacts.cast<Contact?>().firstWhere(
+      (c) => c != null && listEquals(c.publicKey, pubKey),
+      orElse: () => null,
+    );
+
+    if (contact == null) {
+      // Unknown pub_key (e.g. already removed locally): idempotent no-op.
+      debugPrint('CONTACT_DELETED push for unknown pub_key — ignoring');
+      return;
+    }
+
+    _contacts.removeWhere((c) => c.publicKeyHex == contact.publicKeyHex);
+    _knownContactKeys.remove(contact.publicKeyHex);
+    unawaited(updateKnownDiscovered());
+    unawaited(_persistContacts());
+    _appDebugLogService?.info(
+      'Contact removed by device (auto-add overwrite): '
+      '${contact.publicKeyHex}',
+      tag: 'Protocol',
+    );
+    notifyListeners();
+  }
+
+  /// PUSH_CODE_CONTACTS_FULL (0x90): the device's contact table is full,
+  /// so auto-add may start overwriting the oldest non-favourite contact.
+  /// Always logged; the UI-facing event is rate-limited (see
+  /// [_contactsFullWarningCooldown]) so a firmware retrying auto-add
+  /// doesn't spam a snackbar every push.
+  void _handleContactsFull() {
+    _appDebugLogService?.warn(
+      'Device contact table is FULL — auto-add may overwrite oldest',
+      tag: 'Protocol',
+    );
+
+    final now = DateTime.now();
+    final lastWarning = _lastContactsFullWarningAt;
+    if (lastWarning != null &&
+        now.difference(lastWarning) < _contactsFullWarningCooldown) {
+      return;
+    }
+    _lastContactsFullWarningAt = now;
+    _contactsFullController.add(now);
+  }
+
+  /// RESP_CODE_CURR_TIME (9): device epoch, in response to CMD_GET_TIME or
+  /// as an unsolicited push. The app has its own time source, so this is
+  /// logged only.
+  void _handleCurrTime(Uint8List frame) {
+    if (frame.length < 5) return;
+    final reader = BufferReader(frame);
+    reader.skipBytes(1);
+    final epochSeconds = reader.readUInt32LE();
+    final deviceTime = DateTime.fromMillisecondsSinceEpoch(
+      epochSeconds * 1000,
+      isUtc: true,
+    );
+    debugPrint('Device time: ${deviceTime.toIso8601String()}');
   }
 
   void _handleSelfInfo(Uint8List frame) {
@@ -6834,6 +6973,22 @@ class MeshCoreConnector extends ChangeNotifier {
   void debugFailPendingGenericAckQueue(String reason) =>
       _failPendingGenericAckQueue(reason);
 
+  @visibleForTesting
+  void debugHandleFrame(Uint8List frame) => _handleFrame(frame);
+
+  @visibleForTesting
+  void debugAddContact(Contact contact) => _contacts.add(contact);
+
+  @visibleForTesting
+  int get debugContactCount => _contacts.length;
+
+  @visibleForTesting
+  set debugAppDebugLogService(AppDebugLogService? service) =>
+      _appDebugLogService = service;
+
+  @visibleForTesting
+  Map<String, List<Message>> get debugConversations => _conversations;
+
   String _nextReactionSendQueueId() {
     _reactionSendQueueSequence++;
     return '$_reactionSendQueuePrefix$_reactionSendQueueSequence';
@@ -6956,6 +7111,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _bleRssiPollTimer?.cancel();
     radioStatsNotifier.dispose();
     _receivedFramesController.close();
+    _contactsFullController.close();
     _usbManager.dispose();
     _tcpConnector.dispose();
 

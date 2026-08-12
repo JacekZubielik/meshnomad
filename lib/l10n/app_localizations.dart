@@ -9243,6 +9243,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit custom style'**
   String get appSettings_editCustomStyleTooltip;
+
+  /// No description provided for @protocol_contactsFullWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Device contact table is full — oldest contacts may be overwritten'**
+  String get protocol_contactsFullWarning;
 }
 
 class _AppLocalizationsDelegate

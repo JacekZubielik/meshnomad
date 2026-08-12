@@ -172,7 +172,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "de": [
@@ -335,7 +336,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "es": [
@@ -511,7 +513,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "fr": [
@@ -687,7 +690,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "hu": [
@@ -863,7 +867,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "it": [
@@ -1039,7 +1044,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "ja": [
@@ -1215,7 +1221,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "ko": [
@@ -1391,7 +1398,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "nl": [
@@ -1567,7 +1575,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "pl": [
@@ -1777,7 +1786,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "ru": [
@@ -1953,7 +1963,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "sk": [
@@ -2129,7 +2140,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "sl": [
@@ -2305,7 +2317,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "sv": [
@@ -2481,7 +2494,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "uk": [
@@ -2657,7 +2671,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "zh": [
@@ -2833,6 +2848,7 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ]
 }

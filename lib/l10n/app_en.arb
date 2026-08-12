@@ -2911,5 +2911,6 @@
   "styleEditor_cardShadow_label": "Card shadow",
   "styleEditor_cardShadow_subtitle": "Floating shadow under cards",
   "appSettings_about": "About",
-  "appSettings_editCustomStyleTooltip": "Edit custom style"
+  "appSettings_editCustomStyleTooltip": "Edit custom style",
+  "protocol_contactsFullWarning": "Device contact table is full — oldest contacts may be overwritten"
 }
