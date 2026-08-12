@@ -757,6 +757,12 @@ class AppLocalizationsUk extends AppLocalizations {
       'Показувати детальні метадані про маршрутизацію та час для повідомлень';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Сповіщення';
 
   @override

@@ -19,8 +19,9 @@ class ChannelMessageStore {
   /// Save messages for a specific channel
   Future<void> saveChannelMessages(
     int channelIndex,
-    List<ChannelMessage> messages,
-  ) async {
+    List<ChannelMessage> messages, {
+    int historyLimit = 0,
+  }) async {
     if (publicKeyHex.isEmpty) {
       appLogger.warn(
         'Public key hex is not set. Cannot save channel messages.',
@@ -30,8 +31,14 @@ class ChannelMessageStore {
     final prefs = PrefsManager.instance;
     final key = '$keyFor$channelIndex';
 
+    // Apply history limit: keep only the newest N messages
+    var toSave = messages;
+    if (historyLimit > 0 && messages.length > historyLimit) {
+      toSave = messages.sublist(messages.length - historyLimit);
+    }
+
     // Convert messages to JSON
-    final jsonList = messages.map((msg) => _messageToJson(msg)).toList();
+    final jsonList = toSave.map((msg) => _messageToJson(msg)).toList();
     final jsonString = jsonEncode(jsonList);
 
     await prefs.setString(key, jsonString);

@@ -102,6 +102,7 @@ class AppSettings {
   final bool notifyOnNewAdvert;
   final bool autoSendZeroHopAdvertOnGpsUpdate;
   final int gpsIntervalSeconds;
+  final int messageHistoryLimit;
 
   /// TX airtime budget as a duty-cycle percentage of a 1 h window, shown in
   /// the radio stats popup. Regulatory (ETSI) default is 10%, but the full
@@ -178,6 +179,7 @@ class AppSettings {
     this.notifyOnNewAdvert = true,
     this.autoSendZeroHopAdvertOnGpsUpdate = false,
     this.gpsIntervalSeconds = 900,
+    this.messageHistoryLimit = 1000,
     this.txDutyCyclePercent = 10,
     this.autoRouteRotationEnabled = true,
     this.maxRouteWeight = 5.0,
@@ -248,6 +250,7 @@ class AppSettings {
       'auto_send_zero_hop_advert_on_gps_update':
           autoSendZeroHopAdvertOnGpsUpdate,
       'gps_interval_seconds': gpsIntervalSeconds,
+      'message_history_limit': messageHistoryLimit,
       'tx_duty_cycle_percent': txDutyCyclePercent,
       'auto_route_rotation_enabled': autoRouteRotationEnabled,
       'max_route_weight': maxRouteWeight,
@@ -323,6 +326,8 @@ class AppSettings {
           json['auto_send_zero_hop_advert_on_gps_update'] as bool? ?? false,
       gpsIntervalSeconds:
           (json['gps_interval_seconds'] as num?)?.toInt() ?? 900,
+      messageHistoryLimit:
+          (json['message_history_limit'] as num?)?.toInt() ?? 1000,
       txDutyCyclePercent:
           (json['tx_duty_cycle_percent'] as num?)?.toInt() ?? 10,
       autoRouteRotationEnabled:
@@ -442,6 +447,7 @@ class AppSettings {
     bool? notifyOnNewAdvert,
     bool? autoSendZeroHopAdvertOnGpsUpdate,
     int? gpsIntervalSeconds,
+    int? messageHistoryLimit,
     int? txDutyCyclePercent,
     bool? autoRouteRotationEnabled,
     double? maxRouteWeight,
@@ -504,6 +510,7 @@ class AppSettings {
           autoSendZeroHopAdvertOnGpsUpdate ??
           this.autoSendZeroHopAdvertOnGpsUpdate,
       gpsIntervalSeconds: gpsIntervalSeconds ?? this.gpsIntervalSeconds,
+      messageHistoryLimit: messageHistoryLimit ?? this.messageHistoryLimit,
       txDutyCyclePercent: txDutyCyclePercent ?? this.txDutyCyclePercent,
       autoRouteRotationEnabled:
           autoRouteRotationEnabled ?? this.autoRouteRotationEnabled,

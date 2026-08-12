@@ -756,6 +756,12 @@ class AppLocalizationsHu extends AppLocalizations {
       'Az üzenetek részletes útválasztási és időzítési metaadatainak megjelenítése';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Értesítések';
 
   @override

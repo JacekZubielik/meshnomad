@@ -179,6 +179,10 @@ class AppSettingsService extends ChangeNotifier {
     }
   }
 
+  Future<void> setMessageHistoryLimit(int value) async {
+    await updateSettings(_settings.copyWith(messageHistoryLimit: value));
+  }
+
   Future<void> setTxDutyCyclePercent(int value) async {
     await updateSettings(
       _settings.copyWith(txDutyCyclePercent: value.clamp(1, 100)),

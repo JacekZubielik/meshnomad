@@ -729,6 +729,12 @@ class AppLocalizationsJa extends AppLocalizations {
       'メッセージの詳細な経路とタイミングのメタデータを表示します';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => '通知';
 
   @override

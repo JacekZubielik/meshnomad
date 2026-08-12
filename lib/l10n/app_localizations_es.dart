@@ -758,6 +758,12 @@ class AppLocalizationsEs extends AppLocalizations {
       'Mostrar metadatos detallados de enrutamiento y tiempo para los mensajes';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Notificaciones';
 
   @override

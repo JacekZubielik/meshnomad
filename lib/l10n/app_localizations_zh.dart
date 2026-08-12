@@ -720,6 +720,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appSettings_enableMessageTracingSubtitle => '显示消息的详细路由和时间元数据';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => '通知';
 
   @override

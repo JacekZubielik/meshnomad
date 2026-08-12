@@ -762,6 +762,12 @@ class AppLocalizationsBg extends AppLocalizations {
       'Показване на подробни метаданни за маршрутизация и синхронизация за съобщения';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Уведомления';
 
   @override

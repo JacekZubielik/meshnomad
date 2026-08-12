@@ -753,6 +753,12 @@ class AppLocalizationsSk extends AppLocalizations {
       'Zobraziť podrobné metadáta o smerovaní a časovaní správ';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Upozornenia';
 
   @override

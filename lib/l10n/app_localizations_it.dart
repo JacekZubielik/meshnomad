@@ -760,6 +760,12 @@ class AppLocalizationsIt extends AppLocalizations {
       'Mostra metadati dettagliati su instradamento e tempi per i messaggi';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Notifiche';
 
   @override

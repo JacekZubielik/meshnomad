@@ -694,8 +694,90 @@ class AppSettingsScreen extends StatelessWidget {
             settingsService.setEnableMessageTracing(value);
           },
         ),
+        const Divider(height: 1, indent: 16),
+        ListTile(
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
+          ),
+          leading: const Icon(Icons.history, size: 20),
+          title: Text(context.l10n.settings_messageHistoryLimit),
+          subtitle: Text(
+            _messageHistoryLimitLabel(
+              context,
+              settingsService.settings.messageHistoryLimit,
+            ),
+          ),
+          onTap: () => _showMessageHistoryLimitSheet(context, settingsService),
+        ),
       ],
     );
+  }
+
+  void _showMessageHistoryLimitSheet(
+    BuildContext context,
+    AppSettingsService settingsService,
+  ) {
+    showMeshSheet(
+      context,
+      builder: (ctx) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          BottomSheetHeader(title: context.l10n.settings_messageHistoryLimit),
+          _sheetOption<int>(
+            ctx,
+            label: '200',
+            value: 200,
+            selected: settingsService.settings.messageHistoryLimit == 200,
+            onTap: () {
+              settingsService.setMessageHistoryLimit(200);
+              Navigator.pop(ctx);
+            },
+          ),
+          _sheetOption<int>(
+            ctx,
+            label: '500',
+            value: 500,
+            selected: settingsService.settings.messageHistoryLimit == 500,
+            onTap: () {
+              settingsService.setMessageHistoryLimit(500);
+              Navigator.pop(ctx);
+            },
+          ),
+          _sheetOption<int>(
+            ctx,
+            label: '1000',
+            value: 1000,
+            selected: settingsService.settings.messageHistoryLimit == 1000,
+            onTap: () {
+              settingsService.setMessageHistoryLimit(1000);
+              Navigator.pop(ctx);
+            },
+          ),
+          _sheetOption<int>(
+            ctx,
+            label: context.l10n.settings_messageHistoryLimitUnlimited,
+            value: 0,
+            selected: settingsService.settings.messageHistoryLimit == 0,
+            onTap: () {
+              settingsService.setMessageHistoryLimit(0);
+              Navigator.pop(ctx);
+            },
+          ),
+          SizedBox(
+            height:
+                MediaQuery.paddingOf(ctx).bottom + MeshTokens.of(ctx).spacingXs,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _messageHistoryLimitLabel(BuildContext context, int limit) {
+    if (limit == 0) {
+      return context.l10n.settings_messageHistoryLimitUnlimited;
+    }
+    return limit.toString();
   }
 
   Widget _buildBatteryContent(

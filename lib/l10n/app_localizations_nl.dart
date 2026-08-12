@@ -753,6 +753,12 @@ class AppLocalizationsNl extends AppLocalizations {
       'Gedetailleerde routerings- en timing-metadata voor berichten weergeven';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Notificaties';
 
   @override

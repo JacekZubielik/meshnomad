@@ -760,6 +760,12 @@ class AppLocalizationsRu extends AppLocalizations {
       'Показывать подробные метаданные о маршрутизации и времени для сообщений';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Уведомления';
 
   @override

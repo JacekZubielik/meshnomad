@@ -748,6 +748,12 @@ class AppLocalizationsSv extends AppLocalizations {
       'Visa detaljerade metadata om dirigering och tidsinställningar för meddelanden';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Meddelanden';
 
   @override

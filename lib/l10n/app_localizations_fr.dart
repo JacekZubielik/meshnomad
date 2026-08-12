@@ -762,6 +762,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'Afficher les métadonnées détaillées de routage et de synchronisation des messages';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Notifications';
 
   @override

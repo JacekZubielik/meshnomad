@@ -759,6 +759,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Detaillierte Routing- und Zeitmetadaten für Nachrichten anzeigen';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Benachrichtigungen';
 
   @override

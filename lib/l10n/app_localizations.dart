@@ -1498,6 +1498,18 @@ abstract class AppLocalizations {
   /// **'Show detailed routing and timing metadata for messages'**
   String get appSettings_enableMessageTracingSubtitle;
 
+  /// No description provided for @settings_messageHistoryLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Message History Limit'**
+  String get settings_messageHistoryLimit;
+
+  /// No description provided for @settings_messageHistoryLimitUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get settings_messageHistoryLimitUnlimited;
+
   /// No description provided for @appSettings_notifications.
   ///
   /// In en, this message translates to:

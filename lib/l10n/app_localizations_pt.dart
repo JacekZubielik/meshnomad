@@ -760,6 +760,12 @@ class AppLocalizationsPt extends AppLocalizations {
       'Mostrar metadados detalhados de roteamento e tempo para as mensagens';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Notificações';
 
   @override

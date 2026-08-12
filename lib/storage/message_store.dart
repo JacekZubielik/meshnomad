@@ -17,15 +17,23 @@ class MessageStore {
 
   Future<void> saveMessages(
     String contactKeyHex,
-    List<Message> messages,
-  ) async {
+    List<Message> messages, {
+    int historyLimit = 0,
+  }) async {
     if (publicKeyHex.isEmpty) {
       appLogger.warn('Public key hex is not set. Cannot save messages.');
       return;
     }
     final prefs = PrefsManager.instance;
     final key = '$keyFor$contactKeyHex';
-    final jsonList = messages.map(_messageToJson).toList();
+
+    // Apply history limit: keep only the newest N messages
+    var toSave = messages;
+    if (historyLimit > 0 && messages.length > historyLimit) {
+      toSave = messages.sublist(messages.length - historyLimit);
+    }
+
+    final jsonList = toSave.map(_messageToJson).toList();
     await prefs.setString(key, jsonEncode(jsonList));
   }
 

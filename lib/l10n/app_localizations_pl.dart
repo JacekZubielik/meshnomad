@@ -762,6 +762,12 @@ class AppLocalizationsPl extends AppLocalizations {
       'Pokaż szczegółowe metadane trasowania i czasu dla wiadomości';
 
   @override
+  String get settings_messageHistoryLimit => 'Limit historii wiadomości';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Bez limitu';
+
+  @override
   String get appSettings_notifications => 'Powiadomienia';
 
   @override

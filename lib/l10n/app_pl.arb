@@ -1768,6 +1768,8 @@
   "appSettings_languageUk": "Ukraińska",
   "appSettings_enableMessageTracing": "Włącz śledzenie wiadomości",
   "appSettings_enableMessageTracingSubtitle": "Pokaż szczegółowe metadane trasowania i czasu dla wiadomości",
+  "settings_messageHistoryLimit": "Limit historii wiadomości",
+  "settings_messageHistoryLimitUnlimited": "Bez limitu",
   "contacts_contactImportFailed": "Kontakt nie został zaimportowany.",
   "contacts_zeroHopAdvert": "Rozgłoszenie zero-hop",
   "contacts_floodAdvert": "Rozgłoszenie zalewowe",
