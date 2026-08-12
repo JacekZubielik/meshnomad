@@ -97,3 +97,8 @@ keystore.properties
 
 # CLAUDE.md — local only, never tracked/pushed on this fork
 CLAUDE.md
+
+# mesh_ui package + Widgetbook catalog — local-only UI audit/design tooling,
+# not part of the app build (no dependency from the root pubspec.yaml),
+# must never reach remote until an explicit decision to publish it
+packages/mesh_ui/
