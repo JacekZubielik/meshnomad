@@ -730,6 +730,12 @@ class AppLocalizationsKo extends AppLocalizations {
       '메시지에 대한 상세한 경로 및 시간 정보를 표시';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => '알림';
 
   @override
@@ -2261,6 +2267,23 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get repeater_settingsSubtitle => '리피터 파라미터 설정';
+
+  @override
+  String get repeaterHub_directConsole => 'Direct console (TCP/USB)';
+
+  @override
+  String get repeaterHub_directConsoleSubtitle =>
+      'Raw CLI session, bypassing companion pairing';
+
+  @override
+  String get repeaterDirectConsole_password => 'Password';
+
+  @override
+  String get repeaterDirectConsole_rememberPassword => 'Remember password';
+
+  @override
+  String get repeaterDirectConsole_emptyLog =>
+      'No output yet. Connect and send a command.';
 
   @override
   String get repeater_clockSyncAfterLogin => '로그인 후 시계 동기화';
@@ -5093,4 +5116,8 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get appSettings_editCustomStyleTooltip => 'Edit custom style';
+
+  @override
+  String get protocol_contactsFullWarning =>
+      'Device contact table is full — oldest contacts may be overwritten';
 }

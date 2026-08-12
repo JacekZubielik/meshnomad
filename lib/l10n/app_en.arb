@@ -298,6 +298,8 @@
   "repeater_pathHashModeOption3": "3 - 4 bytes",
   "appSettings_enableMessageTracing": "Enable Message Tracing",
   "appSettings_enableMessageTracingSubtitle": "Show detailed routing and timing metadata for messages",
+  "settings_messageHistoryLimit": "Message History Limit",
+  "settings_messageHistoryLimitUnlimited": "Unlimited",
   "appSettings_notifications": "Notifications",
   "appSettings_enableNotifications": "Enable Notifications",
   "appSettings_enableNotificationsSubtitle": "Receive notifications for messages and adverts",
@@ -1269,6 +1271,11 @@
   "repeater_neighborsSubtitle": "View zero hop neighbors.",
   "repeater_settings": "Settings",
   "repeater_settingsSubtitle": "Configure repeater parameters",
+  "repeaterHub_directConsole": "Direct console (TCP/USB)",
+  "repeaterHub_directConsoleSubtitle": "Raw CLI session, bypassing companion pairing",
+  "repeaterDirectConsole_password": "Password",
+  "repeaterDirectConsole_rememberPassword": "Remember password",
+  "repeaterDirectConsole_emptyLog": "No output yet. Connect and send a command.",
   "repeater_clockSyncAfterLogin": "Clock sync after login",
   "@repeater_clockSyncAfterLogin": {
     "description": "Repeater setting: auto sync device clock after successful login"
@@ -2904,5 +2911,6 @@
   "styleEditor_cardShadow_label": "Card shadow",
   "styleEditor_cardShadow_subtitle": "Floating shadow under cards",
   "appSettings_about": "About",
-  "appSettings_editCustomStyleTooltip": "Edit custom style"
+  "appSettings_editCustomStyleTooltip": "Edit custom style",
+  "protocol_contactsFullWarning": "Device contact table is full — oldest contacts may be overwritten"
 }

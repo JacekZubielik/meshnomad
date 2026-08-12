@@ -762,6 +762,12 @@ class AppLocalizationsPl extends AppLocalizations {
       'Pokaż szczegółowe metadane trasowania i czasu dla wiadomości';
 
   @override
+  String get settings_messageHistoryLimit => 'Limit historii wiadomości';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Bez limitu';
+
+  @override
   String get appSettings_notifications => 'Powiadomienia';
 
   @override
@@ -2371,6 +2377,23 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get repeater_settingsSubtitle => 'Skonfiguruj parametry przekaźnika';
+
+  @override
+  String get repeaterHub_directConsole => 'Konsola bezpośrednia (TCP/USB)';
+
+  @override
+  String get repeaterHub_directConsoleSubtitle =>
+      'Surowa sesja CLI, z pominięciem parowania companion';
+
+  @override
+  String get repeaterDirectConsole_password => 'Hasło';
+
+  @override
+  String get repeaterDirectConsole_rememberPassword => 'Zapamiętaj hasło';
+
+  @override
+  String get repeaterDirectConsole_emptyLog =>
+      'Brak jeszcze danych wyjściowych. Połącz się i wyślij polecenie.';
 
   @override
   String get repeater_clockSyncAfterLogin =>
@@ -5350,4 +5373,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get appSettings_editCustomStyleTooltip => 'Edytuj styl Custom';
+
+  @override
+  String get protocol_contactsFullWarning =>
+      'Tabela kontaktów urządzenia pełna — najstarsze kontakty mogą być nadpisywane';
 }

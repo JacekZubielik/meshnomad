@@ -195,6 +195,8 @@ class MeshCoreConnector extends ChangeNotifier {
   final Map<int, List<ChannelMessage>> _channelMessages = {};
   final List<String> _pendingChannelSentQueue = [];
   final List<_PendingCommandAck> _pendingGenericAckQueue = [];
+  int _pendingGenericAckSeq = 0;
+  static const int _pendingGenericAckQueueMaxLength = 32;
   static const String _reactionSendQueuePrefix = '__reaction_send__';
   int _reactionSendQueueSequence = 0;
   final Set<String> _loadedConversationKeys = {};
@@ -202,6 +204,21 @@ class MeshCoreConnector extends ChangeNotifier {
       {}; // channelIndex -> Set of "targetHash_emoji"
   final Map<String, Set<String>> _processedContactReactions =
       {}; // contactPubKeyHex -> Set of "targetHash_emoji"
+
+  /// Rate-limit gate for CONTACTS_FULL warnings (PUSH_CODE_CONTACTS_FULL):
+  /// firmware can send this repeatedly while auto-add keeps overwriting
+  /// contacts, so the UI-facing event is throttled to at most one per
+  /// [_contactsFullWarningCooldown]. The debug log entry is NOT throttled.
+  DateTime? _lastContactsFullWarningAt;
+  static const Duration _contactsFullWarningCooldown = Duration(minutes: 10);
+  final StreamController<DateTime> _contactsFullController =
+      StreamController<DateTime>.broadcast();
+
+  /// Fires (rate-limited) when the device reports its contacts table is
+  /// full. No global snackbar messenger exists in this app yet (see
+  /// 02-transza-S report) — this stream is the hook a future UI layer can
+  /// subscribe to.
+  Stream<DateTime> get contactsFullWarnings => _contactsFullController.stream;
 
   StreamSubscription<List<ScanResult>>? _scanSubscription;
   StreamSubscription<bool>? _isScanningSubscription;
@@ -2791,7 +2808,9 @@ class MeshCoreConnector extends ChangeNotifier {
     _maxChannels = _defaultMaxChannels;
     _resetSyncProgressState();
     _pendingChannelSentQueue.clear();
-    _pendingGenericAckQueue.clear();
+    _failPendingGenericAckQueue(
+      'Disconnected before firmware acknowledged the command',
+    );
     _reactionSendQueueSequence = 0;
 
     _activeTransport = MeshCoreTransportType.bluetooth;
@@ -2851,7 +2870,16 @@ class MeshCoreConnector extends ChangeNotifier {
       }
     } catch (_) {
       if (pendingAck != null) {
-        _pendingGenericAckQueue.remove(pendingAck);
+        // The transport write itself failed, so this exact frame did not
+        // reach the firmware in the ordinary case — but leave a tombstone
+        // rather than removing the slot outright: some transports can throw
+        // locally after already handing bytes to the radio, and a real
+        // reply arriving after we gave up must still consume this position
+        // instead of being misattributed to whatever command is sent next.
+        _expirePendingAck(
+          pendingAck,
+          Exception('Failed to send frame to transport'),
+        );
       }
       rethrow;
     }
@@ -2860,11 +2888,26 @@ class MeshCoreConnector extends ChangeNotifier {
       try {
         await pendingAck!.completer!.future.timeout(const Duration(seconds: 5));
       } on TimeoutException {
-        _pendingGenericAckQueue.remove(pendingAck);
+        _expirePendingAck(
+          pendingAck!,
+          TimeoutException('Timed out waiting for firmware acknowledgement'),
+        );
         throw TimeoutException(
           'Timed out waiting for firmware acknowledgement',
         );
       }
+    }
+  }
+
+  /// Marks [pendingAck] as expired in place (tombstone) instead of removing
+  /// it from `_pendingGenericAckQueue`, and completes its completer with
+  /// [error] if it hasn't already completed. Keeping the entry preserves the
+  /// FIFO position for a response that may still arrive late.
+  void _expirePendingAck(_PendingCommandAck pendingAck, Object error) {
+    pendingAck.expired = true;
+    final completer = pendingAck.completer;
+    if (completer != null && !completer.isCompleted) {
+      completer.completeError(error);
     }
   }
 
@@ -4319,6 +4362,12 @@ class MeshCoreConnector extends ChangeNotifier {
       case pushCodePathUpdated:
         _handlePathUpdated(frame);
         break;
+      case pushCodeContactDeleted:
+        _handleContactDeleted(frame);
+        break;
+      case pushCodeContactsFull:
+        _handleContactsFull();
+        break;
       case pushCodeControlData:
         // Optional feature-specific services listen to receivedFrames directly.
         break;
@@ -4353,6 +4402,12 @@ class MeshCoreConnector extends ChangeNotifier {
       case respCodeErr:
         _handleErrorFrame(frame);
         break;
+      case respCodeCurrTime:
+        _handleCurrTime(frame);
+        break;
+      case respCodeDisabled:
+        _handleDisabledFrame();
+        break;
       default:
         debugPrint('Unknown frame code: $code');
     }
@@ -4360,18 +4415,78 @@ class MeshCoreConnector extends ChangeNotifier {
 
   void _handleErrorFrame(Uint8List frame) {
     final errCode = frame.length > 1 ? frame[1] : -1;
-    _appDebugLogService?.warn(
-      'Firmware responded with error code: $errCode',
-      tag: 'Protocol',
-    );
 
     if (_pendingGenericAckQueue.isEmpty) {
+      _appDebugLogService?.warn(
+        'Firmware responded with error code: $errCode',
+        tag: 'Protocol',
+      );
       return;
     }
 
     final failedAck = _pendingGenericAckQueue.removeAt(0);
+
+    if (failedAck.expired) {
+      final ageMs = DateTime.now().difference(failedAck.sentAt).inMilliseconds;
+      _appDebugLogService?.info(
+        'late reply consumed by tombstone (cmd=${commandCodeName(failedAck.commandCode)}, age=${ageMs}ms)',
+        tag: 'Protocol',
+      );
+      return;
+    }
+
+    _appDebugLogService?.warn(
+      'Firmware rejected ${commandCodeName(failedAck.commandCode)} with ${errorCodeName(errCode)}($errCode)',
+      tag: 'Protocol',
+    );
     failedAck.completer?.completeError(
-      Exception('Firmware rejected command with error code $errCode'),
+      Exception(
+        'Firmware rejected ${commandCodeName(failedAck.commandCode)} with ${errorCodeName(errCode)}($errCode)',
+      ),
+    );
+    if (failedAck.commandCode != cmdSendChannelTxtMsg ||
+        failedAck.channelSendQueueId == null) {
+      return;
+    }
+    _pendingChannelSentQueue.remove(failedAck.channelSendQueueId);
+    _markPendingChannelMessageFailedById(failedAck.channelSendQueueId!);
+  }
+
+  /// RESP_CODE_DISABLED (15): firmware sends this in place of OK/ERR when
+  /// the requested feature is compiled out (e.g. CMD_EXPORT_PRIVATE_KEY,
+  /// CMD_IMPORT_PRIVATE_KEY without ENABLE_PRIVATE_KEY_EXPORT/IMPORT —
+  /// verified in MyMesh.cpp). Neither command is currently sent by this
+  /// app, but the reply is handled the same way RESP_CODE_ERR is: if a
+  /// command is waiting for a generic ack, treat DISABLED as its failure
+  /// so the completer isn't left hanging.
+  void _handleDisabledFrame() {
+    if (_pendingGenericAckQueue.isEmpty) {
+      _appDebugLogService?.warn(
+        'Command rejected: feature disabled on device',
+        tag: 'Protocol',
+      );
+      return;
+    }
+
+    final failedAck = _pendingGenericAckQueue.removeAt(0);
+
+    if (failedAck.expired) {
+      final ageMs = DateTime.now().difference(failedAck.sentAt).inMilliseconds;
+      _appDebugLogService?.info(
+        'late reply consumed by tombstone (cmd=${commandCodeName(failedAck.commandCode)}, age=${ageMs}ms)',
+        tag: 'Protocol',
+      );
+      return;
+    }
+
+    _appDebugLogService?.warn(
+      'Firmware rejected ${commandCodeName(failedAck.commandCode)} with DISABLED (feature not compiled into device firmware)',
+      tag: 'Protocol',
+    );
+    failedAck.completer?.completeError(
+      Exception(
+        'Firmware rejected ${commandCodeName(failedAck.commandCode)} with DISABLED',
+      ),
     );
     if (failedAck.commandCode != cmdSendChannelTxtMsg ||
         failedAck.channelSendQueueId == null) {
@@ -4398,6 +4513,74 @@ class MeshCoreConnector extends ChangeNotifier {
         getContactByKey(pubKey);
       }
     }
+  }
+
+  /// PUSH_CODE_CONTACT_DELETED (0x8F): firmware already removed the contact
+  /// device-side (e.g. auto-add overwrite-oldest) and is only notifying us.
+  /// Mirrors the local-state part of [removeContact] but must NOT send
+  /// CMD_REMOVE_CONTACT (firmware already deleted it) and must NOT touch
+  /// message history — the user decision for this feature is that deleting
+  /// a contact this way keeps its past messages.
+  void _handleContactDeleted(Uint8List frame) {
+    if (frame.length < 1 + pubKeySize) return;
+    final pubKey = Uint8List.fromList(frame.sublist(1, 1 + pubKeySize));
+    final contact = _contacts.cast<Contact?>().firstWhere(
+      (c) => c != null && listEquals(c.publicKey, pubKey),
+      orElse: () => null,
+    );
+
+    if (contact == null) {
+      // Unknown pub_key (e.g. already removed locally): idempotent no-op.
+      debugPrint('CONTACT_DELETED push for unknown pub_key — ignoring');
+      return;
+    }
+
+    _contacts.removeWhere((c) => c.publicKeyHex == contact.publicKeyHex);
+    _knownContactKeys.remove(contact.publicKeyHex);
+    unawaited(updateKnownDiscovered());
+    unawaited(_persistContacts());
+    _appDebugLogService?.info(
+      'Contact removed by device (auto-add overwrite): '
+      '${contact.publicKeyHex}',
+      tag: 'Protocol',
+    );
+    notifyListeners();
+  }
+
+  /// PUSH_CODE_CONTACTS_FULL (0x90): the device's contact table is full,
+  /// so auto-add may start overwriting the oldest non-favourite contact.
+  /// Always logged; the UI-facing event is rate-limited (see
+  /// [_contactsFullWarningCooldown]) so a firmware retrying auto-add
+  /// doesn't spam a snackbar every push.
+  void _handleContactsFull() {
+    _appDebugLogService?.warn(
+      'Device contact table is FULL — auto-add may overwrite oldest',
+      tag: 'Protocol',
+    );
+
+    final now = DateTime.now();
+    final lastWarning = _lastContactsFullWarningAt;
+    if (lastWarning != null &&
+        now.difference(lastWarning) < _contactsFullWarningCooldown) {
+      return;
+    }
+    _lastContactsFullWarningAt = now;
+    _contactsFullController.add(now);
+  }
+
+  /// RESP_CODE_CURR_TIME (9): device epoch, in response to CMD_GET_TIME or
+  /// as an unsolicited push. The app has its own time source, so this is
+  /// logged only.
+  void _handleCurrTime(Uint8List frame) {
+    if (frame.length < 5) return;
+    final reader = BufferReader(frame);
+    reader.skipBytes(1);
+    final epochSeconds = reader.readUInt32LE();
+    final deviceTime = DateTime.fromMillisecondsSinceEpoch(
+      epochSeconds * 1000,
+      isUtc: true,
+    );
+    debugPrint('Device time: ${deviceTime.toIso8601String()}');
   }
 
   void _handleSelfInfo(Uint8List frame) {
@@ -5828,6 +6011,16 @@ class MeshCoreConnector extends ChangeNotifier {
     }
 
     final pendingAck = _pendingGenericAckQueue.removeAt(0);
+
+    if (pendingAck.expired) {
+      final ageMs = DateTime.now().difference(pendingAck.sentAt).inMilliseconds;
+      _appDebugLogService?.info(
+        'late reply consumed by tombstone (cmd=${commandCodeName(pendingAck.commandCode)}, age=${ageMs}ms)',
+        tag: 'Protocol',
+      );
+      return;
+    }
+
     pendingAck.completer?.complete();
     if (pendingAck.commandCode != cmdSendChannelTxtMsg ||
         pendingAck.channelSendQueueId == null) {
@@ -6660,7 +6853,9 @@ class MeshCoreConnector extends ChangeNotifier {
     _maxChannels = _defaultMaxChannels;
     _resetSyncProgressState();
     _pendingChannelSentQueue.clear();
-    _pendingGenericAckQueue.clear();
+    _failPendingGenericAckQueue(
+      'Disconnected before firmware acknowledged the command',
+    );
     _reactionSendQueueSequence = 0;
 
     _setState(MeshCoreConnectionState.disconnected);
@@ -6678,6 +6873,8 @@ class MeshCoreConnector extends ChangeNotifier {
       commandCode: data[0],
       channelSendQueueId: channelSendQueueId,
       completer: waitForAck ? Completer<void>() : null,
+      seq: ++_pendingGenericAckSeq,
+      sentAt: DateTime.now(),
     );
     if (pendingAck.completer != null) {
       // sendFrame awaits this future after transport I/O; attach an error
@@ -6685,8 +6882,112 @@ class MeshCoreConnector extends ChangeNotifier {
       unawaited(pendingAck.completer!.future.catchError((_) {}));
     }
     _pendingGenericAckQueue.add(pendingAck);
+    _pruneExpiredGenericAckTombstones();
     return pendingAck;
   }
+
+  /// Keeps the tombstone-augmented queue bounded: once it grows past
+  /// [_pendingGenericAckQueueMaxLength], drop *expired* entries from the
+  /// front (oldest first). Non-expired entries — real commands still
+  /// awaiting a response — are never dropped, so ordering stays correct.
+  void _pruneExpiredGenericAckTombstones() {
+    if (_pendingGenericAckQueue.length <= _pendingGenericAckQueueMaxLength) {
+      return;
+    }
+    var prunedCount = 0;
+    while (_pendingGenericAckQueue.isNotEmpty &&
+        _pendingGenericAckQueue.first.expired) {
+      _pendingGenericAckQueue.removeAt(0);
+      prunedCount++;
+    }
+    if (prunedCount > 0) {
+      _appDebugLogService?.warn(
+        'Pruned $prunedCount expired pending-ack tombstone(s), queue length now ${_pendingGenericAckQueue.length}',
+        tag: 'Protocol',
+      );
+    }
+  }
+
+  /// Completes every still-pending generic-ack completer with an error and
+  /// empties the queue. Used on disconnect/reset so no caller is left
+  /// awaiting a response that will never arrive.
+  void _failPendingGenericAckQueue(String reason) {
+    for (final pendingAck in _pendingGenericAckQueue) {
+      final completer = pendingAck.completer;
+      if (completer != null && !completer.isCompleted) {
+        completer.completeError(StateError(reason));
+      }
+    }
+    _pendingGenericAckQueue.clear();
+  }
+
+  // --- Test-only surface for the pending generic-ack queue -----------------
+  // The queue-matching logic below only depends on in-memory state, but
+  // exercising it end-to-end would otherwise require a live BLE/USB/TCP
+  // transport. These thin wrappers let unit tests queue synthetic entries
+  // and drive the same private handlers production code uses, without
+  // touching any transport.
+
+  @visibleForTesting
+  int get debugPendingGenericAckQueueLength => _pendingGenericAckQueue.length;
+
+  @visibleForTesting
+  void debugQueueGenericAck({
+    required int commandCode,
+    String? channelSendQueueId,
+    Completer<void>? completer,
+  }) {
+    final pendingAck = _PendingCommandAck(
+      commandCode: commandCode,
+      channelSendQueueId: channelSendQueueId,
+      completer: completer,
+      seq: ++_pendingGenericAckSeq,
+      sentAt: DateTime.now(),
+    );
+    if (completer != null) {
+      unawaited(completer.future.catchError((_) {}));
+    }
+    _pendingGenericAckQueue.add(pendingAck);
+  }
+
+  /// Simulates a local timeout on the oldest pending entry: marks it expired
+  /// and completes its completer with a [TimeoutException], mirroring what
+  /// [sendFrame]'s real timeout branch does — without waiting 5 real seconds.
+  @visibleForTesting
+  void debugExpireOldestPendingGenericAck() {
+    if (_pendingGenericAckQueue.isEmpty) return;
+    _expirePendingAck(
+      _pendingGenericAckQueue.first,
+      TimeoutException('Timed out waiting for firmware acknowledgement'),
+    );
+  }
+
+  @visibleForTesting
+  void debugHandleOkFrame() => _handleOk();
+
+  @visibleForTesting
+  void debugHandleErrorFrame(int errCode) =>
+      _handleErrorFrame(Uint8List.fromList([respCodeErr, errCode]));
+
+  @visibleForTesting
+  void debugFailPendingGenericAckQueue(String reason) =>
+      _failPendingGenericAckQueue(reason);
+
+  @visibleForTesting
+  void debugHandleFrame(Uint8List frame) => _handleFrame(frame);
+
+  @visibleForTesting
+  void debugAddContact(Contact contact) => _contacts.add(contact);
+
+  @visibleForTesting
+  int get debugContactCount => _contacts.length;
+
+  @visibleForTesting
+  set debugAppDebugLogService(AppDebugLogService? service) =>
+      _appDebugLogService = service;
+
+  @visibleForTesting
+  Map<String, List<Message>> get debugConversations => _conversations;
 
   String _nextReactionSendQueueId() {
     _reactionSendQueueSequence++;
@@ -6810,6 +7111,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _bleRssiPollTimer?.cancel();
     radioStatsNotifier.dispose();
     _receivedFramesController.close();
+    _contactsFullController.close();
     _usbManager.dispose();
     _tcpConnector.dispose();
 
@@ -7464,9 +7766,19 @@ class _PendingCommandAck {
   final int commandCode;
   final String? channelSendQueueId;
   final Completer<void>? completer;
+  final int seq;
+  final DateTime sentAt;
+
+  /// Set once this entry has been given up on locally (timeout, transport
+  /// write failure, or disconnect) but is kept in the queue as a tombstone
+  /// so a late OK/ERR response still consumes its slot instead of being
+  /// misattributed to the next real command in flight.
+  bool expired = false;
 
   _PendingCommandAck({
     required this.commandCode,
+    required this.seq,
+    required this.sentAt,
     this.channelSendQueueId,
     this.completer,
   });

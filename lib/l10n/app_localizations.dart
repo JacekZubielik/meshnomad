@@ -1498,6 +1498,18 @@ abstract class AppLocalizations {
   /// **'Show detailed routing and timing metadata for messages'**
   String get appSettings_enableMessageTracingSubtitle;
 
+  /// No description provided for @settings_messageHistoryLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Message History Limit'**
+  String get settings_messageHistoryLimit;
+
+  /// No description provided for @settings_messageHistoryLimitUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get settings_messageHistoryLimitUnlimited;
+
   /// No description provided for @appSettings_notifications.
   ///
   /// In en, this message translates to:
@@ -4250,6 +4262,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Configure repeater parameters'**
   String get repeater_settingsSubtitle;
+
+  /// No description provided for @repeaterHub_directConsole.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct console (TCP/USB)'**
+  String get repeaterHub_directConsole;
+
+  /// No description provided for @repeaterHub_directConsoleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Raw CLI session, bypassing companion pairing'**
+  String get repeaterHub_directConsoleSubtitle;
+
+  /// No description provided for @repeaterDirectConsole_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get repeaterDirectConsole_password;
+
+  /// No description provided for @repeaterDirectConsole_rememberPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember password'**
+  String get repeaterDirectConsole_rememberPassword;
+
+  /// No description provided for @repeaterDirectConsole_emptyLog.
+  ///
+  /// In en, this message translates to:
+  /// **'No output yet. Connect and send a command.'**
+  String get repeaterDirectConsole_emptyLog;
 
   /// Repeater setting: auto sync device clock after successful login
   ///
@@ -9201,6 +9243,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit custom style'**
   String get appSettings_editCustomStyleTooltip;
+
+  /// No description provided for @protocol_contactsFullWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Device contact table is full — oldest contacts may be overwritten'**
+  String get protocol_contactsFullWarning;
 }
 
 class _AppLocalizationsDelegate

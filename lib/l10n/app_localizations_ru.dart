@@ -760,6 +760,12 @@ class AppLocalizationsRu extends AppLocalizations {
       'Показывать подробные метаданные о маршрутизации и времени для сообщений';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Уведомления';
 
   @override
@@ -2358,6 +2364,23 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get repeater_settingsSubtitle => 'Настройка параметров репитера';
+
+  @override
+  String get repeaterHub_directConsole => 'Direct console (TCP/USB)';
+
+  @override
+  String get repeaterHub_directConsoleSubtitle =>
+      'Raw CLI session, bypassing companion pairing';
+
+  @override
+  String get repeaterDirectConsole_password => 'Password';
+
+  @override
+  String get repeaterDirectConsole_rememberPassword => 'Remember password';
+
+  @override
+  String get repeaterDirectConsole_emptyLog =>
+      'No output yet. Connect and send a command.';
 
   @override
   String get repeater_clockSyncAfterLogin =>
@@ -5338,4 +5361,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get appSettings_editCustomStyleTooltip => 'Edit custom style';
+
+  @override
+  String get protocol_contactsFullWarning =>
+      'Device contact table is full — oldest contacts may be overwritten';
 }

@@ -753,6 +753,12 @@ class AppLocalizationsNl extends AppLocalizations {
       'Gedetailleerde routerings- en timing-metadata voor berichten weergeven';
 
   @override
+  String get settings_messageHistoryLimit => 'Message History Limit';
+
+  @override
+  String get settings_messageHistoryLimitUnlimited => 'Unlimited';
+
+  @override
   String get appSettings_notifications => 'Notificaties';
 
   @override
@@ -2340,6 +2346,23 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get repeater_settingsSubtitle => 'Configureer repeaterparameters';
+
+  @override
+  String get repeaterHub_directConsole => 'Direct console (TCP/USB)';
+
+  @override
+  String get repeaterHub_directConsoleSubtitle =>
+      'Raw CLI session, bypassing companion pairing';
+
+  @override
+  String get repeaterDirectConsole_password => 'Password';
+
+  @override
+  String get repeaterDirectConsole_rememberPassword => 'Remember password';
+
+  @override
+  String get repeaterDirectConsole_emptyLog =>
+      'No output yet. Connect and send a command.';
 
   @override
   String get repeater_clockSyncAfterLogin =>
@@ -5302,4 +5325,8 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get appSettings_editCustomStyleTooltip => 'Edit custom style';
+
+  @override
+  String get protocol_contactsFullWarning =>
+      'Device contact table is full — oldest contacts may be overwritten';
 }

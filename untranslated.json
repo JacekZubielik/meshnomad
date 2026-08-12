@@ -16,11 +16,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -165,7 +172,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "de": [
@@ -176,7 +184,14 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -321,7 +336,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "es": [
@@ -341,11 +357,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -490,7 +513,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "fr": [
@@ -510,11 +534,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -659,7 +690,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "hu": [
@@ -679,11 +711,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -828,7 +867,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "it": [
@@ -848,11 +888,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -997,7 +1044,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "ja": [
@@ -1017,11 +1065,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -1166,7 +1221,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "ko": [
@@ -1186,11 +1242,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -1335,7 +1398,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "nl": [
@@ -1355,11 +1419,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -1504,7 +1575,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "pl": [
@@ -1558,11 +1630,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -1707,7 +1786,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "ru": [
@@ -1727,11 +1807,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -1876,7 +1963,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "sk": [
@@ -1896,11 +1984,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -2045,7 +2140,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "sl": [
@@ -2065,11 +2161,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -2214,7 +2317,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "sv": [
@@ -2234,11 +2338,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -2383,7 +2494,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "uk": [
@@ -2403,11 +2515,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -2552,7 +2671,8 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ],
 
   "zh": [
@@ -2572,11 +2692,18 @@
     "repeater_pathHashModeOption1",
     "repeater_pathHashModeOption2",
     "repeater_pathHashModeOption3",
+    "settings_messageHistoryLimit",
+    "settings_messageHistoryLimitUnlimited",
     "channels_regionSetTo",
     "channels_regionNotSet",
     "channels_regionSelect_Title",
     "channels_clearRegion",
     "chat_receivedGif",
+    "repeaterHub_directConsole",
+    "repeaterHub_directConsoleSubtitle",
+    "repeaterDirectConsole_password",
+    "repeaterDirectConsole_rememberPassword",
+    "repeaterDirectConsole_emptyLog",
     "repeater_bandwidthShort",
     "repeater_spreadingFactorShort",
     "repeater_codingRateShort",
@@ -2721,6 +2848,7 @@
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
     "appSettings_about",
-    "appSettings_editCustomStyleTooltip"
+    "appSettings_editCustomStyleTooltip",
+    "protocol_contactsFullWarning"
   ]
 }

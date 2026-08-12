@@ -9,6 +9,7 @@ import '../l10n/contact_localization.dart';
 import '../services/app_settings_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
+import 'repeater_direct_console_screen.dart';
 import 'repeater_status_screen.dart';
 import 'repeater_cli_screen.dart';
 import 'repeater_settings_screen.dart';
@@ -272,6 +273,22 @@ class RepeaterHubScreen extends StatelessWidget {
                         repeater: repeater,
                         password: password,
                       ),
+                    ),
+                  );
+                },
+              ),
+              _HubActionTile(
+                index: 5,
+                icon: Icons.dvr,
+                title: l10n.repeaterHub_directConsole,
+                subtitle: l10n.repeaterHub_directConsoleSubtitle,
+                accentColor: MeshTokens.of(context).secondary,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RepeaterDirectConsoleScreen(),
                     ),
                   );
                 },
