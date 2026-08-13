@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:meshcore_open/models/custom_style_overrides.dart';
 import 'package:meshcore_open/theme/styles/custom_style.dart';
-import 'package:meshcore_open/theme/styles/default_style.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
 
 /// Reads the *rendered* fontSize of a `Text` located by [key] — the fully
 /// resolved style (Text's own style merged with the ambient
@@ -23,7 +24,9 @@ void main() {
       (tester) async {
         await tester.pumpWidget(
           MaterialApp(
-            theme: defaultStyle.dark,
+            theme: MeshTheme.dark().copyWith(
+              extensions: const [MeshTokens.defaultTokens],
+            ),
             home: Scaffold(
               body: Column(
                 children: [
@@ -56,7 +59,7 @@ void main() {
 
         await tester.pumpWidget(
           MaterialApp(
-            theme: style.dark,
+            theme: style.theme,
             home: Scaffold(
               body: Column(
                 children: [

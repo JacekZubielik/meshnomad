@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Brightness, Color;
+import 'package:flutter/material.dart' show Color;
 import '../models/app_settings.dart';
 import '../models/custom_style_overrides.dart';
 import '../models/translation_support.dart';
 import '../storage/prefs_manager.dart';
+import '../theme/styles/style_registry.dart';
 import '../utils/app_logger.dart';
 import '../helpers/cyr2lat.dart';
 
@@ -14,6 +15,44 @@ class AppSettingsService extends ChangeNotifier {
   AppSettings _settings = AppSettings();
 
   AppSettings get settings => _settings;
+
+  /// The active theme+profile's RESOLVED overrides: the shipped seed
+  /// (StyleRegistry) with the user's saved edits merged on top, field by
+  /// field. This is the single read path `main.dart._activeStyle` and the
+  /// editor's displayed swatches must use — it always reflects what
+  /// actually renders, whether or not the user has edited anything.
+  CustomStyleOverrides get activeProfileOverrides {
+    final seed = StyleRegistry.profileSeed(
+      _settings.activeThemeId,
+      _settings.activeProfileId,
+    ).overrides;
+    final saved = _settings.profiles[_activeProfileKey];
+    if (saved == null) return seed;
+    return CustomStyleOverrides(
+      colorOverrides: {...seed.colorOverrides, ...saved.colorOverrides},
+      fontSizeOverrides: {
+        ...seed.fontSizeOverrides,
+        ...saved.fontSizeOverrides,
+      },
+      spacingOverrides: {...seed.spacingOverrides, ...saved.spacingOverrides},
+      radiusOverrides: {...seed.radiusOverrides, ...saved.radiusOverrides},
+      cardElevated: saved.cardElevated ?? seed.cardElevated,
+    );
+  }
+
+  /// The user's OWN saved edits for the active profile — empty when the
+  /// user hasn't customized this profile yet, even though the profile's
+  /// shipped seed may itself set some fields (e.g. Green's `bg`/`primary`
+  /// identity colors). Every `setCustom*`/`resetCustom*` mutation reads and
+  /// writes THIS, never [activeProfileOverrides], so editing or resetting
+  /// one field never silently bakes the seed's other fields into the user's
+  /// copy. The editor also reads this to decide whether a field's reset
+  /// affordance should be enabled.
+  CustomStyleOverrides get activeProfileSavedOverrides =>
+      _settings.profiles[_activeProfileKey] ?? const CustomStyleOverrides();
+
+  String get _activeProfileKey =>
+      '${_settings.activeThemeId}:${_settings.activeProfileId}';
 
   int resolvedGpsIntervalSeconds(Map<String, String>? deviceCustomVars) {
     final deviceValue = int.tryParse(deviceCustomVars?['gps_interval'] ?? '');
@@ -217,151 +256,101 @@ class AppSettingsService extends ChangeNotifier {
     await updateSettings(_settings.copyWith(maxMessageRetries: value));
   }
 
-  Future<void> setThemeMode(String value) async {
-    await updateSettings(_settings.copyWith(themeMode: value));
-  }
-
-  Future<void> setStyleId(String value) async {
-    await updateSettings(_settings.copyWith(styleId: value));
-  }
-
-  Future<void> setCustomColorOverride(
-    String key,
-    Color value, {
-    required Brightness brightness,
+  Future<void> setActiveTheme(
+    String themeId, {
+    required String profileId,
   }) async {
-    final overrides = _settings.customStyleOverrides;
-    final colors = Map<String, int>.from(
-      overrides.colorOverridesFor(brightness),
-    )..[key] = value.toARGB32();
     await updateSettings(
-      _settings.copyWith(
-        customStyleOverrides: brightness == Brightness.light
-            ? overrides.copyWith(colorOverridesLight: colors)
-            : overrides.copyWith(colorOverridesDark: colors),
-      ),
+      _settings.copyWith(activeThemeId: themeId, activeProfileId: profileId),
     );
+  }
+
+  Future<void> setActiveProfile(String profileId) async {
+    await updateSettings(_settings.copyWith(activeProfileId: profileId));
+  }
+
+  /// Writes [updated] into the active theme+profile's saved copy, leaving
+  /// which profile is active untouched. Shared by every `setCustom*`/
+  /// `resetCustom*` mutation below.
+  Future<void> _updateActiveProfile(CustomStyleOverrides updated) async {
+    final profiles = Map<String, CustomStyleOverrides>.from(_settings.profiles)
+      ..[_activeProfileKey] = updated;
+    await updateSettings(_settings.copyWith(profiles: profiles));
+  }
+
+  Future<void> setCustomColorOverride(String key, Color value) async {
+    final current = activeProfileSavedOverrides;
+    final colors = Map<String, int>.from(current.colorOverrides)
+      ..[key] = value.toARGB32();
+    await _updateActiveProfile(current.copyWith(colorOverrides: colors));
   }
 
   Future<void> setCustomFontSizeOverride(String key, double value) async {
-    final fontSizes = Map<String, double>.from(
-      _settings.customStyleOverrides.fontSizeOverrides,
-    )..[key] = value;
-    await updateSettings(
-      _settings.copyWith(
-        customStyleOverrides: _settings.customStyleOverrides.copyWith(
-          fontSizeOverrides: fontSizes,
-        ),
-      ),
-    );
+    final current = activeProfileSavedOverrides;
+    final fontSizes = Map<String, double>.from(current.fontSizeOverrides)
+      ..[key] = value;
+    await _updateActiveProfile(current.copyWith(fontSizeOverrides: fontSizes));
   }
 
-  Future<void> resetCustomColorOverride(
-    String key,
-    Brightness brightness,
-  ) async {
-    final overrides = _settings.customStyleOverrides;
-    final colors = Map<String, int>.from(
-      overrides.colorOverridesFor(brightness),
-    )..remove(key);
-    await updateSettings(
-      _settings.copyWith(
-        customStyleOverrides: brightness == Brightness.light
-            ? overrides.copyWith(colorOverridesLight: colors)
-            : overrides.copyWith(colorOverridesDark: colors),
-      ),
-    );
+  Future<void> resetCustomColorOverride(String key) async {
+    final current = activeProfileSavedOverrides;
+    final colors = Map<String, int>.from(current.colorOverrides)..remove(key);
+    await _updateActiveProfile(current.copyWith(colorOverrides: colors));
   }
 
   Future<void> resetCustomFontSizeOverride(String key) async {
-    final fontSizes = Map<String, double>.from(
-      _settings.customStyleOverrides.fontSizeOverrides,
-    )..remove(key);
-    await updateSettings(
-      _settings.copyWith(
-        customStyleOverrides: _settings.customStyleOverrides.copyWith(
-          fontSizeOverrides: fontSizes,
-        ),
-      ),
-    );
+    final current = activeProfileSavedOverrides;
+    final fontSizes = Map<String, double>.from(current.fontSizeOverrides)
+      ..remove(key);
+    await _updateActiveProfile(current.copyWith(fontSizeOverrides: fontSizes));
   }
 
   Future<void> setCustomSpacingOverride(String key, double value) async {
-    final spacing = Map<String, double>.from(
-      _settings.customStyleOverrides.spacingOverrides,
-    )..[key] = value;
-    await updateSettings(
-      _settings.copyWith(
-        customStyleOverrides: _settings.customStyleOverrides.copyWith(
-          spacingOverrides: spacing,
-        ),
-      ),
-    );
+    final current = activeProfileSavedOverrides;
+    final spacing = Map<String, double>.from(current.spacingOverrides)
+      ..[key] = value;
+    await _updateActiveProfile(current.copyWith(spacingOverrides: spacing));
   }
 
   Future<void> resetCustomSpacingOverride(String key) async {
-    final spacing = Map<String, double>.from(
-      _settings.customStyleOverrides.spacingOverrides,
-    )..remove(key);
-    await updateSettings(
-      _settings.copyWith(
-        customStyleOverrides: _settings.customStyleOverrides.copyWith(
-          spacingOverrides: spacing,
-        ),
-      ),
-    );
+    final current = activeProfileSavedOverrides;
+    final spacing = Map<String, double>.from(current.spacingOverrides)
+      ..remove(key);
+    await _updateActiveProfile(current.copyWith(spacingOverrides: spacing));
   }
 
   Future<void> setCustomRadiusOverride(String key, double value) async {
-    final radii = Map<String, double>.from(
-      _settings.customStyleOverrides.radiusOverrides,
-    )..[key] = value;
-    await updateSettings(
-      _settings.copyWith(
-        customStyleOverrides: _settings.customStyleOverrides.copyWith(
-          radiusOverrides: radii,
-        ),
-      ),
-    );
+    final current = activeProfileSavedOverrides;
+    final radii = Map<String, double>.from(current.radiusOverrides)
+      ..[key] = value;
+    await _updateActiveProfile(current.copyWith(radiusOverrides: radii));
   }
 
   Future<void> resetCustomRadiusOverride(String key) async {
-    final radii = Map<String, double>.from(
-      _settings.customStyleOverrides.radiusOverrides,
-    )..remove(key);
-    await updateSettings(
-      _settings.copyWith(
-        customStyleOverrides: _settings.customStyleOverrides.copyWith(
-          radiusOverrides: radii,
-        ),
-      ),
-    );
+    final current = activeProfileSavedOverrides;
+    final radii = Map<String, double>.from(current.radiusOverrides)
+      ..remove(key);
+    await _updateActiveProfile(current.copyWith(radiusOverrides: radii));
   }
 
   Future<void> setCustomCardElevated(bool value) async {
-    await updateSettings(
-      _settings.copyWith(
-        customStyleOverrides: _settings.customStyleOverrides.withCardElevated(
-          value,
-        ),
-      ),
+    await _updateActiveProfile(
+      activeProfileSavedOverrides.withCardElevated(value),
     );
   }
 
   Future<void> resetCustomCardElevated() async {
-    await updateSettings(
-      _settings.copyWith(
-        customStyleOverrides: _settings.customStyleOverrides.withCardElevated(
-          null,
-        ),
-      ),
+    await _updateActiveProfile(
+      activeProfileSavedOverrides.withCardElevated(null),
     );
   }
 
-  Future<void> resetAllCustomOverrides() async {
-    await updateSettings(
-      _settings.copyWith(customStyleOverrides: const CustomStyleOverrides()),
-    );
+  /// Discards the user's edited copy of the active profile, reverting to
+  /// its shipped seed (StyleRegistry). Used by the editor's "Reset" action.
+  Future<void> resetActiveProfileToSeed() async {
+    final profiles = Map<String, CustomStyleOverrides>.from(_settings.profiles)
+      ..remove(_activeProfileKey);
+    await updateSettings(_settings.copyWith(profiles: profiles));
   }
 
   Future<void> setLanguageOverride(String? value) async {

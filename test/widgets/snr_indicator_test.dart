@@ -11,7 +11,8 @@ import 'package:meshcore_open/l10n/app_localizations.dart';
 import 'package:meshcore_open/models/contact.dart';
 import 'package:meshcore_open/screens/map_screen.dart';
 import 'package:meshcore_open/storage/prefs_manager.dart';
-import 'package:meshcore_open/theme/styles/style_registry.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
 import 'package:meshcore_open/widgets/snr_indicator.dart';
 
 class _FakeConnector extends MeshCoreConnector {
@@ -57,7 +58,9 @@ Widget _wrap(
   return MaterialApp(
     navigatorKey: navigatorKey,
     navigatorObservers: [?observer],
-    theme: StyleRegistry.byId('default').light,
+    theme: MeshTheme.light().copyWith(
+      extensions: const [MeshTokens.defaultTokens],
+    ),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(body: child),

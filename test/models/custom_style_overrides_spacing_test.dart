@@ -12,11 +12,11 @@ void main() {
 
   test('fromJson without a spacing key yields an empty map (old saves)', () {
     final decoded = CustomStyleOverrides.fromJson({
-      'colors_dark': {'primary': 0xFF112233},
+      'colors': {'primary': 0xFF112233},
       'font_sizes': {'bodyMedium': 14.0},
     });
     expect(decoded.spacingOverrides, isEmpty);
-    expect(decoded.colorOverridesDark, {'primary': 0xFF112233});
+    expect(decoded.colorOverrides, {'primary': 0xFF112233});
   });
 
   test('copyWith replaces only spacingOverrides', () {

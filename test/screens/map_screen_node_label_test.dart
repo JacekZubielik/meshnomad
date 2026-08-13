@@ -3,7 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:meshcore_open/theme/mesh_tokens.dart';
-import 'package:meshcore_open/theme/styles/default_style.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
 
 /// Mirrors the marker `child` built by `_buildNodeLabelMarker` in
 /// `map_screen.dart` post-fix (06-map-bugs.md): no `FittedBox`, fixed
@@ -47,7 +47,9 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        theme: defaultStyle.dark,
+        theme: MeshTheme.dark().copyWith(
+          extensions: const [MeshTokens.defaultTokens],
+        ),
         home: Scaffold(
           body: Column(
             children: [

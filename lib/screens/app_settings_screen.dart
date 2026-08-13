@@ -13,7 +13,6 @@ import '../services/map_tile_cache_service.dart';
 import '../services/notification_service.dart';
 import '../services/translation_service.dart';
 import '../theme/mesh_tokens.dart';
-import '../theme/styles/style_registry.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/sync_progress_overlay.dart';
@@ -203,75 +202,24 @@ class AppSettingsScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: t.spacingSm), // spacing: 10, +2px
-              SegmentedButton<String>(
-                segments: [
-                  ButtonSegment(
-                    value: 'system',
-                    label: Text(context.l10n.appSettings_themeSystem),
-                  ),
-                  ButtonSegment(
-                    value: 'light',
-                    label: Text(context.l10n.appSettings_themeLight),
-                  ),
-                  ButtonSegment(
-                    value: 'dark',
-                    label: Text(context.l10n.appSettings_themeDark),
-                  ),
-                ],
-                selected: {settingsService.settings.themeMode},
-                onSelectionChanged: (selection) {
-                  settingsService.setThemeMode(selection.first);
-                },
-              ),
-              SizedBox(height: t.spacingMd),
+              // TODO(task-6): replace with the Motyw/Styl chip-row
+              // restructure (design spec 2026-08-12, plan Task 6) — theme
+              // (layout) + color-profile chip rows via ThemeChipRow/
+              // ProfileChipRow, driven by AppSettingsService.activeThemeId/
+              // activeProfileId/setActiveTheme/setActiveProfile (Task 4).
+              // This is a minimal compiling stand-in only.
               Row(
                 children: [
-                  Icon(
-                    Icons.palette_outlined,
-                    size: 20,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                  SizedBox(width: t.spacingSm),
-                  Text(
-                    'Style',
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: t.spacingSm), // spacing: 10, +2px
-              Wrap(
-                spacing: t.spacingXs,
-                runSpacing: t.spacingXs,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  for (final style in StyleRegistry.all)
-                    ChoiceChip(
-                      label: Text(style.displayName),
-                      selected: settingsService.settings.styleId == style.id,
-                      onSelected: (_) => settingsService.setStyleId(style.id),
-                    ),
-                  ChoiceChip(
-                    label: const Text('Custom'),
-                    selected: settingsService.settings.styleId == 'custom',
-                    onSelected: (_) => settingsService.setStyleId('custom'),
-                  ),
-                  // D2/05-settings-entry.md: the editor entry only makes
-                  // sense once Custom is actually selected — showing it
-                  // next to Default too made it look like it belonged to
-                  // the whole Style section rather than just Custom.
-                  if (settingsService.settings.styleId == 'custom')
-                    IconButton(
-                      icon: const Icon(Icons.tune, size: 18),
-                      tooltip: context.l10n.appSettings_editCustomStyleTooltip,
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CustomStyleEditorScreen(),
-                        ),
+                  IconButton(
+                    icon: const Icon(Icons.tune, size: 18),
+                    tooltip: context.l10n.appSettings_editCustomStyleTooltip,
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CustomStyleEditorScreen(),
                       ),
                     ),
+                  ),
                 ],
               ),
             ],

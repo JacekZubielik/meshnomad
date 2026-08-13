@@ -9,7 +9,8 @@ import 'package:meshcore_open/models/companion_radio_stats.dart';
 import 'package:meshcore_open/screens/companion_radio_stats_screen.dart';
 import 'package:meshcore_open/services/app_settings_service.dart';
 import 'package:meshcore_open/storage/prefs_manager.dart';
-import 'package:meshcore_open/theme/styles/style_registry.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
 import 'package:meshcore_open/widgets/app_bar.dart';
 import 'package:meshcore_open/widgets/mesh_info_dialog.dart';
 import 'package:meshcore_open/widgets/battery_indicator.dart';
@@ -92,7 +93,9 @@ Widget _wrap(Widget child, {required MeshCoreConnector connector}) {
       ),
     ],
     child: MaterialApp(
-      theme: StyleRegistry.byId('default').light,
+      theme: MeshTheme.light().copyWith(
+        extensions: const [MeshTokens.defaultTokens],
+      ),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: child),

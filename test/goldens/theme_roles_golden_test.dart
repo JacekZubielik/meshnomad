@@ -1,7 +1,7 @@
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
 import 'package:meshcore_open/theme/mesh_tokens.dart';
-import 'package:meshcore_open/theme/styles/default_style.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
 
 void main() {
   Widget rolesSample() {
@@ -60,7 +60,12 @@ void main() {
       children: [
         GoldenTestScenario(
           name: 'roles',
-          child: Theme(data: defaultStyle.dark, child: rolesSample()),
+          child: Theme(
+            data: MeshTheme.dark().copyWith(
+              extensions: const [MeshTokens.defaultTokens],
+            ),
+            child: rolesSample(),
+          ),
         ),
       ],
     ),
@@ -73,7 +78,12 @@ void main() {
       children: [
         GoldenTestScenario(
           name: 'roles',
-          child: Theme(data: defaultStyle.light, child: rolesSample()),
+          child: Theme(
+            data: MeshTheme.light().copyWith(
+              extensions: const [MeshTokens.defaultTokens],
+            ),
+            child: rolesSample(),
+          ),
         ),
       ],
     ),

@@ -1,20 +1,15 @@
-import 'dart:ui' show Brightness;
-
-/// User-editable overrides for the "custom" [MeshStyle]. Every key is
-/// optional — an absent key means "inherit from [defaultStyle]". Keys are
-/// field names on [MeshTokens] (colors) or [TextTheme] roles / MeshTokens
-/// mono-size fields (fonts), NOT arbitrary strings — the editor UI
-/// (03-custom-style-editor-ui.md) exposes only a closed set of keys.
+/// User-editable overrides for a color profile (see `StyleRegistry`,
+/// `ColorProfileSeed`). Every key is optional — an absent key means
+/// "inherit from the profile's seed". Keys are field names on `MeshTokens`
+/// (colors) or `TextTheme` roles / MeshTokens mono-size fields (fonts), NOT
+/// arbitrary strings — the editor UI exposes only a closed set of keys.
 ///
-/// Colors are split per brightness (pkt 17) — [colorOverridesLight] and
-/// [colorOverridesDark] are edited independently in the style editor via its
-/// Jasny|Ciemny switch. Font sizes are NOT brightness-dependent (verified
-/// 2026-08-07 against `MeshTheme._build()`, which uses the same literals for
-/// both `light()`/`dark()`), so [fontSizeOverrides] stays a single map.
+/// Brightness is a property of the profile, derived from `colorOverrides['bg']`
+/// (see `buildCustomStyle`) — there is no separate light/dark toggle, and no
+/// brightness split in this type (design spec 2026-08-12).
 class CustomStyleOverrides {
   const CustomStyleOverrides({
-    this.colorOverridesLight = const {},
-    this.colorOverridesDark = const {},
+    this.colorOverrides = const {},
     this.fontSizeOverrides = const {},
     this.spacingOverrides = const {},
     this.radiusOverrides = const {},
@@ -95,8 +90,7 @@ class CustomStyleOverrides {
   /// NOT editable — a slider to 999 is unusable; pill means "fully round".
   static const List<String> editableRadiusKeys = ['xs', 'sm', 'md', 'lg', 'xl'];
 
-  final Map<String, int> colorOverridesLight; // key -> Color.value (ARGB int)
-  final Map<String, int> colorOverridesDark; // key -> Color.value (ARGB int)
+  final Map<String, int> colorOverrides; // key -> Color.value (ARGB int)
   final Map<String, double> fontSizeOverrides;
   final Map<String, double> spacingOverrides;
   final Map<String, double> radiusOverrides;
@@ -106,22 +100,14 @@ class CustomStyleOverrides {
   /// never `copyWith` (its `??` pattern can't express "back to null").
   final bool? cardElevated;
 
-  /// Returns the color-override map for [brightness] — the single read path
-  /// callers (editor rows, `buildCustomStyle`) should use instead of picking
-  /// a field directly, so the branch lives in one place.
-  Map<String, int> colorOverridesFor(Brightness brightness) =>
-      brightness == Brightness.light ? colorOverridesLight : colorOverridesDark;
-
   CustomStyleOverrides copyWith({
-    Map<String, int>? colorOverridesLight,
-    Map<String, int>? colorOverridesDark,
+    Map<String, int>? colorOverrides,
     Map<String, double>? fontSizeOverrides,
     Map<String, double>? spacingOverrides,
     Map<String, double>? radiusOverrides,
   }) {
     return CustomStyleOverrides(
-      colorOverridesLight: colorOverridesLight ?? this.colorOverridesLight,
-      colorOverridesDark: colorOverridesDark ?? this.colorOverridesDark,
+      colorOverrides: colorOverrides ?? this.colorOverrides,
       fontSizeOverrides: fontSizeOverrides ?? this.fontSizeOverrides,
       spacingOverrides: spacingOverrides ?? this.spacingOverrides,
       radiusOverrides: radiusOverrides ?? this.radiusOverrides,
@@ -133,8 +119,7 @@ class CustomStyleOverrides {
   /// ("inherit"), which copyWith's `??` pattern cannot express.
   CustomStyleOverrides withCardElevated(bool? value) {
     return CustomStyleOverrides(
-      colorOverridesLight: colorOverridesLight,
-      colorOverridesDark: colorOverridesDark,
+      colorOverrides: colorOverrides,
       fontSizeOverrides: fontSizeOverrides,
       spacingOverrides: spacingOverrides,
       radiusOverrides: radiusOverrides,
@@ -144,8 +129,7 @@ class CustomStyleOverrides {
 
   Map<String, dynamic> toJson() {
     return {
-      'colors_light': colorOverridesLight,
-      'colors_dark': colorOverridesDark,
+      'colors': colorOverrides,
       'font_sizes': fontSizeOverrides,
       'spacing': spacingOverrides,
       'radius': radiusOverrides,
@@ -154,35 +138,22 @@ class CustomStyleOverrides {
   }
 
   /// Parses persisted settings JSON. Handles three shapes:
-  /// - v2 (`colors_light`/`colors_dark` present): read directly, each mapped
-  ///   through [_migrateColorKeys] in case an old backup still has legacy
+  /// - v3 (`colors` present, this shape): read directly, mapped through
+  ///   [_migrateColorKeys] in case an old backup still has legacy
   ///   `blue`/`magenta` keys.
-  /// - legacy v1 (`colors` only): the whole map becomes [colorOverridesDark]
-  ///   — the editor only ever edited the dark palette before pkt 17, so a
-  ///   user's saved overrides visually applied to dark.
-  /// - neither present: both maps empty.
+  /// - v2 legacy (`colors_light`/`colors_dark` present, pre-single-palette):
+  ///   use `colors_dark` as the single map — the editor always visually
+  ///   applied dark before this change per the original v1→v2 migration
+  ///   note. `colors_light` is dropped (a user's light-brightness edits from
+  ///   the removed toggle are not preserved — accepted per the design spec).
+  /// - neither present: empty map.
   factory CustomStyleOverrides.fromJson(Map<String, dynamic>? json) {
     if (json == null) return const CustomStyleOverrides();
-    final hasV2 =
+    final hasV2Split =
         json.containsKey('colors_light') || json.containsKey('colors_dark');
-    if (hasV2) {
-      return CustomStyleOverrides(
-        colorOverridesLight: _migrateColorKeys(
-          _parseIntMap(json['colors_light']),
-        ),
-        colorOverridesDark: _migrateColorKeys(
-          _parseIntMap(json['colors_dark']),
-        ),
-        fontSizeOverrides: _parseDoubleMap(json['font_sizes']),
-        spacingOverrides: _parseDoubleMap(json['spacing']),
-        radiusOverrides: _parseDoubleMap(json['radius']),
-        cardElevated: json['card_elevated'] is bool
-            ? json['card_elevated'] as bool
-            : null,
-      );
-    }
+    final rawColors = hasV2Split ? json['colors_dark'] : json['colors'];
     return CustomStyleOverrides(
-      colorOverridesDark: _migrateColorKeys(_parseIntMap(json['colors'])),
+      colorOverrides: _migrateColorKeys(_parseIntMap(rawColors)),
       fontSizeOverrides: _parseDoubleMap(json['font_sizes']),
       spacingOverrides: _parseDoubleMap(json['spacing']),
       radiusOverrides: _parseDoubleMap(json['radius']),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:meshcore_open/models/custom_style_overrides.dart';
 import 'package:meshcore_open/theme/mesh_tokens.dart';
 import 'package:meshcore_open/theme/styles/custom_style.dart';
-import 'package:meshcore_open/theme/styles/default_style.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
 
 void main() {
   Widget sample() {
@@ -40,7 +40,7 @@ void main() {
 
   final overridden = buildCustomStyle(
     const CustomStyleOverrides(
-      colorOverridesDark: {'primary': 0xFFFF3B30, 'bg': 0xFF1A0033},
+      colorOverrides: {'primary': 0xFFFF3B30, 'bg': 0xFF1A0033},
       fontSizeOverrides: {'bodyMedium': 18.0, 'monoBodySize': 16.0},
     ),
   );
@@ -52,11 +52,16 @@ void main() {
       children: [
         GoldenTestScenario(
           name: 'default',
-          child: Theme(data: defaultStyle.dark, child: sample()),
+          child: Theme(
+            data: MeshTheme.dark().copyWith(
+              extensions: const [MeshTokens.defaultTokens],
+            ),
+            child: sample(),
+          ),
         ),
         GoldenTestScenario(
           name: 'overridden',
-          child: Theme(data: overridden.dark, child: sample()),
+          child: Theme(data: overridden.theme, child: sample()),
         ),
       ],
     ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
-import 'package:meshcore_open/theme/styles/default_style.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
 import 'package:meshcore_open/widgets/mesh_ui.dart';
 
 // MeshCard(elevated: true) — mockup .mockups/depth-shadows.html, "Wariant C
@@ -27,7 +28,13 @@ class _ContactCardPreviewScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = theme == false ? defaultStyle.light : defaultStyle.dark;
+    final themeData = theme == false
+        ? MeshTheme.light().copyWith(
+            extensions: const [MeshTokens.defaultTokens],
+          )
+        : MeshTheme.dark().copyWith(
+            extensions: const [MeshTokens.defaultTokens],
+          );
     return Theme(
       data: themeData,
       child: Builder(

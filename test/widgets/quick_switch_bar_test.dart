@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:meshcore_open/l10n/app_localizations.dart';
-import 'package:meshcore_open/theme/styles/style_registry.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
 import 'package:meshcore_open/widgets/quick_switch_bar.dart';
 
 // M3 navigation indicator pill height (NavigationBar spec).
@@ -10,7 +11,9 @@ const double _indicatorHeight = 32.0;
 
 Widget _wrap(Widget bar) {
   return MaterialApp(
-    theme: StyleRegistry.byId('default').light,
+    theme: MeshTheme.light().copyWith(
+      extensions: const [MeshTokens.defaultTokens],
+    ),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(

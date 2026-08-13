@@ -114,9 +114,10 @@ class AppSettings {
   final double routeWeightSuccessIncrement;
   final double routeWeightFailureDecrement;
   final int maxMessageRetries;
-  final String themeMode;
-  final String styleId;
-  final CustomStyleOverrides customStyleOverrides;
+  final String activeThemeId; // e.g. 'default'
+  final String activeProfileId; // e.g. 'green'
+  final Map<String, CustomStyleOverrides>
+  profiles; // key "themeId:profileId" -> user's edited copy
   final String? languageOverride; // null = system default
   final bool appDebugLogEnabled;
   final Map<String, String> batteryChemistryByDeviceId;
@@ -187,9 +188,9 @@ class AppSettings {
     this.routeWeightSuccessIncrement = 0.5,
     this.routeWeightFailureDecrement = 0.2,
     this.maxMessageRetries = 5,
-    this.themeMode = 'system',
-    this.styleId = 'default',
-    this.customStyleOverrides = const CustomStyleOverrides(),
+    this.activeThemeId = 'default',
+    this.activeProfileId = 'green',
+    this.profiles = const {},
     this.languageOverride,
     this.appDebugLogEnabled = false,
     Map<String, String>? batteryChemistryByDeviceId,
@@ -258,9 +259,9 @@ class AppSettings {
       'route_weight_success_increment': routeWeightSuccessIncrement,
       'route_weight_failure_decrement': routeWeightFailureDecrement,
       'max_message_retries': maxMessageRetries,
-      'theme_mode': themeMode,
-      'style_id': styleId,
-      'custom_style_overrides': customStyleOverrides.toJson(),
+      'active_theme_id': activeThemeId,
+      'active_profile_id': activeProfileId,
+      'profiles': profiles.map((key, value) => MapEntry(key, value.toJson())),
       'language_override': languageOverride,
       'app_debug_log_enabled': appDebugLogEnabled,
       'battery_chemistry_by_device_id': batteryChemistryByDeviceId,
@@ -293,6 +294,40 @@ class AppSettings {
         return UnitSystem.imperial;
       }
       return UnitSystem.metric;
+    }
+
+    final hasNewShape = json.containsKey('active_theme_id');
+    String activeThemeId;
+    String activeProfileId;
+    Map<String, CustomStyleOverrides> profiles;
+    if (hasNewShape) {
+      activeThemeId = json['active_theme_id'] as String? ?? 'default';
+      activeProfileId = json['active_profile_id'] as String? ?? 'green';
+      final rawProfiles = json['profiles'];
+      profiles = rawProfiles is Map
+          ? rawProfiles.map(
+              (key, value) => MapEntry(
+                key.toString(),
+                CustomStyleOverrides.fromJson(value as Map<String, dynamic>?),
+              ),
+            )
+          : const {};
+    } else {
+      // Legacy migration (pre theme/profile split): old 'style_id' was
+      // 'default' or 'custom'; old 'custom_style_overrides' was one global
+      // blob applied only when style_id=='custom'.
+      final oldStyleId = json['style_id'] as String? ?? 'default';
+      activeThemeId = 'default';
+      activeProfileId = 'green'; // green is the new flagship default
+      if (oldStyleId == 'custom') {
+        final oldOverrides = CustomStyleOverrides.fromJson(
+          json['custom_style_overrides'] as Map<String, dynamic>?,
+        );
+        profiles = {'default:green': oldOverrides};
+      } else {
+        // User never customized — green renders from its seed, no user copy.
+        profiles = const {};
+      }
     }
 
     return AppSettings(
@@ -340,11 +375,9 @@ class AppSettings {
       routeWeightFailureDecrement:
           (json['route_weight_failure_decrement'] as num?)?.toDouble() ?? 0.2,
       maxMessageRetries: json['max_message_retries'] as int? ?? 5,
-      themeMode: json['theme_mode'] as String? ?? 'system',
-      styleId: json['style_id'] as String? ?? 'default',
-      customStyleOverrides: CustomStyleOverrides.fromJson(
-        json['custom_style_overrides'] as Map<String, dynamic>?,
-      ),
+      activeThemeId: activeThemeId,
+      activeProfileId: activeProfileId,
+      profiles: profiles,
       languageOverride: json['language_override'] as String?,
       appDebugLogEnabled: json['app_debug_log_enabled'] as bool? ?? false,
       batteryChemistryByDeviceId:
@@ -455,9 +488,9 @@ class AppSettings {
     double? routeWeightSuccessIncrement,
     double? routeWeightFailureDecrement,
     int? maxMessageRetries,
-    String? themeMode,
-    String? styleId,
-    CustomStyleOverrides? customStyleOverrides,
+    String? activeThemeId,
+    String? activeProfileId,
+    Map<String, CustomStyleOverrides>? profiles,
     Object? languageOverride = _unset,
     bool? appDebugLogEnabled,
     Map<String, String>? batteryChemistryByDeviceId,
@@ -521,9 +554,9 @@ class AppSettings {
       routeWeightFailureDecrement:
           routeWeightFailureDecrement ?? this.routeWeightFailureDecrement,
       maxMessageRetries: maxMessageRetries ?? this.maxMessageRetries,
-      themeMode: themeMode ?? this.themeMode,
-      styleId: styleId ?? this.styleId,
-      customStyleOverrides: customStyleOverrides ?? this.customStyleOverrides,
+      activeThemeId: activeThemeId ?? this.activeThemeId,
+      activeProfileId: activeProfileId ?? this.activeProfileId,
+      profiles: profiles ?? this.profiles,
       languageOverride: languageOverride == _unset
           ? this.languageOverride
           : languageOverride as String?,

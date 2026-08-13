@@ -9,7 +9,8 @@ import 'package:meshcore_open/models/companion_radio_stats.dart';
 import 'package:meshcore_open/screens/companion_radio_stats_screen.dart';
 import 'package:meshcore_open/services/app_settings_service.dart';
 import 'package:meshcore_open/storage/prefs_manager.dart';
-import 'package:meshcore_open/theme/styles/style_registry.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
 import 'package:meshcore_open/widgets/radio_stats_band_chart.dart';
 
 class _FakeConnector extends MeshCoreConnector {
@@ -64,7 +65,9 @@ Widget _wrap(
       ChangeNotifierProvider<AppSettingsService>.value(value: settings),
     ],
     child: MaterialApp(
-      theme: StyleRegistry.byId('default').light,
+      theme: MeshTheme.light().copyWith(
+        extensions: const [MeshTokens.defaultTokens],
+      ),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: SingleChildScrollView(child: child)),
