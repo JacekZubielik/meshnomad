@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../theme/mesh_tokens.dart';
+
 /// A reusable QR code scanner widget that can be embedded anywhere.
 ///
 /// Features:
@@ -27,11 +29,8 @@ class QrScannerWidget extends StatefulWidget {
   /// Whether to show the camera switch button
   final bool showCameraSwitchButton;
 
-  /// Custom overlay widget (defaults to scan window frame)
-  final Widget? overlay;
-
-  /// Instructions text shown below the scan window
-  final String? instructions;
+  /// Overlay widget drawn over the camera preview (scan window frame, etc.).
+  final Widget overlay;
 
   /// Whether to continue scanning after first successful scan
   final bool continuousScanning;
@@ -46,8 +45,7 @@ class QrScannerWidget extends StatefulWidget {
     this.onValidationFailed,
     this.showFlashButton = true,
     this.showCameraSwitchButton = true,
-    this.overlay,
-    this.instructions,
+    required this.overlay,
     this.continuousScanning = false,
     this.debounceDuration = const Duration(milliseconds: 500),
   });
@@ -162,7 +160,7 @@ class _QrScannerWidgetState extends State<QrScannerWidget>
         ),
 
         // Overlay
-        widget.overlay ?? _buildDefaultOverlay(context),
+        widget.overlay,
 
         // Control buttons
         Positioned(
@@ -172,66 +170,6 @@ class _QrScannerWidgetState extends State<QrScannerWidget>
           child: _buildControls(context),
         ),
       ],
-    );
-  }
-
-  Widget _buildDefaultOverlay(BuildContext context) {
-    return ColorFiltered(
-      colorFilter: ColorFilter.mode(
-        Colors.black.withValues(alpha: 0.5),
-        BlendMode.srcOut,
-      ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.black,
-              backgroundBlendMode: BlendMode.dstOut,
-            ),
-          ),
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 250,
-                  width: 250,
-                  decoration: BoxDecoration(
-                    color: Colors.red, // This color is used for cutout
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                if (widget.instructions != null) ...[
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      widget.instructions!,
-                      style: TextStyle(
-                        color: Colors.white,
-                        // 03-roles-chrome.md: bodyMedium + 2 (default 12+2=14).
-                        fontSize:
-                            (Theme.of(context).textTheme.bodyMedium?.fontSize ??
-                                12) +
-                            2,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -294,17 +232,17 @@ class _QrScannerWidgetState extends State<QrScannerWidget>
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(MeshTokens.of(context).spacingLg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 64, color: Colors.grey),
+            Icon(icon, size: 64, color: MeshTokens.of(context).ink3),
             const SizedBox(height: 16),
             Text(
               message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.grey[600],
+                color: MeshTokens.of(context).ink2,
                 fontWeight: FontWeight.normal,
               ),
             ),
