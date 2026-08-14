@@ -327,7 +327,12 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          padding: EdgeInsets.fromLTRB(
+            MeshTokens.of(context).spacingMd,
+            MeshTokens.of(context).spacingXs,
+            MeshTokens.of(context).spacingMd,
+            MeshTokens.of(context).spacingLg,
+          ),
           children: [
             if (!_isLoaded &&
                 !_hasData &&
@@ -350,7 +355,12 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
       children: [
         SectionHeader(
           '${l10n.repeater_neighbors} — $_neighborCount',
-          padding: const EdgeInsets.fromLTRB(4, 8, 4, 10),
+          padding: EdgeInsets.fromLTRB(
+            MeshTokens.of(context).spacingXxs,
+            MeshTokens.of(context).spacingXs,
+            MeshTokens.of(context).spacingXxs,
+            MeshTokens.of(context).spacingSm,
+          ),
         ),
         for (var i = 0; i < _parsedNeighbors!.length; i++)
           ListEntrance(
@@ -380,8 +390,11 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
     );
 
     return MeshCard(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingSm,
+        vertical: MeshTokens.of(context).spacingSm,
+      ),
+      margin: EdgeInsets.symmetric(vertical: MeshTokens.of(context).spacingXxs),
       child: Row(
         children: [
           AvatarCircle(

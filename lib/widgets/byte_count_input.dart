@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../helpers/utf8_length_limiter.dart';
+import '../theme/mesh_tokens.dart';
 
 /// A [TextField] that displays a live UTF-8 byte counter.
 ///
@@ -110,9 +111,9 @@ class ByteCountedTextField extends StatelessWidget {
                   InputDecoration(
                     hintText: hintText,
                     border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: MeshTokens.of(context).spacingMd,
+                      vertical: MeshTokens.of(context).spacingSm,
                     ),
                   ),
               textInputAction: textInputAction,
@@ -122,7 +123,10 @@ class ByteCountedTextField extends StatelessWidget {
             // push the field ~10 px above the row's center line.
             if (showCounter)
               Padding(
-                padding: const EdgeInsets.only(top: 4, right: 4),
+                padding: EdgeInsets.only(
+                  top: MeshTokens.of(context).spacingXxs,
+                  right: MeshTokens.of(context).spacingXxs,
+                ),
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Text(

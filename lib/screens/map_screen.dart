@@ -31,6 +31,7 @@ import 'chat_screen.dart';
 import 'contacts_screen.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
+import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/repeater_login_dialog.dart';
 import '../widgets/room_login_dialog.dart';
 import '../helpers/snack_bar_builder.dart';
@@ -708,6 +709,16 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.palette_outlined),
+                      SizedBox(width: t.spacingXs),
+                      Text(context.l10n.appSettings_quickStyleMenuItem),
+                    ],
+                  ),
+                  onTap: () => showQuickStylePickerDialog(context),
+                ),
               ],
             ),
             body: Stack(
@@ -811,9 +822,9 @@ class _MapScreenState extends State<MapScreen> {
                                     ),
                                   ],
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.location_on,
-                                  color: Colors.white,
+                                  color: MeshTokens.of(context).mapMarkerInk,
                                   size: 25,
                                 ),
                               ),
@@ -1537,11 +1548,13 @@ class _MapScreenState extends State<MapScreen> {
                 '$count',
                 style: count >= 100
                     ? MeshTokens.of(context)
-                          .monoCaption(color: Colors.white)
+                          .monoCaption(
+                            color: MeshTokens.of(context).mapMarkerInk,
+                          )
                           .copyWith(fontWeight: FontWeight.w800)
                     : MeshTokens.of(context).monoBody(
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: MeshTokens.of(context).mapMarkerInk,
                       ),
               ),
               if (online > 0)
@@ -1552,7 +1565,10 @@ class _MapScreenState extends State<MapScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: MeshTokens.of(context).mapOnline,
-                    border: Border.all(color: Colors.white, width: 1),
+                    border: Border.all(
+                      color: MeshTokens.of(context).mapMarkerOutline,
+                      width: 1,
+                    ),
                   ),
                 ),
             ],
@@ -1726,7 +1742,11 @@ class _MapScreenState extends State<MapScreen> {
             ],
           ),
           alignment: Alignment.center,
-          child: Icon(icon, color: Colors.white, size: selected ? 22 : 19),
+          child: Icon(
+            icon,
+            color: MeshTokens.of(context).mapMarkerInk,
+            size: selected ? 22 : 19,
+          ),
         ),
         Positioned(
           right: selected ? -1 : -2,
@@ -1741,7 +1761,11 @@ class _MapScreenState extends State<MapScreen> {
             ),
             alignment: Alignment.center,
             child: batteryLow
-                ? const Icon(Icons.battery_alert, size: 10, color: Colors.white)
+                ? Icon(
+                    Icons.battery_alert,
+                    size: 10,
+                    color: MeshTokens.of(context).mapMarkerInk,
+                  )
                 : null,
           ),
         ),
@@ -2722,7 +2746,11 @@ class _MapScreenState extends State<MapScreen> {
                 ],
               ),
               alignment: Alignment.center,
-              child: const Icon(Icons.flag, color: Colors.white, size: 19),
+              child: Icon(
+                Icons.flag,
+                color: MeshTokens.of(context).mapMarkerInk,
+                size: 19,
+              ),
             ),
           ],
         ),

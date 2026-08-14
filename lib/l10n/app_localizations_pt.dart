@@ -683,6 +683,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get appSettings_colorStyle => 'Style';
 
   @override
+  String get appSettings_quickStyleMenuItem => 'Estilo rápido';
+
+  @override
+  String get appSettings_quickStyleDialogTitle => 'Tema e estilo';
+
+  @override
   String get appSettings_themeSystem => 'Padrão do sistema';
 
   @override

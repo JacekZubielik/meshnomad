@@ -214,12 +214,14 @@ class EmojiPicker extends StatelessWidget {
       height: MediaQuery.of(context).size.height * 0.5,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(MeshTokens.of(context).lg),
+        ),
       ),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(MeshTokens.of(context).spacingMd),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -242,7 +244,10 @@ class EmojiPicker extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: MeshTokens.of(context).spacingMd,
+              vertical: MeshTokens.of(context).spacingXs,
+            ),
             child: Wrap(
               spacing: 12,
               children: quickEmojis
@@ -253,12 +258,16 @@ class EmojiPicker extends StatelessWidget {
                         Navigator.pop(context);
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: EdgeInsets.all(
+                          MeshTokens.of(context).spacingXs,
+                        ),
                         decoration: BoxDecoration(
                           color: Theme.of(
                             context,
                           ).colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(
+                            MeshTokens.of(context).xs,
+                          ),
                         ),
                         child: Text(
                           emoji,
@@ -291,7 +300,9 @@ class EmojiPicker extends StatelessWidget {
                       children: emojiCategories.values
                           .map(
                             (emojis) => GridView.builder(
-                              padding: const EdgeInsets.all(8),
+                              padding: EdgeInsets.all(
+                                MeshTokens.of(context).spacingXs,
+                              ),
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 8,

@@ -110,11 +110,18 @@ class _TcpScreenState extends State<TcpScreen> {
             final isButtonDisabled =
                 connector.state != MeshCoreConnectionState.disconnected;
             return ListView(
-              padding: const EdgeInsets.only(bottom: 32),
+              padding: EdgeInsets.only(
+                bottom: MeshTokens.of(context).spacingXlg,
+              ),
               children: [
                 // Status header
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                  padding: EdgeInsets.fromLTRB(
+                    MeshTokens.of(context).spacingMd,
+                    MeshTokens.of(context).spacingSm,
+                    MeshTokens.of(context).spacingMd,
+                    MeshTokens.of(context).spacingXxs,
+                  ),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: Align(
@@ -131,7 +138,7 @@ class _TcpScreenState extends State<TcpScreen> {
                 // Connection form
                 const SectionHeader('TCP / IP'),
                 MeshCard(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(MeshTokens.of(context).spacingMd),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -255,7 +262,10 @@ class _TcpScreenState extends State<TcpScreen> {
 
   Widget _buildTransportLinks(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+        vertical: MeshTokens.of(context).spacingXs,
+      ),
       child: Wrap(
         spacing: 12,
         runSpacing: 8,

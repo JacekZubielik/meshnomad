@@ -672,6 +672,12 @@ class AppLocalizationsSv extends AppLocalizations {
   String get appSettings_colorStyle => 'Style';
 
   @override
+  String get appSettings_quickStyleMenuItem => 'Snabbstil';
+
+  @override
+  String get appSettings_quickStyleDialogTitle => 'Tema och stil';
+
+  @override
   String get appSettings_themeSystem => 'Systemstandard';
 
   @override

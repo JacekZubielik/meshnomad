@@ -26,6 +26,7 @@ import '../utils/route_transitions.dart';
 import '../widgets/list_filter_widget.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/mesh_ui.dart';
+import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/quick_switch_bar.dart';
 import '../widgets/repeater_login_dialog.dart';
 import '../widgets/room_login_dialog.dart';
@@ -449,6 +450,16 @@ class _ContactsScreenState extends State<ContactsScreen>
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
               ),
             ),
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.palette_outlined),
+                  SizedBox(width: MeshTokens.of(context).spacingXs),
+                  Text(context.l10n.appSettings_quickStyleMenuItem),
+                ],
+              ),
+              onTap: () => showQuickStylePickerDialog(context),
+            ),
           ],
         ),
         body: _buildContactsBody(context, connector),
@@ -663,7 +674,7 @@ class _ContactsScreenState extends State<ContactsScreen>
         child: DecoratedBox(
           decoration: BoxDecoration(
             border: Border.all(color: Theme.of(context).colorScheme.outline),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(
@@ -815,7 +826,9 @@ class _ContactsScreenState extends State<ContactsScreen>
                     border: Border.all(
                       color: Theme.of(context).colorScheme.outline,
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(
+                      MeshTokens.of(context).md,
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -1613,7 +1626,7 @@ class _ContactTile extends StatelessWidget {
       case advTypeRoom:
         return MeshTokens.of(context).secondary;
       case advTypeSensor:
-        return sensorTypeAccent;
+        return MeshTokens.of(context).mapSensor;
       default:
         return MeshTokens.of(
           context,
@@ -1667,7 +1680,10 @@ class _ContactTile extends StatelessWidget {
                   border: Border.all(color: scheme.outlineVariant),
                 ),
                 alignment: Alignment.center,
-                child: Text(emoji, style: const TextStyle(fontSize: 20)),
+                child: Text(
+                  emoji,
+                  style: MeshTokens.of(context).emoji(fontSize: 20),
+                ),
               )
             else
               AvatarCircle(

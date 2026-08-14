@@ -21,7 +21,7 @@ class UnreadBadge extends StatelessWidget {
       child: Text(
         display,
         style: MeshTokens.of(context)
-            .monoCaption(color: Colors.white)
+            .monoCaption(color: MeshTokens.of(context).alertInk)
             .copyWith(fontWeight: FontWeight.w700),
       ),
     );

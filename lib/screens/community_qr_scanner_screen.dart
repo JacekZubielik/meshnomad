@@ -54,7 +54,6 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
               onScanned: (data) => _handleScannedData(context, data),
               validator: Community.isValidQrData,
               onValidationFailed: (_) => _showInvalidQrError(context),
-              instructions: context.l10n.community_scanInstructions,
               overlay: _buildThemedOverlay(context),
             ),
     );

@@ -7,6 +7,7 @@ import 'package:meshcore_open/l10n/l10n.dart';
 import 'package:meshcore_open/screens/companion_radio_stats_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../theme/mesh_tokens.dart';
 import 'indicator_caption.dart';
 import 'mesh_info_dialog.dart';
 import 'mesh_ui.dart';
@@ -69,12 +70,14 @@ class _RadioStatsIconButtonState extends State<RadioStatsIconButton> {
                 label: context.l10n.radioStats_tooltip,
                 button: true,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(
+                    MeshTokens.of(context).xs,
+                  ),
                   onTap: () => pushCompanionRadioStatsScreen(context),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 8,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MeshTokens.of(context).spacingXxs,
+                      vertical: MeshTokens.of(context).spacingXs,
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

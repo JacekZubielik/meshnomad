@@ -272,7 +272,7 @@ class _GifPickerState extends State<GifPicker> {
             Navigator.pop(context);
           },
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
             child: Container(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               child: previewUrl != null

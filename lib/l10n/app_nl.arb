@@ -166,6 +166,8 @@
   "appSettings_appearance": "Uiterlijk",
   "appSettings_theme": "Thema",
   "appSettings_colorStyle": "Style",
+  "appSettings_quickStyleMenuItem": "Snelle stijl",
+  "appSettings_quickStyleDialogTitle": "Thema en stijl",
   "appSettings_themeSystem": "Standaardinstelling",
   "appSettings_themeLight": "Licht",
   "appSettings_themeDark": "Donker",

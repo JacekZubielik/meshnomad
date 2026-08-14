@@ -166,6 +166,8 @@
   "appSettings_appearance": "Erscheinungsbild",
   "appSettings_theme": "Design",
   "appSettings_colorStyle": "Style",
+  "appSettings_quickStyleMenuItem": "Schnellstil",
+  "appSettings_quickStyleDialogTitle": "Design & Stil",
   "appSettings_themeSystem": "Systemstandard",
   "appSettings_themeLight": "Hell",
   "appSettings_themeDark": "Dunkel",

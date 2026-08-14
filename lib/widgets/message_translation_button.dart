@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 import '../models/translation_support.dart';
+import '../theme/mesh_tokens.dart';
 
 class MessageTranslationButton extends StatelessWidget {
   final bool enabled;
@@ -103,10 +104,12 @@ class _MessageTranslationSheetState extends State<_MessageTranslationSheet> {
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 16,
-          bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
+          left: MeshTokens.of(context).spacingMd,
+          right: MeshTokens.of(context).spacingMd,
+          top: MeshTokens.of(context).spacingMd,
+          bottom:
+              MeshTokens.of(context).spacingMd +
+              MediaQuery.of(context).viewInsets.bottom,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

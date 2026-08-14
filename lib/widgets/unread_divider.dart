@@ -11,7 +11,7 @@ class UnreadDivider extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final color = scheme.primary;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: EdgeInsets.symmetric(vertical: MeshTokens.of(context).spacingSm),
       child: Row(
         children: [
           Expanded(
@@ -19,7 +19,10 @@ class UnreadDivider extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: EdgeInsets.symmetric(
+              horizontal: MeshTokens.of(context).spacingSm,
+              vertical: MeshTokens.of(context).spacingXxs,
+            ),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(MeshTokens.of(context).pill),

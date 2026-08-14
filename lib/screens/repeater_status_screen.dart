@@ -487,12 +487,14 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
   Widget _buildBody(dynamic l10n, String name) {
     final scheme = Theme.of(context).colorScheme;
     return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: EdgeInsets.only(bottom: MeshTokens.of(context).spacingLg),
       children: [
         // ── System ─────────────────────────────────────────────────────────
         SectionHeader(l10n.repeater_systemInformation),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(
+            horizontal: MeshTokens.of(context).spacingMd,
+          ),
           child: _buildStatGrid([
             _StatItem(
               icon: Icons.battery_std,
@@ -532,7 +534,9 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
         // ── Radio ──────────────────────────────────────────────────────────
         SectionHeader(l10n.repeater_radioStatistics),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(
+            horizontal: MeshTokens.of(context).spacingMd,
+          ),
           child: _buildStatGrid([
             _StatItem(
               icon: Icons.signal_cellular_alt,
@@ -570,7 +574,9 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
         // ── Packets ────────────────────────────────────────────────────────
         SectionHeader(l10n.repeater_packetStatistics),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(
+            horizontal: MeshTokens.of(context).spacingMd,
+          ),
           child: _buildStatGrid([
             _StatItem(
               icon: Icons.send,

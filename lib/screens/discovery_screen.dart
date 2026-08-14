@@ -57,7 +57,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       case advTypeRoom:
         return MeshTokens.of(context).secondary;
       case advTypeSensor:
-        return sensorTypeAccent;
+        return MeshTokens.of(context).mapSensor;
       default:
         return MeshTokens.of(context).primary;
     }
@@ -452,7 +452,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 ],
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
               ),
               contentPadding: EdgeInsets.symmetric(
                 horizontal: t.spacingMd,

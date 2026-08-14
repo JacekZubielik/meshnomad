@@ -262,14 +262,18 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
               width: 12,
               height: 12,
               decoration: BoxDecoration(
-                color: Colors.purple,
+                color: MeshTokens.of(context).secondary,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: Theme.of(context).cardColor,
                   width: 2,
                 ),
               ),
-              child: const Icon(Icons.people, size: 8, color: Colors.white),
+              child: Icon(
+                Icons.people,
+                size: 8,
+                color: MeshTokens.of(context).secondaryInk,
+              ),
             ),
           ),
       ],
@@ -304,7 +308,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                               widget.channel.index,
                             )
                           : widget.channel.name,
-                      style: const TextStyle(fontSize: 16),
+                      style: Theme.of(context).textTheme.titleMedium,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -566,7 +570,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
         ? MeshTokens.of(context).meInk
         : scheme.onSurface;
     final metaColor = textColor.withValues(alpha: 0.65);
-    const bodyFontSize = 14.0;
 
     // Footer time row — shared by both footer layouts (with/without the
     // technical block).
@@ -724,7 +727,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                             Stack(
                               children: [
                                 ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(
+                                    MeshTokens.of(context).md,
+                                  ),
                                   child: GifMessage(
                                     url:
                                         'https://media.giphy.com/media/$gifId/giphy.gif',
@@ -747,10 +752,14 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                                     originalText: originalDisplayText,
                                     style: TextStyle(
                                       color: textColor,
-                                      fontSize: bodyFontSize * textScale,
+                                      fontSize:
+                                          MeshTokens.of(context).bodySize *
+                                          textScale,
                                     ),
                                     originalStyle: TextStyle(
-                                      fontSize: bodyFontSize * textScale,
+                                      fontSize:
+                                          MeshTokens.of(context).bodySize *
+                                          textScale,
                                       fontStyle: FontStyle.italic,
                                       color: textColor.withValues(alpha: 0.72),
                                     ),
@@ -961,7 +970,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     Widget contentPreview;
     if (gifId != null) {
       contentPreview = ClipRRect(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
         child: GifMessage(
           url: 'https://media.giphy.com/media/$gifId/giphy.gif',
           backgroundColor: colorScheme.surfaceContainerHighest,
@@ -1141,7 +1150,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                 style: TextStyle(
                   color: textColor,
                   fontWeight: FontWeight.w600,
-                  fontSize: 14 * textScale,
+                  fontSize: MeshTokens.of(context).bodySize * textScale,
                 ),
               ),
               if (poi.label.isNotEmpty)
@@ -1331,7 +1340,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                               children: [
                                 Expanded(
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(
+                                      MeshTokens.of(context).md,
+                                    ),
                                     child: GifMessage(
                                       url:
                                           'https://media.giphy.com/media/$gifId/giphy.gif',

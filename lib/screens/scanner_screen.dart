@@ -515,7 +515,12 @@ class _ConnectionStatusHeader extends StatelessWidget {
     };
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: EdgeInsets.fromLTRB(
+        MeshTokens.of(context).spacingMd,
+        MeshTokens.of(context).spacingSm,
+        MeshTokens.of(context).spacingMd,
+        MeshTokens.of(context).spacingXxs,
+      ),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: Align(

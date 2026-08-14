@@ -19,8 +19,9 @@ class MeshInfoDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
     return Dialog(
-      insetPadding: const EdgeInsets.all(edgeInset),
+      insetPadding: EdgeInsets.all(tokens.spacingMd),
       clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: _maxWidth),
@@ -29,7 +30,12 @@ class MeshInfoDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
+              padding: EdgeInsets.fromLTRB(
+                tokens.spacingMd,
+                tokens.spacingSm,
+                tokens.spacingXs,
+                0,
+              ),
               child: Row(
                 children: [
                   Expanded(
@@ -49,7 +55,12 @@ class MeshInfoDialog extends StatelessWidget {
             ),
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                padding: EdgeInsets.fromLTRB(
+                  tokens.spacingMd,
+                  tokens.spacingXs,
+                  tokens.spacingMd,
+                  tokens.spacingMd,
+                ),
                 child: child,
               ),
             ),
@@ -101,7 +112,9 @@ class MeshInfoRow extends StatelessWidget {
 
     if (labelWidth != null) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: EdgeInsets.symmetric(
+          vertical: MeshTokens.of(context).spacingXs,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -117,7 +130,7 @@ class MeshInfoRow extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(vertical: MeshTokens.of(context).spacingXs),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

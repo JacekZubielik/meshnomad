@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../l10n/l10n.dart';
+import '../theme/mesh_tokens.dart';
 
 /// A reusable QR code display widget for sharing data.
 ///
@@ -35,8 +36,9 @@ class QrCodeDisplay extends StatelessWidget {
   /// Foreground color of the QR code modules (defaults to black)
   final Color? foregroundColor;
 
-  /// Padding around the QR code
-  final EdgeInsets padding;
+  /// Padding around the QR code (defaults to [MeshTokens.spacingMd] on every
+  /// side).
+  final EdgeInsets? padding;
 
   /// Error correction level
   final int errorCorrectionLevel;
@@ -51,7 +53,7 @@ class QrCodeDisplay extends StatelessWidget {
     this.instructions,
     this.backgroundColor,
     this.foregroundColor,
-    this.padding = const EdgeInsets.all(16),
+    this.padding,
     this.errorCorrectionLevel = QrErrorCorrectLevel.M,
   });
 
@@ -59,13 +61,14 @@ class QrCodeDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final tokens = MeshTokens.of(context);
 
     // Default colors based on theme
     final bgColor = backgroundColor ?? Colors.white;
     final fgColor = foregroundColor ?? Colors.black;
 
     return Padding(
-      padding: padding,
+      padding: padding ?? EdgeInsets.all(tokens.spacingMd),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -82,10 +85,10 @@ class QrCodeDisplay extends StatelessWidget {
 
           // QR code container with rounded corners
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(tokens.spacingMd),
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(tokens.lg),
               boxShadow: isDark
                   ? null
                   : [
@@ -97,7 +100,7 @@ class QrCodeDisplay extends StatelessWidget {
                     ],
             ),
             child: embeddedImage != null
-                ? _buildQrWithEmbeddedImage(fgColor, bgColor)
+                ? _buildQrWithEmbeddedImage(context, fgColor, bgColor)
                 : _buildSimpleQr(fgColor, bgColor),
           ),
 
@@ -131,7 +134,11 @@ class QrCodeDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildQrWithEmbeddedImage(Color fgColor, Color bgColor) {
+  Widget _buildQrWithEmbeddedImage(
+    BuildContext context,
+    Color fgColor,
+    Color bgColor,
+  ) {
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -153,9 +160,9 @@ class QrCodeDisplay extends StatelessWidget {
           height: embeddedImageSize,
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
           ),
-          padding: const EdgeInsets.all(4),
+          padding: EdgeInsets.all(MeshTokens.of(context).spacingXxs),
           child: embeddedImage,
         ),
       ],
@@ -182,7 +189,7 @@ class QrCodeShareDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(MeshTokens.of(context).spacingLg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

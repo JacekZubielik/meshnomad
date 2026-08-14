@@ -396,8 +396,8 @@ class ChannelMessagePathScreen extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           hop.index.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: MeshTokens.of(context).mapMarkerInk,
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1073,6 +1073,7 @@ class _ChannelMessagePathMapScreenState
                               _playback.started &&
                               _playback.hasPath;
                           lines = buildMultiPathPolylines(
+                            context,
                             visible: visibleDisplays,
                             selected: selectedDisplay,
                             combined: effectiveMode == PathViewMode.combined,
@@ -1081,6 +1082,7 @@ class _ChannelMessagePathMapScreenState
                           if (animating && selectedDisplay != null) {
                             lines.addAll(
                               buildPacketTrailPolylines(
+                                context,
                                 _playback,
                                 selectedDisplay.color,
                               ),
@@ -1112,6 +1114,7 @@ class _ChannelMessagePathMapScreenState
                           return const SizedBox.shrink();
                         }
                         final markers = buildPacketMarkers(
+                          context,
                           _playback,
                           selectedDisplay.color,
                         );
@@ -1269,10 +1272,13 @@ class _ChannelMessagePathMapScreenState
               decoration: BoxDecoration(
                 color: MeshTokens.of(context).primary,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
+                border: Border.all(
+                  color: MeshTokens.of(context).mapMarkerOutline,
+                  width: 2,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
+                    color: MeshTokens.of(context).mapMarkerShadow,
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -1282,7 +1288,7 @@ class _ChannelMessagePathMapScreenState
               child: Text(
                 hop.index.toString(),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white,
+                  color: MeshTokens.of(context).mapMarkerInk,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1323,10 +1329,13 @@ class _ChannelMessagePathMapScreenState
             decoration: BoxDecoration(
               color: MeshTokens.of(context).signal,
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
+              border: Border.all(
+                color: MeshTokens.of(context).mapMarkerOutline,
+                width: 2,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
+                  color: MeshTokens.of(context).mapMarkerShadow,
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -1336,7 +1345,7 @@ class _ChannelMessagePathMapScreenState
             child: Text(
               context.l10n.pathTrace_you,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.white,
+                color: MeshTokens.of(context).mapMarkerInk,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -1411,12 +1420,12 @@ class _ChannelMessagePathMapScreenState
                     color: MeshTokens.of(context).primary,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: Colors.white,
+                      color: MeshTokens.of(context).mapMarkerOutline,
                       width: shared ? 2.5 : 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.3),
+                        color: MeshTokens.of(context).mapMarkerShadow,
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -1426,7 +1435,7 @@ class _ChannelMessagePathMapScreenState
                   child: Text(
                     label,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white,
+                      color: MeshTokens.of(context).mapMarkerInk,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -1494,13 +1503,16 @@ class _ChannelMessagePathMapScreenState
           child: FittedBox(
             fit: BoxFit.contain,
             child: Container(
+              // Mirrors line_of_sight_map_screen.dart's node-label marker
+              // token choices verbatim (the "already-correct" sibling copy).
               padding: EdgeInsets.symmetric(
                 horizontal: MeshTokens.of(context).spacingXs,
                 vertical: 2, // hairline
               ),
               decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(8),
+                color: MeshTokens.of(context).losPanelDark,
+                borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
+                border: Border.all(color: MeshTokens.of(context).losBorder),
               ),
               alignment: Alignment.center,
               child: Text(
@@ -1508,7 +1520,7 @@ class _ChannelMessagePathMapScreenState
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.white,
+                  color: MeshTokens.of(context).losText,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -1778,7 +1790,7 @@ class _ChannelMessagePathMapScreenState
                       child: Text(
                         hop.index.toString(),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white,
+                          color: MeshTokens.of(context).mapMarkerInk,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

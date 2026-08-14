@@ -675,6 +675,12 @@ class AppLocalizationsSl extends AppLocalizations {
   String get appSettings_colorStyle => 'Style';
 
   @override
+  String get appSettings_quickStyleMenuItem => 'Hitri slog';
+
+  @override
+  String get appSettings_quickStyleDialogTitle => 'Tema in slog';
+
+  @override
   String get appSettings_themeSystem => 'Sistemska tema';
 
   @override

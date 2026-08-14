@@ -10,6 +10,7 @@ import '../helpers/snack_bar_builder.dart';
 import '../l10n/l10n.dart';
 import '../services/usb_serial_service.dart';
 import '../storage/prefs_manager.dart';
+import '../theme/mesh_tokens.dart';
 import '../utils/usb_port_labels.dart';
 
 /// Minimal debug screen for [RepeaterCliSession]: a raw TCP or USB terminal
@@ -259,7 +260,12 @@ class _RepeaterDirectConsoleScreenState
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding: EdgeInsets.fromLTRB(
+                MeshTokens.of(context).spacingMd,
+                MeshTokens.of(context).spacingSm,
+                MeshTokens.of(context).spacingMd,
+                MeshTokens.of(context).spacingXs,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -420,20 +426,17 @@ class _RepeaterDirectConsoleScreenState
                     )
                   : ListView.builder(
                       controller: _logScrollController,
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.all(MeshTokens.of(context).spacingSm),
                       itemCount: _log.length,
                       itemBuilder: (context, index) => SelectableText(
                         _log[index],
-                        style: const TextStyle(
-                          fontFamily: 'monospace',
-                          fontSize: 13,
-                        ),
+                        style: MeshTokens.of(context).monoBody(),
                       ),
                     ),
             ),
             const Divider(height: 1),
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(MeshTokens.of(context).spacingSm),
               child: Row(
                 children: [
                   Expanded(

@@ -167,6 +167,8 @@
   "appSettings_appearance": "Вигляд",
   "appSettings_theme": "Тема",
   "appSettings_colorStyle": "Style",
+  "appSettings_quickStyleMenuItem": "Швидкий стиль",
+  "appSettings_quickStyleDialogTitle": "Тема і стиль",
   "appSettings_themeSystem": "Системна",
   "appSettings_themeLight": "Світла",
   "appSettings_themeDark": "Темна",

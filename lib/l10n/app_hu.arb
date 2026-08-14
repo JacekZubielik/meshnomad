@@ -233,6 +233,8 @@
   "appSettings_appearance": "Megjelenés",
   "appSettings_theme": "Téma",
   "appSettings_colorStyle": "Style",
+  "appSettings_quickStyleMenuItem": "Gyors stílus",
+  "appSettings_quickStyleDialogTitle": "Téma és stílus",
   "appSettings_themeSystem": "Rendszer alapértelmezett",
   "appSettings_themeLight": "Fény",
   "appSettings_themeDark": "Sötét",

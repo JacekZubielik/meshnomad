@@ -176,6 +176,8 @@
   "appSettings_appearance": "外观",
   "appSettings_theme": "主题",
   "appSettings_colorStyle": "Style",
+  "appSettings_quickStyleMenuItem": "快速样式",
+  "appSettings_quickStyleDialogTitle": "主题和样式",
   "appSettings_themeSystem": "跟随系统",
   "appSettings_themeLight": "浅色",
   "appSettings_themeDark": "深色",

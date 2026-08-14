@@ -683,6 +683,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get appSettings_colorStyle => 'Style';
 
   @override
+  String get appSettings_quickStyleMenuItem => 'Быстрый стиль';
+
+  @override
+  String get appSettings_quickStyleDialogTitle => 'Тема и стиль';
+
+  @override
   String get appSettings_themeSystem => 'Как в системе';
 
   @override

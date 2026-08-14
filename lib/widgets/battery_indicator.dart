@@ -64,11 +64,15 @@ class _BatteryIndicatorState extends State<BatteryIndicator> {
 
     final batteryUi = batteryUiForPercent(context, percent);
 
+    final tokens = MeshTokens.of(context);
     return InkWell(
       onTap: () => _showBatteryPopup(context),
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(tokens.xs),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        padding: EdgeInsets.symmetric(
+          horizontal: tokens.spacingXxs,
+          vertical: tokens.spacingXs,
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

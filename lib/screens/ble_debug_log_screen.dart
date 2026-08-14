@@ -92,7 +92,12 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  padding: EdgeInsets.fromLTRB(
+                    MeshTokens.of(context).spacingMd,
+                    MeshTokens.of(context).spacingSm,
+                    MeshTokens.of(context).spacingMd,
+                    0,
+                  ),
                   child: SegmentedButton<_BleLogView>(
                     segments: [
                       ButtonSegment(
@@ -154,9 +159,11 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                                 onSecondaryTap: copyHex,
                                 child: Container(
                                   color: MeshTokens.of(context).bg,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: MeshTokens.of(
+                                      context,
+                                    ).spacingMd,
+                                    vertical: MeshTokens.of(context).spacingXs,
                                   ),
                                   child: Row(
                                     crossAxisAlignment:
@@ -223,9 +230,9 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                               onTap: () => _showRawDialog(context, info),
                               child: Container(
                                 color: MeshTokens.of(context).bg,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: MeshTokens.of(context).spacingMd,
+                                  vertical: MeshTokens.of(context).spacingXs,
                                 ),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,

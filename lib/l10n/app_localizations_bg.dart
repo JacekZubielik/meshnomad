@@ -685,6 +685,12 @@ class AppLocalizationsBg extends AppLocalizations {
   String get appSettings_colorStyle => 'Style';
 
   @override
+  String get appSettings_quickStyleMenuItem => 'Бърз стил';
+
+  @override
+  String get appSettings_quickStyleDialogTitle => 'Тема и стил';
+
+  @override
   String get appSettings_themeSystem => 'Система по подразбиране';
 
   @override
