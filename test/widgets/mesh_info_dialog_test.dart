@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
 import 'package:meshcore_open/widgets/mesh_info_dialog.dart';
 
 Widget _app({required VoidCallback Function(BuildContext) onOpen}) {
   return MaterialApp(
+    theme: MeshTheme.light().copyWith(
+      extensions: const [MeshTokens.defaultTokens],
+    ),
     home: Scaffold(
       body: Builder(
         builder: (context) => Center(

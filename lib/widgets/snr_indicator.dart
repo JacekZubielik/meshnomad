@@ -109,7 +109,7 @@ SNRUi snrUiFromSNR(BuildContext context, double? snr, int? spreadingFactor) {
       spreadingFactor == null ||
       spreadingFactor < 7 ||
       spreadingFactor > 12) {
-    return const SNRUi(Icons.signal_cellular_off, Colors.grey, '—');
+    return SNRUi(Icons.signal_cellular_off, MeshTokens.of(context).ink4, '—');
   }
 
   final snrLevels = getSNRfromSF(spreadingFactor);
@@ -171,7 +171,11 @@ class NearbyRepeaterTile extends StatelessWidget {
         longitude != null;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      // vertical 10 has no exact token — spacingSm (12) is nearest.
+      padding: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+        vertical: MeshTokens.of(context).spacingSm,
+      ),
       child: Row(
         children: [
           AvatarCircle(name: name ?? prefixLabel, size: 36, color: snrColor),
@@ -273,9 +277,12 @@ class _SNRIndicatorState extends State<SNRIndicator> {
         onTap: directRepeater != null
             ? () => _showFullPathDialog(context, directBestRepeaters)
             : null,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          padding: EdgeInsets.symmetric(
+            horizontal: MeshTokens.of(context).spacingXxs,
+            vertical: MeshTokens.of(context).spacingXs,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

@@ -4,6 +4,7 @@ import 'package:meshcore_open/widgets/battery_indicator.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/l10n.dart';
+import '../theme/mesh_tokens.dart';
 import 'indicator_caption.dart';
 import 'mesh_info_dialog.dart';
 import 'radio_stats_entry.dart';
@@ -21,8 +22,9 @@ class AppBarMenuIcon extends StatelessWidget {
     // ~Square touch field right of the last separator. No right padding:
     // the AppBar's titleSpacing already provides the 16dp edge inset, so the
     // right margin mirrors the title's left inset exactly.
+    final xs = MeshTokens.of(context).spacingXs;
     return Padding(
-      padding: const EdgeInsets.only(left: 8, top: 8, bottom: 8),
+      padding: EdgeInsets.only(left: xs, top: xs, bottom: xs),
       child: Center(
         child: Icon(
           Icons.more_vert,
@@ -138,11 +140,16 @@ class _TransportIndicatorState extends State<TransportIndicator> {
         connector.activeTransport == MeshCoreTransportType.bluetooth
         ? scheme.primary
         : scheme.onSurfaceVariant;
+    final tokens = MeshTokens.of(context);
     return InkWell(
-      borderRadius: BorderRadius.circular(8),
+      // 8→6dp: xs is the nearest available token radius.
+      borderRadius: BorderRadius.circular(tokens.xs),
       onTap: () => _showTransportPopup(context),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        padding: EdgeInsets.symmetric(
+          horizontal: tokens.spacingXxs,
+          vertical: tokens.spacingXs,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -295,7 +302,7 @@ class AppBarTitle extends StatelessWidget {
                             (Theme.of(context).textTheme.bodyMedium?.fontSize ??
                                 12) +
                             2,
-                        color: Colors.grey[600],
+                        color: MeshTokens.of(context).ink2,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

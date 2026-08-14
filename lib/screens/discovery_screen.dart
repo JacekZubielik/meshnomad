@@ -57,7 +57,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       case advTypeRoom:
         return MeshTokens.of(context).secondary;
       case advTypeSensor:
-        return sensorTypeAccent;
+        return MeshTokens.of(context).mapSensor;
       default:
         return MeshTokens.of(context).primary;
     }

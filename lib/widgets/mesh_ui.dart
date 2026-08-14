@@ -119,15 +119,19 @@ class MeshCard extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: borderRadius,
                 // 0 1px 2px rgba(0,0,0,.15), 0 1px 3px rgba(0,0,0,.22) — mockup Wariant B.
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: Color(0x26000000),
-                    offset: Offset(0, 1),
+                    color: MeshTokens.of(
+                      context,
+                    ).cardShadow.withValues(alpha: 0.15),
+                    offset: const Offset(0, 1),
                     blurRadius: 2,
                   ),
                   BoxShadow(
-                    color: Color(0x38000000),
-                    offset: Offset(0, 1),
+                    color: MeshTokens.of(
+                      context,
+                    ).cardShadow.withValues(alpha: 0.22),
+                    offset: const Offset(0, 1),
                     blurRadius: 3,
                   ),
                 ],
@@ -145,7 +149,7 @@ class StatusChip extends StatelessWidget {
   final Color color;
   final IconData? icon;
   final bool pulse;
-  final double fontSize;
+  final double? fontSize;
 
   const StatusChip({
     super.key,
@@ -153,11 +157,12 @@ class StatusChip extends StatelessWidget {
     required this.color,
     this.icon,
     this.pulse = false,
-    this.fontSize = 11.5,
+    this.fontSize,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveFontSize = fontSize ?? MeshTokens.of(context).microLabelSize;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
@@ -169,7 +174,7 @@ class StatusChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null)
-            Icon(icon, size: fontSize + 2, color: color)
+            Icon(icon, size: effectiveFontSize + 2, color: color)
           else
             PulseDot(color: color, size: 7, animate: pulse),
           const SizedBox(width: 5),
@@ -179,7 +184,7 @@ class StatusChip extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: MeshTokens.of(context).mono(
-                fontSize: fontSize,
+                fontSize: effectiveFontSize,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
@@ -229,9 +234,10 @@ class StatTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   label.toUpperCase(),
-                  style: MeshTokens.of(
-                    context,
-                  ).accentLabel(color: scheme.onSurfaceVariant, fontSize: 9),
+                  style: MeshTokens.of(context).accentLabel(
+                    color: scheme.onSurfaceVariant,
+                    fontSize: MeshTokens.of(context).microLabelSize,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -270,13 +276,9 @@ List<Color> avatarTintPalette(MeshTokens tokens) => [
   tokens.secondary,
   tokens.signal,
   tokens.warn,
-  const Color(0xFF8FA8F0),
-  const Color(0xFF6FD9CE),
+  tokens.avatarTint5,
+  tokens.avatarTint6,
 ];
-
-/// Accent for sensor-type nodes (advTypeSensor) — single source; do not
-/// copy the literal into screens.
-const Color sensorTypeAccent = Color(0xFF4ACCC4);
 
 /// Initials avatar with a deterministic per-name hue, or a fixed [color]
 /// for node-type coloring. Optional [icon] replaces initials.
@@ -400,11 +402,16 @@ class RouteChip extends StatelessWidget {
               ? 'DIRECT'
               : '$hops HOP${hops == 1 ? '' : 'S'}')
         : 'FLOOD';
+    final tokens = MeshTokens.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      // horizontal 6 has no exact token — spacingXxs (4) is nearest.
+      padding: EdgeInsets.symmetric(
+        horizontal: tokens.spacingXxs,
+        vertical: tokens.spacingHairline,
+      ),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
+        borderRadius: BorderRadius.circular(tokens.xs),
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Row(
@@ -418,9 +425,10 @@ class RouteChip extends StatelessWidget {
           const SizedBox(width: 3),
           Text(
             label,
-            style: MeshTokens.of(
-              context,
-            ).accentLabel(color: scheme.onSurfaceVariant, fontSize: 8.5),
+            style: tokens.accentLabel(
+              color: scheme.onSurfaceVariant,
+              fontSize: tokens.microLabelSize,
+            ),
           ),
         ],
       ),
