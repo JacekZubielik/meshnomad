@@ -574,7 +574,7 @@
       }
     }
   },
-  "debugFrame_textTypeCli": "Interfejs wiersza poleceń",
+  "debugFrame_textTypeCli": "CLI",
   "debugFrame_textTypePlain": "Zwykły",
   "debugFrame_text": "- Tekst: \"{text}\"",
   "@debugFrame_text": {
@@ -976,7 +976,7 @@
   "repeater_statusSubtitle": "Wyświetl status przekaźnika, statystyki i sąsiadów.",
   "repeater_telemetry": "Telemetria",
   "repeater_telemetrySubtitle": "Wyświetl dane telemetryczne z czujników i statystyki systemu",
-  "repeater_cli": "Interfejs wiersza poleceń",
+  "repeater_cli": "CLI",
   "repeater_cliSubtitle": "Wyślij polecenia do przekaźnika",
   "repeater_settings": "Ustawienia",
   "repeater_settingsSubtitle": "Skonfiguruj parametry przekaźnika",
@@ -1265,7 +1265,7 @@
       }
     }
   },
-  "repeater_cliTitle": "Przekaźnik CLI",
+  "repeater_cliTitle": "CLI",
   "repeater_debugNextCommand": "Debug następna komenda",
   "repeater_commandHelp": "Pomoc",
   "repeater_clearHistory": "Wyczyść historię",

@@ -37,8 +37,6 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     final signal = baseColorFor('signal', base.signal);
     final warn = baseColorFor('warn', base.warn);
     final alert = baseColorFor('alert', base.alert);
-    final me = baseColorFor('me', base.me);
-    final meInk = baseColorFor('meInk', base.meInk);
 
     final bgLayers = isLight ? deriveBgLayersLight(bg) : deriveBgLayers(bg);
     final inkLayers = isLight
@@ -81,8 +79,14 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       alert: alert,
       alertBg: alertVariants.alertBg,
       alertLine: alertVariants.alertLine,
-      me: me,
-      meInk: meInk,
+      // "Me" bubble (outgoing chat/channel messages) — default to an
+      // accent-derived surface (primaryDim keeps it a dark fill even for
+      // light accents like Green's gold) instead of the fixed navy that
+      // only the untouched Blue profile happened to match (reported live
+      // 2026-08-14: sent-message bubble stayed navy-blue on Green).
+      me: baseColorFor('me', primaryVariants.primaryDim),
+      meBorder: baseColorFor('meBorder', primary),
+      meInk: baseColorFor('meInk', base.meInk),
       // Map/LOS palettes (A6/04-editor-ui.md) — semantically independent
       // per-marker/per-state colors, applied 1:1, no automat.
       mapOnline: baseColorFor('mapOnline', base.mapOnline),

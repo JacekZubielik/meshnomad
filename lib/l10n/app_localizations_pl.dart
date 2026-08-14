@@ -1611,7 +1611,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get debugFrame_textTypeCli => 'Interfejs wiersza poleceń';
+  String get debugFrame_textTypeCli => 'CLI';
 
   @override
   String get debugFrame_textTypePlain => 'Zwykły';
@@ -2364,7 +2364,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wyświetl dane telemetryczne z czujników i statystyki systemu';
 
   @override
-  String get repeater_cli => 'Interfejs wiersza poleceń';
+  String get repeater_cli => 'CLI';
 
   @override
   String get repeater_cliSubtitle => 'Wyślij polecenia do przekaźnika';
@@ -2905,7 +2905,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get repeater_cliTitle => 'Przekaźnik CLI';
+  String get repeater_cliTitle => 'CLI';
 
   @override
   String get repeater_debugNextCommand => 'Debug następna komenda';

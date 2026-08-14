@@ -12,6 +12,9 @@ const defaultGreenProfile = ColorProfileSeed(
     colorOverrides: {
       'bg': 0xFF16260A, // deep olive base — REFINE ON-DEVICE (Task 2 Step 4)
       'primary': 0xFFEAB308,
+      'secondary': 0xFF520832, // sampled on-device 2026-08-14
+      'me': 0xFF33051F, // sampled on-device 2026-08-14
+      'line': 0xFF4A730C, // sampled on-device 2026-08-14
     },
   ),
 );
