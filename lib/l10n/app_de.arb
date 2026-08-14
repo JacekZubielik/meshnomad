@@ -165,6 +165,7 @@
   "appSettings_title": "App-Einstellungen",
   "appSettings_appearance": "Erscheinungsbild",
   "appSettings_theme": "Design",
+  "appSettings_colorStyle": "Style",
   "appSettings_themeSystem": "Systemstandard",
   "appSettings_themeLight": "Hell",
   "appSettings_themeDark": "Dunkel",

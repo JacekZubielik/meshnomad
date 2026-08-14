@@ -165,6 +165,7 @@
   "appSettings_title": "Appinställningar",
   "appSettings_appearance": "Utseende",
   "appSettings_theme": "Tema",
+  "appSettings_colorStyle": "Style",
   "appSettings_themeSystem": "Systemstandard",
   "appSettings_themeLight": "Ljus",
   "appSettings_themeDark": "Mörk",

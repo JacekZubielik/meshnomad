@@ -3,14 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:meshcore_open/connector/meshcore_connector.dart';
 import 'package:meshcore_open/l10n/app_localizations.dart';
-import 'package:meshcore_open/screens/app_settings_screen.dart';
 import 'package:meshcore_open/screens/custom_style_editor_screen.dart';
 import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/services/translation_service.dart';
 import 'package:meshcore_open/storage/prefs_manager.dart';
-import 'package:meshcore_open/theme/styles/style_registry.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
 
 Widget _wrap(
   Widget child, {
@@ -22,7 +20,11 @@ Widget _wrap(
       ChangeNotifierProvider<AppSettingsService>.value(value: settingsService),
     ],
     child: MaterialApp(
-      theme: theme ?? StyleRegistry.byId('default').light,
+      theme:
+          theme ??
+          MeshTheme.light().copyWith(
+            extensions: const [MeshTokens.defaultTokens],
+          ),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: child,
@@ -54,6 +56,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+
+      // Brightness is a property of the profile now, not an independent
+      // editor toggle — the SegmentedButton this key used to identify is
+      // removed entirely (design spec 2026-08-12, plan Task 5).
+      expect(find.byKey(const ValueKey('brightnessSwitch')), findsNothing);
 
       // SectionHeader uppercases its label.
       expect(find.text('COLORS'), findsOneWidget);
@@ -127,10 +134,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesLight['mapOnline'],
+        settingsService.activeProfileSavedOverrides.colorOverrides['mapOnline'],
         isNull,
       );
 
@@ -148,10 +152,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesLight['mapOnline'],
+        settingsService.activeProfileSavedOverrides.colorOverrides['mapOnline'],
         const Color(0xFFEF4444).toARGB32(),
       );
     });
@@ -168,10 +169,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesLight['primary'],
+        settingsService.activeProfileSavedOverrides.colorOverrides['primary'],
         isNull,
       );
 
@@ -186,10 +184,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesLight['primary'],
+        settingsService.activeProfileSavedOverrides.colorOverrides['primary'],
         isNotNull,
       );
     });
@@ -214,10 +209,7 @@ void main() {
 
       expect(find.text('Enter a hex color like #RRGGBB'), findsOneWidget);
       expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesDark['primary'],
+        settingsService.activeProfileSavedOverrides.colorOverrides['primary'],
         isNull,
       );
     });
@@ -240,12 +232,9 @@ void main() {
       );
       expect(resetIcon().onPressed, isNull);
 
-      // _wrap renders under a light theme, so the editor seeds its
-      // brightness switch to Light — the override lands there too.
       await settingsService.setCustomColorOverride(
         'primary',
         const Color(0xFF112233),
-        brightness: Brightness.light,
       );
       await tester.pumpAndSettle();
       expect(resetIcon().onPressed, isNotNull);
@@ -254,10 +243,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesLight['primary'],
+        settingsService.activeProfileSavedOverrides.colorOverrides['primary'],
         isNull,
       );
       expect(resetIcon().onPressed, isNull);
@@ -268,7 +254,6 @@ void main() {
       await settingsService.setCustomColorOverride(
         'primary',
         const Color(0xFF112233),
-        brightness: Brightness.dark,
       );
       await settingsService.setCustomFontSizeOverride('bodyMedium', 20);
 
@@ -293,7 +278,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        settingsService.settings.customStyleOverrides.colorOverridesDark,
+        settingsService.activeProfileSavedOverrides.colorOverrides,
         isNotEmpty,
       );
 
@@ -301,11 +286,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService.settings.customStyleOverrides.colorOverridesDark,
+        settingsService.activeProfileSavedOverrides.colorOverrides,
         isEmpty,
       );
       expect(
-        settingsService.settings.customStyleOverrides.fontSizeOverrides,
+        settingsService.activeProfileSavedOverrides.fontSizeOverrides,
         isEmpty,
       );
     });
@@ -316,7 +301,6 @@ void main() {
       await settingsService.setCustomColorOverride(
         'primary',
         const Color(0xFF112233),
-        brightness: Brightness.dark,
       );
 
       await tester.pumpWidget(
@@ -338,175 +322,15 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesDark['primary'],
+        settingsService.activeProfileSavedOverrides.colorOverrides['primary'],
         isNotNull,
       );
     });
   });
 
-  group('CustomStyleEditorScreen brightness switch (pkt 17)', () {
-    testWidgets('seeds the switch from the current theme — dark theme '
-        'starts on the Dark segment and edits colorOverridesDark', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _wrap(
-          const CustomStyleEditorScreen(),
-          settingsService: settingsService,
-          theme: StyleRegistry.byId('default').dark,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Primary accent'));
-      await tester.pumpAndSettle();
-      final swatch = find.byKey(
-        ValueKey('swatch_${const Color(0xFFEF4444).toARGB32()}'),
-      );
-      await tester.tap(swatch);
-      await tester.pumpAndSettle();
-
-      expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesDark['primary'],
-        const Color(0xFFEF4444).toARGB32(),
-      );
-      expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesLight['primary'],
-        isNull,
-      );
-    });
-
-    testWidgets('tapping Light switches editing to colorOverridesLight, '
-        'leaving colorOverridesDark untouched', (tester) async {
-      await tester.pumpWidget(
-        _wrap(
-          const CustomStyleEditorScreen(),
-          settingsService: settingsService,
-          theme: StyleRegistry.byId('default').dark,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Light'));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Primary accent'));
-      await tester.pumpAndSettle();
-      final swatch = find.byKey(
-        ValueKey('swatch_${const Color(0xFFEF4444).toARGB32()}'),
-      );
-      await tester.tap(swatch);
-      await tester.pumpAndSettle();
-
-      expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesLight['primary'],
-        const Color(0xFFEF4444).toARGB32(),
-      );
-      expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesDark['primary'],
-        isNull,
-      );
-    });
-
-    testWidgets('reset icon clears only the override for the currently '
-        'selected brightness', (tester) async {
-      await settingsService.setCustomColorOverride(
-        'primary',
-        const Color(0xFF112233),
-        brightness: Brightness.dark,
-      );
-      await settingsService.setCustomColorOverride(
-        'primary',
-        const Color(0xFF445566),
-        brightness: Brightness.light,
-      );
-
-      await tester.pumpWidget(
-        _wrap(
-          const CustomStyleEditorScreen(),
-          settingsService: settingsService,
-          theme: StyleRegistry.byId('default').dark,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const ValueKey('resetIcon_primary')));
-      await tester.pumpAndSettle();
-
-      expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesDark['primary'],
-        isNull,
-      );
-      expect(
-        settingsService
-            .settings
-            .customStyleOverrides
-            .colorOverridesLight['primary'],
-        const Color(0xFF445566).toARGB32(),
-      );
-    });
-  });
-
-  group('AppSettingsScreen entry point', () {
-    testWidgets('Custom chip + tune icon open CustomStyleEditorScreen', (
-      tester,
-    ) async {
-      final connector = MeshCoreConnector();
-      final translationService = TranslationService(settingsService);
-      addTearDown(translationService.dispose);
-
-      await tester.pumpWidget(
-        MultiProvider(
-          providers: [
-            ChangeNotifierProvider<AppSettingsService>.value(
-              value: settingsService,
-            ),
-            ChangeNotifierProvider<MeshCoreConnector>.value(value: connector),
-            ChangeNotifierProvider<TranslationService>.value(
-              value: translationService,
-            ),
-          ],
-          child: MaterialApp(
-            theme: StyleRegistry.byId('default').light,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const AppSettingsScreen(),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Custom'), findsOneWidget);
-      // 05-settings-entry.md: the editor icon only appears once Custom is
-      // actually selected.
-      expect(find.byIcon(Icons.tune), findsNothing);
-
-      await tester.tap(find.text('Custom'));
-      await tester.pumpAndSettle();
-
-      expect(find.byIcon(Icons.tune), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.tune));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(CustomStyleEditorScreen), findsOneWidget);
-    });
-  });
+  // The old "AppSettingsScreen entry point" group (Custom chip + tune icon
+  // navigation to CustomStyleEditorScreen) tested navigation, not editor
+  // behavior — that coverage now lives properly in
+  // app_settings_screen_test.dart's Motyw-section group (2026-08-13,
+  // design spec plan Task 6), against the new ThemeChipRow/ProfileChipRow.
 }

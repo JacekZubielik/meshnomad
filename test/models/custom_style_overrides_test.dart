@@ -1,20 +1,17 @@
-import 'package:flutter/material.dart' show Brightness;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:meshcore_open/models/custom_style_overrides.dart';
 
 void main() {
-  group('CustomStyleOverrides JSON round-trip (v2, per-brightness)', () {
-    test('round-trips colors (both brightnesses) and font sizes', () {
+  group('CustomStyleOverrides JSON round-trip (v3, single palette)', () {
+    test('round-trips colors and font sizes', () {
       const original = CustomStyleOverrides(
-        colorOverridesLight: {'primary': 0xFF2F6EA8},
-        colorOverridesDark: {'primary': 0xFF0EA5E9, 'ink': 0xFFF8FAFC},
+        colorOverrides: {'primary': 0xFF0EA5E9, 'ink': 0xFFF8FAFC},
         fontSizeOverrides: {'bodyMedium': 13.0, 'monoBodySize': 14.5},
       );
 
       final decoded = CustomStyleOverrides.fromJson(original.toJson());
 
-      expect(decoded.colorOverridesLight, original.colorOverridesLight);
-      expect(decoded.colorOverridesDark, original.colorOverridesDark);
+      expect(decoded.colorOverrides, original.colorOverrides);
       expect(decoded.fontSizeOverrides, original.fontSizeOverrides);
     });
 
@@ -23,49 +20,29 @@ void main() {
 
       final decoded = CustomStyleOverrides.fromJson(original.toJson());
 
-      expect(decoded.colorOverridesLight, isEmpty);
-      expect(decoded.colorOverridesDark, isEmpty);
+      expect(decoded.colorOverrides, isEmpty);
       expect(decoded.fontSizeOverrides, isEmpty);
     });
 
     test('fromJson(null) returns an empty instance', () {
       final decoded = CustomStyleOverrides.fromJson(null);
 
-      expect(decoded.colorOverridesLight, isEmpty);
-      expect(decoded.colorOverridesDark, isEmpty);
+      expect(decoded.colorOverrides, isEmpty);
       expect(decoded.fontSizeOverrides, isEmpty);
-    });
-
-    test('v2 with only colors_light leaves colors_dark empty', () {
-      final decoded = CustomStyleOverrides.fromJson({
-        'colors_light': {'bg': 0xFFF4F6F8},
-      });
-
-      expect(decoded.colorOverridesLight, {'bg': 0xFFF4F6F8});
-      expect(decoded.colorOverridesDark, isEmpty);
-    });
-
-    test('v2 with only colors_dark leaves colors_light empty', () {
-      final decoded = CustomStyleOverrides.fromJson({
-        'colors_dark': {'bg': 0xFF0B1220},
-      });
-
-      expect(decoded.colorOverridesDark, {'bg': 0xFF0B1220});
-      expect(decoded.colorOverridesLight, isEmpty);
     });
 
     test('skips malformed color entries instead of throwing', () {
       final decoded = CustomStyleOverrides.fromJson({
-        'colors_dark': {'primary': 'not-an-int', 'ink': 0xFFF8FAFC},
+        'colors': {'primary': 'not-an-int', 'ink': 0xFFF8FAFC},
         'font_sizes': <String, dynamic>{},
       });
 
-      expect(decoded.colorOverridesDark, {'ink': 0xFFF8FAFC});
+      expect(decoded.colorOverrides, {'ink': 0xFFF8FAFC});
     });
 
     test('skips malformed font size entries instead of throwing', () {
       final decoded = CustomStyleOverrides.fromJson({
-        'colors_dark': <String, dynamic>{},
+        'colors': <String, dynamic>{},
         'font_sizes': {'bodyMedium': 'not-a-number', 'bodySmall': 11},
       });
 
@@ -74,24 +51,43 @@ void main() {
 
     test('ignores unrelated top-level types without throwing', () {
       final decoded = CustomStyleOverrides.fromJson({
-        'colors_dark': 'not-a-map',
+        'colors': 'not-a-map',
         'font_sizes': 42,
       });
 
-      expect(decoded.colorOverridesDark, isEmpty);
+      expect(decoded.colorOverrides, isEmpty);
       expect(decoded.fontSizeOverrides, isEmpty);
     });
   });
 
-  group('CustomStyleOverrides legacy (v1) migration to dark', () {
-    test('a legacy single "colors" map becomes colorOverridesDark', () {
+  group('CustomStyleOverrides legacy (v2, per-brightness) migration', () {
+    test('uses colors_dark as the single palette, colors_light is dropped', () {
+      final decoded = CustomStyleOverrides.fromJson({
+        'colors_light': {'bg': 0xFFF4F6F8},
+        'colors_dark': {'bg': 0xFF0B1220, 'primary': 0xFF0EA5E9},
+        'font_sizes': <String, dynamic>{},
+      });
+
+      expect(decoded.colorOverrides, {'bg': 0xFF0B1220, 'primary': 0xFF0EA5E9});
+    });
+
+    test('v2 with only colors_light yields an empty palette', () {
+      final decoded = CustomStyleOverrides.fromJson({
+        'colors_light': {'bg': 0xFFF4F6F8},
+      });
+
+      expect(decoded.colorOverrides, isEmpty);
+    });
+  });
+
+  group('CustomStyleOverrides legacy (v1) migration', () {
+    test('a legacy single "colors" map becomes colorOverrides', () {
       final decoded = CustomStyleOverrides.fromJson({
         'colors': {'bg': 0xFF112233},
         'font_sizes': <String, dynamic>{},
       });
 
-      expect(decoded.colorOverridesDark, {'bg': 0xFF112233});
-      expect(decoded.colorOverridesLight, isEmpty);
+      expect(decoded.colorOverrides, {'bg': 0xFF112233});
     });
 
     test('migrates old blue/magenta keys to primary/secondary on load', () {
@@ -104,7 +100,7 @@ void main() {
         'font_sizes': <String, dynamic>{},
       });
 
-      expect(decoded.colorOverridesDark, {
+      expect(decoded.colorOverrides, {
         'primary': 0xFF0EA5E9,
         'secondary': 0xFFDE7FDB,
         'ink': 0xFFF8FAFC,
@@ -119,44 +115,21 @@ void main() {
           'font_sizes': <String, dynamic>{},
         });
 
-        expect(decoded.colorOverridesDark, {'primary': 0xFF112233});
+        expect(decoded.colorOverrides, {'primary': 0xFF112233});
       },
     );
   });
 
-  group('CustomStyleOverrides.colorOverridesFor', () {
-    test('returns the light map for Brightness.light', () {
-      const overrides = CustomStyleOverrides(
-        colorOverridesLight: {'bg': 1},
-        colorOverridesDark: {'bg': 2},
-      );
-
-      expect(overrides.colorOverridesFor(Brightness.light), {'bg': 1});
-    });
-
-    test('returns the dark map for Brightness.dark', () {
-      const overrides = CustomStyleOverrides(
-        colorOverridesLight: {'bg': 1},
-        colorOverridesDark: {'bg': 2},
-      );
-
-      expect(overrides.colorOverridesFor(Brightness.dark), {'bg': 2});
-    });
-  });
-
   group('CustomStyleOverrides.copyWith', () {
-    test('replaces only the provided map, leaving the other brightness '
-        'untouched', () {
+    test('replaces only the provided map', () {
       const original = CustomStyleOverrides(
-        colorOverridesLight: {'primary': 10},
-        colorOverridesDark: {'primary': 1},
+        colorOverrides: {'primary': 1},
         fontSizeOverrides: {'bodyMedium': 12.0},
       );
 
-      final updated = original.copyWith(colorOverridesDark: {'primary': 2});
+      final updated = original.copyWith(colorOverrides: {'primary': 2});
 
-      expect(updated.colorOverridesDark, {'primary': 2});
-      expect(updated.colorOverridesLight, {'primary': 10});
+      expect(updated.colorOverrides, {'primary': 2});
       expect(updated.fontSizeOverrides, {'bodyMedium': 12.0});
     });
   });

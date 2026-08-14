@@ -2,23 +2,24 @@ import 'package:flutter/material.dart';
 
 import '../../models/custom_style_overrides.dart';
 import '../mesh_derived.dart';
-import '../mesh_theme.dart' show MeshTypeScale;
+import '../mesh_theme.dart' show MeshTheme, MeshTypeScale;
 import '../mesh_tokens.dart';
 import '../style.dart';
-import 'default_style.dart';
 
-/// Builds the "custom" [MeshStyle] by layering [overrides] on top of
-/// [defaultStyle]'s exact values. Absent keys, or keys with no known
-/// matching field, silently fall back to the default value — never throws.
+/// Builds the "custom" [MeshStyle] by layering [overrides] on top of the
+/// resolved base tokens' exact values. Absent keys, or keys with no known
+/// matching field, silently fall back to the base value — never throws.
 MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
-  // Two-pass build (pkt 17): dark reads defaultTokens + the dark HSL automat
-  // (layers lighten off a dark base), light reads defaultTokensLight + the
-  // light automat (layers darken off a light base, see mesh_derived.dart).
-  // Accent derivers (primary/secondary/warn/alert/signal) stay shared — "dim"
-  // darkens either way and works on light accents too.
-  MeshTokens applyColorOverrides(MeshTokens base, Brightness brightness) {
-    final colors = overrides.colorOverridesFor(brightness);
-    final isLight = brightness == Brightness.light;
+  // Single-pass build (design spec 2026-08-12): brightness is resolved once
+  // from the override's own `bg` (or the dark default if absent) and the
+  // whole automat runs through that one brightness — no more separate
+  // light/dark passes. Accent derivers (primary/secondary/warn/alert/signal)
+  // stay shared — "dim" darkens either way and works on light accents too.
+  MeshTokens applyColorOverrides(MeshTokens base) {
+    final colors = overrides.colorOverrides;
+    final bgProbe = colors['bg'] != null ? Color(colors['bg']!) : base.bg;
+    final isLight =
+        ThemeData.estimateBrightnessForColor(bgProbe) == Brightness.light;
     int? colorFor(String key) => colors[key];
     Color baseColorFor(String key, Color fallback) {
       final value = colorFor(key);
@@ -36,8 +37,6 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     final signal = baseColorFor('signal', base.signal);
     final warn = baseColorFor('warn', base.warn);
     final alert = baseColorFor('alert', base.alert);
-    final me = baseColorFor('me', base.me);
-    final meInk = baseColorFor('meInk', base.meInk);
 
     final bgLayers = isLight ? deriveBgLayersLight(bg) : deriveBgLayers(bg);
     final inkLayers = isLight
@@ -80,8 +79,14 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       alert: alert,
       alertBg: alertVariants.alertBg,
       alertLine: alertVariants.alertLine,
-      me: me,
-      meInk: meInk,
+      // "Me" bubble (outgoing chat/channel messages) — default to an
+      // accent-derived surface (primaryDim keeps it a dark fill even for
+      // light accents like Green's gold) instead of the fixed navy that
+      // only the untouched Blue profile happened to match (reported live
+      // 2026-08-14: sent-message bubble stayed navy-blue on Green).
+      me: baseColorFor('me', primaryVariants.primaryDim),
+      meBorder: baseColorFor('meBorder', primary),
+      meInk: baseColorFor('meInk', base.meInk),
       // Map/LOS palettes (A6/04-editor-ui.md) — semantically independent
       // per-marker/per-state colors, applied 1:1, no automat.
       mapOnline: baseColorFor('mapOnline', base.mapOnline),
@@ -91,7 +96,7 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       mapRouter: baseColorFor('mapRouter', base.mapRouter),
       mapBatteryLow: baseColorFor('mapBatteryLow', base.mapBatteryLow),
       mapCluster: baseColorFor('mapCluster', base.mapCluster),
-      mapSelected: baseColorFor('mapSelected', base.mapSelected),
+      mapSelected: baseColorFor('mapSelected', primary),
       mapSensor: baseColorFor('mapSensor', base.mapSensor),
       mapShared: baseColorFor('mapShared', base.mapShared),
       mapPanelLight: baseColorFor('mapPanelLight', base.mapPanelLight),
@@ -494,14 +499,42 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
         labelStyle: base.chipTheme.labelStyle?.copyWith(
           color: scheme.onSurfaceVariant,
         ),
+        // Re-derive selected-state colors too — otherwise a profile's
+        // ChoiceChip (Motyw/Styl pickers, quick style picker) keeps the
+        // DEFAULT style's baked colors instead of the active profile's own
+        // (reported live 2026-08-13: invisible checkmark contrast on both
+        // the Green profile's own chip AND, after a first primaryContainer-
+        // based fix attempt, the Blue profile's — primaryContainer for an
+        // untouched profile resolves to a hardcoded literal that can blend
+        // into the surrounding surface). `tokens.primaryBg` is always a
+        // fresh alpha tint of the profile's own primary — reliably visible
+        // against the flat unselected background in every profile.
+        selectedColor: tokens.primaryBg,
+        checkmarkColor: tokens.primary,
       ),
       iconTheme: base.iconTheme.copyWith(color: scheme.onSurfaceVariant),
       // Input/select chrome bakes its colors the same way (fill, hint,
-      // switch thumb/track, segmented selection) — reported live 2026-08-10:
-      // fields kept the DEFAULT dark palette after switching Custom to light.
+      // switch thumb/track, segmented selection, border/focus outline) —
+      // reported live 2026-08-10: fields kept the DEFAULT dark palette after
+      // switching Custom to light. Border colors were missed in that fix
+      // (reported live 2026-08-14: password field kept the default-blue
+      // focused outline on the Green profile) — re-derive them here too,
+      // same as the buttons/popups/chips instances of this bug class.
       inputDecorationTheme: base.inputDecorationTheme.copyWith(
         fillColor: scheme.surfaceContainerHigh,
         hintStyle: TextStyle(color: scheme.onSurfaceVariant),
+        border: (base.inputDecorationTheme.border as OutlineInputBorder?)
+            ?.copyWith(borderSide: BorderSide(color: scheme.outline)),
+        enabledBorder:
+            (base.inputDecorationTheme.enabledBorder as OutlineInputBorder?)
+                ?.copyWith(
+                  borderSide: BorderSide(color: scheme.outlineVariant),
+                ),
+        focusedBorder:
+            (base.inputDecorationTheme.focusedBorder as OutlineInputBorder?)
+                ?.copyWith(
+                  borderSide: BorderSide(color: scheme.primary, width: 1.5),
+                ),
       ),
       switchTheme: base.switchTheme.copyWith(
         thumbColor: WidgetStateProperty.resolveWith(
@@ -592,92 +625,47 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     return applyChromeRadii(applyChromeFontSizes(withScheme), tokens);
   }
 
-  final darkTokens =
-      applyColorOverrides(MeshTokens.defaultTokens, Brightness.dark).copyWith(
-        monoCaptionSize: monoCaptionSizeFor(MeshTokens.defaultTokens),
-        monoBodySize: monoBodySizeFor(MeshTokens.defaultTokens),
-        spacingXxs: spacingFor(
-          'spacingXxs',
-          MeshTokens.defaultTokens.spacingXxs,
-        ),
-        spacingXs: spacingFor('spacingXs', MeshTokens.defaultTokens.spacingXs),
-        spacingSm: spacingFor('spacingSm', MeshTokens.defaultTokens.spacingSm),
-        spacingMd: spacingFor('spacingMd', MeshTokens.defaultTokens.spacingMd),
-        spacingLg: spacingFor('spacingLg', MeshTokens.defaultTokens.spacingLg),
-        spacingXlg: spacingFor(
-          'spacingXlg',
-          MeshTokens.defaultTokens.spacingXlg,
-        ),
-        spacingXxlg: spacingFor(
-          'spacingXxlg',
-          MeshTokens.defaultTokens.spacingXxlg,
-        ),
-        xs: radiusFor('xs', MeshTokens.defaultTokens.xs),
-        sm: radiusFor('sm', MeshTokens.defaultTokens.sm),
-        md: radiusFor('md', MeshTokens.defaultTokens.md),
-        lg: radiusFor('lg', MeshTokens.defaultTokens.lg),
-        xl: radiusFor('xl', MeshTokens.defaultTokens.xl),
-        cardElevated: overrides.cardElevated ?? true,
-      );
-  final lightTokens =
-      applyColorOverrides(
-        MeshTokens.defaultTokensLight,
-        Brightness.light,
-      ).copyWith(
-        monoCaptionSize: monoCaptionSizeFor(MeshTokens.defaultTokensLight),
-        monoBodySize: monoBodySizeFor(MeshTokens.defaultTokensLight),
-        spacingXxs: spacingFor(
-          'spacingXxs',
-          MeshTokens.defaultTokensLight.spacingXxs,
-        ),
-        spacingXs: spacingFor(
-          'spacingXs',
-          MeshTokens.defaultTokensLight.spacingXs,
-        ),
-        spacingSm: spacingFor(
-          'spacingSm',
-          MeshTokens.defaultTokensLight.spacingSm,
-        ),
-        spacingMd: spacingFor(
-          'spacingMd',
-          MeshTokens.defaultTokensLight.spacingMd,
-        ),
-        spacingLg: spacingFor(
-          'spacingLg',
-          MeshTokens.defaultTokensLight.spacingLg,
-        ),
-        spacingXlg: spacingFor(
-          'spacingXlg',
-          MeshTokens.defaultTokensLight.spacingXlg,
-        ),
-        spacingXxlg: spacingFor(
-          'spacingXxlg',
-          MeshTokens.defaultTokensLight.spacingXxlg,
-        ),
-        xs: radiusFor('xs', MeshTokens.defaultTokensLight.xs),
-        sm: radiusFor('sm', MeshTokens.defaultTokensLight.sm),
-        md: radiusFor('md', MeshTokens.defaultTokensLight.md),
-        lg: radiusFor('lg', MeshTokens.defaultTokensLight.lg),
-        xl: radiusFor('xl', MeshTokens.defaultTokensLight.xl),
-        cardElevated: overrides.cardElevated ?? true,
-      );
+  // Resolve which base MeshTokens/ThemeData pair to start from: a profile
+  // overriding `bg` to a light color renders through the light base;
+  // otherwise (no override, or a dark override) it renders through dark.
+  final probeBg = overrides.colorOverrides['bg'] != null
+      ? Color(overrides.colorOverrides['bg']!)
+      : MeshTokens.defaultTokens.bg;
+  final brightness = ThemeData.estimateBrightnessForColor(probeBg);
+  final baseTokens = brightness == Brightness.light
+      ? MeshTokens.defaultTokensLight
+      : MeshTokens.defaultTokens;
+  final baseTheme = brightness == Brightness.light
+      ? MeshTheme.light()
+      : MeshTheme.dark();
+
+  final tokens = applyColorOverrides(baseTokens).copyWith(
+    monoCaptionSize: monoCaptionSizeFor(baseTokens),
+    monoBodySize: monoBodySizeFor(baseTokens),
+    spacingXxs: spacingFor('spacingXxs', baseTokens.spacingXxs),
+    spacingXs: spacingFor('spacingXs', baseTokens.spacingXs),
+    spacingSm: spacingFor('spacingSm', baseTokens.spacingSm),
+    spacingMd: spacingFor('spacingMd', baseTokens.spacingMd),
+    spacingLg: spacingFor('spacingLg', baseTokens.spacingLg),
+    spacingXlg: spacingFor('spacingXlg', baseTokens.spacingXlg),
+    spacingXxlg: spacingFor('spacingXxlg', baseTokens.spacingXxlg),
+    xs: radiusFor('xs', baseTokens.xs),
+    sm: radiusFor('sm', baseTokens.sm),
+    md: radiusFor('md', baseTokens.md),
+    lg: radiusFor('lg', baseTokens.lg),
+    xl: radiusFor('xl', baseTokens.xl),
+    cardElevated: overrides.cardElevated ?? true,
+  );
 
   return MeshStyle(
     id: 'custom',
     displayName: 'Custom',
-    light: applyColorSchemeAndChrome(
-      defaultStyle.light.copyWith(
-        extensions: [lightTokens],
-        textTheme: applyFontSizeOverrides(defaultStyle.light.textTheme),
+    theme: applyColorSchemeAndChrome(
+      baseTheme.copyWith(
+        extensions: [tokens],
+        textTheme: applyFontSizeOverrides(baseTheme.textTheme),
       ),
-      lightTokens,
-    ),
-    dark: applyColorSchemeAndChrome(
-      defaultStyle.dark.copyWith(
-        extensions: [darkTokens],
-        textTheme: applyFontSizeOverrides(defaultStyle.dark.textTheme),
-      ),
-      darkTokens,
+      tokens,
     ),
   );
 }

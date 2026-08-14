@@ -7,7 +7,8 @@ import 'package:meshcore_open/l10n/app_localizations.dart';
 import 'package:meshcore_open/screens/custom_style_editor_screen.dart';
 import 'package:meshcore_open/services/app_settings_service.dart';
 import 'package:meshcore_open/storage/prefs_manager.dart';
-import 'package:meshcore_open/theme/styles/style_registry.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
 
 Widget _wrap(Widget child, {required AppSettingsService settingsService}) {
   return MultiProvider(
@@ -15,7 +16,9 @@ Widget _wrap(Widget child, {required AppSettingsService settingsService}) {
       ChangeNotifierProvider<AppSettingsService>.value(value: settingsService),
     ],
     child: MaterialApp(
-      theme: StyleRegistry.byId('default').light,
+      theme: MeshTheme.light().copyWith(
+        extensions: const [MeshTokens.defaultTokens],
+      ),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: child,

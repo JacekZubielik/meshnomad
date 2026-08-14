@@ -1342,6 +1342,12 @@ abstract class AppLocalizations {
   /// **'Theme'**
   String get appSettings_theme;
 
+  /// No description provided for @appSettings_colorStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get appSettings_colorStyle;
+
   /// No description provided for @appSettings_themeSystem.
   ///
   /// In en, this message translates to:

@@ -232,6 +232,7 @@
   "appSettings_title": "Alkalmazásbeállítások",
   "appSettings_appearance": "Megjelenés",
   "appSettings_theme": "Téma",
+  "appSettings_colorStyle": "Style",
   "appSettings_themeSystem": "Rendszer alapértelmezett",
   "appSettings_themeLight": "Fény",
   "appSettings_themeDark": "Sötét",

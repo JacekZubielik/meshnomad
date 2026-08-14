@@ -677,6 +677,9 @@ class AppLocalizationsUk extends AppLocalizations {
   String get appSettings_theme => 'Тема';
 
   @override
+  String get appSettings_colorStyle => 'Style';
+
+  @override
   String get appSettings_themeSystem => 'Системна';
 
   @override

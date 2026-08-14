@@ -17,6 +17,7 @@ import '../theme/styles/style_registry.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/sync_progress_overlay.dart';
+import '../widgets/theme_profile_selector.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'custom_style_editor_screen.dart';
 import 'map_cache_screen.dart';
@@ -57,6 +58,7 @@ class AppSettingsScreen extends StatelessWidget {
                   ) {
                     final t = MeshTokens.of(context);
                     return ListView(
+                      key: const ValueKey('appSettingsMainList'),
                       padding: EdgeInsets.fromLTRB(
                         0,
                         t.spacingXs,
@@ -185,96 +187,7 @@ class AppSettingsScreen extends StatelessWidget {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.brightness_6_outlined,
-                    size: 20,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                  SizedBox(width: t.spacingSm),
-                  Text(
-                    context.l10n.appSettings_theme,
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: t.spacingSm), // spacing: 10, +2px
-              SegmentedButton<String>(
-                segments: [
-                  ButtonSegment(
-                    value: 'system',
-                    label: Text(context.l10n.appSettings_themeSystem),
-                  ),
-                  ButtonSegment(
-                    value: 'light',
-                    label: Text(context.l10n.appSettings_themeLight),
-                  ),
-                  ButtonSegment(
-                    value: 'dark',
-                    label: Text(context.l10n.appSettings_themeDark),
-                  ),
-                ],
-                selected: {settingsService.settings.themeMode},
-                onSelectionChanged: (selection) {
-                  settingsService.setThemeMode(selection.first);
-                },
-              ),
-              SizedBox(height: t.spacingMd),
-              Row(
-                children: [
-                  Icon(
-                    Icons.palette_outlined,
-                    size: 20,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                  SizedBox(width: t.spacingSm),
-                  Text(
-                    'Style',
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: t.spacingSm), // spacing: 10, +2px
-              Wrap(
-                spacing: t.spacingXs,
-                runSpacing: t.spacingXs,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  for (final style in StyleRegistry.all)
-                    ChoiceChip(
-                      label: Text(style.displayName),
-                      selected: settingsService.settings.styleId == style.id,
-                      onSelected: (_) => settingsService.setStyleId(style.id),
-                    ),
-                  ChoiceChip(
-                    label: const Text('Custom'),
-                    selected: settingsService.settings.styleId == 'custom',
-                    onSelected: (_) => settingsService.setStyleId('custom'),
-                  ),
-                  // D2/05-settings-entry.md: the editor entry only makes
-                  // sense once Custom is actually selected — showing it
-                  // next to Default too made it look like it belonged to
-                  // the whole Style section rather than just Custom.
-                  if (settingsService.settings.styleId == 'custom')
-                    IconButton(
-                      icon: const Icon(Icons.tune, size: 18),
-                      tooltip: context.l10n.appSettings_editCustomStyleTooltip,
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CustomStyleEditorScreen(),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ],
+            children: [_MotywSection(settingsService: settingsService)],
           ),
         ),
         const Divider(height: 1, indent: 16),
@@ -2573,6 +2486,99 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The "Motyw" section: a layout-theme chip row (Default/Terminal/Omarchy)
+/// and a color-profile chip row (Green/Blue, scoped to the active theme),
+/// plus the entry point to the custom style editor. Selecting a `built:
+/// false` theme (Terminal/Omarchy) shows visual selection via local
+/// [_previewThemeId] state WITHOUT touching persisted settings or
+/// re-theming the app — see ThemeChipRow's doc comment and the design spec
+/// 2026-08-12 "Button set" section.
+class _MotywSection extends StatefulWidget {
+  const _MotywSection({required this.settingsService});
+
+  final AppSettingsService settingsService;
+
+  @override
+  State<_MotywSection> createState() => _MotywSectionState();
+}
+
+class _MotywSectionState extends State<_MotywSection> {
+  String? _previewThemeId;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = MeshTokens.of(context);
+    final textTheme = Theme.of(context).textTheme;
+    final settingsService = widget.settingsService;
+    final activeThemeId =
+        _previewThemeId ?? settingsService.settings.activeThemeId;
+    final activeTheme = StyleRegistry.themeById(activeThemeId);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.l10n.appSettings_theme,
+          style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        SizedBox(height: t.spacingSm),
+        ThemeChipRow(
+          themes: StyleRegistry.themes,
+          activeThemeId: activeThemeId,
+          onThemeSelected: (themeId) {
+            final theme = StyleRegistry.themeById(themeId);
+            if (theme.built) {
+              // A built theme becomes the real active theme — the preview
+              // overlay must clear, or ProfileChipRow keeps rendering the
+              // "no profile selected" preview branch forever.
+              setState(() => _previewThemeId = null);
+              settingsService.setActiveTheme(
+                themeId,
+                profileId: theme.profiles.first.id,
+              );
+            } else {
+              setState(() => _previewThemeId = themeId);
+            }
+          },
+        ),
+        SizedBox(height: t.spacingMd),
+        Text(
+          context.l10n.appSettings_colorStyle,
+          style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        SizedBox(height: t.spacingSm),
+        ProfileChipRow(
+          activeTheme: activeTheme,
+          // While previewing an inert theme (Terminal/Omarchy), no profile
+          // of THAT theme is truly active — pass a value matching none of
+          // its profile ids so nothing shows selected (e.g. Terminal's own
+          // 'green' id would otherwise coincidentally match Default's
+          // active 'green' profile and look selected without applying).
+          activeProfileId: _previewThemeId == null
+              ? settingsService.settings.activeProfileId
+              : '',
+          // Selecting a profile only applies when the displayed theme IS
+          // the actually active one — while previewing an inert theme this
+          // row is display-only, otherwise tapping a profile chip would
+          // silently persist an activeProfileId that doesn't belong to the
+          // real activeThemeId (found in review 2026-08-13).
+          onProfileSelected: _previewThemeId == null
+              ? settingsService.setActiveProfile
+              : (_) {},
+        ),
+        SizedBox(height: t.spacingSm),
+        IconButton(
+          icon: const Icon(Icons.tune, size: 18),
+          tooltip: context.l10n.appSettings_editCustomStyleTooltip,
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CustomStyleEditorScreen()),
+          ),
+        ),
+      ],
     );
   }
 }

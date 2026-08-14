@@ -6,8 +6,8 @@ import '../l10n/app_localizations.dart';
 import '../l10n/l10n.dart';
 import '../models/custom_style_overrides.dart';
 import '../services/app_settings_service.dart';
+import '../theme/mesh_theme.dart';
 import '../theme/mesh_tokens.dart';
-import '../theme/styles/default_style.dart';
 import '../widgets/mesh_ui.dart';
 
 class _ColorFieldSpec {
@@ -217,23 +217,23 @@ Color _liveLosColor(MeshTokens tokens, String key) => switch (key) {
 final List<_FontFieldSpec> _fontFields = [
   _FontFieldSpec(
     'bodyMedium',
-    defaultStyle.light.textTheme.bodyMedium?.fontSize ?? 12,
+    MeshTheme.light().textTheme.bodyMedium?.fontSize ?? 12,
   ),
   _FontFieldSpec(
     'bodySmall',
-    defaultStyle.light.textTheme.bodySmall?.fontSize ?? 11,
+    MeshTheme.light().textTheme.bodySmall?.fontSize ?? 11,
   ),
   _FontFieldSpec(
     'titleSmall',
-    defaultStyle.light.textTheme.titleSmall?.fontSize ?? 13,
+    MeshTheme.light().textTheme.titleSmall?.fontSize ?? 13,
   ),
   _FontFieldSpec(
     'labelSmall',
-    defaultStyle.light.textTheme.labelSmall?.fontSize ?? 10,
+    MeshTheme.light().textTheme.labelSmall?.fontSize ?? 10,
   ),
   _FontFieldSpec(
     'labelMedium',
-    defaultStyle.light.textTheme.labelMedium?.fontSize ?? 15,
+    MeshTheme.light().textTheme.labelMedium?.fontSize ?? 15,
   ),
   _FontFieldSpec('monoCaptionSize', MeshTokens.defaultTokens.monoCaptionSize),
   _FontFieldSpec('monoBodySize', MeshTokens.defaultTokens.monoBodySize),
@@ -624,17 +624,6 @@ class CustomStyleEditorScreen extends StatefulWidget {
 }
 
 class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
-  Brightness? _editedBrightness;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Seed the switch from the app's current theme on first build only —
-    // afterwards the user's own tap on the segment is the source of truth,
-    // independent of whatever brightness the app happens to be rendering.
-    _editedBrightness ??= Theme.of(context).brightness;
-  }
-
   @override
   Widget build(BuildContext context) {
     // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
@@ -645,12 +634,16 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
   }
 
   Widget _screenBody(BuildContext context) {
-    final brightness = _editedBrightness!;
+    // Brightness is no longer an independent runtime toggle — it's derived
+    // from the active profile's own resolved theme (design spec 2026-08-12).
+    // Read straight from the rendered theme, same source `liveLosDefaults`
+    // already used for LOS swatches below.
+    final brightness = Theme.of(context).brightness;
     return Consumer<AppSettingsService>(
       builder: (context, settingsService, child) {
         final l10n = context.l10n;
         final scheme = Theme.of(context).colorScheme;
-        final overrides = settingsService.settings.customStyleOverrides;
+        final overrides = settingsService.activeProfileOverrides;
         return Scaffold(
           appBar: AppBar(
             title: Text(l10n.styleEditor_title),
@@ -661,36 +654,6 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: Center(
-                    child: SegmentedButton<Brightness>(
-                      key: const ValueKey('brightnessSwitch'),
-                      segments: [
-                        ButtonSegment(
-                          value: Brightness.light,
-                          label: Text(l10n.styleEditor_brightnessLight),
-                        ),
-                        ButtonSegment(
-                          value: Brightness.dark,
-                          label: Text(l10n.styleEditor_brightnessDark),
-                        ),
-                      ],
-                      selected: {brightness},
-                      // Switching the edited palette also switches the APP
-                      // theme to that brightness (user decision 2026-08-10)
-                      // — otherwise you edit light values while looking at
-                      // the dark UI and never see what you're changing.
-                      onSelectionChanged: (selection) {
-                        final next = selection.first;
-                        setState(() => _editedBrightness = next);
-                        settingsService.setThemeMode(
-                          next == Brightness.light ? 'light' : 'dark',
-                        );
-                      },
-                    ),
-                  ),
-                ),
                 SectionHeader(l10n.styleEditor_colorsSection),
                 MeshCard(
                   padding: EdgeInsets.zero,
@@ -881,7 +844,7 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
       ),
     );
     if (confirmed == true) {
-      await settingsService.resetAllCustomOverrides();
+      await settingsService.resetActiveProfileToSeed();
     }
   }
 }
@@ -959,10 +922,17 @@ class _ColorFieldRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final (label, subtitle) = _colorFieldText(l10n, spec.key);
-    final override = overrides.colorOverridesFor(brightness)[spec.key];
+    final override = overrides.colorOverrides[spec.key];
     final currentColor = override != null
         ? Color(override)
         : (liveDefaultColor ?? spec.defaultColorFor(brightness));
+    // The reset affordance reflects the user's OWN saved edit, not the
+    // resolved/merged value above — a profile's seed (e.g. Green's bg/
+    // primary) is not itself a "user override" to reset (2026-08-13).
+    final isUserOverridden = settingsService
+        .activeProfileSavedOverrides
+        .colorOverrides
+        .containsKey(spec.key);
     final scheme = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -990,12 +960,9 @@ class _ColorFieldRow extends StatelessWidget {
         key: ValueKey('resetIcon_${spec.key}'),
         icon: const Icon(Icons.settings_backup_restore, size: 20),
         tooltip: l10n.styleEditor_resetTooltip,
-        onPressed: override == null
-            ? null
-            : () => settingsService.resetCustomColorOverride(
-                spec.key,
-                brightness,
-              ),
+        onPressed: isUserOverridden
+            ? () => settingsService.resetCustomColorOverride(spec.key)
+            : null,
       ),
     );
   }
@@ -1011,18 +978,11 @@ class _ColorFieldRow extends StatelessWidget {
         title: title,
         currentColor: currentColor,
         onColorSelected: (color) {
-          settingsService.setCustomColorOverride(
-            spec.key,
-            color,
-            brightness: brightness,
-          );
+          settingsService.setCustomColorOverride(spec.key, color);
           Navigator.of(sheetContext).pop();
         },
-        onPreviewChanged: (color) => settingsService.setCustomColorOverride(
-          spec.key,
-          color,
-          brightness: brightness,
-        ),
+        onPreviewChanged: (color) =>
+            settingsService.setCustomColorOverride(spec.key, color),
       ),
     );
   }

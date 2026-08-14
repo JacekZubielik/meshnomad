@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
 
-/// One selectable visual style: a display name plus the light/dark
-/// [ThemeData] pair (each carrying a [MeshTokens] via [ThemeData.extensions]).
+/// One selectable visual style: a display name plus its single [ThemeData]
+/// (carrying a [MeshTokens] via [ThemeData.extensions]). Brightness is
+/// baked into [theme] — it is a property of the style, not a separate
+/// runtime toggle (design spec 2026-08-12).
 class MeshStyle {
-  MeshStyle({
-    required this.id,
-    required this.displayName,
-    required this.light,
-    required this.dark,
-  });
+  MeshStyle({required this.id, required this.displayName, required this.theme});
 
-  /// Stable identifier persisted in `AppSettings.styleId`. Never rename an
-  /// existing id — that silently resets users to the `default` fallback
-  /// (see `StyleRegistry.byId`).
+  /// Stable identifier — see StyleRegistry / AppSettings.activeProfileId.
   final String id;
-
   final String displayName;
-  final ThemeData light;
-  final ThemeData dark;
+  final ThemeData theme;
 }

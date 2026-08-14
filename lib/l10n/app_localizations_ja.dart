@@ -650,6 +650,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get appSettings_theme => 'テーマ';
 
   @override
+  String get appSettings_colorStyle => 'Style';
+
+  @override
   String get appSettings_themeSystem => 'システム設定';
 
   @override

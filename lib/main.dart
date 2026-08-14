@@ -27,7 +27,6 @@ import 'services/timeout_prediction_service.dart';
 import 'storage/prefs_manager.dart';
 import 'theme/style.dart';
 import 'theme/styles/custom_style.dart';
-import 'theme/styles/style_registry.dart';
 import 'utils/app_logger.dart';
 
 void main() async {
@@ -208,11 +207,7 @@ class MeshCoreApp extends StatelessWidget {
             locale: _localeFromSetting(
               settingsService.settings.languageOverride,
             ),
-            theme: _activeStyle(settingsService).light,
-            darkTheme: _activeStyle(settingsService).dark,
-            themeMode: _themeModeFromSetting(
-              settingsService.settings.themeMode,
-            ),
+            theme: _activeStyle(settingsService).theme,
             builder: (context, child) {
               // Update notification service with resolved locale
               final locale = Localizations.localeOf(context);
@@ -242,22 +237,7 @@ class MeshCoreApp extends StatelessWidget {
   }
 
   MeshStyle _activeStyle(AppSettingsService settingsService) {
-    final styleId = settingsService.settings.styleId;
-    if (styleId == 'custom') {
-      return buildCustomStyle(settingsService.settings.customStyleOverrides);
-    }
-    return StyleRegistry.byId(styleId);
-  }
-
-  ThemeMode _themeModeFromSetting(String value) {
-    switch (value) {
-      case 'light':
-        return ThemeMode.light;
-      case 'dark':
-        return ThemeMode.dark;
-      default:
-        return ThemeMode.system;
-    }
+    return buildCustomStyle(settingsService.activeProfileOverrides);
   }
 
   SystemUiOverlayStyle _systemUiOverlayStyle(BuildContext context) {

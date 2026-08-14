@@ -651,6 +651,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appSettings_theme => '테마';
 
   @override
+  String get appSettings_colorStyle => 'Style';
+
+  @override
   String get appSettings_themeSystem => '시스템 기본값';
 
   @override

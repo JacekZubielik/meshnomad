@@ -674,6 +674,9 @@ class AppLocalizationsNl extends AppLocalizations {
   String get appSettings_theme => 'Thema';
 
   @override
+  String get appSettings_colorStyle => 'Style';
+
+  @override
   String get appSettings_themeSystem => 'Standaardinstelling';
 
   @override
