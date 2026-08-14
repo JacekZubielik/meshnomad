@@ -683,6 +683,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_theme => 'Motyw';
 
   @override
+  String get appSettings_colorStyle => 'Styl';
+
+  @override
   String get appSettings_themeSystem => 'System';
 
   @override
@@ -1859,7 +1862,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get map_title => 'Mapa węzłów';
 
   @override
-  String get map_searchHint => 'Wyszukaj nazwę lub identyfikator węzła';
+  String get map_searchHint => 'Wyszukaj nazwę lub ID węzła';
 
   @override
   String get map_activity => 'Aktywność';
@@ -1915,7 +1918,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get map_chat => 'Rozmowa';
+  String get map_chat => 'Czat';
 
   @override
   String get map_repeater => 'Przekaźnik';

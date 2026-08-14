@@ -92,7 +92,7 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       mapRouter: baseColorFor('mapRouter', base.mapRouter),
       mapBatteryLow: baseColorFor('mapBatteryLow', base.mapBatteryLow),
       mapCluster: baseColorFor('mapCluster', base.mapCluster),
-      mapSelected: baseColorFor('mapSelected', base.mapSelected),
+      mapSelected: baseColorFor('mapSelected', primary),
       mapSensor: baseColorFor('mapSensor', base.mapSensor),
       mapShared: baseColorFor('mapShared', base.mapShared),
       mapPanelLight: baseColorFor('mapPanelLight', base.mapPanelLight),
@@ -495,6 +495,18 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
         labelStyle: base.chipTheme.labelStyle?.copyWith(
           color: scheme.onSurfaceVariant,
         ),
+        // Re-derive selected-state colors too — otherwise a profile's
+        // ChoiceChip (Motyw/Styl pickers, quick style picker) keeps the
+        // DEFAULT style's baked colors instead of the active profile's own
+        // (reported live 2026-08-13: invisible checkmark contrast on both
+        // the Green profile's own chip AND, after a first primaryContainer-
+        // based fix attempt, the Blue profile's — primaryContainer for an
+        // untouched profile resolves to a hardcoded literal that can blend
+        // into the surrounding surface). `tokens.primaryBg` is always a
+        // fresh alpha tint of the profile's own primary — reliably visible
+        // against the flat unselected background in every profile.
+        selectedColor: tokens.primaryBg,
+        checkmarkColor: tokens.primary,
       ),
       iconTheme: base.iconTheme.copyWith(color: scheme.onSurfaceVariant),
       // Input/select chrome bakes its colors the same way (fill, hint,

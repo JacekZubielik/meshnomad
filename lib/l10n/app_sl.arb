@@ -165,6 +165,7 @@
   "appSettings_title": "Nastavitve aplikacije",
   "appSettings_appearance": "Prikaži",
   "appSettings_theme": "Tema",
+  "appSettings_colorStyle": "Style",
   "appSettings_themeSystem": "Sistemska tema",
   "appSettings_themeLight": "Svetlo",
   "appSettings_themeDark": "Temno",

@@ -165,6 +165,7 @@
   "appSettings_title": "Nastavenia aplikácie",
   "appSettings_appearance": "Vzhľad",
   "appSettings_theme": "Téma",
+  "appSettings_colorStyle": "Style",
   "appSettings_themeSystem": "Predvolený systém",
   "appSettings_themeLight": "Svetlo",
   "appSettings_themeDark": "Tmavé",

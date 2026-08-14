@@ -682,6 +682,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appSettings_theme => 'Thème';
 
   @override
+  String get appSettings_colorStyle => 'Style';
+
+  @override
   String get appSettings_themeSystem => 'Défaut système';
 
   @override

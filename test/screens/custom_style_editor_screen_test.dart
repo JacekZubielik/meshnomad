@@ -3,12 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:meshcore_open/connector/meshcore_connector.dart';
 import 'package:meshcore_open/l10n/app_localizations.dart';
-import 'package:meshcore_open/screens/app_settings_screen.dart';
 import 'package:meshcore_open/screens/custom_style_editor_screen.dart';
 import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/services/translation_service.dart';
 import 'package:meshcore_open/storage/prefs_manager.dart';
 import 'package:meshcore_open/theme/mesh_theme.dart';
 import 'package:meshcore_open/theme/mesh_tokens.dart';
@@ -59,6 +56,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+
+      // Brightness is a property of the profile now, not an independent
+      // editor toggle — the SegmentedButton this key used to identify is
+      // removed entirely (design spec 2026-08-12, plan Task 5).
+      expect(find.byKey(const ValueKey('brightnessSwitch')), findsNothing);
 
       // SectionHeader uppercases its label.
       expect(find.text('COLORS'), findsOneWidget);
@@ -326,74 +328,9 @@ void main() {
     });
   });
 
-  // TODO(task-5): this whole group tested the brightness SegmentedButton
-  // (seeds from the current theme, tapping Light/Dark switches which map is
-  // edited, reset clears only the selected brightness's override) — the
-  // toggle and its per-brightness split are removed entirely (design spec
-  // 2026-08-12, plan Task 5). Delete or rewrite once Task 5 lands; there is
-  // no post-Task-5 equivalent to port these assertions to.
-  group(
-    'CustomStyleEditorScreen brightness switch (pkt 17)',
-    skip: true, // TODO(task-5): feature removed, see comment above
-    () {
-      testWidgets(
-        'seeds the switch from the current theme — dark theme '
-        'starts on the Dark segment and edits colorOverridesDark',
-        (tester) async {},
-      );
-
-      testWidgets(
-        'tapping Light switches editing to colorOverridesLight, '
-        'leaving colorOverridesDark untouched',
-        (tester) async {},
-      );
-
-      testWidgets(
-        'reset icon clears only the override for the currently '
-        'selected brightness',
-        (tester) async {},
-      );
-    },
-  );
-
-  // TODO(task-6): this group exercises the OLD Default/Custom style_id chip
-  // picker UI, removed by the Motyw/Styl chip-row restructure (design spec
-  // 2026-08-12, plan Task 6). Rewrite against ThemeChipRow/ProfileChipRow
-  // once Task 6 lands.
-  group(
-    'AppSettingsScreen entry point',
-    skip: true, // TODO(task-6): old picker UI removed, see comment above
-    () {
-      testWidgets('Custom chip + tune icon open CustomStyleEditorScreen', (
-        tester,
-      ) async {
-        final connector = MeshCoreConnector();
-        final translationService = TranslationService(settingsService);
-        addTearDown(translationService.dispose);
-
-        await tester.pumpWidget(
-          MultiProvider(
-            providers: [
-              ChangeNotifierProvider<AppSettingsService>.value(
-                value: settingsService,
-              ),
-              ChangeNotifierProvider<MeshCoreConnector>.value(value: connector),
-              ChangeNotifierProvider<TranslationService>.value(
-                value: translationService,
-              ),
-            ],
-            child: MaterialApp(
-              theme: MeshTheme.light().copyWith(
-                extensions: const [MeshTokens.defaultTokens],
-              ),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: const AppSettingsScreen(),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-      });
-    },
-  );
+  // The old "AppSettingsScreen entry point" group (Custom chip + tune icon
+  // navigation to CustomStyleEditorScreen) tested navigation, not editor
+  // behavior — that coverage now lives properly in
+  // app_settings_screen_test.dart's Motyw-section group (2026-08-13,
+  // design spec plan Task 6), against the new ThemeChipRow/ProfileChipRow.
 }

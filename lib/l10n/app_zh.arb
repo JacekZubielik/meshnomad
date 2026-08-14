@@ -175,6 +175,7 @@
   "appSettings_title": "应用设置",
   "appSettings_appearance": "外观",
   "appSettings_theme": "主题",
+  "appSettings_colorStyle": "Style",
   "appSettings_themeSystem": "跟随系统",
   "appSettings_themeLight": "浅色",
   "appSettings_themeDark": "深色",

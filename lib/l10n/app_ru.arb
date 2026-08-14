@@ -128,6 +128,7 @@
   "appSettings_title": "Настройки приложения",
   "appSettings_appearance": "Внешний вид",
   "appSettings_theme": "Тема",
+  "appSettings_colorStyle": "Style",
   "appSettings_themeSystem": "Как в системе",
   "appSettings_themeLight": "Светлая",
   "appSettings_themeDark": "Тёмная",

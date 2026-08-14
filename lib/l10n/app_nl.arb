@@ -165,6 +165,7 @@
   "appSettings_title": "App Instellingen",
   "appSettings_appearance": "Uiterlijk",
   "appSettings_theme": "Thema",
+  "appSettings_colorStyle": "Style",
   "appSettings_themeSystem": "Standaardinstelling",
   "appSettings_themeLight": "Licht",
   "appSettings_themeDark": "Donker",

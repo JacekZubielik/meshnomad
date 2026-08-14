@@ -471,6 +471,18 @@ class MeshTheme {
           fontWeight: FontWeight.w600,
           color: scheme.onSurfaceVariant,
         ),
+        // Explicit selected-state colors — Material 3's own default (derived
+        // from secondaryContainer) gave near-invisible checkmark contrast
+        // under some custom color profiles (found on-device 2026-08-13).
+        // NOT primaryContainer: for a profile with untouched overrides
+        // (e.g. Blue) that resolves to a hardcoded literal container color
+        // that can blend into the surrounding surface — an alpha tint of
+        // `primary` itself (same 0x29 alpha as MeshTokens.primaryBg,
+        // mesh_derived.dart) always contrasts against the flat unselected
+        // background, and the opaque `primary` checkmark always contrasts
+        // against that tint.
+        selectedColor: scheme.primary.withValues(alpha: 0x29 / 0xFF),
+        checkmarkColor: scheme.primary,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(MeshRadii.pill),
         ),

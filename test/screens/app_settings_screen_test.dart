@@ -62,54 +62,62 @@ void main() {
     );
   }
 
-  // TODO(task-6): this whole group exercises the OLD Default/Custom style_id
-  // chip picker UI, removed by the Motyw/Styl chip-row restructure (design
-  // spec 2026-08-12, plan Task 6). Rewrite against ThemeChipRow/
-  // ProfileChipRow once Task 6 lands.
-  group(
-    'AppSettingsScreen — Style section entry icon (05-settings-entry.md)',
-    () {
-      testWidgets(
-        'editor icon is hidden while styleId is default',
-        skip: true, // TODO(task-6)
-        (tester) async {
-          await tester.pumpWidget(wrap());
-          await tester.pumpAndSettle();
+  group('AppSettingsScreen — Motyw section (theme + profile chip rows)', () {
+    testWidgets('Default theme and Green profile are selected by default; edit '
+        'icon is always present and opens CustomStyleEditorScreen', (
+      tester,
+    ) async {
+      await tester.pumpWidget(wrap());
+      await tester.pumpAndSettle();
 
-          expect(find.byIcon(Icons.tune), findsNothing);
-        },
+      final defaultChip = find.widgetWithText(ChoiceChip, 'Default');
+      final greenChip = find.widgetWithText(ChoiceChip, 'Green');
+      expect(defaultChip, findsOneWidget);
+      expect(greenChip, findsOneWidget);
+      expect(tester.widget<ChoiceChip>(defaultChip).selected, isTrue);
+      expect(tester.widget<ChoiceChip>(greenChip).selected, isTrue);
+
+      expect(find.byIcon(Icons.tune), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.tune));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CustomStyleEditorScreen), findsOneWidget);
+    });
+
+    testWidgets('tapping the Blue profile chip actually switches the '
+        'active profile', (tester) async {
+      await tester.pumpWidget(wrap());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Blue'));
+      await tester.pumpAndSettle();
+
+      expect(settingsService.settings.activeProfileId, 'blue');
+      expect(
+        tester
+            .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Blue'))
+            .selected,
+        isTrue,
       );
+    });
 
-      testWidgets(
-        'editor icon appears once Custom is selected and navigates '
-        'to CustomStyleEditorScreen',
-        skip: true, // TODO(task-6)
-        (tester) async {
-          await tester.pumpWidget(wrap());
-          await tester.pumpAndSettle();
+    testWidgets('tapping the inert Terminal theme chip shows selection '
+        'but does NOT change the persisted active theme', (tester) async {
+      await tester.pumpWidget(wrap());
+      await tester.pumpAndSettle();
 
-          expect(find.byIcon(Icons.tune), findsOneWidget);
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Terminal'));
+      await tester.pumpAndSettle();
 
-          await tester.tap(find.byIcon(Icons.tune));
-          await tester.pumpAndSettle();
-
-          expect(find.byType(CustomStyleEditorScreen), findsOneWidget);
-        },
+      expect(
+        tester
+            .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Terminal'))
+            .selected,
+        isTrue,
       );
-
-      testWidgets(
-        'editor icon disappears again after switching back to Default',
-        skip: true, // TODO(task-6)
-        (tester) async {
-          await tester.pumpWidget(wrap());
-          await tester.pumpAndSettle();
-
-          expect(find.byIcon(Icons.tune), findsOneWidget);
-          expect(find.byIcon(Icons.tune), findsNothing);
-        },
-      );
-    },
-  );
+      expect(settingsService.settings.activeThemeId, 'default');
+    });
+  });
 
   group('AppSettingsScreen — About row (D2, 05-settings-entry.md)', () {
     testWidgets('About row is present at the bottom and opens the about '
@@ -118,8 +126,25 @@ void main() {
       await tester.pumpAndSettle();
 
       // The ListView is a lazy sliver — "About" sits well below the fold,
-      // so drag straight to the bottom before it exists in the tree at all.
-      await tester.drag(find.byType(ListView), const Offset(0, -5000));
+      // so scroll it into view before it exists in the tree at all. Target
+      // the main list's own Scrollable by its key — the screen has other
+      // Scrollables (an internal TextField, modal sheets) that would
+      // otherwise make a positional/type-only finder ambiguous or fragile.
+      // The keyed list itself has a nested Scrollable too (a TextField's
+      // internal EditableText further down) — `.first` resolves to the
+      // list's OWN Scrollable since it's the structural ancestor and a
+      // depth-first descendant search finds it before the nested one.
+      final outerScrollable = find
+          .descendant(
+            of: find.byKey(const ValueKey('appSettingsMainList')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        find.text('About'),
+        500,
+        scrollable: outerScrollable,
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('About'), findsOneWidget);

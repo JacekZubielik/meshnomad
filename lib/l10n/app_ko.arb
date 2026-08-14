@@ -232,6 +232,7 @@
   "appSettings_title": "앱 설정",
   "appSettings_appearance": "모양",
   "appSettings_theme": "테마",
+  "appSettings_colorStyle": "Style",
   "appSettings_themeSystem": "시스템 기본값",
   "appSettings_themeLight": "밝음",
   "appSettings_themeDark": "어두움",

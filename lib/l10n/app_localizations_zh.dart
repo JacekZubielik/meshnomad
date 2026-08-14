@@ -642,6 +642,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appSettings_theme => '主题';
 
   @override
+  String get appSettings_colorStyle => 'Style';
+
+  @override
   String get appSettings_themeSystem => '跟随系统';
 
   @override

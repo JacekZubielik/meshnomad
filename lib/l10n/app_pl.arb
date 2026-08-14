@@ -165,6 +165,7 @@
   "appSettings_title": "Ustawienia aplikacji",
   "appSettings_appearance": "Wygląd",
   "appSettings_theme": "Motyw",
+  "appSettings_colorStyle": "Styl",
   "appSettings_themeSystem": "System",
   "appSettings_themeLight": "Jasny",
   "appSettings_themeDark": "Ciemny",
@@ -683,7 +684,7 @@
       }
     }
   },
-  "map_chat": "Rozmowa",
+  "map_chat": "Czat",
   "map_repeater": "Przekaźnik",
   "map_room": "Pokój",
   "map_sensor": "Czujnik",
@@ -2632,7 +2633,7 @@
     }
   },
   "map_online": "Online",
-  "map_searchHint": "Wyszukaj nazwę lub identyfikator węzła",
+  "map_searchHint": "Wyszukaj nazwę lub ID węzła",
   "scanner_bluetoothWebUnsupported": "Bluetooth nie jest dostępny w przeglądarce. Połącz się przez USB.",
   "map_activity": "Aktywność",
   "map_recent": "Ostatnie",

@@ -163,6 +163,7 @@
   "appSettings_title": "Impostazioni App",
   "appSettings_appearance": "Aspetto",
   "appSettings_theme": "Tema",
+  "appSettings_colorStyle": "Style",
   "appSettings_themeSystem": "Predefinito del sistema",
   "appSettings_themeLight": "Chiaro",
   "appSettings_themeDark": "Scuro",

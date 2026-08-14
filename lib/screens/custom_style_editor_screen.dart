@@ -624,17 +624,6 @@ class CustomStyleEditorScreen extends StatefulWidget {
 }
 
 class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
-  Brightness? _editedBrightness;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Seed the switch from the app's current theme on first build only —
-    // afterwards the user's own tap on the segment is the source of truth,
-    // independent of whatever brightness the app happens to be rendering.
-    _editedBrightness ??= Theme.of(context).brightness;
-  }
-
   @override
   Widget build(BuildContext context) {
     // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
@@ -645,7 +634,11 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
   }
 
   Widget _screenBody(BuildContext context) {
-    final brightness = _editedBrightness!;
+    // Brightness is no longer an independent runtime toggle — it's derived
+    // from the active profile's own resolved theme (design spec 2026-08-12).
+    // Read straight from the rendered theme, same source `liveLosDefaults`
+    // already used for LOS swatches below.
+    final brightness = Theme.of(context).brightness;
     return Consumer<AppSettingsService>(
       builder: (context, settingsService, child) {
         final l10n = context.l10n;
@@ -661,36 +654,6 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: Center(
-                    child: SegmentedButton<Brightness>(
-                      key: const ValueKey('brightnessSwitch'),
-                      segments: [
-                        ButtonSegment(
-                          value: Brightness.light,
-                          label: Text(l10n.styleEditor_brightnessLight),
-                        ),
-                        ButtonSegment(
-                          value: Brightness.dark,
-                          label: Text(l10n.styleEditor_brightnessDark),
-                        ),
-                      ],
-                      selected: {brightness},
-                      // Switching the edited palette also switches the APP
-                      // theme to that brightness (user decision 2026-08-10)
-                      // — otherwise you edit light values while looking at
-                      // the dark UI and never see what you're changing.
-                      // TODO(task-5): this toggle and its app-wide theme
-                      // switch are removed entirely — brightness is now a
-                      // property of the active profile, not an independent
-                      // runtime setting (design spec 2026-08-12).
-                      onSelectionChanged: (selection) {
-                        setState(() => _editedBrightness = selection.first);
-                      },
-                    ),
-                  ),
-                ),
                 SectionHeader(l10n.styleEditor_colorsSection),
                 MeshCard(
                   padding: EdgeInsets.zero,
