@@ -674,7 +674,7 @@ class _ContactsScreenState extends State<ContactsScreen>
         child: DecoratedBox(
           decoration: BoxDecoration(
             border: Border.all(color: Theme.of(context).colorScheme.outline),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(
@@ -826,7 +826,9 @@ class _ContactsScreenState extends State<ContactsScreen>
                     border: Border.all(
                       color: Theme.of(context).colorScheme.outline,
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(
+                      MeshTokens.of(context).md,
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -1678,7 +1680,10 @@ class _ContactTile extends StatelessWidget {
                   border: Border.all(color: scheme.outlineVariant),
                 ),
                 alignment: Alignment.center,
-                child: Text(emoji, style: const TextStyle(fontSize: 20)),
+                child: Text(
+                  emoji,
+                  style: MeshTokens.of(context).emoji(fontSize: 20),
+                ),
               )
             else
               AvatarCircle(

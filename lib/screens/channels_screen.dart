@@ -504,10 +504,10 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                           width: 2,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.people,
                         size: 8,
-                        color: Colors.white,
+                        color: MeshTokens.of(context).secondaryInk,
                       ),
                     ),
                   ),

@@ -452,7 +452,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 ],
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
               ),
               contentPadding: EdgeInsets.symmetric(
                 horizontal: t.spacingMd,
