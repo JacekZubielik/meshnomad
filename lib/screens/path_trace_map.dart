@@ -1653,13 +1653,16 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
         _animationEnabled && _playback.started && _playback.hasPath;
 
     final lines = buildMultiPathPolylines(
+      context,
       visible: visible,
       selected: selected,
       combined: _viewMode == PathViewMode.combined,
       animating: animating,
     );
     if (animating && selected != null) {
-      lines.addAll(buildPacketTrailPolylines(_playback, selected.color));
+      lines.addAll(
+        buildPacketTrailPolylines(context, _playback, selected.color),
+      );
     }
     return lines;
   }
@@ -1667,7 +1670,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
   List<Marker> _buildPacketMarkers() {
     final selected = _selectedPath;
     if (!_animationEnabled || selected == null) return const [];
-    return buildPacketMarkers(_playback, selected.color);
+    return buildPacketMarkers(context, _playback, selected.color);
   }
 
   Widget _buildBottomPanel(

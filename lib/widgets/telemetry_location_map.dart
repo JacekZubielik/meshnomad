@@ -11,6 +11,7 @@ import '../models/app_settings.dart';
 import '../models/contact.dart';
 import '../services/app_settings_service.dart';
 import '../services/map_tile_cache_service.dart';
+import '../theme/mesh_tokens.dart';
 
 class TelemetryLocationMap extends StatefulWidget {
   final double latitude;
@@ -71,10 +72,14 @@ class _TelemetryLocationMapState extends State<TelemetryLocationMap> {
     final contacts = _filteredContacts(connector, settings);
     final isDesktop = _isDesktopPlatform(defaultTargetPlatform);
 
+    final tokens = MeshTokens.of(context);
     return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      padding: EdgeInsets.only(
+        top: tokens.spacingXs,
+        bottom: tokens.spacingXxs,
+      ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(tokens.xs),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final maxHeight = MediaQuery.sizeOf(context).height * 0.75;
@@ -193,7 +198,7 @@ class _TelemetryLocationMapState extends State<TelemetryLocationMap> {
       height: 44,
       child: IgnorePointer(
         child: _MarkerBubble(
-          color: Colors.red,
+          color: MeshTokens.of(context).mapSelected,
           icon: _getNodeIcon(widget.contactType),
           size: 24,
         ),
@@ -228,10 +233,15 @@ class _TelemetryLocationMapState extends State<TelemetryLocationMap> {
           child: FittedBox(
             fit: BoxFit.contain,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              // Mirrors line_of_sight_map_screen.dart's node-label marker
+              // token choices exactly (the "already-correct" sibling copy).
+              padding: EdgeInsets.symmetric(
+                horizontal: MeshTokens.of(context).spacingXxs,
+                vertical: MeshTokens.of(context).spacingHairline,
+              ),
               decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(8),
+                color: MeshTokens.of(context).mapPanelDark,
+                borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
               ),
               alignment: Alignment.center,
               child: Text(
@@ -239,7 +249,7 @@ class _TelemetryLocationMapState extends State<TelemetryLocationMap> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.white,
+                  color: MeshTokens.of(context).mapMarkerInk,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -265,15 +275,15 @@ class _TelemetryLocationMapState extends State<TelemetryLocationMap> {
   Color _getNodeColor(int type) {
     switch (type) {
       case advTypeChat:
-        return Colors.blue;
+        return MeshTokens.of(context).mapSelected;
       case advTypeRepeater:
-        return Colors.green;
+        return MeshTokens.of(context).mapRepeater;
       case advTypeRoom:
-        return Colors.purple;
+        return MeshTokens.of(context).mapRouter;
       case advTypeSensor:
-        return Colors.orange;
+        return MeshTokens.of(context).mapSensor;
       default:
-        return Colors.grey;
+        return MeshTokens.of(context).mapOffline;
     }
   }
 
@@ -370,22 +380,23 @@ class _MarkerBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: EdgeInsets.all(tokens.spacingXxs),
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
+        border: Border.all(color: tokens.mapMarkerOutline, width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: tokens.mapMarkerShadow,
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       alignment: Alignment.center,
-      child: Icon(icon, color: Colors.white, size: size),
+      child: Icon(icon, color: tokens.mapMarkerInk, size: size),
     );
   }
 }
@@ -406,7 +417,7 @@ class _MapButton extends StatelessWidget {
     return Material(
       color: Theme.of(context).colorScheme.surface,
       elevation: 3,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
       clipBehavior: Clip.antiAlias,
       child: IconButton(
         icon: Icon(icon),

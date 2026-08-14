@@ -65,7 +65,8 @@ String formatLastObserved(BuildContext context, DateTime timestamp) {
 /// Polylines for the visible paths: shared-segment halos (combined view),
 /// dashed runs for estimated segments, dimming for unfocused paths and for
 /// the selected path while its packet animation is running.
-List<Polyline> buildMultiPathPolylines({
+List<Polyline> buildMultiPathPolylines(
+  BuildContext context, {
   required List<DisplayPath> visible,
   required DisplayPath? selected,
   required bool combined,
@@ -93,7 +94,7 @@ List<Polyline> buildMultiPathPolylines({
           Polyline(
             points: [path.points[i], path.points[i + 1]],
             strokeWidth: 11,
-            color: Colors.white.withValues(alpha: 0.22),
+            color: MeshTokens.of(context).mapShared.withValues(alpha: 0.22),
           ),
         );
       }
@@ -146,6 +147,7 @@ String _segmentKey(LatLng a, LatLng b) {
 
 /// Bright traversed portion plus the glow on the active segment.
 List<Polyline> buildPacketTrailPolylines(
+  BuildContext context,
   PathPlaybackController playback,
   Color color,
 ) {
@@ -166,7 +168,11 @@ List<Polyline> buildPacketTrailPolylines(
 }
 
 /// The moving packet dot and the pulse ring at the hop it just reached.
-List<Marker> buildPacketMarkers(PathPlaybackController playback, Color color) {
+List<Marker> buildPacketMarkers(
+  BuildContext context,
+  PathPlaybackController playback,
+  Color color,
+) {
   if (!playback.started || !playback.hasPath) return const [];
   final markers = <Marker>[];
 
@@ -207,7 +213,10 @@ List<Marker> buildPacketMarkers(PathPlaybackController playback, Color color) {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: color,
-            border: Border.all(color: Colors.white, width: 2),
+            border: Border.all(
+              color: MeshTokens.of(context).mapMarkerOutline,
+              width: 2,
+            ),
             boxShadow: [
               BoxShadow(
                 color: color.withValues(alpha: 0.7),
@@ -550,7 +559,7 @@ class PathMiniLegend extends StatelessWidget {
               width: 14,
               height: 6,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.35),
+                color: MeshTokens.of(context).mapShared.withValues(alpha: 0.35),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),

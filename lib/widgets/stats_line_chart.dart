@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/mesh_tokens.dart';
+
 /// The one line-chart style shared by every stats view (noise floor, BLE
 /// RSSI, battery charge): rounded card, 4 gridlines, y-axis labels, single
 /// primary-colored series over uniformly spaced samples.
@@ -22,6 +24,7 @@ class StatsLineChart extends StatelessWidget {
               : List<double>.from(samples),
           colorScheme: Theme.of(context).colorScheme,
           textTheme: Theme.of(context).textTheme,
+          tokens: MeshTokens.of(context),
         ),
         child: const SizedBox.expand(),
       ),
@@ -33,11 +36,13 @@ class _StatsLinePainter extends CustomPainter {
   final List<double> samples;
   final ColorScheme colorScheme;
   final TextTheme textTheme;
+  final MeshTokens tokens;
 
   _StatsLinePainter({
     required this.samples,
     required this.colorScheme,
     required this.textTheme,
+    required this.tokens,
   });
 
   @override
@@ -57,11 +62,11 @@ class _StatsLinePainter extends CustomPainter {
 
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
+      RRect.fromRectAndRadius(rect, Radius.circular(tokens.xs)),
       bg,
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
+      RRect.fromRectAndRadius(rect, Radius.circular(tokens.xs)),
       border,
     );
 

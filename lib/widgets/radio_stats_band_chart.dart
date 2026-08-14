@@ -121,6 +121,7 @@ class _RadioStatsBandChartState extends State<RadioStatsBandChart> {
                         noiseColor: noiseColor,
                         snrColor: snrLineColor,
                         noiseLabel: widget.noiseLabel,
+                        tokens: tokens,
                       ),
                       child: const SizedBox.expand(),
                     ),
@@ -137,6 +138,7 @@ class _RadioStatsBandChartState extends State<RadioStatsBandChart> {
                         colorScheme: scheme,
                         textTheme: tt,
                         lineColor: snrLineColor,
+                        tokens: tokens,
                       ),
                       child: const SizedBox.expand(),
                     ),
@@ -178,6 +180,7 @@ class RadioStatsBandChartPainter extends CustomPainter {
     required this.noiseColor,
     required this.snrColor,
     required this.noiseLabel,
+    required this.tokens,
   });
 
   final List<double> rssi;
@@ -189,6 +192,7 @@ class RadioStatsBandChartPainter extends CustomPainter {
   final Color noiseColor;
   final Color snrColor;
   final String noiseLabel;
+  final MeshTokens tokens;
 
   static const double _padL = 40;
   static const double _padR = 8;
@@ -279,11 +283,11 @@ class RadioStatsBandChartPainter extends CustomPainter {
   Rect _paintFrame(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
+      RRect.fromRectAndRadius(rect, Radius.circular(tokens.xs)),
       Paint()..color = colorScheme.surfaceContainerHighest,
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
+      RRect.fromRectAndRadius(rect, Radius.circular(tokens.xs)),
       Paint()
         ..color = colorScheme.outlineVariant
         ..style = PaintingStyle.stroke
@@ -373,7 +377,7 @@ class RadioStatsBandChartPainter extends CustomPainter {
     final left = x + 10 + w > chart.right ? x - w - 10 : x + 10;
     final rect = RRect.fromRectAndRadius(
       Rect.fromLTWH(left, chart.top + 4, w, h),
-      const Radius.circular(8),
+      Radius.circular(tokens.xs),
     );
     canvas.drawRRect(rect, Paint()..color = colorScheme.surfaceContainerHigh);
     canvas.drawRRect(
@@ -416,6 +420,7 @@ class RadioStatsSnrStripPainter extends CustomPainter {
     required this.colorScheme,
     required this.textTheme,
     required this.lineColor,
+    required this.tokens,
   });
 
   final List<double> snr;
@@ -423,6 +428,7 @@ class RadioStatsSnrStripPainter extends CustomPainter {
   final ColorScheme colorScheme;
   final TextTheme textTheme;
   final Color lineColor;
+  final MeshTokens tokens;
 
   static const double _padL = 40;
   static const double _padR = 8;
@@ -433,11 +439,11 @@ class RadioStatsSnrStripPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
+      RRect.fromRectAndRadius(rect, Radius.circular(tokens.xs)),
       Paint()..color = colorScheme.surfaceContainerHighest,
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
+      RRect.fromRectAndRadius(rect, Radius.circular(tokens.xs)),
       Paint()
         ..color = colorScheme.outlineVariant
         ..style = PaintingStyle.stroke
