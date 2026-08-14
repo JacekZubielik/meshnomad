@@ -652,7 +652,12 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
           body: SafeArea(
             top: false,
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
+              padding: EdgeInsets.fromLTRB(
+                0,
+                MeshTokens.of(context).spacingXs,
+                0,
+                MeshTokens.of(context).spacingLg,
+              ),
               children: [
                 SectionHeader(l10n.styleEditor_colorsSection),
                 MeshCard(
@@ -691,7 +696,12 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                 ),
                 SectionHeader(l10n.styleEditor_fontSizesSection),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  padding: EdgeInsets.fromLTRB(
+                    MeshTokens.of(context).spacingMd,
+                    0,
+                    MeshTokens.of(context).spacingMd,
+                    MeshTokens.of(context).spacingXs,
+                  ),
                   child: Text(
                     l10n.styleEditor_fontSizesIntro,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -801,7 +811,12 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  padding: EdgeInsets.fromLTRB(
+                    MeshTokens.of(context).spacingMd,
+                    MeshTokens.of(context).spacingMd,
+                    MeshTokens.of(context).spacingMd,
+                    0,
+                  ),
                   child: SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
@@ -935,7 +950,10 @@ class _ColorFieldRow extends StatelessWidget {
         .containsKey(spec.key);
     final scheme = Theme.of(context).colorScheme;
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+        vertical: MeshTokens.of(context).spacingXxs,
+      ),
       title: Text(label),
       subtitle: Text(
         subtitle,
@@ -1123,7 +1141,12 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
     // must clear the system navigation bar itself.
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     return Padding(
-      padding: EdgeInsets.fromLTRB(0, 0, 0, 16 + bottomInset),
+      padding: EdgeInsets.fromLTRB(
+        0,
+        0,
+        0,
+        MeshTokens.of(context).spacingMd + bottomInset,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1265,7 +1288,9 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
                         child: Container(
                           padding: const EdgeInsets.fromLTRB(6, 4, 10, 4),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(999),
+                            borderRadius: BorderRadius.circular(
+                              MeshTokens.of(context).pill,
+                            ),
                             border: Border.all(
                               color: Theme.of(context).colorScheme.outline,
                             ),
@@ -1338,7 +1363,10 @@ class _FontFieldRow extends StatelessWidget {
     );
     final scheme = Theme.of(context).colorScheme;
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+        vertical: MeshTokens.of(context).spacingXxs,
+      ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1416,7 +1444,7 @@ class _TokenFieldRow extends StatelessWidget {
           height: 16,
           decoration: BoxDecoration(
             color: accent.withValues(alpha: 0.75),
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
           ),
         );
         return Row(
@@ -1439,9 +1467,9 @@ class _TokenFieldRow extends StatelessWidget {
             border: Border.all(color: accent, width: 2),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(currentValue),
-              topRight: const Radius.circular(4),
-              bottomLeft: const Radius.circular(4),
-              bottomRight: const Radius.circular(4),
+              topRight: Radius.circular(MeshTokens.of(context).xs),
+              bottomLeft: Radius.circular(MeshTokens.of(context).xs),
+              bottomRight: Radius.circular(MeshTokens.of(context).xs),
             ),
           ),
         );
@@ -1454,7 +1482,10 @@ class _TokenFieldRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final value = currentValue.clamp(spec.min, spec.max).toDouble();
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+        vertical: MeshTokens.of(context).spacingXxs,
+      ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

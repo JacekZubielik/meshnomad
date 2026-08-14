@@ -169,8 +169,13 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
                         final fetchedRegion = sortedRegions[index];
                         final alreadyExists = _regions.contains(fetchedRegion);
                         return MeshCard(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          padding: const EdgeInsets.only(left: 14, right: 4),
+                          margin: EdgeInsets.symmetric(
+                            vertical: MeshTokens.of(context).spacingXxs,
+                          ),
+                          padding: EdgeInsets.only(
+                            left: MeshTokens.of(context).spacingSm,
+                            right: MeshTokens.of(context).spacingXxs,
+                          ),
                           child: Row(
                             children: [
                               Icon(
@@ -241,9 +246,12 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
           child: Material(
             color: theme.colorScheme.inverseSurface,
             elevation: 6,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: EdgeInsets.symmetric(
+                horizontal: MeshTokens.of(context).spacingMd,
+                vertical: MeshTokens.of(context).spacingSm,
+              ),
               child: Text(
                 message,
                 style: theme.textTheme.bodyMedium?.copyWith(
@@ -472,7 +480,10 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
     final scheme = Theme.of(context).colorScheme;
     return MeshCard(
       key: ValueKey(region),
-      padding: const EdgeInsets.only(left: 14, right: 4),
+      padding: EdgeInsets.only(
+        left: MeshTokens.of(context).spacingSm,
+        right: MeshTokens.of(context).spacingXxs,
+      ),
       child: Row(
         children: [
           Icon(Icons.landscape, color: MeshTokens.of(context).primary),
