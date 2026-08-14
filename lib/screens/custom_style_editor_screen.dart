@@ -264,10 +264,10 @@ final List<_SpacingFieldSpec> _spacingFields = [
 
 final List<_SpacingFieldSpec> _radiusFields = [
   _SpacingFieldSpec('xs', MeshTokens.defaultTokens.xs, 0, 16),
-  _SpacingFieldSpec('sm', MeshTokens.defaultTokens.sm, 4, 20),
-  _SpacingFieldSpec('md', MeshTokens.defaultTokens.md, 6, 24),
-  _SpacingFieldSpec('lg', MeshTokens.defaultTokens.lg, 10, 32),
-  _SpacingFieldSpec('xl', MeshTokens.defaultTokens.xl, 14, 40),
+  _SpacingFieldSpec('sm', MeshTokens.defaultTokens.sm, 0, 20),
+  _SpacingFieldSpec('md', MeshTokens.defaultTokens.md, 0, 24),
+  _SpacingFieldSpec('lg', MeshTokens.defaultTokens.lg, 0, 32),
+  _SpacingFieldSpec('xl', MeshTokens.defaultTokens.xl, 0, 40),
 ];
 
 /// Maps a color field key to its localized (label, subtitle) pair. One
