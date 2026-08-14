@@ -527,11 +527,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settings_actions => 'Działania';
 
   @override
-  String get settings_deleteAllPaths => 'Delete All Paths';
+  String get settings_deleteAllPaths => 'Usuń wszystkie ścieżki';
 
   @override
   String get settings_deleteAllPathsSubtitle =>
-      'Clear all path data from contacts.';
+      'Usuń wszystkie dane ścieżek z kontaktów.';
 
   @override
   String get settings_sendAdvertisement => 'Wyślij rozgłoszenie';
@@ -1655,13 +1655,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get routing_title => 'Planowanie tras';
 
   @override
-  String get routing_modeAuto => 'Samochód';
+  String get routing_modeAuto => 'Automatycznie';
 
   @override
   String get routing_modeFlood => 'Powódź';
 
   @override
-  String get routing_modeManual => 'Instrukcja obsługi';
+  String get routing_modeManual => 'Ręcznie';
 
   @override
   String get routing_modeAutoHint =>
@@ -1734,29 +1734,29 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String routing_deliveryCounts(int successes, int failures) {
-    return '$successes delivered, $failures failed';
+    return '$successes dostarczonych, $failures nieudanych';
   }
 
   @override
   String get routing_floodDelivery => 'Dostawa w przypadku powodzi';
 
   @override
-  String get pathEditor_title => 'Stworzenie ścieżki';
+  String get pathEditor_title => 'Utwórz ścieżkę';
 
   @override
   String pathEditor_hopCounter(int count) {
-    return '$count z 64 rodzajów chmielu';
+    return '$count z 64 skoków';
   }
 
   @override
   String get pathEditor_noHops =>
-      'Na razie nie dodano żadnych chmielu. Aby dodać je w odpowiedniej kolejności, kliknij w odpowiednie przyciski poniżej, lub zapisz przepis bez chmielu, aby wysłać go bezpośrednio.';
+      'Nie dodano jeszcze żadnych skoków. Dotknij przekaźników poniżej, aby dodać je w odpowiedniej kolejności, lub zapisz bez skoków, aby wysłać bezpośrednio.';
 
   @override
-  String get pathEditor_addHops => 'Dodawaj chmiel zgodnie z kolejnością.';
+  String get pathEditor_addHops => 'Dodawaj skoki w odpowiedniej kolejności.';
 
   @override
-  String get pathEditor_searchRepeaters => 'Funkcje powtarzania';
+  String get pathEditor_searchRepeaters => 'Szukaj przekaźników';
 
   @override
   String get pathEditor_advancedHex =>
@@ -1767,7 +1767,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pathEditor_hexHelper =>
-      'Dwa znaki szesnastkowe na każdym kroku, oddzielone przecinkami';
+      'Dwa znaki szesnastkowe na każdy skok, oddzielone przecinkami';
 
   @override
   String pathEditor_invalidTokens(String tokens) {
@@ -1775,13 +1775,13 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get pathEditor_tooManyHops => 'Maksymalnie 64 hopów';
+  String get pathEditor_tooManyHops => 'Maksymalnie 64 skoki';
 
   @override
   String get pathEditor_usePath => 'Użyj tej ścieżki.';
 
   @override
-  String get pathEditor_removeHop => 'Usuń dziką psiankę';
+  String get pathEditor_removeHop => 'Usuń skok';
 
   @override
   String get pathEditor_unknownHop => 'Nieznany repeater';
@@ -1958,7 +1958,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get map_type => 'Type';
 
   @override
-  String get map_path => 'Path';
+  String get map_path => 'Ścieżka';
 
   @override
   String get map_location => 'Location';
@@ -4038,14 +4038,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pathTrace_failed => 'Śledzenie ścieżki nie powiodło się.';
 
   @override
-  String get pathTrace_notAvailable => 'Ścieżka śledzenia niedostępna.';
+  String get pathTrace_notAvailable => 'Śledzenie ścieżki niedostępne.';
 
   @override
   String get pathTrace_refreshTooltip => 'Odśwież ścieżkę.';
 
   @override
   String get pathTrace_someHopsNoLocation =>
-      'Jeden lub więcej z chmieli nie ma określonej lokalizacji!';
+      'Jeden lub więcej ze skoków nie ma określonej lokalizacji!';
 
   @override
   String get pathTrace_clearTooltip => 'Wyczyść ścieżkę';
