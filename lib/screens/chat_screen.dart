@@ -525,7 +525,9 @@ class _ChatScreenState extends State<ChatScreen> {
                           children: [
                             Expanded(
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(
+                                  MeshTokens.of(context).md,
+                                ),
                                 child: GifMessage(
                                   url:
                                       'https://media.giphy.com/media/$gifId/giphy.gif',
@@ -1360,7 +1362,6 @@ class _MessageBubble extends StatelessWidget {
         ? MeshTokens.of(context).meInk
         : scheme.onSurface;
     final metaColor = textColor.withValues(alpha: 0.65);
-    const bodyFontSize = 14.0;
 
     // Asymmetric radius: outgoing — top-left large, others also large; outgoing bottom-right tight.
     final borderRadius = isOutgoing
@@ -1466,7 +1467,9 @@ class _MessageBubble extends StatelessWidget {
                             Stack(
                               children: [
                                 ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(
+                                    MeshTokens.of(context).md,
+                                  ),
                                   child: GifMessage(
                                     url:
                                         'https://media.giphy.com/media/$gifId/giphy.gif',
@@ -1499,7 +1502,9 @@ class _MessageBubble extends StatelessWidget {
                                                           .textTheme
                                                           .titleSmall
                                                           ?.fontSize ??
-                                                      bodyFontSize) *
+                                                      MeshTokens.of(
+                                                        context,
+                                                      ).bodySize) *
                                                   textScale,
                                             ),
                                     originalStyle:
@@ -1516,7 +1521,9 @@ class _MessageBubble extends StatelessWidget {
                                                           .textTheme
                                                           .titleSmall
                                                           ?.fontSize ??
-                                                      bodyFontSize) *
+                                                      MeshTokens.of(
+                                                        context,
+                                                      ).bodySize) *
                                                   textScale,
                                             ),
                                     onSecondaryTap: PlatformInfo.isDesktop
