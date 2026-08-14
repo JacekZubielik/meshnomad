@@ -57,11 +57,17 @@ class RepeaterHubScreen extends StatelessWidget {
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: EdgeInsets.only(bottom: MeshTokens.of(context).spacingLg),
           children: [
             // ── Identity card ─────────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
+              // vertical 20 has no exact token — spacingLg (24) is nearest.
+              padding: EdgeInsets.fromLTRB(
+                MeshTokens.of(context).spacingMd,
+                MeshTokens.of(context).spacingLg,
+                MeshTokens.of(context).spacingMd,
+                MeshTokens.of(context).spacingXxs,
+              ),
               child: MeshCard(
                 margin: EdgeInsets.zero,
                 padding: const EdgeInsets.all(20),
@@ -142,7 +148,10 @@ class RepeaterHubScreen extends StatelessWidget {
             if (isAdmin) ...[
               SectionHeader(l10n.appSettings_batteryChemistry),
               MeshCard(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                margin: EdgeInsets.symmetric(
+                  horizontal: MeshTokens.of(context).spacingMd,
+                  vertical: MeshTokens.of(context).spacingXxs,
+                ),
                 padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
                 child: DropdownButtonFormField<String>(
                   initialValue: chemistry,

@@ -72,9 +72,9 @@ class AppDebugLogScreen extends StatelessWidget {
                       final entry = entries[index];
                       return Container(
                         color: MeshTokens.of(context).bg,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: MeshTokens.of(context).spacingMd,
+                          vertical: MeshTokens.of(context).spacingXs,
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,

@@ -111,7 +111,12 @@ class _UsbScreenState extends State<UsbScreen> {
               children: [
                 // Status header
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                  padding: EdgeInsets.fromLTRB(
+                    MeshTokens.of(context).spacingMd,
+                    MeshTokens.of(context).spacingSm,
+                    MeshTokens.of(context).spacingMd,
+                    MeshTokens.of(context).spacingXxs,
+                  ),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: Align(
@@ -136,7 +141,12 @@ class _UsbScreenState extends State<UsbScreen> {
           ? null
           : SafeArea(
               top: false,
-              minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              minimum: EdgeInsets.fromLTRB(
+                MeshTokens.of(context).spacingMd,
+                MeshTokens.of(context).spacingXs,
+                MeshTokens.of(context).spacingMd,
+                MeshTokens.of(context).spacingMd,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -206,7 +216,10 @@ class _UsbScreenState extends State<UsbScreen> {
 
   Widget _buildTransportLinks(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+        vertical: MeshTokens.of(context).spacingXs,
+      ),
       child: Wrap(
         spacing: 12,
         runSpacing: 8,
@@ -247,7 +260,7 @@ class _UsbScreenState extends State<UsbScreen> {
         connector.activeTransport == MeshCoreTransportType.usb;
 
     return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 32),
+      padding: EdgeInsets.only(bottom: MeshTokens.of(context).spacingXlg),
       itemCount: _ports.length,
       itemBuilder: (context, index) {
         final port = _ports[index];

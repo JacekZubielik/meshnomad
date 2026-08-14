@@ -1065,7 +1065,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
     required String tooltip,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8),
+      padding: EdgeInsets.only(top: MeshTokens.of(context).spacingXs),
       child: IconButton(
         icon: isRefreshing
             ? const SizedBox(
@@ -1119,7 +1119,9 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
         child: _isLoading && _nameController.text.isEmpty
             ? const Center(child: CircularProgressIndicator())
             : ListView(
-                padding: const EdgeInsets.only(bottom: 32),
+                padding: EdgeInsets.only(
+                  bottom: MeshTokens.of(context).spacingXlg,
+                ),
                 children: [
                   _buildBasicSettingsCard(),
                   _buildRadioSettingsCard(),
@@ -1914,7 +1916,12 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(l10n.repeater_advancedSettingsSubtitle),
-        childrenPadding: const EdgeInsets.fromLTRB(0, 8, 0, 4),
+        childrenPadding: EdgeInsets.fromLTRB(
+          0,
+          MeshTokens.of(context).spacingXs,
+          0,
+          MeshTokens.of(context).spacingXxs,
+        ),
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2081,7 +2088,12 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(l10n.repeater_keySettingsSubtitle),
-        childrenPadding: const EdgeInsets.fromLTRB(0, 8, 0, 4),
+        childrenPadding: EdgeInsets.fromLTRB(
+          0,
+          MeshTokens.of(context).spacingXs,
+          0,
+          MeshTokens.of(context).spacingXxs,
+        ),
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2108,7 +2120,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               ),
               const SizedBox(width: 8),
               Padding(
-                padding: const EdgeInsets.only(top: 8),
+                padding: EdgeInsets.only(top: MeshTokens.of(context).spacingXs),
                 child: _searchingForKeyPair
                     ? IconButton(
                         icon: const Icon(Icons.cancel, size: 24),
@@ -2150,7 +2162,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               ),
               const SizedBox(width: 16),
               Padding(
-                padding: const EdgeInsets.only(top: 12),
+                padding: EdgeInsets.only(top: MeshTokens.of(context).spacingSm),
                 child: SizedBox(
                   width: 24,
                   height: 24,
@@ -2197,7 +2209,10 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
     return MeshCard(
       color: MeshTokens.of(context).alertBg,
       borderColor: MeshTokens.of(context).alertLine,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+        vertical: MeshTokens.of(context).spacingXxs,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

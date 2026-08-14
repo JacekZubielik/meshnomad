@@ -73,9 +73,9 @@ class ChromeRequiredScreen extends StatelessWidget {
                 // Info chip
                 MeshCard(
                   margin: EdgeInsets.zero,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MeshTokens.of(context).spacingMd,
+                    vertical: MeshTokens.of(context).spacingSm,
                   ),
                   color: scheme.secondaryContainer.withValues(alpha: 0.35),
                   borderColor: scheme.outline.withValues(alpha: 0.3),
