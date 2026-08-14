@@ -29,6 +29,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.alert,
     required this.alertBg,
     required this.alertLine,
+    required this.alertInk,
     required this.primary,
     required this.primaryDim,
     required this.primaryBg,
@@ -36,6 +37,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.secondary,
     required this.secondaryBg,
     required this.secondaryLine,
+    required this.secondaryInk,
     required this.me,
     required this.meBorder,
     required this.meInk,
@@ -57,6 +59,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.mapBorder,
     required this.mapMarkerOutline,
     required this.mapMarkerShadow,
+    required this.mapMarkerInk,
     required this.losTerrain,
     required this.losBeam,
     required this.losHorizon,
@@ -84,9 +87,17 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.spacingLg,
     required this.spacingXlg,
     required this.spacingXxlg,
+    required this.spacingHairline,
     required this.monoCaptionSize,
     required this.monoBodySize,
+    required this.microLabelSize,
+    required this.labelSize,
+    required this.bodySize,
+    required this.titleSize,
     required this.cardElevated,
+    required this.cardShadow,
+    required this.avatarTint5,
+    required this.avatarTint6,
   });
 
   final Color bg;
@@ -110,6 +121,10 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   final Color alert;
   final Color alertBg;
   final Color alertLine;
+
+  /// Text/icon color drawn on top of an [alert]-colored background (badges,
+  /// pills) — mirrors [meInk]'s role for the "me" bubble.
+  final Color alertInk;
   final Color primary;
   final Color primaryDim;
   final Color primaryBg;
@@ -117,6 +132,10 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   final Color secondary;
   final Color secondaryBg;
   final Color secondaryLine;
+
+  /// Text/icon color drawn on top of a [secondary]-colored background —
+  /// mirrors [meInk]'s role for the "me" bubble.
+  final Color secondaryInk;
   final Color me;
   final Color meBorder;
   final Color meInk;
@@ -139,6 +158,10 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   final Color mapBorder;
   final Color mapMarkerOutline;
   final Color mapMarkerShadow;
+
+  /// Glyph/text color drawn on top of a colored map marker (cluster count,
+  /// selection ring icon, hop/self/shared badges) — mirrors [meInk].
+  final Color mapMarkerInk;
 
   final Color losTerrain;
   final Color losBeam;
@@ -173,6 +196,12 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   final double spacingXlg;
   final double spacingXxlg;
 
+  /// Sub-[spacingXxs] gap (~1-2dp) used for hairline visual separation
+  /// (map/LOS legend rows, status-dot alignment) — raising these to
+  /// [spacingXxs] would visibly change tightly-packed rows, so they get
+  /// their own bottom-of-scale token instead of snapping up.
+  final double spacingHairline;
+
   /// Dominant `.mono(fontSize: ...)` size for secondary/muted mono text
   /// (metadata, badges) — see docs/superpowers/prompts/2026-08-02-custom-
   /// style-editor/01-font-role-infra.md.
@@ -181,8 +210,32 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   /// Dominant `.mono(fontSize: ...)` size for primary-colored mono content.
   final double monoBodySize;
 
+  /// Sans-serif micro-label size (chip/badge accent labels) — smallest step
+  /// of the general (non-mono) type scale.
+  final double microLabelSize;
+
+  /// Sans-serif small-label/subtitle size — general (non-mono) type scale.
+  final double labelSize;
+
+  /// Sans-serif body-text size — general (non-mono) type scale.
+  final double bodySize;
+
+  /// Sans-serif title size (AppBar/dialog titles) — general (non-mono) type
+  /// scale.
+  final double titleSize;
+
   /// Whether MeshCard draws its floating shadow by default (issue #23).
   final bool cardElevated;
+
+  /// Base shadow color for MeshCard's elevated `boxShadow` layers — call
+  /// sites derive their own alpha per layer (see MeshCard).
+  final Color cardShadow;
+
+  /// 5th/6th hues in the deterministic avatar-tint palette (see
+  /// `avatarTintPalette` in mesh_ui.dart) — the first four reuse
+  /// [primary]/[secondary]/[signal]/[warn].
+  final Color avatarTint5;
+  final Color avatarTint6;
 
   /// The default style's tokens — identical values to today's
   /// [MeshPalette]/[MapPalette]/[LosPalette]/[MeshRadii]. The same instance
@@ -212,6 +265,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     alert: MeshPalette.alert,
     alertBg: MeshPalette.alertBg,
     alertLine: MeshPalette.alertLine,
+    alertInk: Color(0xFFFFFFFF),
     primary: MeshPalette.primary,
     primaryDim: MeshPalette.primaryDim,
     primaryBg: MeshPalette.primaryBg,
@@ -219,6 +273,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     secondary: MeshPalette.secondary,
     secondaryBg: MeshPalette.secondaryBg,
     secondaryLine: MeshPalette.secondaryLine,
+    secondaryInk: Color(0xFFFFFFFF),
     me: MeshPalette.me,
     meBorder: MeshPalette.meBorder,
     meInk: MeshPalette.meInk,
@@ -240,6 +295,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     mapBorder: MapPalette.border,
     mapMarkerOutline: MapPalette.markerOutline,
     mapMarkerShadow: MapPalette.markerShadow,
+    mapMarkerInk: Color(0xFFFFFFFF),
     losTerrain: LosPalette.terrain,
     losBeam: LosPalette.beam,
     losHorizon: LosPalette.horizon,
@@ -267,9 +323,17 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     spacingLg: 24,
     spacingXlg: 32,
     spacingXxlg: 48,
+    spacingHairline: 2,
     monoCaptionSize: 11,
     monoBodySize: 13,
+    microLabelSize: 9,
+    labelSize: 12,
+    bodySize: 14,
+    titleSize: 16,
     cardElevated: true,
+    cardShadow: Color(0xFF000000),
+    avatarTint5: Color(0xFF8FA8F0),
+    avatarTint6: Color(0xFF6FD9CE),
   );
 
   /// Light-variant base tokens for the custom style (pkt 17). Values borrowed
@@ -299,6 +363,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     alert: MeshPalette.lightAlert,
     alertBg: Color(0x1FB53D2F),
     alertLine: Color(0x66B53D2F),
+    alertInk: Color(0xFFFFFFFF),
     primary: MeshPalette.lightBlue,
     primaryDim: Color(
       0xFF21578E,
@@ -308,6 +373,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     secondary: MeshPalette.lightSecondary,
     secondaryBg: Color(0x1C8C4A8A),
     secondaryLine: Color(0x478C4A8A),
+    secondaryInk: Color(0xFFFFFFFF),
     me: MeshPalette.me,
     meBorder: MeshPalette.meBorder,
     meInk: MeshPalette.meInk,
@@ -329,6 +395,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     mapBorder: MapPalette.border,
     mapMarkerOutline: MapPalette.markerOutline,
     mapMarkerShadow: MapPalette.markerShadow,
+    mapMarkerInk: Color(0xFFFFFFFF),
     losTerrain: LosPalette.terrain,
     losBeam: LosPalette.beam,
     losHorizon: LosPalette.horizon,
@@ -356,9 +423,17 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     spacingLg: 24,
     spacingXlg: 32,
     spacingXxlg: 48,
+    spacingHairline: 2,
     monoCaptionSize: 11,
     monoBodySize: 13,
+    microLabelSize: 9,
+    labelSize: 12,
+    bodySize: 14,
+    titleSize: 16,
     cardElevated: true,
+    cardShadow: Color(0xFF000000),
+    avatarTint5: Color(0xFF8FA8F0),
+    avatarTint6: Color(0xFF6FD9CE),
   );
 
   static MeshTokens of(BuildContext context) {
@@ -485,6 +560,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     Color? alert,
     Color? alertBg,
     Color? alertLine,
+    Color? alertInk,
     Color? primary,
     Color? primaryDim,
     Color? primaryBg,
@@ -492,6 +568,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     Color? secondary,
     Color? secondaryBg,
     Color? secondaryLine,
+    Color? secondaryInk,
     Color? me,
     Color? meBorder,
     Color? meInk,
@@ -513,6 +590,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     Color? mapBorder,
     Color? mapMarkerOutline,
     Color? mapMarkerShadow,
+    Color? mapMarkerInk,
     Color? losTerrain,
     Color? losBeam,
     Color? losHorizon,
@@ -540,9 +618,17 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     double? spacingLg,
     double? spacingXlg,
     double? spacingXxlg,
+    double? spacingHairline,
     double? monoCaptionSize,
     double? monoBodySize,
+    double? microLabelSize,
+    double? labelSize,
+    double? bodySize,
+    double? titleSize,
     bool? cardElevated,
+    Color? cardShadow,
+    Color? avatarTint5,
+    Color? avatarTint6,
   }) {
     return MeshTokens(
       bg: bg ?? this.bg,
@@ -566,6 +652,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       alert: alert ?? this.alert,
       alertBg: alertBg ?? this.alertBg,
       alertLine: alertLine ?? this.alertLine,
+      alertInk: alertInk ?? this.alertInk,
       primary: primary ?? this.primary,
       primaryDim: primaryDim ?? this.primaryDim,
       primaryBg: primaryBg ?? this.primaryBg,
@@ -573,6 +660,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       secondary: secondary ?? this.secondary,
       secondaryBg: secondaryBg ?? this.secondaryBg,
       secondaryLine: secondaryLine ?? this.secondaryLine,
+      secondaryInk: secondaryInk ?? this.secondaryInk,
       me: me ?? this.me,
       meBorder: meBorder ?? this.meBorder,
       meInk: meInk ?? this.meInk,
@@ -594,6 +682,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       mapBorder: mapBorder ?? this.mapBorder,
       mapMarkerOutline: mapMarkerOutline ?? this.mapMarkerOutline,
       mapMarkerShadow: mapMarkerShadow ?? this.mapMarkerShadow,
+      mapMarkerInk: mapMarkerInk ?? this.mapMarkerInk,
       losTerrain: losTerrain ?? this.losTerrain,
       losBeam: losBeam ?? this.losBeam,
       losHorizon: losHorizon ?? this.losHorizon,
@@ -621,9 +710,17 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       spacingLg: spacingLg ?? this.spacingLg,
       spacingXlg: spacingXlg ?? this.spacingXlg,
       spacingXxlg: spacingXxlg ?? this.spacingXxlg,
+      spacingHairline: spacingHairline ?? this.spacingHairline,
       monoCaptionSize: monoCaptionSize ?? this.monoCaptionSize,
       monoBodySize: monoBodySize ?? this.monoBodySize,
+      microLabelSize: microLabelSize ?? this.microLabelSize,
+      labelSize: labelSize ?? this.labelSize,
+      bodySize: bodySize ?? this.bodySize,
+      titleSize: titleSize ?? this.titleSize,
       cardElevated: cardElevated ?? this.cardElevated,
+      cardShadow: cardShadow ?? this.cardShadow,
+      avatarTint5: avatarTint5 ?? this.avatarTint5,
+      avatarTint6: avatarTint6 ?? this.avatarTint6,
     );
   }
 
