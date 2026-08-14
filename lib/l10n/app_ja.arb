@@ -239,6 +239,8 @@
   "appSettings_appearance": "外観",
   "appSettings_theme": "テーマ",
   "appSettings_colorStyle": "Style",
+  "appSettings_quickStyleMenuItem": "クイックスタイル",
+  "appSettings_quickStyleDialogTitle": "テーマとスタイル",
   "appSettings_themeSystem": "システム設定",
   "appSettings_themeLight": "ライト",
   "appSettings_themeDark": "ダーク",

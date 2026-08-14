@@ -680,6 +680,12 @@ class AppLocalizationsHu extends AppLocalizations {
   String get appSettings_colorStyle => 'Style';
 
   @override
+  String get appSettings_quickStyleMenuItem => 'Gyors stílus';
+
+  @override
+  String get appSettings_quickStyleDialogTitle => 'Téma és stílus';
+
+  @override
   String get appSettings_themeSystem => 'Rendszer alapértelmezett';
 
   @override

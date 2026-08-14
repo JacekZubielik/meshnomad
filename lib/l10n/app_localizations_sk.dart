@@ -677,6 +677,12 @@ class AppLocalizationsSk extends AppLocalizations {
   String get appSettings_colorStyle => 'Style';
 
   @override
+  String get appSettings_quickStyleMenuItem => 'Rýchly štýl';
+
+  @override
+  String get appSettings_quickStyleDialogTitle => 'Motív a štýl';
+
+  @override
   String get appSettings_themeSystem => 'Predvolený systém';
 
   @override

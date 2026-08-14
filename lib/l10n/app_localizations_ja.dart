@@ -653,6 +653,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get appSettings_colorStyle => 'Style';
 
   @override
+  String get appSettings_quickStyleMenuItem => 'クイックスタイル';
+
+  @override
+  String get appSettings_quickStyleDialogTitle => 'テーマとスタイル';
+
+  @override
   String get appSettings_themeSystem => 'システム設定';
 
   @override

@@ -166,6 +166,8 @@
   "appSettings_appearance": "Prikaži",
   "appSettings_theme": "Tema",
   "appSettings_colorStyle": "Style",
+  "appSettings_quickStyleMenuItem": "Hitri slog",
+  "appSettings_quickStyleDialogTitle": "Tema in slog",
   "appSettings_themeSystem": "Sistemska tema",
   "appSettings_themeLight": "Svetlo",
   "appSettings_themeDark": "Temno",

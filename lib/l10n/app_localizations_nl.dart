@@ -677,6 +677,12 @@ class AppLocalizationsNl extends AppLocalizations {
   String get appSettings_colorStyle => 'Style';
 
   @override
+  String get appSettings_quickStyleMenuItem => 'Snelle stijl';
+
+  @override
+  String get appSettings_quickStyleDialogTitle => 'Thema en stijl';
+
+  @override
   String get appSettings_themeSystem => 'Standaardinstelling';
 
   @override

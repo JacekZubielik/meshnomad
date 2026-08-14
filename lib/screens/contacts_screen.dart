@@ -26,6 +26,7 @@ import '../utils/route_transitions.dart';
 import '../widgets/list_filter_widget.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/mesh_ui.dart';
+import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/quick_switch_bar.dart';
 import '../widgets/repeater_login_dialog.dart';
 import '../widgets/room_login_dialog.dart';
@@ -448,6 +449,16 @@ class _ContactsScreenState extends State<ContactsScreen>
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
               ),
+            ),
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.palette_outlined),
+                  SizedBox(width: MeshTokens.of(context).spacingXs),
+                  Text(context.l10n.appSettings_quickStyleMenuItem),
+                ],
+              ),
+              onTap: () => showQuickStylePickerDialog(context),
             ),
           ],
         ),

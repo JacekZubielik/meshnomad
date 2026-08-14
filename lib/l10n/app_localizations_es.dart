@@ -681,6 +681,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get appSettings_colorStyle => 'Style';
 
   @override
+  String get appSettings_quickStyleMenuItem => 'Estilo rápido';
+
+  @override
+  String get appSettings_quickStyleDialogTitle => 'Tema y estilo';
+
+  @override
   String get appSettings_themeSystem => 'Valor predeterminado del sistema';
 
   @override

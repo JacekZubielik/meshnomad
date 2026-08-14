@@ -166,6 +166,8 @@
   "appSettings_appearance": "Wygląd",
   "appSettings_theme": "Motyw",
   "appSettings_colorStyle": "Styl",
+  "appSettings_quickStyleMenuItem": "Szybki styl",
+  "appSettings_quickStyleDialogTitle": "Motyw i styl",
   "appSettings_themeSystem": "System",
   "appSettings_themeLight": "Jasny",
   "appSettings_themeDark": "Ciemny",

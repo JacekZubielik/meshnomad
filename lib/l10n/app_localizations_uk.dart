@@ -680,6 +680,12 @@ class AppLocalizationsUk extends AppLocalizations {
   String get appSettings_colorStyle => 'Style';
 
   @override
+  String get appSettings_quickStyleMenuItem => 'Швидкий стиль';
+
+  @override
+  String get appSettings_quickStyleDialogTitle => 'Тема і стиль';
+
+  @override
   String get appSettings_themeSystem => 'Системна';
 
   @override

@@ -24,6 +24,7 @@ import '../widgets/list_filter_widget.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/qr_code_display.dart';
+import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/quick_switch_bar.dart';
 import '../widgets/unread_badge.dart';
 import '../helpers/gif_helper.dart';
@@ -159,6 +160,16 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
               ),
+            ),
+            PopupMenuItem(
+              child: Row(
+                children: [
+                  const Icon(Icons.palette_outlined),
+                  SizedBox(width: MeshTokens.of(menuContext).spacingXs),
+                  Text(menuContext.l10n.appSettings_quickStyleMenuItem),
+                ],
+              ),
+              onTap: () => showQuickStylePickerDialog(context),
             ),
           ],
         ),

@@ -31,6 +31,7 @@ import 'chat_screen.dart';
 import 'contacts_screen.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
+import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/repeater_login_dialog.dart';
 import '../widgets/room_login_dialog.dart';
 import '../helpers/snack_bar_builder.dart';
@@ -707,6 +708,16 @@ class _MapScreenState extends State<MapScreen> {
                       builder: (context) => const SettingsScreen(),
                     ),
                   ),
+                ),
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.palette_outlined),
+                      SizedBox(width: t.spacingXs),
+                      Text(context.l10n.appSettings_quickStyleMenuItem),
+                    ],
+                  ),
+                  onTap: () => showQuickStylePickerDialog(context),
                 ),
               ],
             ),

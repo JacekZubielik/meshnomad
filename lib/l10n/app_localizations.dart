@@ -1348,6 +1348,18 @@ abstract class AppLocalizations {
   /// **'Style'**
   String get appSettings_colorStyle;
 
+  /// No description provided for @appSettings_quickStyleMenuItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick style'**
+  String get appSettings_quickStyleMenuItem;
+
+  /// No description provided for @appSettings_quickStyleDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme & Style'**
+  String get appSettings_quickStyleDialogTitle;
+
   /// No description provided for @appSettings_themeSystem.
   ///
   /// In en, this message translates to:
