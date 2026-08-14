@@ -338,16 +338,12 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                   const Divider(),
                   Row(
                     children: [
-                      Text(
-                        l10n.login_routing,
-                        style: MeshTokens.of(context).accentLabel(
-                          color: scheme.onSurfaceVariant,
-                          fontSize: textTheme.bodySmall?.fontSize,
-                        ),
-                      ),
-                      const Spacer(),
                       PopupMenuButton<String>(
-                        icon: Icon(isFloodMode ? Icons.waves : Icons.route),
+                        padding: EdgeInsets.zero,
+                        icon: Icon(
+                          isFloodMode ? Icons.waves : Icons.route,
+                          color: scheme.primary,
+                        ),
                         tooltip: l10n.login_routingMode,
                         onSelected: (mode) async {
                           if (mode == 'flood') {
@@ -407,6 +403,14 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                           ),
                         ],
                       ),
+                      SizedBox(width: t.spacingXs),
+                      Text(
+                        l10n.login_routing,
+                        style: MeshTokens.of(context).accentLabel(
+                          color: scheme.onSurfaceVariant,
+                          fontSize: textTheme.bodySmall?.fontSize,
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: t.spacingXxs),
@@ -426,7 +430,10 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                       onPressed: () =>
                           ContactRoutingSheet.show(context, contact: repeater),
                       icon: const Icon(Icons.timeline, size: 18),
-                      label: Text(l10n.login_managePaths),
+                      label: Text(
+                        l10n.login_managePaths,
+                        style: TextStyle(color: scheme.onSurface),
+                      ),
                     ),
                   ),
                 ],

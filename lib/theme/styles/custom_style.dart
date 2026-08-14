@@ -510,11 +510,27 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       ),
       iconTheme: base.iconTheme.copyWith(color: scheme.onSurfaceVariant),
       // Input/select chrome bakes its colors the same way (fill, hint,
-      // switch thumb/track, segmented selection) — reported live 2026-08-10:
-      // fields kept the DEFAULT dark palette after switching Custom to light.
+      // switch thumb/track, segmented selection, border/focus outline) —
+      // reported live 2026-08-10: fields kept the DEFAULT dark palette after
+      // switching Custom to light. Border colors were missed in that fix
+      // (reported live 2026-08-14: password field kept the default-blue
+      // focused outline on the Green profile) — re-derive them here too,
+      // same as the buttons/popups/chips instances of this bug class.
       inputDecorationTheme: base.inputDecorationTheme.copyWith(
         fillColor: scheme.surfaceContainerHigh,
         hintStyle: TextStyle(color: scheme.onSurfaceVariant),
+        border: (base.inputDecorationTheme.border as OutlineInputBorder?)
+            ?.copyWith(borderSide: BorderSide(color: scheme.outline)),
+        enabledBorder:
+            (base.inputDecorationTheme.enabledBorder as OutlineInputBorder?)
+                ?.copyWith(
+                  borderSide: BorderSide(color: scheme.outlineVariant),
+                ),
+        focusedBorder:
+            (base.inputDecorationTheme.focusedBorder as OutlineInputBorder?)
+                ?.copyWith(
+                  borderSide: BorderSide(color: scheme.primary, width: 1.5),
+                ),
       ),
       switchTheme: base.switchTheme.copyWith(
         thumbColor: WidgetStateProperty.resolveWith(

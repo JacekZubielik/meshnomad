@@ -414,7 +414,10 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
                 if (displayBytes.isNotEmpty)
                   TextButton.icon(
                     icon: const Icon(Icons.map_outlined, size: 18),
-                    label: Text(l10n.contacts_pathTrace),
+                    label: Text(
+                      l10n.contacts_pathTrace,
+                      style: TextStyle(color: scheme.onSurface),
+                    ),
                     onPressed: () => _openPathTrace(
                       context,
                       connector,
@@ -425,13 +428,19 @@ class _RoutingSheetBodyState extends State<_RoutingSheetBody> {
                 if (mode == _RoutingMode.manual)
                   TextButton.icon(
                     icon: const Icon(Icons.edit, size: 18),
-                    label: Text(l10n.routing_editPath),
+                    label: Text(
+                      l10n.routing_editPath,
+                      style: TextStyle(color: scheme.onSurface),
+                    ),
                     onPressed: () => _editManualPath(connector, contact),
                   ),
                 if (mode == _RoutingMode.auto && contact.pathLength >= 0)
                   TextButton.icon(
                     icon: const Icon(Icons.restart_alt, size: 18),
-                    label: Text(l10n.routing_forgetPath),
+                    label: Text(
+                      l10n.routing_forgetPath,
+                      style: TextStyle(color: scheme.onSurface),
+                    ),
                     onPressed: () => _forgetPath(connector, contact),
                   ),
               ],
