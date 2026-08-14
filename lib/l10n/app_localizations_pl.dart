@@ -1661,10 +1661,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get routing_title => 'Planowanie tras';
 
   @override
-  String get routing_modeAuto => 'Automatycznie';
+  String get routing_modeAuto => 'Auto';
 
   @override
-  String get routing_modeFlood => 'Powódź';
+  String get routing_modeFlood => 'Zalew';
 
   @override
   String get routing_modeManual => 'Ręcznie';
@@ -3844,11 +3844,10 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get community_scanQr => 'Skanuj QR kod społeczności';
+  String get community_scanQr => 'Skanuj kod QR';
 
   @override
-  String get community_scanInstructions =>
-      'Skieruj kamerę w kierunku kodu QR społeczności.';
+  String get community_scanInstructions => 'Skieruj kamerę na kod QR.';
 
   @override
   String get community_showQr => 'Pokaż kod QR';
@@ -4272,7 +4271,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get contacts_floodAdvert => 'Rozgłoszenie zalewowe';
 
   @override
-  String get contacts_copyAdvertToClipboard => 'Kopiuj rozgłoszenie do schowka';
+  String get contacts_copyAdvertToClipboard => 'Kopiuj rozgłoszenie';
 
   @override
   String get contacts_addContactFromClipboard => 'Dodaj kontakt z schowka';
