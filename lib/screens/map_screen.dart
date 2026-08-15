@@ -1645,7 +1645,10 @@ class _MapScreenState extends State<MapScreen> {
       case advTypeChat:
         return MeshTokens.of(context).mapSelected;
       case advTypeRepeater:
-        return MeshTokens.of(context).mapRepeater;
+        // Same token as the Contacts avatar (_avatarColor in
+        // contacts_screen.dart), so a repeater is the same color everywhere
+        // — not the separate (and separately-buried) `mapRepeater` token.
+        return MeshTokens.of(context).warn;
       case advTypeRoom:
         return MeshTokens.of(context).mapRouter;
       case advTypeSensor:
@@ -1658,7 +1661,7 @@ class _MapScreenState extends State<MapScreen> {
   Color _markerColor(Contact contact) {
     switch (contact.type) {
       case advTypeRepeater:
-        return MeshTokens.of(context).mapRepeater;
+        return MeshTokens.of(context).warn;
       case advTypeRoom:
         return MeshTokens.of(context).mapRouter;
       case advTypeSensor:
@@ -1686,7 +1689,9 @@ class _MapScreenState extends State<MapScreen> {
       case advTypeChat:
         return Icons.person;
       case advTypeRepeater:
-        return Icons.router;
+        // Same glyph as the Contacts avatar (_avatarIcon in
+        // contacts_screen.dart) so a repeater reads identically everywhere.
+        return Icons.cell_tower;
       case advTypeRoom:
         return Icons.meeting_room;
       case advTypeSensor:
@@ -1726,11 +1731,15 @@ class _MapScreenState extends State<MapScreen> {
               width: selected ? 3 : 2.5,
             ),
             boxShadow: [
-              BoxShadow(
-                color: MeshTokens.of(context).mapMarkerShadow,
-                blurRadius: 8,
-                offset: Offset(0, 3),
-              ),
+              // Reuses the same "elevated" toggle as MeshCard
+              // (styleEditor_cardSection) so shadows across the app turn
+              // on/off together instead of the map having its own switch.
+              if (MeshTokens.of(context).cardElevated)
+                BoxShadow(
+                  color: MeshTokens.of(context).mapMarkerShadow,
+                  blurRadius: 8,
+                  offset: Offset(0, 3),
+                ),
               if (selected)
                 BoxShadow(
                   color: MeshTokens.of(
@@ -1973,7 +1982,7 @@ class _MapScreenState extends State<MapScreen> {
                 _mapChip(
                   label: context.l10n.map_repeaters,
                   selected: settings.mapShowRepeaters,
-                  color: MeshTokens.of(context).mapRepeater,
+                  color: MeshTokens.of(context).warn,
                   onTap: () => settingsService.setMapShowRepeaters(
                     !settings.mapShowRepeaters,
                   ),
@@ -2265,7 +2274,7 @@ class _MapScreenState extends State<MapScreen> {
           _statRow(
             context.l10n.map_repeaters,
             repeaterCount,
-            MeshTokens.of(context).mapRepeater,
+            MeshTokens.of(context).warn,
           ),
           _statRow(
             context.l10n.map_hidden,
@@ -2284,9 +2293,9 @@ class _MapScreenState extends State<MapScreen> {
             MeshTokens.of(context).mapSelected,
           ),
           _buildLegendItem(
-            Icons.router,
+            Icons.cell_tower,
             context.l10n.map_repeater,
-            MeshTokens.of(context).mapRepeater,
+            MeshTokens.of(context).warn,
           ),
           _buildLegendItem(
             Icons.meeting_room,

@@ -62,6 +62,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      // Colors is a collapsed-by-default ExpansionTile (H audit, 2026-08-15).
+      await tester.tap(find.text('Colors'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Background'));
       await tester.pumpAndSettle();
 

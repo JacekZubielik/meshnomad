@@ -5348,6 +5348,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get styleEditor_radiusXl_subtitle => 'Large panels';
 
   @override
+  String get styleEditor_radiusPill_label => 'Pill';
+
+  @override
+  String get styleEditor_radiusPill_subtitle => 'Buttons, FAB, chips';
+
+  @override
   String get styleEditor_cardSection => 'Card style';
 
   @override

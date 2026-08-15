@@ -15,6 +15,7 @@ import '../connector/meshcore_protocol.dart';
 import '../models/contact.dart';
 import '../l10n/contact_localization.dart';
 import '../models/contact_group.dart';
+import '../helpers/node_freshness.dart';
 import '../services/ui_view_state_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/contact_search.dart';
@@ -1691,6 +1692,9 @@ class _ContactTile extends StatelessWidget {
                 size: 42,
                 color: isChat ? null : _avatarColor(context),
                 icon: _avatarIcon(),
+                freshnessColor: freshnessOf(
+                  lastSeen,
+                ).colorOf(MeshTokens.of(context)),
               ),
             SizedBox(width: t.spacingSm),
             // Main content

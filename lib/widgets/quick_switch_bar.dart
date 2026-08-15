@@ -37,6 +37,12 @@ class QuickSwitchBar extends StatelessWidget {
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.transparent,
             indicatorColor: colorScheme.primary,
+            // This local NavigationBarTheme fully replaces the app-level
+            // one for this subtree (fields left unset fall back to
+            // Flutter's own Material-3 defaults, NOT to Theme.of(context)),
+            // so without this the indicator was always a hardcoded
+            // StadiumBorder — ignoring every Custom Style radius token.
+            indicatorShape: theme.navigationBarTheme.indicatorShape,
             labelTextStyle: WidgetStateProperty.resolveWith((states) {
               final isSelected = states.contains(WidgetState.selected);
               return labelStyle.copyWith(

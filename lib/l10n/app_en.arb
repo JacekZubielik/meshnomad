@@ -2910,6 +2910,8 @@
   "styleEditor_radiusLg_subtitle": "Chat bubbles, sheets",
   "styleEditor_radiusXl_label": "Extra large (xl)",
   "styleEditor_radiusXl_subtitle": "Large panels",
+  "styleEditor_radiusPill_label": "Pill",
+  "styleEditor_radiusPill_subtitle": "Buttons, FAB, chips",
   "styleEditor_cardSection": "Card style",
   "styleEditor_cardShadow_label": "Card shadow",
   "styleEditor_cardShadow_subtitle": "Floating shadow under cards",

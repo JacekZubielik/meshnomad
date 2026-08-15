@@ -62,8 +62,15 @@ void main() {
       // removed entirely (design spec 2026-08-12, plan Task 5).
       expect(find.byKey(const ValueKey('brightnessSwitch')), findsNothing);
 
-      // SectionHeader uppercases its label.
-      expect(find.text('COLORS'), findsOneWidget);
+      // Colors is now a collapsed-by-default ExpansionTile, same as
+      // Map/LOS (H audit, 2026-08-15) — its title is the raw ExpansionTile
+      // text, not SectionHeader's uppercased label.
+      expect(find.text('Colors'), findsOneWidget);
+      expect(find.text('Background'), findsNothing);
+
+      await tester.tap(find.text('Colors'));
+      await tester.pumpAndSettle();
+
       // A sample of the shortlisted color fields, not the full ~60
       // MeshTokens set.
       expect(find.text('Background'), findsOneWidget);
@@ -173,6 +180,8 @@ void main() {
         isNull,
       );
 
+      await tester.tap(find.text('Colors'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Primary accent'));
       await tester.pumpAndSettle();
 
@@ -200,6 +209,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      await tester.tap(find.text('Colors'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Primary accent'));
       await tester.pumpAndSettle();
 
@@ -224,6 +235,9 @@ void main() {
           settingsService: settingsService,
         ),
       );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Colors'));
       await tester.pumpAndSettle();
 
       // No override yet — the icon is present but disabled, not hidden.
@@ -269,6 +283,13 @@ void main() {
         find.byKey(const ValueKey('resetAllButton')),
         300,
       );
+      // scrollUntilVisible only guarantees a sliver of the target is
+      // rendered — with the radius section now 6 rows (pill added), that
+      // sliver can land right at the viewport's bottom edge, putting the
+      // button's tap-center just outside it. ensureVisible scrolls further
+      // so the whole widget (and its center) sits inside the viewport.
+      await tester.ensureVisible(find.byKey(const ValueKey('resetAllButton')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('resetAllButton')));
       await tester.pumpAndSettle();
 
@@ -315,6 +336,13 @@ void main() {
         find.byKey(const ValueKey('resetAllButton')),
         300,
       );
+      // scrollUntilVisible only guarantees a sliver of the target is
+      // rendered — with the radius section now 6 rows (pill added), that
+      // sliver can land right at the viewport's bottom edge, putting the
+      // button's tap-center just outside it. ensureVisible scrolls further
+      // so the whole widget (and its center) sits inside the viewport.
+      await tester.ensureVisible(find.byKey(const ValueKey('resetAllButton')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('resetAllButton')));
       await tester.pumpAndSettle();
 

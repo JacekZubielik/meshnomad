@@ -9232,6 +9232,18 @@ abstract class AppLocalizations {
   /// **'Large panels'**
   String get styleEditor_radiusXl_subtitle;
 
+  /// No description provided for @styleEditor_radiusPill_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Pill'**
+  String get styleEditor_radiusPill_label;
+
+  /// No description provided for @styleEditor_radiusPill_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buttons, FAB, chips'**
+  String get styleEditor_radiusPill_subtitle;
+
   /// No description provided for @styleEditor_cardSection.
   ///
   /// In en, this message translates to:

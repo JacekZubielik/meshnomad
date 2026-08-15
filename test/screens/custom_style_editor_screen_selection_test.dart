@@ -47,8 +47,11 @@ void main() {
       await tester.pumpWidget(wrap());
       await tester.pumpAndSettle();
 
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
-      await tester.pumpAndSettle();
+      // scrollUntilVisible (not a fixed drag distance) so this doesn't break
+      // again the next time a section above Font sizes changes height (e.g.
+      // Colors collapsing by default, H audit 2026-08-15, shortened the
+      // page enough that the old fixed -800 drag overshot past this row).
+      await tester.scrollUntilVisible(find.text('Body text'), 300);
       expect(find.text('Body text'), findsOneWidget);
 
       await tester.longPress(find.text('Body text'));

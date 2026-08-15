@@ -244,8 +244,15 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       surfaceContainerHigh: tokens.bg2,
       surfaceContainerHighest: tokens.bg3,
       onSurfaceVariant: tokens.ink2,
-      outline: tokens.line2,
-      outlineVariant: tokens.line,
+      // Diverges from mesh_theme.dart's own outline/outlineVariant mapping
+      // (line2/line) on purpose (user decision 2026-08-15): every plain
+      // Divider, OutlinedButton border, and other outline-driven chrome
+      // app-wide should read the same "Akcent dodatkowy" accent as the
+      // Custom Style editor's own dividers, not the neutral line tokens.
+      // `tokens.line`/`line2` themselves are untouched — only what
+      // ColorScheme.outline*/*Variant derive from changes here.
+      outline: tokens.secondary,
+      outlineVariant: tokens.secondary,
       inverseSurface: tokens.ink,
       onInverseSurface: tokens.bg,
       inversePrimary: tokens.primaryDim,
@@ -428,10 +435,21 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
         enabledBorder: oib(input.enabledBorder, t.md),
         focusedBorder: oib(input.focusedBorder, t.md),
       ),
+      // Selection indicator is a pill, same family as buttons/FAB/chips —
+      // follows `pill`, not `md` (was md; QuickSwitchBar user feedback
+      // 2026-08-15: this reads as a button, should track the same slider).
       navigationBarTheme: base.navigationBarTheme.copyWith(
-        indicatorShape: rrb(t.md),
+        indicatorShape: rrb(t.pill),
       ),
-      snackBarTheme: base.snackBarTheme.copyWith(shape: rrb(t.md)),
+      // Re-derive with the border kept (mesh_theme.dart's snackBarTheme has
+      // a `side` for contrast against the background) — plain rrb(t.md)
+      // would silently drop it since it never carries a side.
+      snackBarTheme: base.snackBarTheme.copyWith(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(t.md),
+          side: BorderSide(color: base.colorScheme.outlineVariant),
+        ),
+      ),
       popupMenuTheme: base.popupMenuTheme.copyWith(shape: rrb(t.md)),
       dialogTheme: base.dialogTheme.copyWith(shape: rrb(t.lg)),
       bottomSheetTheme: base.bottomSheetTheme.copyWith(
@@ -439,8 +457,38 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
           borderRadius: BorderRadius.vertical(top: Radius.circular(t.lg)),
         ),
       ),
-      // pill-based shapes (FAB, buttons, chips) intentionally untouched —
-      // pill is not editable, so their baked MeshRadii.pill stays correct.
+      // pill-based shapes (FAB, buttons, chips, segmented button) — `pill`
+      // is user-editable (0-40, see editableRadiusKeys), so re-derive these
+      // the same way as the other chrome radii above.
+      floatingActionButtonTheme: base.floatingActionButtonTheme.copyWith(
+        shape: rrb(t.pill),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: base.elevatedButtonTheme.style?.copyWith(
+          shape: WidgetStatePropertyAll(rrb(t.pill)),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: base.outlinedButtonTheme.style?.copyWith(
+          shape: WidgetStatePropertyAll(rrb(t.pill)),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: base.textButtonTheme.style?.copyWith(
+          shape: WidgetStatePropertyAll(rrb(t.pill)),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: base.filledButtonTheme.style?.copyWith(
+          shape: WidgetStatePropertyAll(rrb(t.pill)),
+        ),
+      ),
+      chipTheme: base.chipTheme.copyWith(shape: rrb(t.pill)),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: base.segmentedButtonTheme.style?.copyWith(
+          shape: WidgetStatePropertyAll(rrb(t.pill)),
+        ),
+      ),
     );
   }
 
@@ -457,6 +505,13 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       appBarTheme: base.appBarTheme.copyWith(
         backgroundColor: scheme.surface,
         foregroundColor: scheme.onSurface,
+        // mesh_theme.dart bakes `shape`'s bottom border from the ORIGINAL
+        // scheme.outlineVariant at ThemeData-construction time too — same
+        // "baked, not looked up lazily" trap this function's own doc
+        // comment describes, just missed for this field. Without this, the
+        // AppBar's bottom border stayed the old line-token blue on every
+        // screen no matter what outline/outlineVariant resolved to above.
+        shape: Border(bottom: BorderSide(color: scheme.outlineVariant)),
       ),
       listTileTheme: base.listTileTheme.copyWith(
         textColor: scheme.onSurface,
@@ -581,6 +636,16 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       progressIndicatorTheme: base.progressIndicatorTheme.copyWith(
         color: scheme.primary,
       ),
+      // Same baked-at-construction trap as appBarTheme.shape above — the
+      // tooltip's BoxDecoration.border reads the ORIGINAL scheme.outline,
+      // not the re-derived one, unless explicitly rebuilt here.
+      tooltipTheme: base.tooltipTheme.copyWith(
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(tokens.sm),
+          border: Border.all(color: scheme.outline),
+        ),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: (base.elevatedButtonTheme.style ?? const ButtonStyle()).copyWith(
           backgroundColor: accentUnlessDisabled(scheme.primary),
@@ -654,6 +719,7 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     md: radiusFor('md', baseTokens.md),
     lg: radiusFor('lg', baseTokens.lg),
     xl: radiusFor('xl', baseTokens.xl),
+    pill: radiusFor('pill', baseTokens.pill),
     cardElevated: overrides.cardElevated ?? true,
   );
 

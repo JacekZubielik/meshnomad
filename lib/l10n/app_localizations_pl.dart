@@ -5368,6 +5368,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_radiusXl_subtitle => 'Duże panele';
 
   @override
+  String get styleEditor_radiusPill_label => 'Kapsuła';
+
+  @override
+  String get styleEditor_radiusPill_subtitle => 'Buttony, FAB, chipy';
+
+  @override
   String get styleEditor_cardSection => 'Styl karty';
 
   @override

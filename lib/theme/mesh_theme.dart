@@ -535,8 +535,13 @@ class MeshTheme {
         backgroundColor: scheme.surfaceContainerHigh,
         contentTextStyle: TextStyle(color: scheme.onSurface),
         behavior: SnackBarBehavior.floating,
+        // A border (matching MeshCard's flat-mode idiom) keeps the bar
+        // readable against whatever's behind it — surfaceContainerHigh
+        // alone can read as "blends into the background" on some custom
+        // color profiles (found on-device 2026-08-15).
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(MeshRadii.md),
+          side: BorderSide(color: scheme.outlineVariant),
         ),
       ),
       popupMenuTheme: PopupMenuThemeData(

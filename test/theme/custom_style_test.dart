@@ -97,10 +97,24 @@ void main() {
     });
 
     test('an empty overrides set reproduces MeshTheme.dark().colorScheme '
-        'bit-for-bit (variant-automat parity)', () {
+        'bit-for-bit, except outline/outlineVariant (variant-automat '
+        'parity)', () {
       final style = buildCustomStyle(const CustomStyleOverrides());
 
-      expect(style.theme.colorScheme, MeshTheme.dark().colorScheme);
+      // outline/outlineVariant intentionally diverge from mesh_theme.dart's
+      // own mapping (line2/line) — buildCustomStyle always drives them from
+      // `secondary` instead, so every Divider/OutlinedButton border etc.
+      // app-wide reads the same accent as the Custom Style editor's own
+      // dividers (user decision 2026-08-15). Every other field must still
+      // match bit-for-bit.
+      final dark = MeshTheme.dark().colorScheme;
+      expect(
+        style.theme.colorScheme,
+        dark.copyWith(
+          outline: MeshTokens.defaultTokens.secondary,
+          outlineVariant: MeshTokens.defaultTokens.secondary,
+        ),
+      );
     });
 
     test('overriding primary reshapes MeshTokens.primaryBg and '
@@ -241,10 +255,21 @@ void main() {
       expect((border! as OutlineInputBorder).borderRadius.topLeft.x, 2.0);
     });
 
-    test('pill stays fixed even if smuggled into radiusOverrides', () {
+    test('a pill radius override wins over the default and reshapes button '
+        'chrome', () {
       final style = buildCustomStyle(
         const CustomStyleOverrides(radiusOverrides: {'pill': 4.0}),
       );
+      expect(style.theme.extension<MeshTokens>()!.pill, 4.0);
+      final shape = style.theme.filledButtonTheme.style?.shape?.resolve({});
+      expect(shape, isA<RoundedRectangleBorder>());
+      final radius =
+          (shape! as RoundedRectangleBorder).borderRadius as BorderRadius;
+      expect(radius.topLeft.x, 4.0);
+    });
+
+    test('pill defaults to fully round (999) when not overridden', () {
+      final style = buildCustomStyle(const CustomStyleOverrides());
       expect(style.theme.extension<MeshTokens>()!.pill, 999.0);
     });
 
