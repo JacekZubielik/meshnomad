@@ -1,7 +1,9 @@
 name: Flutter and Dart
 
 env:
-  FLUTTER_VERSION: "3.44.8"
+  # Pin the Flutter toolchain so CI matches local fvm dev exactly and can't
+  # drift day-to-day off `channel: stable` (per flutter-cicd-meshcore skill).
+  FLUTTER_VERSION: "3.44.9"
 
 on:
   pull_request:
@@ -16,11 +18,6 @@ on:
       - 'documentation/**'
       - 'docs/**'
       - '**.md'
-
-env:
-  # Pin the Flutter toolchain so CI matches local fvm dev exactly and can't
-  # drift day-to-day off `channel: stable` (per flutter-cicd-meshcore skill).
-  FLUTTER_VERSION: "3.44.9"
 
 jobs:
   analyze:
