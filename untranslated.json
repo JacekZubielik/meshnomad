@@ -171,6 +171,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -335,6 +337,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -512,6 +516,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -689,6 +695,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -866,6 +874,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -1043,6 +1053,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -1220,6 +1232,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -1397,6 +1411,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -1574,6 +1590,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -1785,6 +1803,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -1962,6 +1982,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -2139,6 +2161,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -2316,6 +2340,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -2493,6 +2519,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -2670,6 +2698,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"
@@ -2847,6 +2877,8 @@
     "styleEditor_monoCaptionSize_subtitle",
     "styleEditor_monoBodySize_label",
     "styleEditor_monoBodySize_subtitle",
+    "styleEditor_radiusPill_label",
+    "styleEditor_radiusPill_subtitle",
     "appSettings_about",
     "appSettings_editCustomStyleTooltip",
     "protocol_contactsFullWarning"

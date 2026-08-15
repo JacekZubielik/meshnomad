@@ -288,12 +288,19 @@ class AvatarCircle extends StatelessWidget {
   final Color? color;
   final IconData? icon;
 
+  /// Optional freshness/state signal (e.g. [NodeFreshness.colorOf]) drawn as
+  /// a small corner badge, same visual language as the map marker's status
+  /// badge (`_buildNodeMarkerWidget` in map_screen.dart) — a second,
+  /// independent channel next to [color]'s node-type tint.
+  final Color? freshnessColor;
+
   const AvatarCircle({
     super.key,
     required this.name,
     this.size = 40,
     this.color,
     this.icon,
+    this.freshnessColor,
   });
 
   Color _colorFor(BuildContext context, String s) {
@@ -309,25 +316,48 @@ class AvatarCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = color ?? _colorFor(context, name);
     final initials = _initials(name);
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: accent.withValues(alpha: 0.14),
-        border: Border.all(color: accent.withValues(alpha: 0.4)),
-      ),
-      alignment: Alignment.center,
-      child: icon != null
-          ? Icon(icon, size: size * 0.5, color: accent)
-          : Text(
-              initials,
-              style: MeshTokens.of(context).mono(
-                fontSize: size * 0.36,
-                fontWeight: FontWeight.w700,
-                color: accent,
+    final badgeSize = (size * 0.3).clamp(9.0, 14.0);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: accent.withValues(alpha: 0.14),
+            border: Border.all(color: accent.withValues(alpha: 0.4)),
+          ),
+          alignment: Alignment.center,
+          child: icon != null
+              ? Icon(icon, size: size * 0.5, color: accent)
+              : Text(
+                  initials,
+                  style: MeshTokens.of(context).mono(
+                    fontSize: size * 0.36,
+                    fontWeight: FontWeight.w700,
+                    color: accent,
+                  ),
+                ),
+        ),
+        if (freshnessColor != null)
+          Positioned(
+            right: -1,
+            bottom: -1,
+            child: Container(
+              width: badgeSize,
+              height: badgeSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: freshnessColor,
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.surface,
+                  width: 2,
+                ),
               ),
             ),
+          ),
+      ],
     );
   }
 

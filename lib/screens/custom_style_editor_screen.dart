@@ -268,6 +268,11 @@ final List<_SpacingFieldSpec> _radiusFields = [
   _SpacingFieldSpec('md', MeshTokens.defaultTokens.md, 0, 24),
   _SpacingFieldSpec('lg', MeshTokens.defaultTokens.lg, 0, 32),
   _SpacingFieldSpec('xl', MeshTokens.defaultTokens.xl, 0, 40),
+  // Default value (999) is intentionally above `max` — `_TokenFieldRow`
+  // clamps it for display, so an unedited style still shows/renders fully
+  // round (matching the previous non-editable MeshRadii.pill behavior)
+  // while the slider itself stays on the same usable 0-40 scale as `xl`.
+  _SpacingFieldSpec('pill', MeshTokens.defaultTokens.pill, 0, 40),
 ];
 
 /// Maps a color field key to its localized (label, subtitle) pair. One
@@ -534,6 +539,11 @@ final List<_SpacingFieldSpec> _radiusFields = [
         l10n.styleEditor_radiusXl_label,
         l10n.styleEditor_radiusXl_subtitle,
       );
+    case 'pill':
+      return (
+        l10n.styleEditor_radiusPill_label,
+        l10n.styleEditor_radiusPill_subtitle,
+      );
     default:
       throw ArgumentError('Unknown radius field key: $key');
   }
@@ -659,23 +669,13 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                 MeshTokens.of(context).spacingLg,
               ),
               children: [
-                SectionHeader(l10n.styleEditor_colorsSection),
-                MeshCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < _baseColorFields.length; i++) ...[
-                        if (i > 0) const Divider(height: 1, indent: 16),
-                        _ColorFieldRow(
-                          key: ValueKey('colorRow_${_baseColorFields[i].key}'),
-                          spec: _baseColorFields[i],
-                          overrides: overrides,
-                          settingsService: settingsService,
-                          brightness: brightness,
-                        ),
-                      ],
-                    ],
-                  ),
+                _ColorSectionExpansionTile(
+                  key: const ValueKey('baseColorsSection'),
+                  title: l10n.styleEditor_colorsSection,
+                  fields: _baseColorFields,
+                  overrides: overrides,
+                  settingsService: settingsService,
+                  brightness: brightness,
                 ),
                 _ColorSectionExpansionTile(
                   key: const ValueKey('mapSection'),
@@ -714,7 +714,13 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                   child: Column(
                     children: [
                       for (var i = 0; i < _fontFields.length; i++) ...[
-                        if (i > 0) const Divider(height: 1, indent: 16),
+                        if (i > 0)
+                          Divider(
+                            height: 1,
+                            indent: 16,
+                            endIndent: 16,
+                            color: MeshTokens.of(context).secondary,
+                          ),
                         _FontFieldRow(
                           key: ValueKey('fontRow_${_fontFields[i].key}'),
                           spec: _fontFields[i],
@@ -731,7 +737,13 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                   child: Column(
                     children: [
                       for (var i = 0; i < _spacingFields.length; i++) ...[
-                        if (i > 0) const Divider(height: 1, indent: 16),
+                        if (i > 0)
+                          Divider(
+                            height: 1,
+                            indent: 16,
+                            endIndent: 16,
+                            color: MeshTokens.of(context).secondary,
+                          ),
                         Builder(
                           builder: (context) {
                             final spec = _spacingFields[i];
@@ -766,7 +778,13 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                   child: Column(
                     children: [
                       for (var i = 0; i < _radiusFields.length; i++) ...[
-                        if (i > 0) const Divider(height: 1, indent: 16),
+                        if (i > 0)
+                          Divider(
+                            height: 1,
+                            indent: 16,
+                            endIndent: 16,
+                            color: MeshTokens.of(context).secondary,
+                          ),
                         Builder(
                           builder: (context) {
                             final spec = _radiusFields[i];
@@ -890,25 +908,37 @@ class _ColorSectionExpansionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = liveLosDefaults ? MeshTokens.of(context) : null;
+    final accent = MeshTokens.of(context).secondary;
     return MeshCard(
       padding: EdgeInsets.zero,
-      child: ExpansionTile(
-        title: Text(title),
-        children: [
-          for (var i = 0; i < fields.length; i++) ...[
-            if (i > 0) const Divider(height: 1, indent: 16),
-            _ColorFieldRow(
-              key: ValueKey('colorRow_${fields[i].key}'),
-              spec: fields[i],
-              overrides: overrides,
-              settingsService: settingsService,
-              brightness: brightness,
-              liveDefaultColor: tokens == null
-                  ? null
-                  : _liveLosColor(tokens, fields[i].key),
-            ),
+      // Flutter's stock ExpansionTile chevron uses colorScheme.primary when
+      // expanded and colorScheme.onSurfaceVariant when collapsed (no
+      // ExpansionTileThemeData is defined app-wide) — pin both to the same
+      // accent so it doesn't change color on expand/collapse.
+      child: ExpansionTileTheme(
+        data: ExpansionTileThemeData(
+          iconColor: accent,
+          collapsedIconColor: accent,
+        ),
+        child: ExpansionTile(
+          title: Text(title),
+          children: [
+            for (var i = 0; i < fields.length; i++) ...[
+              if (i > 0)
+                Divider(height: 1, indent: 16, endIndent: 16, color: accent),
+              _ColorFieldRow(
+                key: ValueKey('colorRow_${fields[i].key}'),
+                spec: fields[i],
+                overrides: overrides,
+                settingsService: settingsService,
+                brightness: brightness,
+                liveDefaultColor: tokens == null
+                    ? null
+                    : _liveLosColor(tokens, fields[i].key),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -965,11 +995,7 @@ class _ColorFieldRow extends StatelessWidget {
       leading: Container(
         width: 28,
         height: 28,
-        decoration: BoxDecoration(
-          color: currentColor,
-          shape: BoxShape.circle,
-          border: Border.all(color: scheme.outline),
-        ),
+        decoration: BoxDecoration(color: currentColor, shape: BoxShape.circle),
       ),
       // pkt 2: the reset affordance stays visible on every row (disabled
       // when there's nothing to reset) instead of disappearing — a hidden

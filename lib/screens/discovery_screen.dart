@@ -196,6 +196,11 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 label: context.l10n.common_undo,
                 onPressed: () => connector.removeContact(contact),
               ),
+              // Flutter's SnackBar defaults `persist` to true whenever an
+              // `action` is set (see SnackBar.persist doc) — without this,
+              // the 4s auto-dismiss below never kicks in and the toast sits
+              // on screen forever.
+              persist: false,
             );
           } catch (_) {
             if (!context.mounted) return;

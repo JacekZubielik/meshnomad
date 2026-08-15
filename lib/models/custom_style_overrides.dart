@@ -86,9 +86,19 @@ class CustomStyleOverrides {
     'spacingXxlg',
   ];
 
-  /// Editable `MeshTokens` corner-radius fields. `pill` (999) is deliberately
-  /// NOT editable — a slider to 999 is unusable; pill means "fully round".
-  static const List<String> editableRadiusKeys = ['xs', 'sm', 'md', 'lg', 'xl'];
+  /// Editable `MeshTokens` corner-radius fields. `pill` is exposed on the
+  /// same 0-40 scale as the others (not 0-999) — for the button/FAB/chip
+  /// heights this app uses, 40 already renders fully round, so the slider
+  /// stays usable while its unedited default still clamps to "fully round"
+  /// (see `_radiusFields`/`_TokenFieldRow` in custom_style_editor_screen.dart).
+  static const List<String> editableRadiusKeys = [
+    'xs',
+    'sm',
+    'md',
+    'lg',
+    'xl',
+    'pill',
+  ];
 
   final Map<String, int> colorOverrides; // key -> Color.value (ARGB int)
   final Map<String, double> fontSizeOverrides;
