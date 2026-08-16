@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
 
 /// MeshCore shared design kit.
@@ -427,11 +428,16 @@ class RouteChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    // Reuses the same keys as the path-detail screens (channel_message_path_
+    // screen.dart, contact_localization.dart) so "direct"/"flood" read
+    // identically everywhere, and chat_hopsCount for its ICU plural — this
+    // chip used to build its label from a hardcoded English literal.
     final label = isDirect
         ? (hops == null || hops == 0
-              ? 'DIRECT'
-              : '$hops HOP${hops == 1 ? '' : 'S'}')
-        : 'FLOOD';
+              ? l10n.channelPath_directPath
+              : l10n.chat_hopsCount(hops!))
+        : l10n.channelPath_floodPath;
     final tokens = MeshTokens.of(context);
     return Container(
       // horizontal 6 has no exact token — spacingXxs (4) is nearest.
@@ -454,7 +460,11 @@ class RouteChip extends StatelessWidget {
           ),
           const SizedBox(width: 3),
           Text(
-            label,
+            // Same uppercase-chip look SectionHeader uses (label.toUpperCase()
+            // in mesh_ui.dart) — accentLabel's TextStyle has no text-transform
+            // of its own, so the previous hardcoded literal being all-caps was
+            // load-bearing for the visual style, not just content.
+            label.toUpperCase(),
             style: tokens.accentLabel(
               color: scheme.onSurfaceVariant,
               fontSize: tokens.microLabelSize,

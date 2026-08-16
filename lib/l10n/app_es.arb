@@ -603,8 +603,6 @@
   "chat_routingMode": "Modo de enrutamiento",
   "chat_recentAckPaths": "Rutas recientes de ACK (toca para usar):",
   "chat_pathHistoryFull": "El historial de rutas está completo. Elimina entradas para añadir nuevas.",
-  "chat_hopSingular": "salto",
-  "chat_hopPlural": "saltos",
   "chat_hopsCount": "{count} {count, plural, =1{salto} other{saltos}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -626,17 +624,6 @@
   "chat_floodModeEnabled": "El modo de inundación está activado. Desactívalo con el icono de enrutamiento de la barra de herramientas de la app.",
   "chat_fullPath": "Ruta completa",
   "chat_pathDetailsNotAvailable": "Los detalles de la ruta aún no están disponibles. Intenta enviar un mensaje para refrescar.",
-  "chat_pathSetHops": "Ruta establecida: {hopCount} {hopCount, plural, =1{salto} other{saltos}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "Guardado localmente. Conéctate para sincronizar.",
   "chat_pathDeviceConfirmed": "Dispositivo confirmado.",
   "chat_pathDeviceNotConfirmed": "Dispositivo aún no confirmado.",

@@ -923,7 +923,7 @@
   "chat_compressOutgoingMessages": "Compress outgoing messages",
   "chat_floodForced": "Flood (forced)",
   "chat_directForced": "Direct (forced)",
-  "chat_hopsForced": "{count} hops (forced)",
+  "chat_hopsForced": "{count} {count, plural, =1{hop} other{hops}} (forced)",
   "@chat_hopsForced": {
     "placeholders": {
       "count": {

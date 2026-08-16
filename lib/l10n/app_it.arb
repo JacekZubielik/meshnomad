@@ -647,8 +647,6 @@
   "chat_routingMode": "Modalità di routing",
   "chat_recentAckPaths": "Percorsi ACK recenti (tocca per usarli):",
   "chat_pathHistoryFull": "La cronologia dei percorsi è piena. Rimuovi elementi per aggiungerne di nuovi.",
-  "chat_hopSingular": "salto",
-  "chat_hopPlural": "salto",
   "chat_hopsCount": "{count} {count, plural, =1{salto} other{salti}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -670,17 +668,6 @@
   "chat_floodModeEnabled": "Modalità flood abilitata. Disattivala tramite l'icona di routing nella barra superiore.",
   "chat_fullPath": "Percorso Completo",
   "chat_pathDetailsNotAvailable": "I dettagli del percorso non sono ancora disponibili. Prova a inviare un messaggio per ricaricare.",
-  "chat_pathSetHops": "Percorso impostato: {hopCount} {hopCount, plural, =1{salto} other{salti}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "Salvato localmente. Connettiti per sincronizzare.",
   "chat_pathDeviceConfirmed": "Dispositivo confermato.",
   "chat_pathDeviceNotConfirmed": "Dispositivo non confermato ancora.",

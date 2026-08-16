@@ -581,8 +581,6 @@
   "chat_routingMode": "Ruttläge",
   "chat_recentAckPaths": "Nyligen Ack-vägar (tryck för att använda):",
   "chat_pathHistoryFull": "Historisk sökväg är full. Ta bort poster för att lägga till nya.",
-  "chat_hopSingular": "hoppa",
-  "chat_hopPlural": "hoppar",
   "chat_hopsCount": "{count} {count, plural, =1{hopp} other{hopp} }",
   "@chat_hopsCount": {
     "placeholders": {
@@ -604,17 +602,6 @@
   "chat_floodModeEnabled": "Översvämningsläge aktiverat. Stäng av via ruttikonen i appraden.",
   "chat_fullPath": "Fullständig sökväg",
   "chat_pathDetailsNotAvailable": "Stigaruppgifterna är ännu inte tillgängliga. Försök att skicka ett meddelande för att uppdatera.",
-  "chat_pathSetHops": "Sökväg inställd: {hopCount} {hopCount, plural, =1{hopp} other{hoppar}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "Sparat lokalt. Anslut för att synkronisera.",
   "chat_pathDeviceConfirmed": "Enheten bekräftad.",
   "chat_pathDeviceNotConfirmed": "Enheten har inte bekräftats ännu.",

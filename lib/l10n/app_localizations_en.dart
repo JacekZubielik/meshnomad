@@ -1776,7 +1776,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String chat_hopsForced(int count) {
-    return '$count hops (forced)';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'hops',
+      one: 'hop',
+    );
+    return '$count $_temp0 (forced)';
   }
 
   @override

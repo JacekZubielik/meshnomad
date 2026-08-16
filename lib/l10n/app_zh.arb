@@ -608,8 +608,6 @@
   "chat_routingMode": "路由模式",
   "chat_recentAckPaths": "最近使用的 ACK 路径（点击使用）：",
   "chat_pathHistoryFull": "路径历史已满，请删除后再添加。",
-  "chat_hopSingular": "跳",
-  "chat_hopPlural": "跳",
   "chat_hopsCount": "{count} 跳",
   "@chat_hopsCount": {
     "placeholders": {
@@ -631,17 +629,6 @@
   "chat_floodModeEnabled": "泛洪模式已启用。可通过应用栏的路由图标切换。",
   "chat_fullPath": "完整路径",
   "chat_pathDetailsNotAvailable": "路径信息暂不可用，请尝试发送消息刷新。",
-  "chat_pathSetHops": "路径设置：{hopCount} 跳 - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "已本地保存，连接设备后可同步。",
   "chat_pathDeviceConfirmed": "设备已确认。",
   "chat_pathDeviceNotConfirmed": "设备尚未确认。",

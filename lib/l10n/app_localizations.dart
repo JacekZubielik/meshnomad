@@ -3289,7 +3289,7 @@ abstract class AppLocalizations {
   /// No description provided for @chat_hopsForced.
   ///
   /// In en, this message translates to:
-  /// **'{count} hops (forced)'**
+  /// **'{count} {count, plural, =1{hop} other{hops}} (forced)'**
   String chat_hopsForced(int count);
 
   /// No description provided for @chat_floodAuto.

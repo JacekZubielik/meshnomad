@@ -581,8 +581,6 @@
   "chat_routingMode": "Režim trasy",
   "chat_recentAckPaths": "Nedávne cesty ACK (klepni na použitie):",
   "chat_pathHistoryFull": "História ciest je plná. Odstráňte záznamy, aby ste mohli pridať nové.",
-  "chat_hopSingular": "Skok",
-  "chat_hopPlural": "Skákať",
   "chat_hopsCount": "{count} {count, plural, =1{skok} other{skoky}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -604,17 +602,6 @@
   "chat_floodModeEnabled": "Odosporňovacia prevádzka je zapnutá. Vypnite ju znova cez ikonu routovania v navigačnom páse.",
   "chat_fullPath": "Celá cesta",
   "chat_pathDetailsNotAvailable": "Podrobnosti o ceste zatiaľ dostupné nie sú. Skúste poslať správu na obnovenie.",
-  "chat_pathSetHops": "Cesta nastavená: {hopCount} {hopCount, plural, =1{hop} other{hops}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "Uložené lokálne. Spojte sa na synchronizáciu.",
   "chat_pathDeviceConfirmed": "Zariadenie potvrdené.",
   "chat_pathDeviceNotConfirmed": "Zariadenie zatiaľ nebolo potvrdené.",
