@@ -584,8 +584,6 @@
   "chat_routingMode": "Режим маршрутизації",
   "chat_recentAckPaths": "Підтверджені шляхи (натисніть, щоб використати):",
   "chat_pathHistoryFull": "Історія шляхів заповнена. Видаліть записи, щоб додати нові.",
-  "chat_hopSingular": "Перехід",
-  "chat_hopPlural": "переходів",
   "chat_hopsCount": "{count} {count, plural, =1{перехід} few{переходи} many{переходів} other{переходів}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -608,17 +606,6 @@
   "chat_floodModeEnabled": "Увімкнено режим «через всю мережу». Перемикайте через іконку маршрутизації на панелі інструментів.",
   "chat_fullPath": "Повний шлях",
   "chat_pathDetailsNotAvailable": "Деталі шляху ще недоступні. Спробуйте надіслати повідомлення для оновлення.",
-  "chat_pathSetHops": "Шлях встановлено: {hopCount} {hopCount, plural, =1{перехід} few{переходи} many{переходів} other{переходів}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "Збережено локально. Підключіться для синхронізації.",
   "chat_pathDeviceConfirmed": "Пристрій підтверджено.",
   "chat_pathDeviceNotConfirmed": "Пристрій ще не підтверджено.",

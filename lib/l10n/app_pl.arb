@@ -591,8 +591,6 @@
   "chat_routingMode": "Tryb routingu",
   "chat_recentAckPaths": "Ostatnie ścieżki ACK (naciśnij, aby użyć):",
   "chat_pathHistoryFull": "Historia ścieżek jest pełna. Usuń wpisy, aby dodać nowe.",
-  "chat_hopSingular": "skok",
-  "chat_hopPlural": "skoki",
   "chat_hopsCount": "{count} {count, plural, one{skok} few{skoki} many{skoków} other{skoków}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -614,17 +612,6 @@
   "chat_floodModeEnabled": "Tryb zalewowy włączony. Przełącz z powrotem ikoną routingu w pasku aplikacji.",
   "chat_fullPath": "Pełna ścieżka",
   "chat_pathDetailsNotAvailable": "Szczegóły ścieżki jeszcze niedostępne. Spróbuj wysłać wiadomość, aby odświeżyć.",
-  "chat_pathSetHops": "Ścieżka ustawiona: {hopCount} {hopCount, plural, =1{hop} other{hops}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "Zapisano lokalnie. Połącz się, aby zsynchronizować.",
   "chat_pathDeviceConfirmed": "Urządzenie potwierdzone.",
   "chat_pathDeviceNotConfirmed": "Urządzenie nie zostało jeszcze potwierdzone.",
@@ -634,7 +621,7 @@
   "chat_compressOutgoingMessages": "Kompresuj wychodzące wiadomości",
   "chat_floodForced": "Zalew (wymuszony)",
   "chat_directForced": "Bezpośrednio (wymuszono)",
-  "chat_hopsForced": "{count} skoków (wymuszonych)",
+  "chat_hopsForced": "{count} {count, plural, one{skok} few{skoki} many{skoków} other{skoków}} (wymuszone)",
   "@chat_hopsForced": {
     "placeholders": {
       "count": {

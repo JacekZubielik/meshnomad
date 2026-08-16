@@ -581,8 +581,6 @@
   "chat_routingMode": "Routeerwijze",
   "chat_recentAckPaths": "Recente ACK Paden (tik om te gebruiken):",
   "chat_pathHistoryFull": "De voorgeschiedenis is vol. Verwijder vermeldingen om er nieuwe aan toe te voegen.",
-  "chat_hopSingular": "Hop",
-  "chat_hopPlural": "hoppen",
   "chat_hopsCount": "{count} {count, plural, =1{hop} other{hops}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -604,17 +602,6 @@
   "chat_floodModeEnabled": "Floodmodus is ingeschakeld. Schakel dit uit via het route-icoon in de app-balk.",
   "chat_fullPath": "Volledige Pad",
   "chat_pathDetailsNotAvailable": "De paddetails zijn nog niet beschikbaar. Probeer een bericht te sturen om te vernieuwen.",
-  "chat_pathSetHops": "Pad ingesteld: {hopCount} {hopCount, plural, =1{hop} other{hops}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "Opgeslagen lokaal. Verbinden om te synchroniseren.",
   "chat_pathDeviceConfirmed": "Apparaat bevestigd.",
   "chat_pathDeviceNotConfirmed": "Apparaat nog niet bevestigd.",

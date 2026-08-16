@@ -772,8 +772,6 @@
   "chat_routingMode": "ルーティングモード",
   "chat_recentAckPaths": "最近使った ACK 経路（タップして使用）:",
   "chat_pathHistoryFull": "経路履歴がいっぱいです。既存の項目を削除すると新しい項目を追加できます。",
-  "chat_hopSingular": "ホップ",
-  "chat_hopPlural": "ホップ",
   "chat_hopsCount": "{count} {count, plural, =1{ホップ} other{ホップ}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -795,17 +793,6 @@
   "chat_floodModeEnabled": "フラッドモードが有効です。アプリのメニューバーにあるルートアイコンでモードを切り替えられます。",
   "chat_fullPath": "完全な経路",
   "chat_pathDetailsNotAvailable": "経路の詳細はまだありません。「更新」を押してもう一度お試しください。",
-  "chat_pathSetHops": "経路を設定しました: {hopCount} {hopCount, plural, =1{ホップ} other{ホップ}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "ローカルに保存しました。同期するには接続してください。",
   "chat_pathDeviceConfirmed": "デバイスで確認済み",
   "chat_pathDeviceNotConfirmed": "デバイスではまだ確認されていません",

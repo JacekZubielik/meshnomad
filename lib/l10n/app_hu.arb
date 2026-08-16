@@ -754,8 +754,6 @@
   "chat_routingMode": "Útvonal-kezelési mód",
   "chat_recentAckPaths": "Legutóbbi használt útvonalak (gombra kattintva):",
   "chat_pathHistoryFull": "Az előző lépések listája teljes. Törölj ki a bejegyzéseket, hogy újokat hozzáadhatsd.",
-  "chat_hopSingular": "ugor",
-  "chat_hopPlural": "babér",
   "chat_hopsCount": "{count} {count, plural, =1{ugrás} other{ugrások}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -777,17 +775,6 @@
   "chat_floodModeEnabled": "Árvízvédelmi mód bekapcsolva. A visszaállítás a alkalmazásban található útvonal ikon segítségével.",
   "chat_fullPath": "Teljes útvonal",
   "chat_pathDetailsNotAvailable": "Az útvonal részletei még nem elérhetők. Próbálja meg küldeni egy üzenetet, hogy frissítse az információkat.",
-  "chat_pathSetHops": "Path set: {hopCount} {hopCount, plural, =1{hop} other{hops}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "Helyben mentve. Csatlakozás a szinkronizáláshoz.",
   "chat_pathDeviceConfirmed": "Az eszköz megerősítve.",
   "chat_pathDeviceNotConfirmed": "Az eszköz még nincs megerősítve.",

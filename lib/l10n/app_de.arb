@@ -603,8 +603,6 @@
   "chat_routingMode": "Routenmodus",
   "chat_recentAckPaths": "Aktuelle ACK-Pfade (antippen, um zu verwenden):",
   "chat_pathHistoryFull": "Die Pfadhistorie ist voll. Entferne Einträge, um neue hinzuzufügen.",
-  "chat_hopSingular": "Sprung",
-  "chat_hopPlural": "Sprünge",
   "chat_hopsCount": "{count} {count, plural, =1{Sprung} other{Sprünge}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -626,17 +624,6 @@
   "chat_floodModeEnabled": "Flutmodus aktiviert.",
   "chat_fullPath": "Vollständiger Pfad",
   "chat_pathDetailsNotAvailable": "Die Pfaddetails sind noch nicht verfügbar. Versuchen Sie, eine Nachricht zu senden, um zu aktualisieren.",
-  "chat_pathSetHops": "Pfad gesetzt: {hopCount} {hopCount, plural, =1{hop} other{hops}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "Lokal Gespeichert. Bitte Verbinden zum Synchronisieren.",
   "chat_pathDeviceConfirmed": "Gerät bestätigt.",
   "chat_pathDeviceNotConfirmed": "Gerät noch nicht bestätigt.",

@@ -581,8 +581,6 @@
   "chat_routingMode": "Navodilo za usmerjevalni način",
   "chat_recentAckPaths": "Nedavni poti ACK (tap za uporabo):",
   "chat_pathHistoryFull": "Zapiske o poti so popolni. Izbriši vnose, da dodaš nove.",
-  "chat_hopSingular": "skok",
-  "chat_hopPlural": "skokov",
   "chat_hopsCount": "{count} {count, plural, =1{skok} other{skoki}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -604,17 +602,6 @@
   "chat_floodModeEnabled": "Narejena je bila omrežna modaliteta. Vklopi jo znova preko ikone v meniju aplikacije.",
   "chat_fullPath": "Polna pot",
   "chat_pathDetailsNotAvailable": "Podrobnosti poti zaenkrat niso na voljo. Poskusite poslati sporočilo za osvežitev.",
-  "chat_pathSetHops": "Pot nastavljen: {hopCount} {hopCount, plural, =1{hop} other{hops}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "Shrano lokalno. Povežite se za sinhronizacijo.",
   "chat_pathDeviceConfirmed": "Naprave potrjeno.",
   "chat_pathDeviceNotConfirmed": "Naprave še niso potrdile.",

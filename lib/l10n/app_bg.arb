@@ -581,8 +581,6 @@
   "chat_routingMode": "Режим на маршрутизиране",
   "chat_recentAckPaths": "Последни ACK пътища (докоснете, за да използвате):",
   "chat_pathHistoryFull": "Историята на пътя е пълна. Премахнете записи, за да добавите нови.",
-  "chat_hopSingular": "скок",
-  "chat_hopPlural": "скока",
   "chat_hopsCount": "{count} {count, plural, =1{скок} other{скока}}",
   "@chat_hopsCount": {
     "placeholders": {
@@ -604,17 +602,6 @@
   "chat_floodModeEnabled": "Режимът на наводняване е включен. Включете го отново чрез иконата за маршрутизиране в лентата на приложението.",
   "chat_fullPath": "Пълен път",
   "chat_pathDetailsNotAvailable": "Подробности за пътя все още не са налични. Опитайте да изпратите съобщение, за да ги обновите.",
-  "chat_pathSetHops": "Пътят е зададен: {hopCount} {hopCount, plural, =1{скок} other{скока}} - {status}",
-  "@chat_pathSetHops": {
-    "placeholders": {
-      "hopCount": {
-        "type": "int"
-      },
-      "status": {
-        "type": "String"
-      }
-    }
-  },
   "chat_pathSavedLocally": "Запазено локално. Свържете се за синхронизиране.",
   "chat_pathDeviceConfirmed": "Устройство потвърдено.",
   "chat_pathDeviceNotConfirmed": "Устройството все още не е потвърдено.",

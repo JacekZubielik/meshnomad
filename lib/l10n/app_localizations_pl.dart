@@ -1823,7 +1823,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String chat_hopsForced(int count) {
-    return '$count skoków (wymuszonych)';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'skoków',
+      many: 'skoków',
+      few: 'skoki',
+      one: 'skok',
+    );
+    return '$count $_temp0 (wymuszone)';
   }
 
   @override
