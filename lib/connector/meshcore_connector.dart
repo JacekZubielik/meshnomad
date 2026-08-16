@@ -14,6 +14,7 @@ import '../models/channel_message.dart';
 import '../models/companion_radio_stats.dart';
 import '../models/contact.dart';
 import '../models/message.dart';
+import '../models/packet_observation.dart';
 import '../models/path_selection.dart';
 import '../models/translation_support.dart';
 import '../helpers/reaction_helper.dart';
@@ -26,6 +27,7 @@ import '../services/linux_ble_error_classifier.dart';
 import '../services/linux_ble_pairing_service_stub.dart'
     if (dart.library.io) '../services/linux_ble_pairing_service.dart';
 import '../services/message_retry_service.dart';
+import '../services/packet_observation_service.dart';
 import '../services/path_history_service.dart';
 import '../services/app_settings_service.dart';
 import '../services/background_service.dart';
@@ -369,6 +371,7 @@ class MeshCoreConnector extends ChangeNotifier {
   // Services
   MessageRetryService? _retryService;
   PathHistoryService? _pathHistoryService;
+  PacketObservationService? _packetObservationService;
   AppSettingsService? _appSettingsService;
   BackgroundService? _backgroundService;
   final NotificationService _notificationService = NotificationService();
@@ -1037,6 +1040,7 @@ class MeshCoreConnector extends ChangeNotifier {
     AppDebugLogService? appDebugLogService,
     BackgroundService? backgroundService,
     TimeoutPredictionService? timeoutPredictionService,
+    PacketObservationService? packetObservationService,
   }) {
     _retryService = retryService;
     _pathHistoryService = pathHistoryService;
@@ -1046,6 +1050,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _appDebugLogService = appDebugLogService;
     _backgroundService = backgroundService;
     _timeoutPredictionService = timeoutPredictionService;
+    _packetObservationService = packetObservationService;
     _usbManager.setDebugLogService(_appDebugLogService);
     _tcpConnector.setDebugLogService(_appDebugLogService);
 
@@ -7126,8 +7131,7 @@ class MeshCoreConnector extends ChangeNotifier {
     try {
       packet.skipBytes(1); // Skip frame type byte
       final snr = packet.readInt8() / 4.0;
-      packet.skipBytes(1); // Skip RSSI byte
-      //final rssi = packet.readByte();
+      final rssi = packet.readInt8();
       final header = packet.readByte();
       final routeType = header & 0x03;
       final payloadType = (header >> 2) & 0x0F;
@@ -7141,6 +7145,20 @@ class MeshCoreConnector extends ChangeNotifier {
       final pathHashWidth = _decodePathHashWidth(pathLenRaw);
       final pathBytes = packet.readBytes(pathByteLen);
       final payload = packet.readBytes(packet.remaining);
+
+      _packetObservationService?.record(
+        PacketObservation(
+          observedAt: DateTime.now(),
+          payloadType: payloadType,
+          routeType: routeType,
+          snr: snr,
+          rssi: rssi,
+          hopCount: pathLenRaw == 0xFF ? 0 : (pathLenRaw & 63),
+          hopHashWidth: pathHashWidth,
+          pathBytes: pathBytes,
+          payloadLength: payload.length,
+        ),
+      );
 
       final rawPacket = frame.sublist(3);
       switch (payloadType) {
