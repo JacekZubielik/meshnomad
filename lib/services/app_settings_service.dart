@@ -232,6 +232,10 @@ class AppSettingsService extends ChangeNotifier {
     await updateSettings(_settings.copyWith(autoRouteRotationEnabled: value));
   }
 
+  Future<void> setForceUnscopedFlood(bool value) async {
+    await updateSettings(_settings.copyWith(forceUnscopedFlood: value));
+  }
+
   Future<void> setMaxRouteWeight(double value) async {
     await updateSettings(_settings.copyWith(maxRouteWeight: value));
   }

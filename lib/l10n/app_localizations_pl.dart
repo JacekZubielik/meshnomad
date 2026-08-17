@@ -411,6 +411,31 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get settings_regionForceUnscoped => 'Force global flood';
+
+  @override
+  String get settings_regionForceUnscopedSubtitle =>
+      'Ignores every flood scope — messages are sent as a global flood. Stays on across reconnects.';
+
+  @override
+  String get settings_regionDefaultSection => 'Default Region';
+
+  @override
+  String settings_regionCurrentDefault(String name) {
+    return 'Current default: $name';
+  }
+
+  @override
+  String get settings_regionNoDefault => 'No default region set';
+
+  @override
+  String get settings_regionNoneOption =>
+      'None (unscoped when nothing else is scoped)';
+
+  @override
+  String get settings_regionDefaultTag => 'DEFAULT';
+
+  @override
   String get settings_location => 'Lokalizacja';
 
   @override
@@ -4258,6 +4283,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String contacts_pathTraceTo(String name) {
     return 'Śledź trasę do $name';
   }
+
+  @override
+  String get contacts_showAdvertPath => 'Pokaż ścieżkę rozgłoszenia';
+
+  @override
+  String contacts_advertPathTraceTo(String name) {
+    return 'Ścieżka rozgłoszenia do $name';
+  }
+
+  @override
+  String get contacts_advertPathNotFound =>
+      'Brak zapisanej ścieżki rozgłoszenia dla tego kontaktu';
 
   @override
   String get contacts_clipboardEmpty => 'Schowek jest pusty.';

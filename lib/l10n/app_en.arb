@@ -177,6 +177,20 @@
       }
     }
   },
+  "settings_regionForceUnscoped": "Force global flood",
+  "settings_regionForceUnscopedSubtitle": "Ignores every flood scope — messages are sent as a global flood. Stays on across reconnects.",
+  "settings_regionDefaultSection": "Default Region",
+  "settings_regionCurrentDefault": "Current default: {name}",
+  "@settings_regionCurrentDefault": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settings_regionNoDefault": "No default region set",
+  "settings_regionNoneOption": "None (unscoped when nothing else is scoped)",
+  "settings_regionDefaultTag": "DEFAULT",
   "settings_location": "Location",
   "settings_locationSubtitle": "GPS coordinates",
   "settings_locationUpdated": "Location and GPS settings updated",
@@ -2394,6 +2408,16 @@
       }
     }
   },
+  "contacts_showAdvertPath": "Show Advert Path",
+  "contacts_advertPathTraceTo": "Advert path to {name}",
+  "@contacts_advertPathTraceTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "contacts_advertPathNotFound": "No advert path cached for this contact",
   "contacts_clipboardEmpty": "Clipboard is empty.",
   "contacts_invalidAdvertFormat": "Invalid contact data",
   "contacts_contactImported": "Contact has been imported.",
