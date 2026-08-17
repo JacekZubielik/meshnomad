@@ -48,6 +48,7 @@ import '../storage/message_store.dart';
 import '../storage/unread_store.dart';
 import '../utils/app_logger.dart';
 import '../utils/battery_utils.dart';
+import '../utils/keys.dart';
 import '../utils/platform_info.dart';
 import 'meshcore_uuids.dart';
 import 'meshcore_protocol.dart';
@@ -3096,6 +3097,9 @@ class MeshCoreConnector extends ChangeNotifier {
     await requestBatteryStatus(force: true);
     await sendFrame(buildGetCustomVarsFrame());
     await sendFrame(buildGetAutoAddFlagsFrame());
+    await sendFrame(buildGetDeviceTimeFrame());
+    await refreshDefaultFloodScope();
+    await _restoreForceUnscopedFloodIfNeeded();
 
     _scheduleSelfInfoRetry();
   }
@@ -3119,6 +3123,9 @@ class MeshCoreConnector extends ChangeNotifier {
     await sendFrame(buildGetCustomVarsFrame());
     await requestBatteryStatus();
     await sendFrame(buildGetAutoAddFlagsFrame());
+    await sendFrame(buildGetDeviceTimeFrame());
+    await refreshDefaultFloodScope();
+    await _restoreForceUnscopedFloodIfNeeded();
     _scheduleSelfInfoRetry();
   }
 
@@ -3753,6 +3760,117 @@ class MeshCoreConnector extends ChangeNotifier {
     }
   }
 
+  /// Queries the firmware's on-device advert-path cache (CMD_GET_ADVERT_PATH)
+  /// for the path [contact]'s most recently cached advert took to reach this
+  /// radio. Returns null if nothing is cached (ERR_CODE_NOT_FOUND) or on
+  /// timeout. The cache holds only the last 16 distinct senders and is
+  /// populated purely from received adverts — independent of any path the
+  /// app has recorded from live pings or messages.
+  Future<AdvertPathResponse?> getAdvertPath(Contact contact) async {
+    if (!isConnected) return null;
+
+    final completer = Completer<AdvertPathResponse?>();
+    late final StreamSubscription<Uint8List> subscription;
+    late final Timer timeout;
+
+    void complete(AdvertPathResponse? value) {
+      if (!completer.isCompleted) completer.complete(value);
+    }
+
+    subscription = receivedFrames.listen((frame) {
+      if (frame.isEmpty) return;
+      if (frame[0] == respCodeAdvertPath) {
+        complete(parseAdvertPathFrame(frame));
+      } else if (frame[0] == respCodeErr) {
+        complete(null);
+      }
+    });
+
+    timeout = Timer(_commandAckTimeout, () => complete(null));
+
+    try {
+      await sendFrame(buildGetAdvertPathFrame(contact.publicKey));
+      return await completer.future;
+    } finally {
+      timeout.cancel();
+      await subscription.cancel();
+    }
+  }
+
+  DefaultFloodScope? _defaultFloodScope;
+
+  /// The device's persistent flood-scope fallback (CMD_GET/SET_DEFAULT_FLOOD_SCOPE),
+  /// used only when no session scope override and no "send unscoped" force
+  /// (see [setForceUnscopedFlood]) apply. Null means no default is set.
+  /// Kept in sync from the firmware — refreshed on every connect-handshake
+  /// and after every [setDefaultFloodScope] call, never written locally.
+  DefaultFloodScope? get defaultFloodScope => _defaultFloodScope;
+
+  Future<void> refreshDefaultFloodScope() async {
+    if (!isConnected) return;
+
+    final completer = Completer<void>();
+    late final StreamSubscription<Uint8List> subscription;
+    late final Timer timeout;
+
+    void complete() {
+      if (!completer.isCompleted) completer.complete();
+    }
+
+    subscription = receivedFrames.listen((frame) {
+      if (frame.isEmpty) return;
+      if (frame[0] == respCodeDefaultFloodScope) {
+        _defaultFloodScope = parseDefaultFloodScopeFrame(frame);
+        complete();
+      } else if (frame[0] == respCodeErr) {
+        complete();
+      }
+    });
+
+    timeout = Timer(_commandAckTimeout, complete);
+
+    try {
+      await sendFrame(buildGetDefaultFloodScopeFrame());
+      await completer.future;
+    } finally {
+      timeout.cancel();
+      await subscription.cancel();
+    }
+    notifyListeners();
+  }
+
+  /// Sets or clears (pass null/empty) the device's persistent flood-scope
+  /// default (CMD_SET_DEFAULT_FLOOD_SCOPE), then re-reads it back from the
+  /// firmware so [defaultFloodScope] always reflects device state, never a
+  /// locally-assumed value.
+  Future<void> setDefaultFloodScope(Region? region) async {
+    if (!isConnected) return;
+    if (region == null || region.isEmpty) {
+      await _sendFrameAndWaitForCommandAck(buildClearDefaultFloodScopeFrame());
+    } else {
+      await _sendFrameAndWaitForCommandAck(
+        buildSetDefaultFloodScopeFrame(region),
+      );
+    }
+    await refreshDefaultFloodScope();
+  }
+
+  /// Sets CMD_SET_FLOOD_SCOPE's "send unscoped" flag ([1]==1) and persists
+  /// the preference so [_restoreForceUnscopedFloodIfNeeded] can re-apply it
+  /// after every reconnect — the firmware flag itself lives only in RAM.
+  Future<void> setForceUnscopedFlood(bool enabled) async {
+    await _appSettingsService?.setForceUnscopedFlood(enabled);
+    if (!isConnected) return;
+    await _sendFrameAndWaitForCommandAck(
+      enabled ? buildSetFloodScopeUnscopedFrame() : buildSetFloodScopeFrame(''),
+    );
+  }
+
+  Future<void> _restoreForceUnscopedFloodIfNeeded() async {
+    if (_appSettingsService?.settings.forceUnscopedFlood != true) return;
+    await _sendFrameAndWaitForCommandAck(buildSetFloodScopeUnscopedFrame());
+  }
+
   Future<void> removeContact(Contact contact) async {
     if (!isConnected) return;
 
@@ -3778,6 +3896,27 @@ class MeshCoreConnector extends ChangeNotifier {
     );
     _messageStore.clearMessages(contact.publicKeyHex);
     notifyListeners();
+  }
+
+  /// Whether the radio still has an active repeater/room login session for
+  /// [pubKey] (CMD_HAS_CONNECTION) — the firmware keeps its own keep-alive
+  /// table separate from any app-side login state, so this asks it
+  /// directly rather than trusting local assumptions.
+  Future<bool> hasConnectionTo(Uint8List pubKey) async {
+    if (!isConnected) return false;
+    try {
+      await _sendFrameAndWaitForCommandAck(buildHasConnectionFrame(pubKey));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Explicitly ends a repeater/room login session (CMD_LOGOUT) instead of
+  /// leaving the radio to expire it via keep-alive timeout.
+  Future<void> logout(Uint8List pubKey) async {
+    if (!isConnected) return;
+    await _sendFrameAndWaitForCommandAck(buildLogoutFrame(pubKey));
   }
 
   Future<void> updateKnownDiscovered() async {
@@ -4585,7 +4724,12 @@ class MeshCoreConnector extends ChangeNotifier {
       epochSeconds * 1000,
       isUtc: true,
     );
-    debugPrint('Device time: ${deviceTime.toIso8601String()}');
+    // debugPrint is a no-op in release builds; appLogger keeps this visible
+    // for RTC-drift troubleshooting via the App Debug Log screen.
+    appLogger.info(
+      'Device time: ${deviceTime.toIso8601String()}',
+      tag: 'Connector',
+    );
   }
 
   void _handleSelfInfo(Uint8List frame) {
@@ -7164,13 +7308,18 @@ class MeshCoreConnector extends ChangeNotifier {
       final rawPacket = frame.sublist(3);
       switch (payloadType) {
         case payloadTypeADVERT:
-          _handlePayloadAdvertReceived(
-            rawPacket,
-            payload,
-            pathBytes,
-            pathHashWidth,
-            routeType,
-            snr,
+          // Signature verification inside is async (may hit a platform
+          // channel); frame handling itself stays sync so incoming frames
+          // keep streaming without waiting on it.
+          unawaited(
+            _handlePayloadAdvertReceived(
+              rawPacket,
+              payload,
+              pathBytes,
+              pathHashWidth,
+              routeType,
+              snr,
+            ),
           );
           break;
         default:
@@ -7181,7 +7330,7 @@ class MeshCoreConnector extends ChangeNotifier {
     }
   }
 
-  void importContact(Uint8List frame) {
+  Future<void> importContact(Uint8List frame) async {
     final packet = BufferReader(frame);
     int payloadType = 0;
     Uint8List pathBytes = Uint8List(0);
@@ -7218,27 +7367,45 @@ class MeshCoreConnector extends ChangeNotifier {
       appLogger.warn('Unexpected payload type: $payloadType', tag: 'Connector');
       return;
     }
+    Uint8List signature = Uint8List(0);
+    Uint8List timestampBytes = Uint8List(0);
+    Uint8List appData = Uint8List(0);
     try {
       publicKey = packet.readBytes(32);
-      timestamp = packet.readInt32LE();
-      //TODO add signature verification
-      packet.skipBytes(64); // Skip signature for now
-      final flags = packet.readByte();
+      timestampBytes = packet.readBytes(4);
+      timestamp = timestampBytes.buffer.asByteData().getInt32(0, Endian.little);
+      signature = packet.readBytes(64);
+      appData = packet.readRemainingBytes();
+      final fields = BufferReader(appData);
+      final flags = fields.readByte();
       type = flags & 0x0F;
       hasLocation = (flags & 0x10) != 0;
       // For future use:
       //final hasFeature1 = (flags & 0x20) != 0;
       //final hasFeature2 = (flags & 0x40) != 0;
       hasName = (flags & 0x80) != 0;
-      if (hasLocation && packet.remaining >= 8) {
-        latitude = packet.readInt32LE() / 1e6;
-        longitude = packet.readInt32LE() / 1e6;
+      if (hasLocation && fields.remaining >= 8) {
+        latitude = fields.readInt32LE() / 1e6;
+        longitude = fields.readInt32LE() / 1e6;
       }
-      if (hasName && packet.remaining > 0) {
-        name = packet.readCString();
+      if (hasName && fields.remaining > 0) {
+        name = fields.readCString();
       }
     } catch (e) {
       appLogger.warn('Malformed advert frame: $e', tag: 'Connector');
+      return;
+    }
+
+    if (!await verifyAdvertSignature(
+      publicKey: publicKey,
+      timestampBytesLE: timestampBytes,
+      signature: signature,
+      appData: appData,
+    )) {
+      appLogger.warn(
+        'Advert signature verification failed, rejecting import',
+        tag: 'Connector',
+      );
       return;
     }
 
@@ -7272,14 +7439,14 @@ class MeshCoreConnector extends ChangeNotifier {
         lon <= 180.0;
   }
 
-  void _handlePayloadAdvertReceived(
+  Future<void> _handlePayloadAdvertReceived(
     Uint8List rawPacket,
     Uint8List payload,
     Uint8List path,
     int pathHashWidth,
     int routeType,
     double snr,
-  ) {
+  ) async {
     final advert = BufferReader(payload);
     double? latitude;
     double? longitude;
@@ -7290,34 +7457,52 @@ class MeshCoreConnector extends ChangeNotifier {
     int timestamp = 0;
     bool hasLocation = false;
     bool hasName = false;
+    Uint8List signature = Uint8List(0);
+    Uint8List timestampBytes = Uint8List(0);
+    Uint8List appData = Uint8List(0);
     try {
       publicKey = advert.readBytes(32);
       contactKeyHex = publicKey
           .map((b) => b.toRadixString(16).padLeft(2, '0'))
           .join();
 
-      timestamp = advert.readInt32LE();
-      //TODO add signature verification
-      advert.skipBytes(64); // Skip signature for now
-      final flags = advert.readByte();
+      timestampBytes = advert.readBytes(4);
+      timestamp = timestampBytes.buffer.asByteData().getInt32(0, Endian.little);
+      signature = advert.readBytes(64);
+      appData = advert.readRemainingBytes();
+      final fields = BufferReader(appData);
+      final flags = fields.readByte();
       type = flags & 0x0F;
       hasLocation = (flags & 0x10) != 0;
       // For future use:
       //final hasFeature1 = (flags & 0x20) != 0;
       //final hasFeature2 = (flags & 0x40) != 0;
       hasName = (flags & 0x80) != 0;
-      if (hasLocation && advert.remaining >= 8) {
-        latitude = advert.readInt32LE() / 1e6;
-        longitude = advert.readInt32LE() / 1e6;
+      if (hasLocation && fields.remaining >= 8) {
+        latitude = fields.readInt32LE() / 1e6;
+        longitude = fields.readInt32LE() / 1e6;
       }
       // Validate location values if present
       hasLocation = hasValidLocation(latitude, longitude);
 
-      if (hasName && advert.remaining > 0) {
-        name = advert.readCString();
+      if (hasName && fields.remaining > 0) {
+        name = fields.readCString();
       }
     } catch (e) {
       appLogger.warn('Malformed advert frame: $e', tag: 'Connector');
+      return;
+    }
+
+    if (!await verifyAdvertSignature(
+      publicKey: publicKey,
+      timestampBytesLE: timestampBytes,
+      signature: signature,
+      appData: appData,
+    )) {
+      appLogger.warn(
+        'Advert signature verification failed for $contactKeyHex, dropping',
+        tag: 'Connector',
+      );
       return;
     }
 

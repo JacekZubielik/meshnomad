@@ -109,6 +109,12 @@ class AppSettings {
   /// range stays selectable.
   final int txDutyCyclePercent;
   final bool autoRouteRotationEnabled;
+
+  /// Persisted preference for CMD_SET_FLOOD_SCOPE's "send unscoped" variant
+  /// (issue #51) — the firmware flag itself lives only in RAM and resets on
+  /// every disconnect, so the app remembers the user's intent and re-sends
+  /// it after each connect-handshake to make it feel persistent.
+  final bool forceUnscopedFlood;
   final double maxRouteWeight;
   final double initialRouteWeight;
   final double routeWeightSuccessIncrement;
@@ -183,6 +189,7 @@ class AppSettings {
     this.messageHistoryLimit = 1000,
     this.txDutyCyclePercent = 10,
     this.autoRouteRotationEnabled = true,
+    this.forceUnscopedFlood = false,
     this.maxRouteWeight = 5.0,
     this.initialRouteWeight = 3.0,
     this.routeWeightSuccessIncrement = 0.5,
@@ -254,6 +261,7 @@ class AppSettings {
       'message_history_limit': messageHistoryLimit,
       'tx_duty_cycle_percent': txDutyCyclePercent,
       'auto_route_rotation_enabled': autoRouteRotationEnabled,
+      'force_unscoped_flood': forceUnscopedFlood,
       'max_route_weight': maxRouteWeight,
       'initial_route_weight': initialRouteWeight,
       'route_weight_success_increment': routeWeightSuccessIncrement,
@@ -367,6 +375,7 @@ class AppSettings {
           (json['tx_duty_cycle_percent'] as num?)?.toInt() ?? 10,
       autoRouteRotationEnabled:
           json['auto_route_rotation_enabled'] as bool? ?? true,
+      forceUnscopedFlood: json['force_unscoped_flood'] as bool? ?? false,
       maxRouteWeight: (json['max_route_weight'] as num?)?.toDouble() ?? 5.0,
       initialRouteWeight:
           (json['initial_route_weight'] as num?)?.toDouble() ?? 3.0,
@@ -483,6 +492,7 @@ class AppSettings {
     int? messageHistoryLimit,
     int? txDutyCyclePercent,
     bool? autoRouteRotationEnabled,
+    bool? forceUnscopedFlood,
     double? maxRouteWeight,
     double? initialRouteWeight,
     double? routeWeightSuccessIncrement,
@@ -547,6 +557,7 @@ class AppSettings {
       txDutyCyclePercent: txDutyCyclePercent ?? this.txDutyCyclePercent,
       autoRouteRotationEnabled:
           autoRouteRotationEnabled ?? this.autoRouteRotationEnabled,
+      forceUnscopedFlood: forceUnscopedFlood ?? this.forceUnscopedFlood,
       maxRouteWeight: maxRouteWeight ?? this.maxRouteWeight,
       initialRouteWeight: initialRouteWeight ?? this.initialRouteWeight,
       routeWeightSuccessIncrement:

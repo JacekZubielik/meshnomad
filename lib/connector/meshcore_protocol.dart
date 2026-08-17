@@ -198,6 +198,8 @@ const int cmdGetBattAndStorage = 20;
 const int cmdDeviceQuery = 22;
 const int cmdSendLogin = 26;
 const int cmdSendStatusReq = 27;
+const int cmdHasConnection = 28;
+const int cmdLogout = 29;
 const int cmdGetContactByKey = 30;
 const int cmdGetChannel = 31;
 const int cmdSetChannel = 32;
@@ -206,6 +208,7 @@ const int cmdSetOtherParams = 38;
 const int cmdSendTelemetryReq = 39;
 const int cmdGetCustomVar = 40;
 const int cmdSetCustomVar = 41;
+const int cmdGetAdvertPath = 42;
 const int cmdSendBinaryReq = 50;
 const int cmdSetFloodScope = 54;
 const int cmdSendControlData = 55;
@@ -214,6 +217,8 @@ const int cmdSendAnonReq = 57;
 const int cmdSetAutoAddConfig = 58;
 const int cmdGetAutoAddConfig = 59;
 const int cmdSetPathHashMode = 61;
+const int cmdSetDefaultFloodScope = 63;
+const int cmdGetDefaultFloodScope = 64;
 
 // Text message types
 const int txtTypePlain = 0;
@@ -260,9 +265,11 @@ const int respCodeDeviceInfo = 13;
 const int respCodeContactMsgRecvV3 = 16;
 const int respCodeChannelMsgRecvV3 = 17;
 const int respCodeChannelInfo = 18;
+const int respCodeAdvertPath = 22;
 const int respCodeCustomVars = 21;
 const int respCodeAutoAddConfig = 25;
 const int respCodeStats = 24;
+const int respCodeDefaultFloodScope = 28;
 const int respCodeDisabled = 15;
 
 // Firmware error codes carried in byte [1] of a RESP_CODE_ERR frame.
@@ -820,6 +827,28 @@ Uint8List buildGetContactByKeyFrame(Uint8List pubKey) {
   return writer.toBytes();
 }
 
+// Build CMD_HAS_CONNECTION frame
+// Format: [cmd][pub_key x32]
+// Response: generic OK if a login session is active for this pub_key,
+// generic ERR (ERR_CODE_NOT_FOUND) otherwise.
+Uint8List buildHasConnectionFrame(Uint8List pubKey) {
+  final writer = BufferWriter();
+  writer.writeByte(cmdHasConnection);
+  writer.writeBytes(pubKey);
+  return writer.toBytes();
+}
+
+// Build CMD_LOGOUT frame
+// Format: [cmd][pub_key x32]
+// Response: always generic OK — frees the session slot server-side instead
+// of relying on the keep-alive to time it out.
+Uint8List buildLogoutFrame(Uint8List pubKey) {
+  final writer = BufferWriter();
+  writer.writeByte(cmdLogout);
+  writer.writeBytes(pubKey);
+  return writer.toBytes();
+}
+
 //Build CMD_GET_CUSTOM_VARS frame
 Uint8List buildGetCustomVarsFrame() {
   return Uint8List.fromList([cmdGetCustomVar]);
@@ -1097,4 +1126,119 @@ Uint8List buildSetFloodScopeFrame(String region) {
   final scope = Uint8List.fromList(hash.sublist(0, 16));
 
   return Uint8List.fromList([cmdSetFloodScope, 0, ...scope]);
+}
+
+// Build CMD_SET_FLOOD_SCOPE, "send unscoped" variant ([1]==1, firmware
+// ver 12+). Forces every subsequent send to flood globally, ignoring any
+// session scope override and any persistent default (see
+// buildSetDefaultFloodScopeFrame) — until reset via buildSetFloodScopeFrame('')
+// or the next connect (the flag lives only in firmware RAM).
+Uint8List buildSetFloodScopeUnscopedFrame() {
+  return Uint8List.fromList([cmdSetFloodScope, 1]);
+}
+
+// Build CMD_GET_ADVERT_PATH frame
+// Format: [cmd][reserved(1B, unused today)][pub_key x32]
+// Response: RESP_CODE_ADVERT_PATH (see parseAdvertPathFrame), or a generic
+// error frame (ERR_CODE_NOT_FOUND) if nothing is cached for this key.
+Uint8List buildGetAdvertPathFrame(Uint8List pubKey) {
+  final writer = BufferWriter();
+  writer.writeByte(cmdGetAdvertPath);
+  writer.writeByte(0); // reserved
+  writer.writeBytes(pubKey);
+  return writer.toBytes();
+}
+
+class AdvertPathResponse {
+  final DateTime recvTime;
+  final Uint8List pathHash;
+  const AdvertPathResponse({required this.recvTime, required this.pathHash});
+}
+
+// Parses RESP_CODE_ADVERT_PATH.
+// Format: [code][recv_timestamp x4 LE][path_len(1B)][path_hash(N B)]
+// path_len uses the same hash_count/hash_size encoding as every other path
+// field in the protocol (bits 0-5: hop count, bits 6-7: bytes/hop - 1).
+AdvertPathResponse? parseAdvertPathFrame(Uint8List frame) {
+  if (frame.isEmpty) return null;
+  final reader = BufferReader(frame);
+  try {
+    if (reader.readByte() != respCodeAdvertPath) return null;
+    final recvTimestamp = reader.readUInt32LE();
+    final pathLenRaw = reader.readByte();
+    final hashCount = pathLenRaw & 0x3F;
+    final hashSize = ((pathLenRaw >> 6) & 0x03) + 1;
+    final pathHash = reader.readBytes(hashCount * hashSize);
+    return AdvertPathResponse(
+      recvTime: DateTime.fromMillisecondsSinceEpoch(
+        recvTimestamp * 1000,
+        isUtc: true,
+      ),
+      pathHash: pathHash,
+    );
+  } catch (e) {
+    debugPrint('Error parsing advert path frame: $e');
+    return null;
+  }
+}
+
+// Build CMD_SET_DEFAULT_FLOOD_SCOPE frame — persists a fallback flood-scope
+// used only when neither a session override nor "send unscoped" (see
+// buildSetFloodScopeUnscopedFrame) applies.
+// Format: [cmd][name(31B, C-string)][key(16B)]  (48B total)
+// [region] must be 1-30 chars (firmware requires 0 < strlen < 31 for the
+// name field). The scope key is derived exactly like buildSetFloodScopeFrame
+// (sha256('#'+region)[:16]) so the same region name always maps to the same
+// key, whether it's used as a channel's region or as this device default.
+Uint8List buildSetDefaultFloodScopeFrame(String region) {
+  final name = region.startsWith('#') ? region : '#$region';
+  final hash = crypto.sha256.convert(utf8.encode(name)).bytes;
+  final key = Uint8List.fromList(hash.sublist(0, 16));
+
+  final writer = BufferWriter();
+  writer.writeByte(cmdSetDefaultFloodScope);
+  writer.writeCString(region, 31);
+  writer.writeBytes(key);
+  return writer.toBytes();
+}
+
+// Build CMD_SET_DEFAULT_FLOOD_SCOPE frame that clears the persistent
+// default. Format: [cmd] — any length under 48B clears name+key on the
+// firmware side.
+Uint8List buildClearDefaultFloodScopeFrame() {
+  return Uint8List.fromList([cmdSetDefaultFloodScope]);
+}
+
+// Build CMD_GET_DEFAULT_FLOOD_SCOPE frame — no payload.
+Uint8List buildGetDefaultFloodScopeFrame() {
+  return Uint8List.fromList([cmdGetDefaultFloodScope]);
+}
+
+class DefaultFloodScope {
+  final String name;
+  final Uint8List key;
+  const DefaultFloodScope({required this.name, required this.key});
+}
+
+// Parses RESP_CODE_DEFAULT_FLOOD_SCOPE.
+// Format: [code][name x31][key x16] (49B) if a default is set,
+// [code] (1B) if there is none — returned as null either way it's absent.
+DefaultFloodScope? parseDefaultFloodScopeFrame(Uint8List frame) {
+  if (frame.isEmpty) return null;
+  final reader = BufferReader(frame);
+  try {
+    if (reader.readByte() != respCodeDefaultFloodScope) return null;
+    if (reader.remaining < 31 + 16) return null;
+    final nameBytes = reader.readBytes(31);
+    final key = reader.readBytes(16);
+    final name = utf8
+        .decode(nameBytes, allowMalformed: true)
+        .split('\x00')
+        .first;
+    if (name.isEmpty) return null;
+    return DefaultFloodScope(name: name, key: key);
+  } catch (e) {
+    debugPrint('Error parsing default flood scope frame: $e');
+    return null;
+  }
 }
