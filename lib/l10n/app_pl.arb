@@ -2241,6 +2241,139 @@
   "radioStats_stripWaiting": "Pobieranie danych dotyczących radia…",
   "radioStats_settingsTile": "Statystyki radiowe",
   "radioStats_settingsSubtitle": "Szum tła, RSSI, SNR oraz czas dostępny",
+  "packetStats_settingsTile": "Statystyki pakietów",
+  "packetStats_settingsSubtitle": "Ruch odebrany przez to radio",
+  "packetStats_screenTitle": "Statystyki pakietów",
+  "packetStats_summaryTitle": "Podsumowanie",
+  "packetStats_coverageLabel": "ZASIĘG DANYCH",
+  "packetStats_windowOneMinute": "1 min",
+  "packetStats_windowFiveMinutes": "5 min",
+  "packetStats_windowTenMinutes": "10 min",
+  "packetStats_windowThirtyMinutes": "30 min",
+  "packetStats_windowSession": "Sesja",
+  "packetStats_coverageTrimmed": "Szczegółowa historia sesji została przycięta po {totalObserved} obserwacjach.",
+  "@packetStats_coverageTrimmed": {
+    "placeholders": {
+      "totalObserved": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_coveragePartial": "To okno jest pokryte danymi tylko przez {duration} zebranej historii.",
+  "@packetStats_coveragePartial": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "packetStats_coverageTrackingLabel": "Śledzenie:",
+  "packetStats_coverageNormal": "{count} obserwacji z tej sesji.",
+  "@packetStats_coverageNormal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_coveragePacketsInWindow": "{packetCount} pakietów w oknie {window}.",
+  "@packetStats_coveragePacketsInWindow": {
+    "placeholders": {
+      "packetCount": {
+        "type": "int"
+      },
+      "window": {
+        "type": "String"
+      }
+    }
+  },
+  "packetStats_coverageObservedTotal": "{totalObserved} zaobserwowanych w tej sesji.",
+  "@packetStats_coverageObservedTotal": {
+    "placeholders": {
+      "totalObserved": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_tilePacketsPerMinute": "Pakiety / min",
+  "packetStats_tilePacketsPerMinuteDetail": "{count} łącznie w oknie",
+  "@packetStats_tilePacketsPerMinuteDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_tileUniqueSources": "Unikalne źródła",
+  "packetStats_tileUniqueSourcesDetail": "Odrębne przekaźniki pierwszego skoku",
+  "packetStats_tilePathDiversity": "Różnorodność tras",
+  "packetStats_tilePathDiversityDetail": "{percent}% niesie ścieżkę",
+  "@packetStats_tilePathDiversityDetail": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_tileMedianRssi": "Mediana RSSI",
+  "packetStats_tileMedianRssiDetail": "Średnia {value} dBm",
+  "@packetStats_tileMedianRssiDetail": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "packetStats_tileMedianRssiDetailNone": "Brak próbek sygnału w oknie",
+  "packetStats_tileMedianSnr": "Mediana SNR",
+  "packetStats_tileMedianSnrDetail": "Średnia {value} dB",
+  "@packetStats_tileMedianSnrDetail": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "packetStats_tileMedianSnrDetailNone": "Brak próbek sygnału w oknie",
+  "packetStats_tileObservations": "Obserwacje",
+  "packetStats_tileObservationsDetail": "limit {max}",
+  "@packetStats_tileObservationsDetail": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_timelineTitle": "Oś czasu ruchu",
+  "packetStats_emptyState": "Brak pakietów w tym oknie.",
+  "packetStats_sectionPacketTypes": "Typy pakietów",
+  "packetStats_sectionRouteMix": "Mieszanka tras",
+  "packetStats_sectionHopProfile": "Profil skoków",
+  "packetStats_sectionHopByteWidth": "Szerokość bajtu skoku",
+  "packetStats_sectionSignalDistribution": "Rozkład sygnału",
+  "packetStats_payloadAdvert": "Advert",
+  "packetStats_payloadGroupText": "Wiadomość grupowa",
+  "packetStats_payloadTextMessage": "Wiadomość tekstowa",
+  "packetStats_payloadAck": "Potwierdzenie",
+  "packetStats_payloadRequest": "Żądanie",
+  "packetStats_payloadResponse": "Odpowiedź",
+  "packetStats_payloadTrace": "Trasowanie",
+  "packetStats_payloadPath": "Ścieżka",
+  "packetStats_payloadControl": "Sterowanie",
+  "packetStats_payloadUnknown": "Nieznany",
+  "packetStats_routeTransportFlood": "Zalew transportowy",
+  "packetStats_routeTransportDirect": "Transport bezpośredni",
+  "packetStats_routeUnknown": "Nieznana",
+  "packetStats_signalStrong": "Silny",
+  "packetStats_signalOkay": "Średni",
+  "packetStats_signalWeak": "Słaby",
+  "packetStats_hopWidthOneByte": "1 bajt / hop",
+  "packetStats_hopWidthTwoBytes": "2 bajty / hop",
+  "packetStats_hopWidthThreeBytes": "3 bajty / hop",
+  "packetStats_hopWidthFourBytes": "4 bajty / hop",
+  "packetStats_hopWidthNoPath": "Brak ścieżki",
+  "packetStats_hopWidthUnknown": "Nieznana szerokość",
+  "packetStats_clearLog": "Wyczyść log obserwacji",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {

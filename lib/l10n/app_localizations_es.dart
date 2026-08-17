@@ -4605,6 +4605,208 @@ class AppLocalizationsEs extends AppLocalizations {
       'Nivel de ruido, RSSI, SNR y tiempo de transmisión';
 
   @override
+  String get packetStats_settingsTile => 'Packet stats';
+
+  @override
+  String get packetStats_settingsSubtitle => 'Traffic overheard by this radio';
+
+  @override
+  String get packetStats_screenTitle => 'Packet stats';
+
+  @override
+  String get packetStats_summaryTitle => 'Summary';
+
+  @override
+  String get packetStats_coverageLabel => 'COVERAGE';
+
+  @override
+  String get packetStats_windowOneMinute => '1 min';
+
+  @override
+  String get packetStats_windowFiveMinutes => '5 min';
+
+  @override
+  String get packetStats_windowTenMinutes => '10 min';
+
+  @override
+  String get packetStats_windowThirtyMinutes => '30 min';
+
+  @override
+  String get packetStats_windowSession => 'Session';
+
+  @override
+  String packetStats_coverageTrimmed(int totalObserved) {
+    return 'Detailed session history was trimmed after $totalObserved observations.';
+  }
+
+  @override
+  String packetStats_coveragePartial(String duration) {
+    return 'This window is only covered for $duration of collected history.';
+  }
+
+  @override
+  String get packetStats_coverageTrackingLabel => 'Tracking:';
+
+  @override
+  String packetStats_coverageNormal(int count) {
+    return '$count observations from this session.';
+  }
+
+  @override
+  String packetStats_coveragePacketsInWindow(int packetCount, String window) {
+    return '$packetCount packets in $window window.';
+  }
+
+  @override
+  String packetStats_coverageObservedTotal(int totalObserved) {
+    return '$totalObserved observed this session.';
+  }
+
+  @override
+  String get packetStats_tilePacketsPerMinute => 'Packets / min';
+
+  @override
+  String packetStats_tilePacketsPerMinuteDetail(int count) {
+    return '$count total in window';
+  }
+
+  @override
+  String get packetStats_tileUniqueSources => 'Unique sources';
+
+  @override
+  String get packetStats_tileUniqueSourcesDetail => 'Distinct first-hop relays';
+
+  @override
+  String get packetStats_tilePathDiversity => 'Path diversity';
+
+  @override
+  String packetStats_tilePathDiversityDetail(int percent) {
+    return '$percent% carry a path';
+  }
+
+  @override
+  String get packetStats_tileMedianRssi => 'Median RSSI';
+
+  @override
+  String packetStats_tileMedianRssiDetail(String value) {
+    return 'Average $value dBm';
+  }
+
+  @override
+  String get packetStats_tileMedianRssiDetailNone =>
+      'No signal samples in window';
+
+  @override
+  String get packetStats_tileMedianSnr => 'Median SNR';
+
+  @override
+  String packetStats_tileMedianSnrDetail(String value) {
+    return 'Average $value dB';
+  }
+
+  @override
+  String get packetStats_tileMedianSnrDetailNone =>
+      'No signal samples in window';
+
+  @override
+  String get packetStats_tileObservations => 'Observations';
+
+  @override
+  String packetStats_tileObservationsDetail(int max) {
+    return 'cap $max';
+  }
+
+  @override
+  String get packetStats_timelineTitle => 'Traffic timeline';
+
+  @override
+  String get packetStats_emptyState => 'No packets in this window yet.';
+
+  @override
+  String get packetStats_sectionPacketTypes => 'Packet types';
+
+  @override
+  String get packetStats_sectionRouteMix => 'Route mix';
+
+  @override
+  String get packetStats_sectionHopProfile => 'Hop profile';
+
+  @override
+  String get packetStats_sectionHopByteWidth => 'Hop byte width';
+
+  @override
+  String get packetStats_sectionSignalDistribution => 'Signal distribution';
+
+  @override
+  String get packetStats_payloadAdvert => 'Advert';
+
+  @override
+  String get packetStats_payloadGroupText => 'Group Text';
+
+  @override
+  String get packetStats_payloadTextMessage => 'Text Message';
+
+  @override
+  String get packetStats_payloadAck => 'Ack';
+
+  @override
+  String get packetStats_payloadRequest => 'Request';
+
+  @override
+  String get packetStats_payloadResponse => 'Response';
+
+  @override
+  String get packetStats_payloadTrace => 'Trace';
+
+  @override
+  String get packetStats_payloadPath => 'Path';
+
+  @override
+  String get packetStats_payloadControl => 'Control';
+
+  @override
+  String get packetStats_payloadUnknown => 'Unknown';
+
+  @override
+  String get packetStats_routeTransportFlood => 'Transport Flood';
+
+  @override
+  String get packetStats_routeTransportDirect => 'Transport Direct';
+
+  @override
+  String get packetStats_routeUnknown => 'Unknown';
+
+  @override
+  String get packetStats_signalStrong => 'Strong';
+
+  @override
+  String get packetStats_signalOkay => 'Okay';
+
+  @override
+  String get packetStats_signalWeak => 'Weak';
+
+  @override
+  String get packetStats_hopWidthOneByte => '1 byte / hop';
+
+  @override
+  String get packetStats_hopWidthTwoBytes => '2 bytes / hop';
+
+  @override
+  String get packetStats_hopWidthThreeBytes => '3 bytes / hop';
+
+  @override
+  String get packetStats_hopWidthFourBytes => '4 bytes / hop';
+
+  @override
+  String get packetStats_hopWidthNoPath => 'No path';
+
+  @override
+  String get packetStats_hopWidthUnknown => 'Unknown width';
+
+  @override
+  String get packetStats_clearLog => 'Clear observation log';
+
+  @override
   String get translation_title => 'Traducción';
 
   @override

@@ -7918,6 +7918,366 @@ abstract class AppLocalizations {
   /// **'Noise floor, RSSI, SNR, and airtime'**
   String get radioStats_settingsSubtitle;
 
+  /// No description provided for @packetStats_settingsTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Packet stats'**
+  String get packetStats_settingsTile;
+
+  /// No description provided for @packetStats_settingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Traffic overheard by this radio'**
+  String get packetStats_settingsSubtitle;
+
+  /// No description provided for @packetStats_screenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Packet stats'**
+  String get packetStats_screenTitle;
+
+  /// No description provided for @packetStats_summaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get packetStats_summaryTitle;
+
+  /// No description provided for @packetStats_coverageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'COVERAGE'**
+  String get packetStats_coverageLabel;
+
+  /// No description provided for @packetStats_windowOneMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'1 min'**
+  String get packetStats_windowOneMinute;
+
+  /// No description provided for @packetStats_windowFiveMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'5 min'**
+  String get packetStats_windowFiveMinutes;
+
+  /// No description provided for @packetStats_windowTenMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'10 min'**
+  String get packetStats_windowTenMinutes;
+
+  /// No description provided for @packetStats_windowThirtyMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'30 min'**
+  String get packetStats_windowThirtyMinutes;
+
+  /// No description provided for @packetStats_windowSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Session'**
+  String get packetStats_windowSession;
+
+  /// No description provided for @packetStats_coverageTrimmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed session history was trimmed after {totalObserved} observations.'**
+  String packetStats_coverageTrimmed(int totalObserved);
+
+  /// No description provided for @packetStats_coveragePartial.
+  ///
+  /// In en, this message translates to:
+  /// **'This window is only covered for {duration} of collected history.'**
+  String packetStats_coveragePartial(String duration);
+
+  /// No description provided for @packetStats_coverageTrackingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking:'**
+  String get packetStats_coverageTrackingLabel;
+
+  /// No description provided for @packetStats_coverageNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} observations from this session.'**
+  String packetStats_coverageNormal(int count);
+
+  /// No description provided for @packetStats_coveragePacketsInWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'{packetCount} packets in {window} window.'**
+  String packetStats_coveragePacketsInWindow(int packetCount, String window);
+
+  /// No description provided for @packetStats_coverageObservedTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{totalObserved} observed this session.'**
+  String packetStats_coverageObservedTotal(int totalObserved);
+
+  /// No description provided for @packetStats_tilePacketsPerMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Packets / min'**
+  String get packetStats_tilePacketsPerMinute;
+
+  /// No description provided for @packetStats_tilePacketsPerMinuteDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} total in window'**
+  String packetStats_tilePacketsPerMinuteDetail(int count);
+
+  /// No description provided for @packetStats_tileUniqueSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Unique sources'**
+  String get packetStats_tileUniqueSources;
+
+  /// No description provided for @packetStats_tileUniqueSourcesDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Distinct first-hop relays'**
+  String get packetStats_tileUniqueSourcesDetail;
+
+  /// No description provided for @packetStats_tilePathDiversity.
+  ///
+  /// In en, this message translates to:
+  /// **'Path diversity'**
+  String get packetStats_tilePathDiversity;
+
+  /// No description provided for @packetStats_tilePathDiversityDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% carry a path'**
+  String packetStats_tilePathDiversityDetail(int percent);
+
+  /// No description provided for @packetStats_tileMedianRssi.
+  ///
+  /// In en, this message translates to:
+  /// **'Median RSSI'**
+  String get packetStats_tileMedianRssi;
+
+  /// No description provided for @packetStats_tileMedianRssiDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Average {value} dBm'**
+  String packetStats_tileMedianRssiDetail(String value);
+
+  /// No description provided for @packetStats_tileMedianRssiDetailNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No signal samples in window'**
+  String get packetStats_tileMedianRssiDetailNone;
+
+  /// No description provided for @packetStats_tileMedianSnr.
+  ///
+  /// In en, this message translates to:
+  /// **'Median SNR'**
+  String get packetStats_tileMedianSnr;
+
+  /// No description provided for @packetStats_tileMedianSnrDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Average {value} dB'**
+  String packetStats_tileMedianSnrDetail(String value);
+
+  /// No description provided for @packetStats_tileMedianSnrDetailNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No signal samples in window'**
+  String get packetStats_tileMedianSnrDetailNone;
+
+  /// No description provided for @packetStats_tileObservations.
+  ///
+  /// In en, this message translates to:
+  /// **'Observations'**
+  String get packetStats_tileObservations;
+
+  /// No description provided for @packetStats_tileObservationsDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'cap {max}'**
+  String packetStats_tileObservationsDetail(int max);
+
+  /// No description provided for @packetStats_timelineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Traffic timeline'**
+  String get packetStats_timelineTitle;
+
+  /// No description provided for @packetStats_emptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'No packets in this window yet.'**
+  String get packetStats_emptyState;
+
+  /// No description provided for @packetStats_sectionPacketTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Packet types'**
+  String get packetStats_sectionPacketTypes;
+
+  /// No description provided for @packetStats_sectionRouteMix.
+  ///
+  /// In en, this message translates to:
+  /// **'Route mix'**
+  String get packetStats_sectionRouteMix;
+
+  /// No description provided for @packetStats_sectionHopProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Hop profile'**
+  String get packetStats_sectionHopProfile;
+
+  /// No description provided for @packetStats_sectionHopByteWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Hop byte width'**
+  String get packetStats_sectionHopByteWidth;
+
+  /// No description provided for @packetStats_sectionSignalDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal distribution'**
+  String get packetStats_sectionSignalDistribution;
+
+  /// No description provided for @packetStats_payloadAdvert.
+  ///
+  /// In en, this message translates to:
+  /// **'Advert'**
+  String get packetStats_payloadAdvert;
+
+  /// No description provided for @packetStats_payloadGroupText.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Text'**
+  String get packetStats_payloadGroupText;
+
+  /// No description provided for @packetStats_payloadTextMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Message'**
+  String get packetStats_payloadTextMessage;
+
+  /// No description provided for @packetStats_payloadAck.
+  ///
+  /// In en, this message translates to:
+  /// **'Ack'**
+  String get packetStats_payloadAck;
+
+  /// No description provided for @packetStats_payloadRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get packetStats_payloadRequest;
+
+  /// No description provided for @packetStats_payloadResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Response'**
+  String get packetStats_payloadResponse;
+
+  /// No description provided for @packetStats_payloadTrace.
+  ///
+  /// In en, this message translates to:
+  /// **'Trace'**
+  String get packetStats_payloadTrace;
+
+  /// No description provided for @packetStats_payloadPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Path'**
+  String get packetStats_payloadPath;
+
+  /// No description provided for @packetStats_payloadControl.
+  ///
+  /// In en, this message translates to:
+  /// **'Control'**
+  String get packetStats_payloadControl;
+
+  /// No description provided for @packetStats_payloadUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get packetStats_payloadUnknown;
+
+  /// No description provided for @packetStats_routeTransportFlood.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport Flood'**
+  String get packetStats_routeTransportFlood;
+
+  /// No description provided for @packetStats_routeTransportDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport Direct'**
+  String get packetStats_routeTransportDirect;
+
+  /// No description provided for @packetStats_routeUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get packetStats_routeUnknown;
+
+  /// No description provided for @packetStats_signalStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get packetStats_signalStrong;
+
+  /// No description provided for @packetStats_signalOkay.
+  ///
+  /// In en, this message translates to:
+  /// **'Okay'**
+  String get packetStats_signalOkay;
+
+  /// No description provided for @packetStats_signalWeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak'**
+  String get packetStats_signalWeak;
+
+  /// No description provided for @packetStats_hopWidthOneByte.
+  ///
+  /// In en, this message translates to:
+  /// **'1 byte / hop'**
+  String get packetStats_hopWidthOneByte;
+
+  /// No description provided for @packetStats_hopWidthTwoBytes.
+  ///
+  /// In en, this message translates to:
+  /// **'2 bytes / hop'**
+  String get packetStats_hopWidthTwoBytes;
+
+  /// No description provided for @packetStats_hopWidthThreeBytes.
+  ///
+  /// In en, this message translates to:
+  /// **'3 bytes / hop'**
+  String get packetStats_hopWidthThreeBytes;
+
+  /// No description provided for @packetStats_hopWidthFourBytes.
+  ///
+  /// In en, this message translates to:
+  /// **'4 bytes / hop'**
+  String get packetStats_hopWidthFourBytes;
+
+  /// No description provided for @packetStats_hopWidthNoPath.
+  ///
+  /// In en, this message translates to:
+  /// **'No path'**
+  String get packetStats_hopWidthNoPath;
+
+  /// No description provided for @packetStats_hopWidthUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown width'**
+  String get packetStats_hopWidthUnknown;
+
+  /// No description provided for @packetStats_clearLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear observation log'**
+  String get packetStats_clearLog;
+
   /// No description provided for @translation_title.
   ///
   /// In en, this message translates to:
