@@ -1505,6 +1505,38 @@ class _ContactsScreenState extends State<ContactsScreen>
                 ),
             ],
             ListTile(
+              leading: const Icon(Icons.route_outlined),
+              title: Text(context.l10n.contacts_showAdvertPath),
+              onTap: () async {
+                Navigator.pop(sheetContext);
+                final result = await connector.getAdvertPath(contact);
+                if (!context.mounted) return;
+                if (result == null) {
+                  showDismissibleSnackBar(
+                    context,
+                    content: Text(context.l10n.contacts_advertPathNotFound),
+                    duration: const Duration(seconds: 2),
+                  );
+                  return;
+                }
+                final hw = connector.pathHashByteWidth;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PathTraceMapScreen(
+                      title: context.l10n.contacts_advertPathTraceTo(
+                        contact.name,
+                      ),
+                      path: result.pathHash,
+                      flipPathAround: true,
+                      targetContact: contact,
+                      pathHashByteWidth: hw,
+                    ),
+                  ),
+                );
+              },
+            ),
+            ListTile(
               leading: Icon(
                 isFavorite ? Icons.star : Icons.star_border,
                 color: MeshTokens.of(context).warn,

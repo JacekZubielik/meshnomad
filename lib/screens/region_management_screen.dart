@@ -7,6 +7,7 @@ import 'package:meshcore_open/connector/meshcore_connector.dart';
 import 'package:meshcore_open/connector/meshcore_protocol.dart';
 import 'package:meshcore_open/l10n/l10n.dart';
 import 'package:meshcore_open/models/contact.dart';
+import 'package:meshcore_open/services/app_settings_service.dart';
 import 'package:meshcore_open/storage/region_store.dart';
 import 'package:meshcore_open/theme/mesh_tokens.dart';
 import 'package:meshcore_open/widgets/mesh_ui.dart';
@@ -41,6 +42,7 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
     final connector = context.read<MeshCoreConnector>();
     _regionStore.setPublicKeyHex = connector.selfPublicKeyHex;
     _loadRegions();
+    unawaited(connector.refreshDefaultFloodScope());
   }
 
   void _loadRegions() {
@@ -62,37 +64,89 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
 
   Widget _screenBody(BuildContext context) {
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.settings_regionManagement_screenTitle),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            tooltip: l10n.settings_regionAddRegion,
-            icon: const Icon(Icons.add),
-            onPressed: () => _showAddRegionDialog(context),
+    return Consumer2<MeshCoreConnector, AppSettingsService>(
+      builder: (context, connector, settingsService, _) {
+        final currentDefault = connector.defaultFloodScope?.name;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(l10n.settings_regionManagement_screenTitle),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                tooltip: l10n.settings_regionAddRegion,
+                icon: const Icon(Icons.add),
+                onPressed: () => _showAddRegionDialog(context),
+              ),
+              IconButton(
+                tooltip: l10n.settings_regionFetchRegions,
+                icon: _isFetchingRegions
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.travel_explore),
+                onPressed: _isFetchingRegions ? null : _showFetchRegionsDialog,
+              ),
+            ],
           ),
-          IconButton(
-            tooltip: l10n.settings_regionFetchRegions,
-            icon: _isFetchingRegions
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.travel_explore),
-            onPressed: _isFetchingRegions ? null : _showFetchRegionsDialog,
+          body: RadioGroup<String?>(
+            groupValue: currentDefault,
+            onChanged: (region) => connector.setDefaultFloodScope(region),
+            child: ListView(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 8,
+                bottom: 88,
+              ),
+              children: [
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  secondary: const Icon(Icons.public, size: 20),
+                  title: Text(l10n.settings_regionForceUnscoped),
+                  subtitle: Text(l10n.settings_regionForceUnscopedSubtitle),
+                  value: settingsService.settings.forceUnscopedFlood,
+                  onChanged: (value) => connector.setForceUnscopedFlood(value),
+                ),
+                const Divider(height: 1),
+                Padding(
+                  padding: const EdgeInsets.only(top: 12, bottom: 4),
+                  child: Text(
+                    l10n.settings_regionDefaultSection,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    currentDefault == null
+                        ? l10n.settings_regionNoDefault
+                        : l10n.settings_regionCurrentDefault(currentDefault),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                RadioListTile<String?>(
+                  value: null,
+                  title: Text(l10n.settings_regionNoneOption),
+                ),
+                for (final region in _regions)
+                  _buildRegionTile(
+                    context,
+                    region,
+                    isDefault: region == currentDefault,
+                  ),
+              ],
+            ),
           ),
-        ],
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 88),
-        itemCount: _regions.length,
-        itemBuilder: (context, index) {
-          final region = _regions[index];
-          return _buildRegionTile(context, region);
-        },
-      ),
+        );
+      },
     );
   }
 
@@ -476,7 +530,11 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
     _loadRegions();
   }
 
-  Widget _buildRegionTile(BuildContext context, Region region) {
+  Widget _buildRegionTile(
+    BuildContext context,
+    Region region, {
+    required bool isDefault,
+  }) {
     final scheme = Theme.of(context).colorScheme;
     return MeshCard(
       key: ValueKey(region),
@@ -486,6 +544,7 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
       ),
       child: Row(
         children: [
+          Radio<String?>(value: region),
           Icon(Icons.landscape, color: MeshTokens.of(context).primary),
           const SizedBox(width: 12),
           Expanded(
@@ -496,6 +555,23 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          if (isDefault) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
+              decoration: BoxDecoration(
+                border: Border.all(color: MeshTokens.of(context).primary),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                context.l10n.settings_regionDefaultTag,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: MeshTokens.of(context).primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+          ],
           IconButton(
             tooltip: context.l10n.settings_deleteRegion,
             icon: Icon(Icons.delete_outline, color: scheme.error),
@@ -525,6 +601,11 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
               // Deleting a region clears it from any channels that used it;
               // refresh the connector's in-memory channel regions to match.
               await connector.loadChannelSettings();
+              if (connector.defaultFloodScope?.name == region) {
+                // The device default would otherwise keep pointing at a
+                // scope key the app no longer lists anywhere.
+                await connector.setDefaultFloodScope(null);
+              }
               _loadRegions();
               if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
