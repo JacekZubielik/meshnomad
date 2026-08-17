@@ -823,4 +823,29 @@ void main() {
       expect(paths.first.routeWeight, closeTo(1.5, 0.001));
     });
   });
+
+  group('setPublicKeyHex', () {
+    test(
+      'clears the in-memory cache so switching devices forces a reload',
+      () async {
+        final pubKey = _hex('aabb');
+        await _seed(svc, pubKey, pathBytes: [0x01, 0x02], hopCount: 2);
+
+        // Cached: returns synchronously without another storage round-trip.
+        expect(svc.getRecentPaths(pubKey), isNotEmpty);
+
+        svc.setPublicKeyHex('deviceBBBBBBBBBBBBBBBB');
+
+        // Cache was cleared by the device switch, so this is a fresh miss
+        // (returns [] immediately and kicks off an async reload).
+        expect(svc.getRecentPaths(pubKey), isEmpty);
+      },
+    );
+
+    test('forwards the device key to storage', () {
+      svc.setPublicKeyHex('deviceAAAAAAAAAAAAAAAA');
+
+      expect(storage.publicKeyHex, 'deviceAAAA');
+    });
+  });
 }

@@ -11,6 +11,14 @@ class StorageService {
       'repeater_auto_clock_sync_after_login';
   static const String _deliveryObservationsKey = 'delivery_observations';
 
+  /// Scopes path-history keys to the connected device, same pattern as
+  /// MessageStore/ContactStore/etc. in lib/storage/*.dart — without it, the
+  /// same contact seen from two different radios overwrites one shared,
+  /// unscoped history entry.
+  String publicKeyHex = '';
+  set setPublicKeyHex(String value) =>
+      publicKeyHex = value.length > 10 ? value.substring(0, 10) : '';
+
   Future<Map<String, bool>> _loadRepeaterAutoClockSyncAfterLogin() async {
     final prefs = PrefsManager.instance;
     final jsonStr = prefs.getString(_repeaterAutoClockSyncAfterLoginKey);
@@ -43,20 +51,34 @@ class StorageService {
     await prefs.setString(_repeaterAutoClockSyncAfterLoginKey, jsonStr);
   }
 
+  String get _pathHistoryKeyPrefix => '$_pathHistoryPrefix${publicKeyHex}_';
+
   Future<void> savePathHistory(
     String contactPubKeyHex,
     ContactPathHistory history,
   ) async {
     final prefs = PrefsManager.instance;
-    final key = '$_pathHistoryPrefix$contactPubKeyHex';
+    final key = '$_pathHistoryKeyPrefix$contactPubKeyHex';
     final jsonStr = jsonEncode(history.toJson());
     await prefs.setString(key, jsonStr);
   }
 
   Future<ContactPathHistory?> loadPathHistory(String contactPubKeyHex) async {
     final prefs = PrefsManager.instance;
-    final key = '$_pathHistoryPrefix$contactPubKeyHex';
-    final jsonStr = prefs.getString(key);
+    final key = '$_pathHistoryKeyPrefix$contactPubKeyHex';
+    final legacyKey = '$_pathHistoryPrefix$contactPubKeyHex';
+    var jsonStr = prefs.getString(key);
+
+    if (jsonStr == null) {
+      // Migrate a pre-device-scoping entry on first read, same pattern as
+      // MessageStore.loadMessages.
+      final legacyJsonStr = prefs.getString(legacyKey);
+      if (legacyJsonStr != null) {
+        await prefs.setString(key, legacyJsonStr);
+        await prefs.remove(legacyKey);
+        jsonStr = legacyJsonStr;
+      }
+    }
 
     if (jsonStr == null) return null;
 
@@ -70,7 +92,7 @@ class StorageService {
 
   Future<void> clearPathHistory(String contactPubKeyHex) async {
     final prefs = PrefsManager.instance;
-    final key = '$_pathHistoryPrefix$contactPubKeyHex';
+    final key = '$_pathHistoryKeyPrefix$contactPubKeyHex';
     await prefs.remove(key);
   }
 
@@ -78,7 +100,7 @@ class StorageService {
     final prefs = PrefsManager.instance;
     final keys = prefs.getKeys();
     final pathHistoryKeys = keys.where(
-      (key) => key.startsWith(_pathHistoryPrefix),
+      (key) => key.startsWith(_pathHistoryKeyPrefix),
     );
 
     for (final key in pathHistoryKeys) {
