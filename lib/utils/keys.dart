@@ -19,6 +19,47 @@ class MCKeyPair {
   MCKeyPair(this.public, this.private);
 }
 
+/// Verifies a MeshCore advert signature. Firmware signs
+/// `pubkey(32B) + timestamp(4B LE) + app_data(up to 32B, capped by
+/// MAX_ADVERT_DATA_SIZE)` — the 64-byte signature itself is not part of the
+/// signed message (firmware `src/Mesh.cpp:415-434` sign / `:259-283`
+/// verify). `app_data` is whatever the wire has after the signature
+/// (flags + optional location + optional name); bytes beyond the first 32
+/// are never covered by the signature, even if the advert carries more —
+/// that's a firmware-side limit, not something this function can widen.
+///
+/// [timestampBytesLE] must be the raw 4 wire bytes, not a re-encoded int —
+/// signing uses the exact wire representation.
+Future<bool> verifyAdvertSignature({
+  required Uint8List publicKey,
+  required Uint8List timestampBytesLE,
+  required Uint8List signature,
+  required Uint8List appData,
+}) async {
+  if (publicKey.length != 32 ||
+      timestampBytesLE.length != 4 ||
+      signature.length != 64) {
+    return false;
+  }
+  final signedAppData = appData.length > 32 ? appData.sublist(0, 32) : appData;
+  final message = Uint8List.fromList([
+    ...publicKey,
+    ...timestampBytesLE,
+    ...signedAppData,
+  ]);
+  try {
+    return await Ed25519().verify(
+      message,
+      signature: Signature(
+        signature,
+        publicKey: SimplePublicKey(publicKey, type: KeyPairType.ed25519),
+      ),
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
 Future<MCKeyPair> generateKeyPair() async {
   final algo = Ed25519();
   final seed = randomBytes(32);

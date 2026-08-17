@@ -198,6 +198,8 @@ const int cmdGetBattAndStorage = 20;
 const int cmdDeviceQuery = 22;
 const int cmdSendLogin = 26;
 const int cmdSendStatusReq = 27;
+const int cmdHasConnection = 28;
+const int cmdLogout = 29;
 const int cmdGetContactByKey = 30;
 const int cmdGetChannel = 31;
 const int cmdSetChannel = 32;
@@ -821,6 +823,28 @@ Uint8List buildUpdateContactPathFrame(
 Uint8List buildGetContactByKeyFrame(Uint8List pubKey) {
   final writer = BufferWriter();
   writer.writeByte(cmdGetContactByKey);
+  writer.writeBytes(pubKey);
+  return writer.toBytes();
+}
+
+// Build CMD_HAS_CONNECTION frame
+// Format: [cmd][pub_key x32]
+// Response: generic OK if a login session is active for this pub_key,
+// generic ERR (ERR_CODE_NOT_FOUND) otherwise.
+Uint8List buildHasConnectionFrame(Uint8List pubKey) {
+  final writer = BufferWriter();
+  writer.writeByte(cmdHasConnection);
+  writer.writeBytes(pubKey);
+  return writer.toBytes();
+}
+
+// Build CMD_LOGOUT frame
+// Format: [cmd][pub_key x32]
+// Response: always generic OK — frees the session slot server-side instead
+// of relying on the keep-alive to time it out.
+Uint8List buildLogoutFrame(Uint8List pubKey) {
+  final writer = BufferWriter();
+  writer.writeByte(cmdLogout);
   writer.writeBytes(pubKey);
   return writer.toBytes();
 }
