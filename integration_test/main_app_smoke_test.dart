@@ -10,6 +10,7 @@ import 'package:meshcore_open/services/ble_debug_log_service.dart';
 import 'package:meshcore_open/services/chat_text_scale_service.dart';
 import 'package:meshcore_open/services/map_tile_cache_service.dart';
 import 'package:meshcore_open/services/message_retry_service.dart';
+import 'package:meshcore_open/services/packet_observation_service.dart';
 import 'package:meshcore_open/services/path_history_service.dart';
 import 'package:meshcore_open/services/storage_service.dart';
 import 'package:meshcore_open/services/timeout_prediction_service.dart';
@@ -51,6 +52,7 @@ void main() {
       final translationService = TranslationService(settingsService);
       final uiViewStateService = UiViewStateService();
       final timeoutPredictionService = TimeoutPredictionService(storage);
+      final packetObservationService = PacketObservationService();
       addTearDown(connector.dispose);
       addTearDown(retryService.dispose);
       addTearDown(pathHistoryService.dispose);
@@ -76,6 +78,7 @@ void main() {
           translationService: translationService,
           uiViewStateService: uiViewStateService,
           timeoutPredictionService: timeoutPredictionService,
+          packetObservationService: packetObservationService,
         ),
       );
       // Not pumpAndSettle(): the app legitimately runs indefinite timers

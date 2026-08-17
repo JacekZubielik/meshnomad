@@ -24,6 +24,7 @@ import 'services/chat_text_scale_service.dart';
 import 'services/translation_service.dart';
 import 'services/ui_view_state_service.dart';
 import 'services/timeout_prediction_service.dart';
+import 'services/packet_observation_service.dart';
 import 'storage/prefs_manager.dart';
 import 'theme/style.dart';
 import 'theme/styles/custom_style.dart';
@@ -63,6 +64,7 @@ void main() async {
   final translationService = TranslationService(appSettingsService);
   final uiViewStateService = UiViewStateService();
   final timeoutPredictionService = TimeoutPredictionService(storage);
+  final packetObservationService = PacketObservationService();
 
   // Load settings
   await appSettingsService.loadSettings();
@@ -97,6 +99,7 @@ void main() async {
     appDebugLogService: appDebugLogService,
     backgroundService: backgroundService,
     timeoutPredictionService: timeoutPredictionService,
+    packetObservationService: packetObservationService,
   );
 
   await connector.loadContactCache();
@@ -121,6 +124,7 @@ void main() async {
       translationService: translationService,
       uiViewStateService: uiViewStateService,
       timeoutPredictionService: timeoutPredictionService,
+      packetObservationService: packetObservationService,
     ),
   );
 }
@@ -159,6 +163,7 @@ class MeshCoreApp extends StatelessWidget {
   final TranslationService translationService;
   final UiViewStateService uiViewStateService;
   final TimeoutPredictionService timeoutPredictionService;
+  final PacketObservationService packetObservationService;
 
   const MeshCoreApp({
     super.key,
@@ -174,6 +179,7 @@ class MeshCoreApp extends StatelessWidget {
     required this.translationService,
     required this.uiViewStateService,
     required this.timeoutPredictionService,
+    required this.packetObservationService,
   });
 
   @override
@@ -192,6 +198,7 @@ class MeshCoreApp extends StatelessWidget {
         Provider.value(value: storage),
         ChangeNotifierProvider.value(value: mapTileCacheService),
         ChangeNotifierProvider.value(value: timeoutPredictionService),
+        ChangeNotifierProvider.value(value: packetObservationService),
       ],
       child: Consumer<AppSettingsService>(
         builder: (context, settingsService, child) {

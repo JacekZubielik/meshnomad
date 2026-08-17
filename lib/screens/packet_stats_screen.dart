@@ -1,0 +1,837 @@
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:meshcore_open/l10n/l10n.dart';
+import 'package:meshcore_open/services/packet_observation_service.dart';
+import 'package:meshcore_open/services/packet_stats_snapshot.dart';
+import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshcore_open/theme/mesh_tokens.dart';
+import 'package:meshcore_open/widgets/mesh_ui.dart';
+import 'package:provider/provider.dart';
+
+// One entry per payloadTypeLabels entry (10) — previously only 5 colors for
+// 10 labels, so `% length` silently repeated each color across two distinct
+// payload types (e.g. Advert and Response both rendered sky blue). Operator-
+// flagged 2026-08-17: colors in the timeline chart and the Packet types
+// ranked card must be distinguishable, not reused.
+// Pastel (Tailwind 300-tier) hue ramp, evenly stepped cyan → rose so every
+// entry is clearly distinct from its neighbors (operator feedback
+// 2026-08-17: colors "too similar", pastel is fine but must stay
+// distinguishable). Deliberately skips amber/gold (~40°, matches
+// scheme.primary/the pill border) and green (~90-150°, matches the Custom
+// Style card background) so no payload color reads as UI chrome or
+// disappears into the card.
+const List<Color> _payloadTypeColors = [
+  Color(0xFF67E8F9), // Advert — cyan-300
+  Color(0xFF7DD3FC), // GroupText — sky-300
+  Color(0xFF93C5FD), // TextMessage — blue-300
+  Color(0xFFA5B4FC), // Ack — indigo-300
+  Color(0xFFC4B5FD), // Request — violet-300
+  Color(0xFFD8B4FE), // Response — purple-300
+  Color(0xFFF0ABFC), // Trace — fuchsia-300
+  Color(0xFFF9A8D4), // Path — pink-300
+  Color(0xFFFDA4AF), // Control — rose-300
+  Color(0xFFCBD5E1), // Unknown — slate-300 (neutral, not part of the ramp)
+];
+
+Color _colorForPayloadType(String label) {
+  final index = payloadTypeLabels.indexOf(label);
+  if (index < 0) return _payloadTypeColors.last;
+  return _payloadTypeColors[index % _payloadTypeColors.length];
+}
+
+// Raw model labels (payloadTypeLabels, routeLabels, and the hop-width/RSSI
+// bucket keys in packet_stats_snapshot.dart) are fixed English strings used
+// as sort/color keys and asserted on by tests — translating the strings
+// themselves would break both. These map a raw key to its display string
+// instead, mirroring [_windowLabel] below.
+String _payloadDisplayLabel(BuildContext context, String label) {
+  final l10n = context.l10n;
+  switch (label) {
+    case 'Advert':
+      return l10n.packetStats_payloadAdvert;
+    case 'GroupText':
+      return l10n.packetStats_payloadGroupText;
+    case 'TextMessage':
+      return l10n.packetStats_payloadTextMessage;
+    case 'Ack':
+      return l10n.packetStats_payloadAck;
+    case 'Request':
+      return l10n.packetStats_payloadRequest;
+    case 'Response':
+      return l10n.packetStats_payloadResponse;
+    case 'Trace':
+      return l10n.packetStats_payloadTrace;
+    case 'Path':
+      return l10n.packetStats_payloadPath;
+    case 'Control':
+      return l10n.packetStats_payloadControl;
+    case 'Unknown':
+      return l10n.packetStats_payloadUnknown;
+    default:
+      return label;
+  }
+}
+
+String _routeDisplayLabel(BuildContext context, String label) {
+  final l10n = context.l10n;
+  switch (label) {
+    case 'TransportFlood':
+      return l10n.packetStats_routeTransportFlood;
+    case 'Flood':
+      return l10n.channelPath_floodPath;
+    case 'Direct':
+      return l10n.channelPath_directPath;
+    case 'TransportDirect':
+      return l10n.packetStats_routeTransportDirect;
+    case 'Unknown':
+      return l10n.packetStats_routeUnknown;
+    default:
+      return label;
+  }
+}
+
+String _signalDisplayLabel(BuildContext context, String label) {
+  final l10n = context.l10n;
+  switch (label) {
+    case 'Strong':
+      return l10n.packetStats_signalStrong;
+    case 'Okay':
+      return l10n.packetStats_signalOkay;
+    case 'Weak':
+      return l10n.packetStats_signalWeak;
+    default:
+      return label;
+  }
+}
+
+String _hopWidthDisplayLabel(BuildContext context, String label) {
+  final l10n = context.l10n;
+  switch (label) {
+    case '1 byte / hop':
+      return l10n.packetStats_hopWidthOneByte;
+    case '2 bytes / hop':
+      return l10n.packetStats_hopWidthTwoBytes;
+    case '3 bytes / hop':
+      return l10n.packetStats_hopWidthThreeBytes;
+    case '4 bytes / hop':
+      return l10n.packetStats_hopWidthFourBytes;
+    case 'No path':
+      return l10n.packetStats_hopWidthNoPath;
+    case 'Unknown width':
+      return l10n.packetStats_hopWidthUnknown;
+    default:
+      return label;
+  }
+}
+
+String _windowLabel(BuildContext context, StatsWindow window) {
+  switch (window) {
+    case StatsWindow.oneMinute:
+      return context.l10n.packetStats_windowOneMinute;
+    case StatsWindow.fiveMinutes:
+      return context.l10n.packetStats_windowFiveMinutes;
+    case StatsWindow.tenMinutes:
+      return context.l10n.packetStats_windowTenMinutes;
+    case StatsWindow.thirtyMinutes:
+      return context.l10n.packetStats_windowThirtyMinutes;
+    case StatsWindow.session:
+      return context.l10n.packetStats_windowSession;
+  }
+}
+
+String _formatDuration(Duration d) {
+  if (d.inHours >= 1) return '${d.inHours}h ${d.inMinutes % 60}m';
+  if (d.inMinutes >= 1) return '${d.inMinutes}m ${d.inSeconds % 60}s';
+  return '${d.inSeconds}s';
+}
+
+class PacketStatsScreen extends StatefulWidget {
+  const PacketStatsScreen({super.key});
+
+  @override
+  State<PacketStatsScreen> createState() => _PacketStatsScreenState();
+}
+
+class _PacketStatsScreenState extends State<PacketStatsScreen> {
+  StatsWindow _window = StatsWindow.session;
+
+  @override
+  Widget build(BuildContext context) {
+    // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
+    // above the Navigator) so "select all" can't sweep in text from other,
+    // offstage routes still mounted via maintainState:true.
+    return SelectionArea(child: _screenBody(context));
+  }
+
+  Widget _screenBody(BuildContext context) {
+    final service = context.watch<PacketObservationService>();
+    final tokens = MeshTokens.of(context);
+    final snapshot = PacketStatsSnapshot.build(
+      observations: service.observations,
+      now: DateTime.now(),
+      sessionStartedAt: service.sessionStartedAt,
+      window: _window,
+      trimmedCount: service.trimmedCount,
+      totalObserved: service.totalObserved,
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(context.l10n.packetStats_screenTitle),
+        centerTitle: true,
+        actions: [
+          PopupMenuButton<void>(
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                onTap: () => service.clear(),
+                child: Text(context.l10n.packetStats_clearLog),
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.all(tokens.spacingMd),
+          children: [
+            _CoverageCard(
+              service: service,
+              snapshot: snapshot,
+              window: _window,
+              onWindowChanged: (w) => setState(() => _window = w),
+            ),
+            SizedBox(height: tokens.spacingSm),
+            _StatsSummaryCard(
+              snapshot: snapshot,
+              maxObservations: service.maxObservations,
+            ),
+            SizedBox(height: tokens.spacingSm),
+            _TrafficTimelineCard(snapshot: snapshot),
+            SizedBox(height: tokens.spacingSm),
+            _RankedCard(
+              title: context.l10n.packetStats_sectionPacketTypes,
+              stats: snapshot.payloadBreakdown,
+              colorFor: _colorForPayloadType,
+              labelFor: _payloadDisplayLabel,
+            ),
+            SizedBox(height: tokens.spacingSm),
+            _RankedCard(
+              title: context.l10n.packetStats_sectionRouteMix,
+              stats: snapshot.routeBreakdown,
+              labelFor: _routeDisplayLabel,
+            ),
+            SizedBox(height: tokens.spacingSm),
+            _RankedCard(
+              title: context.l10n.packetStats_sectionHopProfile,
+              stats: snapshot.hopProfile,
+            ),
+            SizedBox(height: tokens.spacingSm),
+            _RankedCard(
+              title: context.l10n.packetStats_sectionHopByteWidth,
+              stats: snapshot.hopByteWidth,
+              labelFor: _hopWidthDisplayLabel,
+            ),
+            SizedBox(height: tokens.spacingSm),
+            _RankedCard(
+              title: context.l10n.packetStats_sectionSignalDistribution,
+              stats: snapshot.rssiBuckets,
+              labelFor: _signalDisplayLabel,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CoverageCard extends StatelessWidget {
+  const _CoverageCard({
+    required this.service,
+    required this.snapshot,
+    required this.window,
+    required this.onWindowChanged,
+  });
+
+  final PacketObservationService service;
+  final PacketStatsSnapshot snapshot;
+  final StatsWindow window;
+  final ValueChanged<StatsWindow> onWindowChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final showWarning =
+        (service.trimmedCount > 0 && window == StatsWindow.session) ||
+        !snapshot.windowFullyCovered;
+
+    final bodyStyle = Theme.of(context).textTheme.bodyMedium;
+    final messageColor = showWarning
+        ? MeshPalette.warn
+        : scheme.onSurfaceVariant;
+
+    // Trimmed/partial are single warning sentences; the normal tone splits
+    // into a "Tracking:" label line + a count line (operator layout request
+    // 2026-08-17), matching the two always-present "N packets in window." /
+    // "N observed this session." lines below.
+    final List<Widget> messageLines;
+    if (service.trimmedCount > 0 && window == StatsWindow.session) {
+      messageLines = [
+        Text(
+          context.l10n.packetStats_coverageTrimmed(service.totalObserved),
+          style: bodyStyle?.copyWith(color: messageColor),
+        ),
+      ];
+    } else if (!snapshot.windowFullyCovered) {
+      messageLines = [
+        Text(
+          context.l10n.packetStats_coveragePartial(
+            _formatDuration(Duration(seconds: snapshot.coverageSeconds)),
+          ),
+          style: bodyStyle?.copyWith(color: messageColor),
+        ),
+      ];
+    } else {
+      messageLines = [
+        Text(
+          context.l10n.packetStats_coverageTrackingLabel,
+          style: bodyStyle?.copyWith(color: messageColor),
+        ),
+        Text(
+          context.l10n.packetStats_coverageNormal(service.observations.length),
+          style: bodyStyle?.copyWith(color: messageColor),
+        ),
+      ];
+    }
+
+    return MeshCard(
+      margin: EdgeInsets.zero,
+      padding: EdgeInsets.all(tokens.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                // Same vertical inset as _WindowPill's Container padding, so
+                // the label and the pill share one padding value and their
+                // text sits on a matched line (operator alignment request
+                // 2026-08-17).
+                padding: EdgeInsets.symmetric(vertical: tokens.spacingXxs),
+                child: Text(
+                  context.l10n.packetStats_coverageLabel,
+                  style: tokens.accentLabel(color: scheme.onSurfaceVariant),
+                ),
+              ),
+              _WindowPill(window: window, onChanged: onWindowChanged),
+            ],
+          ),
+          SizedBox(height: tokens.spacingXs),
+          ...messageLines,
+          Text(
+            context.l10n.packetStats_coveragePacketsInWindow(
+              snapshot.packetCount,
+              _windowLabel(context, window),
+            ),
+            style: tokens.monoCaption(color: scheme.onSurfaceVariant),
+          ),
+          Text(
+            context.l10n.packetStats_coverageObservedTotal(
+              service.totalObserved,
+            ),
+            style: tokens.monoCaption(color: scheme.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Bordered pill window-selector — mirrors the mockup's `.window-dd` chip
+/// (border, rounded pill, compact padding). Built on [PopupMenuButton] with
+/// a fully custom [child] rather than [DropdownButton]: DropdownButton bakes
+/// in a 24px default icon and Material's minimum dense-button chrome, which
+/// bloated the pill past the mockup's compact proportions even after
+/// shrinking the icon/text — the widget itself was the wrong building block,
+/// not just its parameters (operator-flagged padding bug, second pass).
+class _WindowPill extends StatelessWidget {
+  const _WindowPill({required this.window, required this.onChanged});
+
+  final StatsWindow window;
+  final ValueChanged<StatsWindow> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return PopupMenuButton<StatsWindow>(
+      initialValue: window,
+      onSelected: onChanged,
+      itemBuilder: (context) => StatsWindow.values
+          .map(
+            (w) =>
+                PopupMenuItem(value: w, child: Text(_windowLabel(context, w))),
+          )
+          .toList(),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: tokens.spacingSm,
+          vertical: tokens.spacingXxs,
+        ),
+        decoration: BoxDecoration(
+          border: Border.all(color: scheme.outline),
+          borderRadius: BorderRadius.circular(tokens.pill),
+        ),
+        // Plain text glyph (matches the mockup's literal "Session ▾" chip
+        // content) instead of an Icon: Icon reserves a full square bounding
+        // box that isn't flush with the visible glyph ink, which made the
+        // padding after the chevron look wider than the padding before the
+        // label even though the Container's own EdgeInsets were symmetric
+        // (operator-flagged left/right padding mismatch, second pass).
+        child: Text(
+          '${_windowLabel(context, window)} ▾',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: scheme.onSurface),
+        ),
+      ),
+    );
+  }
+}
+
+/// The six headline metrics live in ONE card (2026-08-17 operator feedback:
+/// six separate tiles read as visually noisy — combine into a single
+/// summary panel).
+class _StatsSummaryCard extends StatelessWidget {
+  const _StatsSummaryCard({
+    required this.snapshot,
+    required this.maxObservations,
+  });
+
+  final PacketStatsSnapshot snapshot;
+  final int maxObservations;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final wide = MediaQuery.of(context).size.width > 600;
+    final ppm = snapshot.packetsPerMinute;
+    final ppmText = ppm >= 100
+        ? ppm.toStringAsFixed(0)
+        : ppm >= 10
+        ? ppm.toStringAsFixed(1)
+        : ppm.toStringAsFixed(2);
+    final pathPercent = (snapshot.pathBearingRate * 100).round();
+    final rssiDetail = snapshot.averageRssi == null
+        ? context.l10n.packetStats_tileMedianRssiDetailNone
+        : context.l10n.packetStats_tileMedianRssiDetail(
+            snapshot.averageRssi!.toStringAsFixed(0),
+          );
+    final snrDetail = snapshot.averageSnr == null
+        ? context.l10n.packetStats_tileMedianSnrDetailNone
+        : context.l10n.packetStats_tileMedianSnrDetail(
+            snapshot.averageSnr!.toStringAsFixed(1),
+          );
+
+    return MeshCard(
+      margin: EdgeInsets.zero,
+      padding: EdgeInsets.all(tokens.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.l10n.packetStats_summaryTitle.toUpperCase(),
+            style: tokens.accentLabel(color: scheme.onSurfaceVariant),
+          ),
+          SizedBox(height: tokens.spacingSm),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: wide ? 3 : 2,
+            mainAxisSpacing: tokens.spacingMd,
+            crossAxisSpacing: tokens.spacingMd,
+            childAspectRatio: 1.5,
+            children: [
+              _StatEntry(
+                icon: Icons.speed_outlined,
+                label: context.l10n.packetStats_tilePacketsPerMinute,
+                value: ppmText,
+                detail: context.l10n.packetStats_tilePacketsPerMinuteDetail(
+                  snapshot.packetCount,
+                ),
+              ),
+              _StatEntry(
+                icon: Icons.hub_outlined,
+                label: context.l10n.packetStats_tileUniqueSources,
+                value: '${snapshot.uniqueSources}',
+                detail: context.l10n.packetStats_tileUniqueSourcesDetail,
+              ),
+              _StatEntry(
+                icon: Icons.alt_route_outlined,
+                label: context.l10n.packetStats_tilePathDiversity,
+                value: '${snapshot.distinctPaths}',
+                detail: context.l10n.packetStats_tilePathDiversityDetail(
+                  pathPercent,
+                ),
+              ),
+              _StatEntry(
+                icon: Icons.podcasts_outlined,
+                label: context.l10n.packetStats_tileMedianRssi,
+                value: snapshot.medianRssi == null
+                    ? '—'
+                    : snapshot.medianRssi!.toStringAsFixed(0),
+                unit: snapshot.medianRssi == null ? null : 'dBm',
+                detail: rssiDetail,
+              ),
+              _StatEntry(
+                icon: Icons.graphic_eq_outlined,
+                label: context.l10n.packetStats_tileMedianSnr,
+                value: snapshot.medianSnr == null
+                    ? '—'
+                    : snapshot.medianSnr!.toStringAsFixed(1),
+                unit: snapshot.medianSnr == null ? null : 'dB',
+                detail: snrDetail,
+              ),
+              _StatEntry(
+                icon: Icons.storage_outlined,
+                label: context.l10n.packetStats_tileObservations,
+                value: '${snapshot.packetCount}',
+                detail: context.l10n.packetStats_tileObservationsDetail(
+                  maxObservations,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One label/value entry inside [_StatsSummaryCard] — same typography as the
+/// rest of the screen (accentLabel/monoBody), but no card chrome of its own
+/// since it's one of several entries sharing a single parent card.
+class _StatEntry extends StatelessWidget {
+  const _StatEntry({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.unit,
+    this.detail,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final String? unit;
+  final String? detail;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          children: [
+            // At least 2x the size of a StatTile icon (14) — 2026-08-17
+            // operator feedback: icons read too small in the merged card.
+            Icon(icon, size: 28, color: scheme.primary),
+            SizedBox(width: tokens.spacingXs),
+            Expanded(
+              child: Text(
+                label.toUpperCase(),
+                style: tokens.accentLabel(
+                  color: scheme.onSurfaceVariant,
+                  fontSize: tokens.microLabelSize,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: tokens.spacingXxs),
+        Text.rich(
+          TextSpan(
+            text: value,
+            // monoBodySize (13) reads as a caption, not a headline metric —
+            // 2026-08-17 operator feedback: numbers must be much bigger.
+            style: tokens
+                .monoBody(fontWeight: FontWeight.w700, color: scheme.onSurface)
+                .copyWith(fontSize: 26),
+            children: [
+              if (unit != null)
+                TextSpan(
+                  text: ' $unit',
+                  style: tokens.monoCaption(color: scheme.onSurfaceVariant),
+                ),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (detail != null) ...[
+          SizedBox(height: tokens.spacingXxs),
+          Text(
+            detail!,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _TrafficTimelineCard extends StatelessWidget {
+  const _TrafficTimelineCard({required this.snapshot});
+
+  final PacketStatsSnapshot snapshot;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final maxTotal = snapshot.timeline
+        .map((b) => b.total)
+        .fold<int>(0, (a, b) => a > b ? a : b);
+
+    return MeshCard(
+      margin: EdgeInsets.zero,
+      padding: EdgeInsets.all(tokens.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.l10n.packetStats_timelineTitle.toUpperCase(),
+            style: tokens.accentLabel(color: scheme.onSurfaceVariant),
+          ),
+          SizedBox(height: tokens.spacingSm),
+          // Always render the chart structure — even with zero traffic —
+          // rather than swapping in an empty-state message. 2026-08-17
+          // operator feedback: parameters/sections must be visible
+          // immediately, not appear only once data arrives.
+          SizedBox(
+            height: 140,
+            child: BarChart(
+              BarChartData(
+                maxY: maxTotal == 0 ? 1 : maxTotal.toDouble(),
+                alignment: BarChartAlignment.spaceEvenly,
+                titlesData: FlTitlesData(
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 20,
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        if (index < 0 || index >= snapshot.timeline.length) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            snapshot.timeline[index].label,
+                            style: const TextStyle(fontSize: 9),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                gridData: const FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+                barTouchData: BarTouchData(
+                  touchTooltipData: BarTouchTooltipData(
+                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                      final bin = snapshot.timeline[group.x];
+                      final entries = bin.countsByLabel.entries
+                          .map(
+                            (e) =>
+                                '${_payloadDisplayLabel(context, e.key)}: '
+                                '${e.value}',
+                          )
+                          .join('\n');
+                      return BarTooltipItem(
+                        entries.isEmpty ? '0' : entries,
+                        const TextStyle(),
+                      );
+                    },
+                  ),
+                ),
+                barGroups: [
+                  for (var i = 0; i < snapshot.timeline.length; i++)
+                    _stackedGroup(i, snapshot.timeline[i]),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: tokens.spacingSm),
+          // Full legend always shown, not filtered to labels seen so far —
+          // same "show everything up front" rule as the ranked cards below.
+          Wrap(
+            spacing: tokens.spacingSm,
+            runSpacing: tokens.spacingXxs,
+            children: [
+              for (final label in payloadTypeLabels)
+                _LegendItem(
+                  color: _colorForPayloadType(label),
+                  label: _payloadDisplayLabel(context, label),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  BarChartGroupData _stackedGroup(int index, TimelineBin bin) {
+    var cumulative = 0.0;
+    final stackItems = <BarChartRodStackItem>[];
+    for (final label in payloadTypeLabels) {
+      final count = bin.countsByLabel[label] ?? 0;
+      if (count == 0) continue;
+      final from = cumulative;
+      final to = cumulative + count;
+      stackItems.add(
+        BarChartRodStackItem(from, to, _colorForPayloadType(label)),
+      );
+      cumulative = to;
+    }
+    return BarChartGroupData(
+      x: index,
+      barRods: [
+        BarChartRodData(
+          // 0-width when there's no data yet, so the bar is invisible but
+          // the group slot (and its X-axis label) still renders.
+          toY: bin.total == 0 ? 0 : bin.total.toDouble(),
+          rodStackItems: stackItems,
+          width: 22,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+        ),
+      ],
+    );
+  }
+}
+
+class _LegendItem extends StatelessWidget {
+  const _LegendItem({required this.color, required this.label});
+
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RankedCard extends StatelessWidget {
+  const _RankedCard({
+    required this.title,
+    required this.stats,
+    this.colorFor,
+    this.labelFor,
+  });
+
+  final String title;
+  final List<RankedStat> stats;
+  final Color Function(String label)? colorFor;
+  // Raw stat.label values are fixed English model keys (see the comment
+  // above _payloadDisplayLabel) — this translates them for display. Left
+  // null for hopProfile, whose numeric bucket labels ("0", "2-5", …) don't
+  // need translation.
+  final String Function(BuildContext context, String label)? labelFor;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return MeshCard(
+      margin: EdgeInsets.zero,
+      padding: EdgeInsets.all(tokens.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: tokens.accentLabel(color: scheme.onSurfaceVariant),
+          ),
+          SizedBox(height: tokens.spacingSm),
+          // Every category always shown (even at 0) — 2026-08-17 operator
+          // feedback: parameters must be visible immediately, not appear
+          // in the list only once traffic for them arrives.
+          for (final stat in stats)
+            Padding(
+              padding: EdgeInsets.only(bottom: tokens.spacingXs),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(labelFor?.call(context, stat.label) ?? stat.label),
+                      Text(
+                        '${stat.count} · ${(stat.share * 100).round()}%',
+                        style: tokens.monoCaption(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: tokens.spacingXxs),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: stat.share.clamp(0.0, 1.0),
+                      minHeight: 6,
+                      backgroundColor: scheme.surfaceContainerHighest,
+                      valueColor: AlwaysStoppedAnimation(
+                        colorFor?.call(stat.label) ?? scheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
