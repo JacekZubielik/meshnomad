@@ -2,19 +2,30 @@ import 'dart:convert';
 import '../models/delivery_observation.dart';
 import '../models/path_history.dart';
 import '../storage/prefs_manager.dart';
+import 'secure_key_value_store.dart';
 
 class StorageService {
   static const String _pathHistoryPrefix = 'path_history_';
   static const String _pendingMessagesKey = 'pending_messages';
-  static const String _repeaterPasswordsKey = 'repeater_passwords';
+  static const String _legacyRepeaterPasswordsKey = 'repeater_passwords';
+  static const String _repeaterPasswordKeyPrefix = 'repeater_password_';
   static const String _repeaterAutoClockSyncAfterLoginKey =
       'repeater_auto_clock_sync_after_login';
   static const String _deliveryObservationsKey = 'delivery_observations';
+
+  StorageService({SecureKeyValueStore? secureStorage})
+    : _secureStorage = secureStorage ?? const FlutterSecureKeyValueStore();
+
+  final SecureKeyValueStore _secureStorage;
 
   /// Scopes path-history keys to the connected device, same pattern as
   /// MessageStore/ContactStore/etc. in lib/storage/*.dart — without it, the
   /// same contact seen from two different radios overwrites one shared,
   /// unscoped history entry.
+  ///
+  /// Deliberately NOT applied to repeater passwords (below): a repeater's
+  /// login password belongs to that remote node, not to whichever local
+  /// radio the phone happens to be connected through right now.
   String publicKeyHex = '';
   set setPublicKeyHex(String value) =>
       publicKeyHex = value.length > 10 ? value.substring(0, 10) : '';
@@ -133,23 +144,61 @@ class StorageService {
     await prefs.remove(_pendingMessagesKey);
   }
 
-  /// Save a repeater password by public key hex
+  /// Save a repeater password, encrypted at rest (OS keystore-backed).
   Future<void> saveRepeaterPassword(
     String repeaterPubKeyHex,
     String password,
   ) async {
-    final prefs = PrefsManager.instance;
-    final passwords = await loadRepeaterPasswords();
-    passwords[repeaterPubKeyHex] = password;
-    final jsonStr = jsonEncode(passwords);
-    await prefs.setString(_repeaterPasswordsKey, jsonStr);
+    await _secureStorage.write(
+      '$_repeaterPasswordKeyPrefix$repeaterPubKeyHex',
+      password,
+    );
+    await _removeLegacyRepeaterPassword(repeaterPubKeyHex);
   }
 
-  /// Load all saved repeater passwords (map of pubKeyHex -> password)
-  Future<Map<String, String>> loadRepeaterPasswords() async {
-    final prefs = PrefsManager.instance;
-    final jsonStr = prefs.getString(_repeaterPasswordsKey);
+  /// Get a specific repeater's saved password. Migrates a pre-encryption
+  /// plaintext entry (if any) into secure storage on first read.
+  Future<String?> getRepeaterPassword(String repeaterPubKeyHex) async {
+    final fromSecureStorage = await _secureStorage.read(
+      '$_repeaterPasswordKeyPrefix$repeaterPubKeyHex',
+    );
+    if (fromSecureStorage != null) return fromSecureStorage;
 
+    final legacy = await _loadLegacyRepeaterPasswords();
+    final legacyPassword = legacy[repeaterPubKeyHex];
+    if (legacyPassword == null) return null;
+
+    await _secureStorage.write(
+      '$_repeaterPasswordKeyPrefix$repeaterPubKeyHex',
+      legacyPassword,
+    );
+    await _removeLegacyRepeaterPassword(repeaterPubKeyHex);
+    return legacyPassword;
+  }
+
+  /// Remove a saved repeater password
+  Future<void> removeRepeaterPassword(String repeaterPubKeyHex) async {
+    await _secureStorage.delete(
+      '$_repeaterPasswordKeyPrefix$repeaterPubKeyHex',
+    );
+    await _removeLegacyRepeaterPassword(repeaterPubKeyHex);
+  }
+
+  /// Clear all saved repeater passwords
+  Future<void> clearAllRepeaterPasswords() async {
+    final all = await _secureStorage.readAll();
+    for (final key in all.keys) {
+      if (key.startsWith(_repeaterPasswordKeyPrefix)) {
+        await _secureStorage.delete(key);
+      }
+    }
+    final prefs = PrefsManager.instance;
+    await prefs.remove(_legacyRepeaterPasswordsKey);
+  }
+
+  Future<Map<String, String>> _loadLegacyRepeaterPasswords() async {
+    final prefs = PrefsManager.instance;
+    final jsonStr = prefs.getString(_legacyRepeaterPasswordsKey);
     if (jsonStr == null) return {};
 
     try {
@@ -160,25 +209,17 @@ class StorageService {
     }
   }
 
-  /// Get a specific repeater's saved password
-  Future<String?> getRepeaterPassword(String repeaterPubKeyHex) async {
-    final passwords = await loadRepeaterPasswords();
-    return passwords[repeaterPubKeyHex];
-  }
+  Future<void> _removeLegacyRepeaterPassword(String repeaterPubKeyHex) async {
+    final legacy = await _loadLegacyRepeaterPasswords();
+    if (!legacy.containsKey(repeaterPubKeyHex)) return;
 
-  /// Remove a saved repeater password
-  Future<void> removeRepeaterPassword(String repeaterPubKeyHex) async {
+    legacy.remove(repeaterPubKeyHex);
     final prefs = PrefsManager.instance;
-    final passwords = await loadRepeaterPasswords();
-    passwords.remove(repeaterPubKeyHex);
-    final jsonStr = jsonEncode(passwords);
-    await prefs.setString(_repeaterPasswordsKey, jsonStr);
-  }
-
-  /// Clear all saved repeater passwords
-  Future<void> clearAllRepeaterPasswords() async {
-    final prefs = PrefsManager.instance;
-    await prefs.remove(_repeaterPasswordsKey);
+    if (legacy.isEmpty) {
+      await prefs.remove(_legacyRepeaterPasswordsKey);
+    } else {
+      await prefs.setString(_legacyRepeaterPasswordsKey, jsonEncode(legacy));
+    }
   }
 
   Future<void> saveDeliveryObservations(
