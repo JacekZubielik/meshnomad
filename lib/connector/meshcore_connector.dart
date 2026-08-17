@@ -3097,6 +3097,7 @@ class MeshCoreConnector extends ChangeNotifier {
     await requestBatteryStatus(force: true);
     await sendFrame(buildGetCustomVarsFrame());
     await sendFrame(buildGetAutoAddFlagsFrame());
+    await sendFrame(buildGetDeviceTimeFrame());
 
     _scheduleSelfInfoRetry();
   }
@@ -3120,6 +3121,7 @@ class MeshCoreConnector extends ChangeNotifier {
     await sendFrame(buildGetCustomVarsFrame());
     await requestBatteryStatus();
     await sendFrame(buildGetAutoAddFlagsFrame());
+    await sendFrame(buildGetDeviceTimeFrame());
     _scheduleSelfInfoRetry();
   }
 
@@ -3779,6 +3781,27 @@ class MeshCoreConnector extends ChangeNotifier {
     );
     _messageStore.clearMessages(contact.publicKeyHex);
     notifyListeners();
+  }
+
+  /// Whether the radio still has an active repeater/room login session for
+  /// [pubKey] (CMD_HAS_CONNECTION) — the firmware keeps its own keep-alive
+  /// table separate from any app-side login state, so this asks it
+  /// directly rather than trusting local assumptions.
+  Future<bool> hasConnectionTo(Uint8List pubKey) async {
+    if (!isConnected) return false;
+    try {
+      await _sendFrameAndWaitForCommandAck(buildHasConnectionFrame(pubKey));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Explicitly ends a repeater/room login session (CMD_LOGOUT) instead of
+  /// leaving the radio to expire it via keep-alive timeout.
+  Future<void> logout(Uint8List pubKey) async {
+    if (!isConnected) return;
+    await _sendFrameAndWaitForCommandAck(buildLogoutFrame(pubKey));
   }
 
   Future<void> updateKnownDiscovered() async {
@@ -4586,7 +4609,12 @@ class MeshCoreConnector extends ChangeNotifier {
       epochSeconds * 1000,
       isUtc: true,
     );
-    debugPrint('Device time: ${deviceTime.toIso8601String()}');
+    // debugPrint is a no-op in release builds; appLogger keeps this visible
+    // for RTC-drift troubleshooting via the App Debug Log screen.
+    appLogger.info(
+      'Device time: ${deviceTime.toIso8601String()}',
+      tag: 'Connector',
+    );
   }
 
   void _handleSelfInfo(Uint8List frame) {
