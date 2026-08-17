@@ -50,6 +50,21 @@ class PathHistoryService extends ChangeNotifier {
     // Load cached path histories on startup if needed
   }
 
+  /// Scopes persistence to [value]'s device and drops every in-memory
+  /// record, so a contact seen on a previously-connected radio can't leak
+  /// into the newly-connected one within the same app session. Called once
+  /// per real connect-handshake from the connector, same point where every
+  /// other device-scoped store gets re-pointed.
+  void setPublicKeyHex(String value) {
+    _storage.setPublicKeyHex = value;
+    _cache.clear();
+    _autoRotationIndex.clear();
+    _floodStats.clear();
+    _cacheAccessOrder.clear();
+    _version++;
+    notifyListeners();
+  }
+
   void handlePathUpdated(Contact contact, {double initialWeight = 1.0}) {
     if (contact.pathLength < 0 && contact.path.isEmpty) return;
     final hopCount = contact.pathLength < 0

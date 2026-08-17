@@ -4841,6 +4841,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _contactStore.setPublicKeyHex = selfPublicKeyHex;
     _channelStore.setPublicKeyHex = selfPublicKeyHex;
     _unreadStore.setPublicKeyHex = selfPublicKeyHex;
+    _pathHistoryService?.setPublicKeyHex(selfPublicKeyHex);
 
     // Now that we have self info, we can load all the persisted data for this node
     _loadChannelOrder();
