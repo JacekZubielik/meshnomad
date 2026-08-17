@@ -3096,6 +3096,8 @@ class MeshCoreConnector extends ChangeNotifier {
     await requestBatteryStatus(force: true);
     await sendFrame(buildGetCustomVarsFrame());
     await sendFrame(buildGetAutoAddFlagsFrame());
+    await refreshDefaultFloodScope();
+    await _restoreForceUnscopedFloodIfNeeded();
 
     _scheduleSelfInfoRetry();
   }
@@ -3119,6 +3121,8 @@ class MeshCoreConnector extends ChangeNotifier {
     await sendFrame(buildGetCustomVarsFrame());
     await requestBatteryStatus();
     await sendFrame(buildGetAutoAddFlagsFrame());
+    await refreshDefaultFloodScope();
+    await _restoreForceUnscopedFloodIfNeeded();
     _scheduleSelfInfoRetry();
   }
 
@@ -3751,6 +3755,117 @@ class MeshCoreConnector extends ChangeNotifier {
       timeout.cancel();
       await subscription.cancel();
     }
+  }
+
+  /// Queries the firmware's on-device advert-path cache (CMD_GET_ADVERT_PATH)
+  /// for the path [contact]'s most recently cached advert took to reach this
+  /// radio. Returns null if nothing is cached (ERR_CODE_NOT_FOUND) or on
+  /// timeout. The cache holds only the last 16 distinct senders and is
+  /// populated purely from received adverts — independent of any path the
+  /// app has recorded from live pings or messages.
+  Future<AdvertPathResponse?> getAdvertPath(Contact contact) async {
+    if (!isConnected) return null;
+
+    final completer = Completer<AdvertPathResponse?>();
+    late final StreamSubscription<Uint8List> subscription;
+    late final Timer timeout;
+
+    void complete(AdvertPathResponse? value) {
+      if (!completer.isCompleted) completer.complete(value);
+    }
+
+    subscription = receivedFrames.listen((frame) {
+      if (frame.isEmpty) return;
+      if (frame[0] == respCodeAdvertPath) {
+        complete(parseAdvertPathFrame(frame));
+      } else if (frame[0] == respCodeErr) {
+        complete(null);
+      }
+    });
+
+    timeout = Timer(_commandAckTimeout, () => complete(null));
+
+    try {
+      await sendFrame(buildGetAdvertPathFrame(contact.publicKey));
+      return await completer.future;
+    } finally {
+      timeout.cancel();
+      await subscription.cancel();
+    }
+  }
+
+  DefaultFloodScope? _defaultFloodScope;
+
+  /// The device's persistent flood-scope fallback (CMD_GET/SET_DEFAULT_FLOOD_SCOPE),
+  /// used only when no session scope override and no "send unscoped" force
+  /// (see [setForceUnscopedFlood]) apply. Null means no default is set.
+  /// Kept in sync from the firmware — refreshed on every connect-handshake
+  /// and after every [setDefaultFloodScope] call, never written locally.
+  DefaultFloodScope? get defaultFloodScope => _defaultFloodScope;
+
+  Future<void> refreshDefaultFloodScope() async {
+    if (!isConnected) return;
+
+    final completer = Completer<void>();
+    late final StreamSubscription<Uint8List> subscription;
+    late final Timer timeout;
+
+    void complete() {
+      if (!completer.isCompleted) completer.complete();
+    }
+
+    subscription = receivedFrames.listen((frame) {
+      if (frame.isEmpty) return;
+      if (frame[0] == respCodeDefaultFloodScope) {
+        _defaultFloodScope = parseDefaultFloodScopeFrame(frame);
+        complete();
+      } else if (frame[0] == respCodeErr) {
+        complete();
+      }
+    });
+
+    timeout = Timer(_commandAckTimeout, complete);
+
+    try {
+      await sendFrame(buildGetDefaultFloodScopeFrame());
+      await completer.future;
+    } finally {
+      timeout.cancel();
+      await subscription.cancel();
+    }
+    notifyListeners();
+  }
+
+  /// Sets or clears (pass null/empty) the device's persistent flood-scope
+  /// default (CMD_SET_DEFAULT_FLOOD_SCOPE), then re-reads it back from the
+  /// firmware so [defaultFloodScope] always reflects device state, never a
+  /// locally-assumed value.
+  Future<void> setDefaultFloodScope(Region? region) async {
+    if (!isConnected) return;
+    if (region == null || region.isEmpty) {
+      await _sendFrameAndWaitForCommandAck(buildClearDefaultFloodScopeFrame());
+    } else {
+      await _sendFrameAndWaitForCommandAck(
+        buildSetDefaultFloodScopeFrame(region),
+      );
+    }
+    await refreshDefaultFloodScope();
+  }
+
+  /// Sets CMD_SET_FLOOD_SCOPE's "send unscoped" flag ([1]==1) and persists
+  /// the preference so [_restoreForceUnscopedFloodIfNeeded] can re-apply it
+  /// after every reconnect — the firmware flag itself lives only in RAM.
+  Future<void> setForceUnscopedFlood(bool enabled) async {
+    await _appSettingsService?.setForceUnscopedFlood(enabled);
+    if (!isConnected) return;
+    await _sendFrameAndWaitForCommandAck(
+      enabled ? buildSetFloodScopeUnscopedFrame() : buildSetFloodScopeFrame(''),
+    );
+  }
+
+  Future<void> _restoreForceUnscopedFloodIfNeeded() async {
+    if (_appSettingsService?.settings.forceUnscopedFlood != true) return;
+    await _sendFrameAndWaitForCommandAck(buildSetFloodScopeUnscopedFrame());
   }
 
   Future<void> removeContact(Contact contact) async {

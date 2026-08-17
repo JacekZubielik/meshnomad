@@ -856,6 +856,48 @@ abstract class AppLocalizations {
   /// **'Remove \"{region}\" from region list?'**
   String settings_deleteRegionConfirm(String region);
 
+  /// No description provided for @settings_regionForceUnscoped.
+  ///
+  /// In en, this message translates to:
+  /// **'Force global flood'**
+  String get settings_regionForceUnscoped;
+
+  /// No description provided for @settings_regionForceUnscopedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ignores every flood scope — messages are sent as a global flood. Stays on across reconnects.'**
+  String get settings_regionForceUnscopedSubtitle;
+
+  /// No description provided for @settings_regionDefaultSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Region'**
+  String get settings_regionDefaultSection;
+
+  /// No description provided for @settings_regionCurrentDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Current default: {name}'**
+  String settings_regionCurrentDefault(String name);
+
+  /// No description provided for @settings_regionNoDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'No default region set'**
+  String get settings_regionNoDefault;
+
+  /// No description provided for @settings_regionNoneOption.
+  ///
+  /// In en, this message translates to:
+  /// **'None (unscoped when nothing else is scoped)'**
+  String get settings_regionNoneOption;
+
+  /// No description provided for @settings_regionDefaultTag.
+  ///
+  /// In en, this message translates to:
+  /// **'DEFAULT'**
+  String get settings_regionDefaultTag;
+
   /// No description provided for @settings_location.
   ///
   /// In en, this message translates to:
@@ -7341,6 +7383,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trace route to {name}'**
   String contacts_pathTraceTo(String name);
+
+  /// No description provided for @contacts_showAdvertPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Advert Path'**
+  String get contacts_showAdvertPath;
+
+  /// No description provided for @contacts_advertPathTraceTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Advert path to {name}'**
+  String contacts_advertPathTraceTo(String name);
+
+  /// No description provided for @contacts_advertPathNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No advert path cached for this contact'**
+  String get contacts_advertPathNotFound;
 
   /// No description provided for @contacts_clipboardEmpty.
   ///
