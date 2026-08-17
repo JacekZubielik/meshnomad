@@ -2587,6 +2587,139 @@
   "radioStats_stripWaiting": "Fetching radio stats…",
   "radioStats_settingsTile": "Radio stats",
   "radioStats_settingsSubtitle": "Noise floor, RSSI, SNR, and airtime",
+  "packetStats_settingsTile": "Packet stats",
+  "packetStats_settingsSubtitle": "Traffic overheard by this radio",
+  "packetStats_screenTitle": "Packet stats",
+  "packetStats_summaryTitle": "Summary",
+  "packetStats_coverageLabel": "COVERAGE",
+  "packetStats_windowOneMinute": "1 min",
+  "packetStats_windowFiveMinutes": "5 min",
+  "packetStats_windowTenMinutes": "10 min",
+  "packetStats_windowThirtyMinutes": "30 min",
+  "packetStats_windowSession": "Session",
+  "packetStats_coverageTrimmed": "Detailed session history was trimmed after {totalObserved} observations.",
+  "@packetStats_coverageTrimmed": {
+    "placeholders": {
+      "totalObserved": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_coveragePartial": "This window is only covered for {duration} of collected history.",
+  "@packetStats_coveragePartial": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "packetStats_coverageTrackingLabel": "Tracking:",
+  "packetStats_coverageNormal": "{count} observations from this session.",
+  "@packetStats_coverageNormal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_coveragePacketsInWindow": "{packetCount} packets in {window} window.",
+  "@packetStats_coveragePacketsInWindow": {
+    "placeholders": {
+      "packetCount": {
+        "type": "int"
+      },
+      "window": {
+        "type": "String"
+      }
+    }
+  },
+  "packetStats_coverageObservedTotal": "{totalObserved} observed this session.",
+  "@packetStats_coverageObservedTotal": {
+    "placeholders": {
+      "totalObserved": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_tilePacketsPerMinute": "Packets / min",
+  "packetStats_tilePacketsPerMinuteDetail": "{count} total in window",
+  "@packetStats_tilePacketsPerMinuteDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_tileUniqueSources": "Unique sources",
+  "packetStats_tileUniqueSourcesDetail": "Distinct first-hop relays",
+  "packetStats_tilePathDiversity": "Path diversity",
+  "packetStats_tilePathDiversityDetail": "{percent}% carry a path",
+  "@packetStats_tilePathDiversityDetail": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_tileMedianRssi": "Median RSSI",
+  "packetStats_tileMedianRssiDetail": "Average {value} dBm",
+  "@packetStats_tileMedianRssiDetail": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "packetStats_tileMedianRssiDetailNone": "No signal samples in window",
+  "packetStats_tileMedianSnr": "Median SNR",
+  "packetStats_tileMedianSnrDetail": "Average {value} dB",
+  "@packetStats_tileMedianSnrDetail": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "packetStats_tileMedianSnrDetailNone": "No signal samples in window",
+  "packetStats_tileObservations": "Observations",
+  "packetStats_tileObservationsDetail": "cap {max}",
+  "@packetStats_tileObservationsDetail": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "packetStats_timelineTitle": "Traffic timeline",
+  "packetStats_emptyState": "No packets in this window yet.",
+  "packetStats_sectionPacketTypes": "Packet types",
+  "packetStats_sectionRouteMix": "Route mix",
+  "packetStats_sectionHopProfile": "Hop profile",
+  "packetStats_sectionHopByteWidth": "Hop byte width",
+  "packetStats_sectionSignalDistribution": "Signal distribution",
+  "packetStats_payloadAdvert": "Advert",
+  "packetStats_payloadGroupText": "Group Text",
+  "packetStats_payloadTextMessage": "Text Message",
+  "packetStats_payloadAck": "Ack",
+  "packetStats_payloadRequest": "Request",
+  "packetStats_payloadResponse": "Response",
+  "packetStats_payloadTrace": "Trace",
+  "packetStats_payloadPath": "Path",
+  "packetStats_payloadControl": "Control",
+  "packetStats_payloadUnknown": "Unknown",
+  "packetStats_routeTransportFlood": "Transport Flood",
+  "packetStats_routeTransportDirect": "Transport Direct",
+  "packetStats_routeUnknown": "Unknown",
+  "packetStats_signalStrong": "Strong",
+  "packetStats_signalOkay": "Okay",
+  "packetStats_signalWeak": "Weak",
+  "packetStats_hopWidthOneByte": "1 byte / hop",
+  "packetStats_hopWidthTwoBytes": "2 bytes / hop",
+  "packetStats_hopWidthThreeBytes": "3 bytes / hop",
+  "packetStats_hopWidthFourBytes": "4 bytes / hop",
+  "packetStats_hopWidthNoPath": "No path",
+  "packetStats_hopWidthUnknown": "Unknown width",
+  "packetStats_clearLog": "Clear observation log",
   "translation_title": "Translation",
   "translation_enableTitle": "Enable translation",
   "translation_enableSubtitle": "Translate incoming messages and allow pre-send translation.",
