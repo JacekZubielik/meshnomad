@@ -48,6 +48,7 @@ import '../storage/message_store.dart';
 import '../storage/unread_store.dart';
 import '../utils/app_logger.dart';
 import '../utils/battery_utils.dart';
+import '../utils/keys.dart';
 import '../utils/platform_info.dart';
 import 'meshcore_uuids.dart';
 import 'meshcore_protocol.dart';
@@ -7163,13 +7164,18 @@ class MeshCoreConnector extends ChangeNotifier {
       final rawPacket = frame.sublist(3);
       switch (payloadType) {
         case payloadTypeADVERT:
-          _handlePayloadAdvertReceived(
-            rawPacket,
-            payload,
-            pathBytes,
-            pathHashWidth,
-            routeType,
-            snr,
+          // Signature verification inside is async (may hit a platform
+          // channel); frame handling itself stays sync so incoming frames
+          // keep streaming without waiting on it.
+          unawaited(
+            _handlePayloadAdvertReceived(
+              rawPacket,
+              payload,
+              pathBytes,
+              pathHashWidth,
+              routeType,
+              snr,
+            ),
           );
           break;
         default:
@@ -7180,7 +7186,7 @@ class MeshCoreConnector extends ChangeNotifier {
     }
   }
 
-  void importContact(Uint8List frame) {
+  Future<void> importContact(Uint8List frame) async {
     final packet = BufferReader(frame);
     int payloadType = 0;
     Uint8List pathBytes = Uint8List(0);
@@ -7217,27 +7223,45 @@ class MeshCoreConnector extends ChangeNotifier {
       appLogger.warn('Unexpected payload type: $payloadType', tag: 'Connector');
       return;
     }
+    Uint8List signature = Uint8List(0);
+    Uint8List timestampBytes = Uint8List(0);
+    Uint8List appData = Uint8List(0);
     try {
       publicKey = packet.readBytes(32);
-      timestamp = packet.readInt32LE();
-      //TODO add signature verification
-      packet.skipBytes(64); // Skip signature for now
-      final flags = packet.readByte();
+      timestampBytes = packet.readBytes(4);
+      timestamp = timestampBytes.buffer.asByteData().getInt32(0, Endian.little);
+      signature = packet.readBytes(64);
+      appData = packet.readRemainingBytes();
+      final fields = BufferReader(appData);
+      final flags = fields.readByte();
       type = flags & 0x0F;
       hasLocation = (flags & 0x10) != 0;
       // For future use:
       //final hasFeature1 = (flags & 0x20) != 0;
       //final hasFeature2 = (flags & 0x40) != 0;
       hasName = (flags & 0x80) != 0;
-      if (hasLocation && packet.remaining >= 8) {
-        latitude = packet.readInt32LE() / 1e6;
-        longitude = packet.readInt32LE() / 1e6;
+      if (hasLocation && fields.remaining >= 8) {
+        latitude = fields.readInt32LE() / 1e6;
+        longitude = fields.readInt32LE() / 1e6;
       }
-      if (hasName && packet.remaining > 0) {
-        name = packet.readCString();
+      if (hasName && fields.remaining > 0) {
+        name = fields.readCString();
       }
     } catch (e) {
       appLogger.warn('Malformed advert frame: $e', tag: 'Connector');
+      return;
+    }
+
+    if (!await verifyAdvertSignature(
+      publicKey: publicKey,
+      timestampBytesLE: timestampBytes,
+      signature: signature,
+      appData: appData,
+    )) {
+      appLogger.warn(
+        'Advert signature verification failed, rejecting import',
+        tag: 'Connector',
+      );
       return;
     }
 
@@ -7271,14 +7295,14 @@ class MeshCoreConnector extends ChangeNotifier {
         lon <= 180.0;
   }
 
-  void _handlePayloadAdvertReceived(
+  Future<void> _handlePayloadAdvertReceived(
     Uint8List rawPacket,
     Uint8List payload,
     Uint8List path,
     int pathHashWidth,
     int routeType,
     double snr,
-  ) {
+  ) async {
     final advert = BufferReader(payload);
     double? latitude;
     double? longitude;
@@ -7289,34 +7313,52 @@ class MeshCoreConnector extends ChangeNotifier {
     int timestamp = 0;
     bool hasLocation = false;
     bool hasName = false;
+    Uint8List signature = Uint8List(0);
+    Uint8List timestampBytes = Uint8List(0);
+    Uint8List appData = Uint8List(0);
     try {
       publicKey = advert.readBytes(32);
       contactKeyHex = publicKey
           .map((b) => b.toRadixString(16).padLeft(2, '0'))
           .join();
 
-      timestamp = advert.readInt32LE();
-      //TODO add signature verification
-      advert.skipBytes(64); // Skip signature for now
-      final flags = advert.readByte();
+      timestampBytes = advert.readBytes(4);
+      timestamp = timestampBytes.buffer.asByteData().getInt32(0, Endian.little);
+      signature = advert.readBytes(64);
+      appData = advert.readRemainingBytes();
+      final fields = BufferReader(appData);
+      final flags = fields.readByte();
       type = flags & 0x0F;
       hasLocation = (flags & 0x10) != 0;
       // For future use:
       //final hasFeature1 = (flags & 0x20) != 0;
       //final hasFeature2 = (flags & 0x40) != 0;
       hasName = (flags & 0x80) != 0;
-      if (hasLocation && advert.remaining >= 8) {
-        latitude = advert.readInt32LE() / 1e6;
-        longitude = advert.readInt32LE() / 1e6;
+      if (hasLocation && fields.remaining >= 8) {
+        latitude = fields.readInt32LE() / 1e6;
+        longitude = fields.readInt32LE() / 1e6;
       }
       // Validate location values if present
       hasLocation = hasValidLocation(latitude, longitude);
 
-      if (hasName && advert.remaining > 0) {
-        name = advert.readCString();
+      if (hasName && fields.remaining > 0) {
+        name = fields.readCString();
       }
     } catch (e) {
       appLogger.warn('Malformed advert frame: $e', tag: 'Connector');
+      return;
+    }
+
+    if (!await verifyAdvertSignature(
+      publicKey: publicKey,
+      timestampBytesLE: timestampBytes,
+      signature: signature,
+      appData: appData,
+    )) {
+      appLogger.warn(
+        'Advert signature verification failed for $contactKeyHex, dropping',
+        tag: 'Connector',
+      );
       return;
     }
 
