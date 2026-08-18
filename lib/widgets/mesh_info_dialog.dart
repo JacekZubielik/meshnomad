@@ -3,13 +3,17 @@ import 'package:flutter/material.dart';
 import '../theme/mesh_tokens.dart';
 
 /// The one shared pattern for full-screen info popups (battery, nearby
-/// repeaters, radio stats, transport details, …): an equal [edgeInset] on
-/// every side, content-hugging height when there is little to show (vertical
-/// centering keeps the top and bottom gaps identical), and a hard cap at the
-/// inset with internal scrolling when there is more. Build every info popup
-/// through [showMeshInfoDialog] — never hand-roll an AlertDialog for these.
+/// repeaters, radio stats, transport details, …): an equal inset
+/// ([MeshTokens.spacingMd]) on every side, content-hugging height when there
+/// is little to show (vertical centering keeps the top and bottom gaps
+/// identical), and a hard cap at the inset with internal scrolling when
+/// there is more. Build every info popup through [showMeshInfoDialog] —
+/// never hand-roll an AlertDialog for these. Other dialogs that want the
+/// same equal-inset pattern (e.g. the route map popup in
+/// `channel_chat_screen.dart`) should read `MeshTokens.of(context).spacingMd`
+/// directly rather than duplicating a literal, so they stay in sync with
+/// this one as the token changes.
 class MeshInfoDialog extends StatelessWidget {
-  static const double edgeInset = 16;
   static const double _maxWidth = 560;
 
   final String title;
