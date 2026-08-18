@@ -261,8 +261,200 @@ class StatTile extends StatelessWidget {
                   ),
               ],
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Grid of [StatTile]s (or similar fixed-height cards) whose column count
+/// adapts to the available width instead of a hardcoded per-screen value —
+/// avoids the truncation/inconsistency that comes from each screen picking
+/// its own crossAxisCount and childAspectRatio independently.
+class ResponsiveStatGrid extends StatelessWidget {
+  final List<Widget> children;
+  final double minTileWidth;
+  final int maxColumns;
+  final double mainAxisExtent;
+  final double? spacing;
+
+  const ResponsiveStatGrid({
+    super.key,
+    required this.children,
+    this.minTileWidth = 160,
+    this.maxColumns = 4,
+    this.mainAxisExtent = 100,
+    this.spacing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final gap = spacing ?? MeshTokens.of(context).spacingSm;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = (constraints.maxWidth / minTileWidth)
+            .floor()
+            .clamp(1, maxColumns);
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: children.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            mainAxisSpacing: gap,
+            crossAxisSpacing: gap,
+            mainAxisExtent: mainAxisExtent,
+          ),
+          itemBuilder: (context, index) => children[index],
+        );
+      },
+    );
+  }
+}
+
+/// One label/value entry inside a [StatSectionCard] — no card chrome of its
+/// own since it's one of several entries sharing a single parent card.
+/// [detail] is a secondary caption line (e.g. a flood/direct breakdown) kept
+/// separate from [value] so the headline number never has to share its line
+/// budget with a long comma-separated sentence (2026-08-18 Pixel Fold bug:
+/// a single-string "Razem: X, Zalew: Y, Bezpośrednio: Z" value truncated to
+/// "Razem: X, Zalew: Y, B...").
+class StatEntry extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final String? unit;
+  final String? detail;
+  final Color? color;
+
+  const StatEntry({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.unit,
+    this.detail,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    const iconSize = 28.0;
+    final valueIndent = iconSize + tokens.spacingXs;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: iconSize, color: color ?? scheme.primary),
+            SizedBox(width: tokens.spacingXs),
+            Expanded(
+              child: Text(
+                label.toUpperCase(),
+                style: tokens.accentLabel(
+                  color: scheme.onSurfaceVariant,
+                  fontSize: tokens.microLabelSize,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: tokens.spacingXxs),
+        Padding(
+          padding: EdgeInsets.only(left: valueIndent),
+          child: Text.rich(
+            TextSpan(
+              text: value,
+              // Headline number is deliberately larger than monoBodySize
+              // (2026-08-17 readability fix: it reads as a metric, not a
+              // caption) but must still track the slider so the Custom
+              // Style Editor "Mono — treść" control isn't a dead knob for
+              // it — hence a multiple of the token instead of a literal.
+              style: tokens
+                  .monoBody(
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onSurface,
+                  )
+                  .copyWith(fontSize: tokens.monoBodySize * 2),
+              children: [
+                if (unit != null)
+                  TextSpan(
+                    text: ' $unit',
+                    style: tokens.monoCaption(color: scheme.onSurfaceVariant),
+                  ),
+              ],
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        if (detail != null) ...[
+          SizedBox(height: tokens.spacingXxs),
+          Padding(
+            padding: EdgeInsets.only(left: valueIndent),
+            child: Text(
+              detail!,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Groups a titled set of [StatEntry] tiles inside ONE bordered [MeshCard] —
+/// the pattern from the Packet Stats "Podsumowanie" panel, applied wherever
+/// a screen shows several related metrics (avoids the six-separate-boxes
+/// noise a bordered [StatTile] grid produces for the same data).
+class StatSectionCard extends StatelessWidget {
+  final String title;
+  final List<Widget> children;
+  final double minTileWidth;
+  final int maxColumns;
+  final double mainAxisExtent;
+
+  const StatSectionCard({
+    super.key,
+    required this.title,
+    required this.children,
+    this.minTileWidth = 160,
+    this.maxColumns = 4,
+    this.mainAxisExtent = 108,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return MeshCard(
+      margin: EdgeInsets.zero,
+      padding: EdgeInsets.all(tokens.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: tokens.accentLabel(color: scheme.onSurfaceVariant),
+          ),
+          SizedBox(height: tokens.spacingSm),
+          ResponsiveStatGrid(
+            minTileWidth: minTileWidth,
+            maxColumns: maxColumns,
+            mainAxisExtent: mainAxisExtent,
+            spacing: tokens.spacingMd,
+            children: children,
           ),
         ],
       ),
