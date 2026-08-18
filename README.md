@@ -1,12 +1,17 @@
-# MeshCore Open
+# MeshNomad
 
-Open-source Flutter client for MeshCore LoRa mesh networking devices.
+Independent Flutter client for MeshCore-compatible LoRa mesh networking devices.
+
+> **Note on origins**: MeshNomad began as a fork of [MeshCore Open](https://github.com/zjs81/meshcore-open)
+> by [zjs81](https://github.com/zjs81), an MIT-licensed open-source client for MeshCore-compatible
+> LoRa mesh devices. It has since diverged into an independent project with its own name, branding,
+> and roadmap. MeshNomad is not affiliated with, endorsed by, or sponsored by zjs81, Sylvester Corp,
+> MeshCore Technologies Limited, Cloudsto Electronics Ltd, or the MeshCore protocol maintainers.
+> See [LICENSE](LICENSE) for the original and current copyright notices.
 
 ## Overview
 
-MeshCore Open is a cross-platform mobile application for communicating with MeshCore LoRa mesh network devices via Bluetooth Low Energy (BLE). The app enables long-range, off-grid communication through peer-to-peer messaging, public channels, and mesh networking capabilities.
-
-**Website:** [meshcoreopen.org](https://meshcoreopen.org/)
+MeshNomad is a cross-platform mobile application for communicating with MeshCore-compatible LoRa mesh network devices via Bluetooth Low Energy (BLE). The app enables long-range, off-grid communication through peer-to-peer messaging, public channels, and mesh networking capabilities.
 
 <a href="http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/zjs81/meshcore-open">
         <img src="assets/badges/badge_obtainium.png" height="80" align="center" alt="Get it on Obtainium"/>
@@ -247,19 +252,6 @@ This is an open-source project. Contributions are welcome!
 
 For issues, questions, or feature requests, please open an issue on GitHub:
 <https://github.com/zjs81/meshcore-open/issues>
-
-## Donate
-
-If you find MeshCore Open useful and would like to support development, you can donate Solana or other Solana tokens:
-
-**Solana Address:** `F15YanjZj96YTBtKJYgNa8RLQLCZkx5CEwogPWkqXeoQ`
-
-
-**Monero Address:** `453TxnpUqjkJtXxzdjMsrgERNkBRXEGamPbpC45ENrvKAk9tH7kZbxWF82Hz66etgDZyXFPEBU2JUEqhLeJyWt9kBvTVy5m`
-
-**Bitcoin Address:** `bc1qh45x28v8dslcg4v4upmqd9g0mvc3lnyffmyzr5`
-
-Your support helps maintain and improve this open-source project!
 
 ## Acknowledgments
 
