@@ -28,8 +28,8 @@ void main() {
     // _AboutTile calls PackageInfo.fromPlatform() — mock it so the widget
     // test doesn't hit a real (unavailable) platform channel.
     PackageInfo.setMockInitialValues(
-      appName: 'MeshCore Open',
-      packageName: 'com.meshcore.meshcore_open',
+      appName: 'MeshNomad',
+      packageName: 'com.meshnomad.app',
       version: '9.5.0',
       buildNumber: '13',
       buildSignature: '',

@@ -136,7 +136,7 @@ class AppLocalizationsBg extends AppLocalizations {
   String get common_interval => 'Интервал';
 
   @override
-  String get scanner_title => 'MeshCore – Отворена версия';
+  String get scanner_title => 'MeshNomad – Отворена версия';
 
   @override
   String get connectionChoiceUsbLabel => 'USB';

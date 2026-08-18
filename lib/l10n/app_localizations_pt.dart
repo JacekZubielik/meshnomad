@@ -136,7 +136,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get common_interval => 'Intervalo';
 
   @override
-  String get scanner_title => 'MeshCore: Versão aberta';
+  String get scanner_title => 'MeshNomad: Versão aberta';
 
   @override
   String get connectionChoiceUsbLabel => 'USB';

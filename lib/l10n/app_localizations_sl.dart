@@ -137,7 +137,7 @@ class AppLocalizationsSl extends AppLocalizations {
   String get common_interval => 'Časovni interval';
 
   @override
-  String get scanner_title => 'MeshCore – Odprto';
+  String get scanner_title => 'MeshNomad – Odprto';
 
   @override
   String get connectionChoiceUsbLabel => 'USB';
@@ -606,7 +606,7 @@ class AppLocalizationsSl extends AppLocalizations {
 
   @override
   String settings_aboutVersion(String version) {
-    return 'MeshCore, različ $version';
+    return 'MeshNomad, različ $version';
   }
 
   @override

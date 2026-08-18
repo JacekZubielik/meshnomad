@@ -54,7 +54,7 @@
       }
     }
   },
-  "scanner_title": "MeshCore – Odprto",
+  "scanner_title": "MeshNomad – Odprto",
   "scanner_scanning": "Skeniram za naprave...",
   "scanner_connecting": "Povezujem se...",
   "scanner_disconnecting": "Odklapljam se...",
@@ -127,7 +127,7 @@
   "settings_appDebugLog": "Logi aplikacije",
   "settings_appDebugLogSubtitle": "Debug sporočila aplikacije",
   "settings_about": "Oglejte si",
-  "settings_aboutVersion": "MeshCore, različ {version}",
+  "settings_aboutVersion": "MeshNomad, različ {version}",
   "@settings_aboutVersion": {
     "placeholders": {
       "version": {
