@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:meshcore_open/screens/path_trace_map.dart';
-import 'package:meshcore_open/services/notification_service.dart';
-import 'package:meshcore_open/utils/app_logger.dart';
-import 'package:meshcore_open/utils/platform_info.dart';
-import 'package:meshcore_open/widgets/app_bar.dart';
+import 'package:meshnomad/screens/path_trace_map.dart';
+import 'package:meshnomad/services/notification_service.dart';
+import 'package:meshnomad/utils/app_logger.dart';
+import 'package:meshnomad/utils/platform_info.dart';
+import 'package:meshnomad/widgets/app_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../connector/meshcore_connector.dart';

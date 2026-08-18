@@ -5,15 +5,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/connector/meshcore_protocol.dart';
-import 'package:meshcore_open/l10n/app_localizations.dart';
-import 'package:meshcore_open/models/contact.dart';
-import 'package:meshcore_open/screens/map_screen.dart';
-import 'package:meshcore_open/storage/prefs_manager.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
-import 'package:meshcore_open/widgets/snr_indicator.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/connector/meshcore_protocol.dart';
+import 'package:meshnomad/l10n/app_localizations.dart';
+import 'package:meshnomad/models/contact.dart';
+import 'package:meshnomad/screens/map_screen.dart';
+import 'package:meshnomad/storage/prefs_manager.dart';
+import 'package:meshnomad/theme/mesh_theme.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/snr_indicator.dart';
 
 class _FakeConnector extends MeshCoreConnector {
   final List<DirectRepeater> repeaters = [];

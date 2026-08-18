@@ -6,7 +6,7 @@
 - [x] Xcode installed
 - [x] Apple Transporter app installed
 - [x] App icons ready (1024x1024px)
-- [x] Bundle ID configured: `com.monitormx.meshcoreopen`
+- [x] Bundle ID configured: `com.meshnomad.app`
 
 ## Step 1: Register Bundle Identifier
 
@@ -15,8 +15,8 @@
 3. Select **"App IDs"** → Continue
 4. Select **"App"** → Continue
 5. Fill in:
-   - **Description**: Meshcore Open
-   - **Bundle ID**: Explicit - `com.monitormx.meshcoreopen`
+   - **Description**: MeshNomad
+   - **Bundle ID**: Explicit - `com.meshnomad.app`
    - **Capabilities**: Leave defaults (or add as needed)
 6. Click **Continue** → **Register**
 
@@ -28,10 +28,10 @@
 4. Click the **"+"** button → **"New App"**
 5. Fill in the form:
    - **Platforms**: iOS
-   - **Name**: Meshcore Open
+   - **Name**: MeshNomad
    - **Primary Language**: English (U.S.)
-   - **Bundle ID**: Select `com.monitormx.meshcoreopen` from dropdown
-   - **SKU**: `meshcore-open-001` (or any unique identifier)
+   - **Bundle ID**: Select `com.meshnomad.app` from dropdown
+   - **SKU**: `meshnomad-001` (or any unique identifier)
    - **User Access**: Full Access
 6. Click **"Create"**
 
@@ -86,7 +86,7 @@ The IPA will be created at: `build/ios/ipa/meshcore_open.ipa`
 
 3. Fill in **Description**:
    ```
-   Meshcore Open is a Flutter client for MeshCore LoRa mesh networking devices.
+   MeshNomad is an independent Flutter client for MeshCore-compatible LoRa mesh networking devices.
 
    Features:
    - BLE connectivity to MeshCore devices
@@ -105,7 +105,7 @@ The IPA will be created at: `build/ios/ipa/meshcore_open.ipa`
 ### Version Information
 1. **What's New in This Version**:
    ```
-   Initial release of Meshcore Open
+   Initial release of MeshNomad
 
    - BLE device connectivity
    - Mesh network messaging
@@ -241,4 +241,3 @@ Distribution:
 For issues with:
 - **App Store Process**: [Apple Developer Support](https://developer.apple.com/contact/)
 - **Flutter Build Issues**: [Flutter GitHub](https://github.com/flutter/flutter/issues)
-- **Meshcore Open App**: [GitHub Issues](https://github.com/wel97459/meshcore-open/issues)

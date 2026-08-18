@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meshcore_open/connector/meshcore_protocol.dart';
+import 'package:meshnomad/connector/meshcore_protocol.dart';
 
 void main() {
   final pubKey = Uint8List.fromList(List<int>.generate(32, (i) => i));

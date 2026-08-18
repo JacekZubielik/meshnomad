@@ -1,4 +1,4 @@
-package com.meshcore.meshcore_open
+package com.meshnomad.app
 
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -32,7 +32,7 @@ class MeshcoreUsbFunctions(
 
     private val usbMethodChannelName = "meshcore_open/android_usb_serial"
     private val usbEventChannelName = "meshcore_open/android_usb_serial_events"
-    private val usbPermissionAction = "com.meshcore.meshcore_open.USB_PERMISSION"
+    private val usbPermissionAction = "com.meshnomad.app.USB_PERMISSION"
 
     private val usbManager by lazy {
         activity.getSystemService(Context.USB_SERVICE) as UsbManager

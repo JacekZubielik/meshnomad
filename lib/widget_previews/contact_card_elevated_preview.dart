@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
-import 'package:meshcore_open/widgets/mesh_ui.dart';
+import 'package:meshnomad/theme/mesh_theme.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/mesh_ui.dart';
 
 // MeshCard(elevated: true) — mockup .mockups/depth-shadows.html, "Wariant C
 // bg + Wariant B shadow" accepted 2026-08-09; wired into

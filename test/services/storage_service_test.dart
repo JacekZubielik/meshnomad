@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meshcore_open/models/path_history.dart';
-import 'package:meshcore_open/services/secure_key_value_store.dart';
-import 'package:meshcore_open/services/storage_service.dart';
-import 'package:meshcore_open/storage/prefs_manager.dart';
+import 'package:meshnomad/models/path_history.dart';
+import 'package:meshnomad/services/secure_key_value_store.dart';
+import 'package:meshnomad/services/storage_service.dart';
+import 'package:meshnomad/storage/prefs_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // In-memory fake — no platform channels, so repeater-password tests don't

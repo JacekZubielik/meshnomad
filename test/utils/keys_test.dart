@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meshcore_open/utils/keys.dart';
+import 'package:meshnomad/utils/keys.dart';
 
 void main() {
   group('verifyAdvertSignature', () {

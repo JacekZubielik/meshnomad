@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/widgets/battery_indicator.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/widgets/battery_indicator.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/l10n.dart';

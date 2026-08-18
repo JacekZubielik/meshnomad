@@ -3,14 +3,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/connector/meshcore_protocol.dart';
-import 'package:meshcore_open/l10n/l10n.dart';
-import 'package:meshcore_open/models/contact.dart';
-import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/storage/region_store.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
-import 'package:meshcore_open/widgets/mesh_ui.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/connector/meshcore_protocol.dart';
+import 'package:meshnomad/l10n/l10n.dart';
+import 'package:meshnomad/models/contact.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
+import 'package:meshnomad/storage/region_store.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/mesh_ui.dart';
 import 'package:provider/provider.dart';
 
 Future<void> pushRegionManagementScreen(BuildContext context) {

@@ -5,25 +5,25 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/connector/meshcore_protocol.dart';
-import 'package:meshcore_open/helpers/path_helper.dart';
-import 'package:meshcore_open/l10n/l10n.dart';
-import 'package:meshcore_open/models/app_settings.dart';
-import 'package:meshcore_open/models/contact.dart';
-import 'package:meshcore_open/models/display_path.dart';
-import 'package:meshcore_open/models/path_history.dart';
-import 'package:meshcore_open/models/path_playback.dart';
-import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/services/map_tile_cache_service.dart';
-import 'package:meshcore_open/services/path_history_service.dart';
-import 'package:meshcore_open/utils/app_logger.dart';
-import 'package:meshcore_open/widgets/path_map_ui.dart';
-import 'package:meshcore_open/widgets/snr_indicator.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/connector/meshcore_protocol.dart';
+import 'package:meshnomad/helpers/path_helper.dart';
+import 'package:meshnomad/l10n/l10n.dart';
+import 'package:meshnomad/models/app_settings.dart';
+import 'package:meshnomad/models/contact.dart';
+import 'package:meshnomad/models/display_path.dart';
+import 'package:meshnomad/models/path_history.dart';
+import 'package:meshnomad/models/path_playback.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
+import 'package:meshnomad/services/map_tile_cache_service.dart';
+import 'package:meshnomad/services/path_history_service.dart';
+import 'package:meshnomad/utils/app_logger.dart';
+import 'package:meshnomad/widgets/path_map_ui.dart';
+import 'package:meshnomad/widgets/snr_indicator.dart';
 import 'package:provider/provider.dart';
 import '../theme/mesh_tokens.dart';
 
-export 'package:meshcore_open/widgets/path_map_ui.dart'
+export 'package:meshnomad/widgets/path_map_ui.dart'
     show formatDistance, getPathDistanceMeters;
 
 class PathTraceData {

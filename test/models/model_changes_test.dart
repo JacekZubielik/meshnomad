@@ -2,17 +2,17 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meshcore_open/connector/meshcore_protocol.dart';
-import 'package:meshcore_open/models/channel_message.dart';
-import 'package:meshcore_open/models/contact.dart';
-import 'package:meshcore_open/models/path_history.dart';
-import 'package:meshcore_open/models/app_settings.dart';
-import 'package:meshcore_open/storage/contact_store.dart';
-import 'package:meshcore_open/storage/channel_message_store.dart';
-import 'package:meshcore_open/storage/contact_discovery_store.dart';
-import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/storage/prefs_manager.dart';
-import 'package:meshcore_open/storage/message_store.dart';
+import 'package:meshnomad/connector/meshcore_protocol.dart';
+import 'package:meshnomad/models/channel_message.dart';
+import 'package:meshnomad/models/contact.dart';
+import 'package:meshnomad/models/path_history.dart';
+import 'package:meshnomad/models/app_settings.dart';
+import 'package:meshnomad/storage/contact_store.dart';
+import 'package:meshnomad/storage/channel_message_store.dart';
+import 'package:meshnomad/storage/contact_discovery_store.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
+import 'package:meshnomad/storage/prefs_manager.dart';
+import 'package:meshnomad/storage/message_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Builds a valid contact frame with the given pathLen and optional overrides.

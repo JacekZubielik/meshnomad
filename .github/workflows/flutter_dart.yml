@@ -8,14 +8,12 @@ env:
 on:
   pull_request:
     paths-ignore:
-      - 'documentation/**'
       - 'docs/**'
       - '**.md'
   push:
     branches:
       - main
     paths-ignore:
-      - 'documentation/**'
       - 'docs/**'
       - '**.md'
 

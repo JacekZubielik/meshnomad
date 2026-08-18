@@ -8,7 +8,7 @@
     }
   },
   "@@locale": "sv",
-  "appTitle": "MeshCore Open",
+  "appTitle": "MeshNomad",
   "nav_contacts": "Kontakter",
   "nav_channels": "Kanaler",
   "nav_map": "Karta",
@@ -54,7 +54,7 @@
       }
     }
   },
-  "scanner_title": "MeshCore – Öppen version",
+  "scanner_title": "MeshNomad – Öppen version",
   "scanner_scanning": "Söker efter enheter...",
   "scanner_connecting": "Anslutning...",
   "scanner_disconnecting": "Anslutning bryts...",
@@ -127,7 +127,7 @@
   "settings_appDebugLog": "Appfelsökning",
   "settings_appDebugLogSubtitle": "Applikations felsökningsmeddelanden",
   "settings_about": "Om",
-  "settings_aboutVersion": "MeshCore Open version {version}",
+  "settings_aboutVersion": "MeshNomad version {version}",
   "@settings_aboutVersion": {
     "placeholders": {
       "version": {
@@ -135,7 +135,7 @@
       }
     }
   },
-  "settings_aboutLegalese": "2024 MeshCore Öppen Källkodsprojekt",
+  "settings_aboutLegalese": "2024 MeshNomad Öppen Källkodsprojekt",
   "settings_aboutDescription": "En öppen källkods Flutter-klient för MeshCore LoRa meshnätverksenheter.",
   "settings_infoName": "Namn",
   "settings_infoId": "ID",

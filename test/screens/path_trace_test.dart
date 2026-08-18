@@ -4,18 +4,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'dart:typed_data';
 
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/connector/meshcore_protocol.dart';
-import 'package:meshcore_open/screens/path_trace_map.dart';
-import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/services/map_tile_cache_service.dart';
-import 'package:meshcore_open/models/contact.dart';
-import 'package:meshcore_open/l10n/app_localizations.dart';
-import 'package:meshcore_open/services/path_history_service.dart';
-import 'package:meshcore_open/services/storage_service.dart';
-import 'package:meshcore_open/models/path_history.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/connector/meshcore_protocol.dart';
+import 'package:meshnomad/screens/path_trace_map.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
+import 'package:meshnomad/services/map_tile_cache_service.dart';
+import 'package:meshnomad/models/contact.dart';
+import 'package:meshnomad/l10n/app_localizations.dart';
+import 'package:meshnomad/services/path_history_service.dart';
+import 'package:meshnomad/services/storage_service.dart';
+import 'package:meshnomad/models/path_history.dart';
+import 'package:meshnomad/theme/mesh_theme.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
 
 class _FakeStorageService extends StorageService {
   @override

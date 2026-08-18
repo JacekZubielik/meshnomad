@@ -4,15 +4,15 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/l10n/app_localizations.dart';
-import 'package:meshcore_open/screens/app_settings_screen.dart';
-import 'package:meshcore_open/screens/custom_style_editor_screen.dart';
-import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/services/translation_service.dart';
-import 'package:meshcore_open/storage/prefs_manager.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/l10n/app_localizations.dart';
+import 'package:meshnomad/screens/app_settings_screen.dart';
+import 'package:meshnomad/screens/custom_style_editor_screen.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
+import 'package:meshnomad/services/translation_service.dart';
+import 'package:meshnomad/storage/prefs_manager.dart';
+import 'package:meshnomad/theme/mesh_theme.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -28,8 +28,8 @@ void main() {
     // _AboutTile calls PackageInfo.fromPlatform() — mock it so the widget
     // test doesn't hit a real (unavailable) platform channel.
     PackageInfo.setMockInitialValues(
-      appName: 'MeshCore Open',
-      packageName: 'com.meshcore.meshcore_open',
+      appName: 'MeshNomad',
+      packageName: 'com.meshnomad.app',
       version: '9.5.0',
       buildNumber: '13',
       buildSignature: '',

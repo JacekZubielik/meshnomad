@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart' as crypto;
-import 'package:meshcore_open/utils/keys.dart';
+import 'package:meshnomad/utils/keys.dart';
 
 import 'channel.dart';
 

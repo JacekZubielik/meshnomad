@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/l10n/app_localizations.dart';
-import 'package:meshcore_open/screens/scanner_screen.dart';
-import 'package:meshcore_open/screens/usb_screen.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
-import 'package:meshcore_open/utils/platform_info.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/l10n/app_localizations.dart';
+import 'package:meshnomad/screens/scanner_screen.dart';
+import 'package:meshnomad/screens/usb_screen.dart';
+import 'package:meshnomad/theme/mesh_theme.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/utils/platform_info.dart';
 
 class _FakeMeshCoreConnector extends MeshCoreConnector {
   _FakeMeshCoreConnector({
