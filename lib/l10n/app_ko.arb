@@ -1,6 +1,6 @@
 {
   "@@locale": "ko",
-  "appTitle": "MeshCore Open",
+  "appTitle": "MeshNomad",
   "nav_contacts": "연락처",
   "nav_channels": "채널",
   "nav_map": "지도",
@@ -48,7 +48,7 @@
       }
     }
   },
-  "scanner_title": "MeshCore Open",
+  "scanner_title": "MeshNomad",
   "connectionChoiceUsbLabel": "USB",
   "connectionChoiceBluetoothLabel": "블루투스",
   "connectionChoiceTcpLabel": "TCP",
@@ -190,7 +190,7 @@
   "settings_appDebugLog": "앱 디버그 로그",
   "settings_appDebugLogSubtitle": "애플리케이션 디버그 메시지",
   "settings_about": "정보",
-  "settings_aboutVersion": "MeshCore Open v{version}",
+  "settings_aboutVersion": "MeshNomad v{version}",
   "@settings_aboutVersion": {
     "placeholders": {
       "version": {
@@ -198,7 +198,7 @@
       }
     }
   },
-  "settings_aboutLegalese": "2026 MeshCore 오픈 소스 프로젝트",
+  "settings_aboutLegalese": "2026 MeshNomad 오픈 소스 프로젝트",
   "settings_aboutDescription": "MeshCore LoRa 메시 네트워크 장치를 위한 오픈소스 Flutter 클라이언트.",
   "settings_aboutOpenMeteoAttribution": "LOS 고도 데이터: Open-Meteo (CC BY 4.0)",
   "settings_infoName": "이름",

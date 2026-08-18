@@ -8,7 +8,7 @@
     }
   },
   "@@locale": "pt",
-  "appTitle": "MeshCore Open",
+  "appTitle": "MeshNomad",
   "nav_contacts": "Contactos",
   "nav_channels": "Canais",
   "nav_map": "Mapa",
@@ -127,7 +127,7 @@
   "settings_appDebugLog": "Log de Depuração do Aplicativo",
   "settings_appDebugLogSubtitle": "Mensagens de depuração do aplicativo",
   "settings_about": "Sobre",
-  "settings_aboutVersion": "MeshCore Open v{version}",
+  "settings_aboutVersion": "MeshNomad v{version}",
   "@settings_aboutVersion": {
     "placeholders": {
       "version": {
@@ -135,7 +135,7 @@
       }
     }
   },
-  "settings_aboutLegalese": "Projeto MeshCore de Código Aberto 2024",
+  "settings_aboutLegalese": "Projeto MeshNomad de Código Aberto 2024",
   "settings_aboutDescription": "Um cliente Flutter de código aberto para dispositivos de rede mesh LoRa Core da MeshCore.",
   "settings_infoName": "Nome",
   "settings_infoId": "ID",

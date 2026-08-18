@@ -8,7 +8,7 @@
     }
   },
   "@@locale": "uk",
-  "appTitle": "MeshCore Open",
+  "appTitle": "MeshNomad",
   "nav_contacts": "Контакти",
   "nav_channels": "Канали",
   "nav_map": "Карта",
@@ -128,7 +128,7 @@
   "settings_appDebugLog": "Журнал налагодження застосунку",
   "settings_appDebugLogSubtitle": "Повідомлення налагодження застосунку",
   "settings_about": "Про застосунок",
-  "settings_aboutVersion": "MeshCore Open v{version}",
+  "settings_aboutVersion": "MeshNomad v{version}",
   "@settings_aboutVersion": {
     "placeholders": {
       "version": {
@@ -136,7 +136,7 @@
       }
     }
   },
-  "settings_aboutLegalese": "Проєкт MeshCore Open Source 2026",
+  "settings_aboutLegalese": "Проєкт MeshNomad Open Source 2026",
   "settings_aboutDescription": "Клієнт Flutter з відкритим вихідним кодом для пристроїв мережі MeshCore LoRa.",
   "settings_infoName": "Ім'я",
   "settings_infoId": "Ідентифікатор",

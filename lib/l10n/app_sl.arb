@@ -8,7 +8,7 @@
     }
   },
   "@@locale": "sl",
-  "appTitle": "MeshCore Open",
+  "appTitle": "MeshNomad",
   "nav_contacts": "Stiki",
   "nav_channels": "Kanali",
   "nav_map": "Karta",
@@ -135,7 +135,7 @@
       }
     }
   },
-  "settings_aboutLegalese": "Odprtokodni projekt MeshCore 2024",
+  "settings_aboutLegalese": "Odprtokodni projekt MeshNomad 2024",
   "settings_aboutDescription": "Odprtokodni Flutter klient za naprave za LoRa omrežje MeshCore.",
   "settings_infoName": "Ime",
   "settings_infoId": "ID",

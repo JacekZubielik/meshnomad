@@ -133,7 +133,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'MeshCore Open'**
+  /// **'MeshNomad'**
   String get appTitle;
 
   /// No description provided for @nav_contacts.
@@ -379,7 +379,7 @@ abstract class AppLocalizations {
   /// No description provided for @scanner_title.
   ///
   /// In en, this message translates to:
-  /// **'MeshCore Open'**
+  /// **'MeshNomad'**
   String get scanner_title;
 
   /// No description provided for @connectionChoiceUsbLabel.
@@ -1219,13 +1219,13 @@ abstract class AppLocalizations {
   /// No description provided for @settings_aboutVersion.
   ///
   /// In en, this message translates to:
-  /// **'MeshCore Open v{version}'**
+  /// **'MeshNomad v{version}'**
   String settings_aboutVersion(String version);
 
   /// No description provided for @settings_aboutLegalese.
   ///
   /// In en, this message translates to:
-  /// **'2026 MeshCore Open Source Project'**
+  /// **'2026 MeshNomad Open Source Project'**
   String get settings_aboutLegalese;
 
   /// No description provided for @settings_aboutDescription.

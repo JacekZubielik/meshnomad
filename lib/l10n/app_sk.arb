@@ -8,7 +8,7 @@
     }
   },
   "@@locale": "sk",
-  "appTitle": "MeshCore Open",
+  "appTitle": "MeshNomad",
   "nav_contacts": "Kontakty",
   "nav_channels": "Kanály",
   "nav_map": "Mapa",
@@ -135,7 +135,7 @@
       }
     }
   },
-  "settings_aboutLegalese": "MeshCore Open Source Projekt 2024",
+  "settings_aboutLegalese": "MeshNomad Open Source Projekt 2024",
   "settings_aboutDescription": "Otvorený zdrojový Flutter klient pre MeshCore LoRa sieťové zariadenia.",
   "settings_infoName": "Meno",
   "settings_infoId": "Identifikátor",

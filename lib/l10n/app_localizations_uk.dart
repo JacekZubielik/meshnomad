@@ -9,7 +9,7 @@ class AppLocalizationsUk extends AppLocalizations {
   AppLocalizationsUk([String locale = 'uk']) : super(locale);
 
   @override
-  String get appTitle => 'MeshCore Open';
+  String get appTitle => 'MeshNomad';
 
   @override
   String get nav_contacts => 'Контакти';
@@ -611,11 +611,11 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String settings_aboutVersion(String version) {
-    return 'MeshCore Open v$version';
+    return 'MeshNomad v$version';
   }
 
   @override
-  String get settings_aboutLegalese => 'Проєкт MeshCore Open Source 2026';
+  String get settings_aboutLegalese => 'Проєкт MeshNomad Open Source 2026';
 
   @override
   String get settings_aboutDescription =>

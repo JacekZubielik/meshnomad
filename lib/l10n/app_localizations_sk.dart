@@ -9,7 +9,7 @@ class AppLocalizationsSk extends AppLocalizations {
   AppLocalizationsSk([String locale = 'sk']) : super(locale);
 
   @override
-  String get appTitle => 'MeshCore Open';
+  String get appTitle => 'MeshNomad';
 
   @override
   String get nav_contacts => 'Kontakty';
@@ -612,7 +612,7 @@ class AppLocalizationsSk extends AppLocalizations {
   }
 
   @override
-  String get settings_aboutLegalese => 'MeshCore Open Source Projekt 2024';
+  String get settings_aboutLegalese => 'MeshNomad Open Source Projekt 2024';
 
   @override
   String get settings_aboutDescription =>

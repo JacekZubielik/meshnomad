@@ -8,7 +8,7 @@
     }
   },
   "@@locale": "bg",
-  "appTitle": "MeshCore Open",
+  "appTitle": "MeshNomad",
   "nav_contacts": "Контакти",
   "nav_channels": "Канали",
   "nav_map": "Карта",
@@ -127,7 +127,7 @@
   "settings_appDebugLog": "Лог на отстраняване на грешки на приложението",
   "settings_appDebugLogSubtitle": "Съобщения за отстраняване на грешки на приложението",
   "settings_about": "За нас",
-  "settings_aboutVersion": "MeshCore Open, версия {version}",
+  "settings_aboutVersion": "MeshNomad, версия {version}",
   "@settings_aboutVersion": {
     "placeholders": {
       "version": {
@@ -135,7 +135,7 @@
       }
     }
   },
-  "settings_aboutLegalese": "Проект MeshCore с отворен код 2024 г.",
+  "settings_aboutLegalese": "Проект MeshNomad с отворен код 2024 г.",
   "settings_aboutDescription": "Отворен Flutter клиент за MeshCore LoRa мрежови устройства.",
   "settings_infoName": "Име",
   "settings_infoId": "ИД",
