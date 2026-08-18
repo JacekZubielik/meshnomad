@@ -3,14 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/l10n/app_localizations.dart';
-import 'package:meshcore_open/screens/app_settings_screen.dart';
-import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/services/translation_service.dart';
-import 'package:meshcore_open/storage/prefs_manager.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/l10n/app_localizations.dart';
+import 'package:meshnomad/screens/app_settings_screen.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
+import 'package:meshnomad/services/translation_service.dart';
+import 'package:meshnomad/storage/prefs_manager.dart';
+import 'package:meshnomad/theme/mesh_theme.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
 
 // TODO(task-6): this whole flow exercises the OLD Default/Custom style
 // picker UI (text chips 'Custom'/'Default', AppSettings.styleId/

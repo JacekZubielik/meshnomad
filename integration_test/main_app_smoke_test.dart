@@ -2,21 +2,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/main.dart';
-import 'package:meshcore_open/services/app_debug_log_service.dart';
-import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/services/ble_debug_log_service.dart';
-import 'package:meshcore_open/services/chat_text_scale_service.dart';
-import 'package:meshcore_open/services/map_tile_cache_service.dart';
-import 'package:meshcore_open/services/message_retry_service.dart';
-import 'package:meshcore_open/services/packet_observation_service.dart';
-import 'package:meshcore_open/services/path_history_service.dart';
-import 'package:meshcore_open/services/storage_service.dart';
-import 'package:meshcore_open/services/timeout_prediction_service.dart';
-import 'package:meshcore_open/services/translation_service.dart';
-import 'package:meshcore_open/services/ui_view_state_service.dart';
-import 'package:meshcore_open/storage/prefs_manager.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/main.dart';
+import 'package:meshnomad/services/app_debug_log_service.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
+import 'package:meshnomad/services/ble_debug_log_service.dart';
+import 'package:meshnomad/services/chat_text_scale_service.dart';
+import 'package:meshnomad/services/map_tile_cache_service.dart';
+import 'package:meshnomad/services/message_retry_service.dart';
+import 'package:meshnomad/services/packet_observation_service.dart';
+import 'package:meshnomad/services/path_history_service.dart';
+import 'package:meshnomad/services/storage_service.dart';
+import 'package:meshnomad/services/timeout_prediction_service.dart';
+import 'package:meshnomad/services/translation_service.dart';
+import 'package:meshnomad/services/ui_view_state_service.dart';
+import 'package:meshnomad/storage/prefs_manager.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

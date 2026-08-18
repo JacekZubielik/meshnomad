@@ -3,13 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:meshcore_open/l10n/app_localizations.dart';
-import 'package:meshcore_open/screens/custom_style_editor_screen.dart';
-import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/storage/prefs_manager.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
-import 'package:meshcore_open/widgets/quick_style_picker_dialog.dart';
+import 'package:meshnomad/l10n/app_localizations.dart';
+import 'package:meshnomad/screens/custom_style_editor_screen.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
+import 'package:meshnomad/storage/prefs_manager.dart';
+import 'package:meshnomad/theme/mesh_theme.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/quick_style_picker_dialog.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

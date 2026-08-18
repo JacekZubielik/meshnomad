@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meshcore_open/models/app_settings.dart';
-import 'package:meshcore_open/models/custom_style_overrides.dart';
+import 'package:meshnomad/models/app_settings.dart';
+import 'package:meshnomad/models/custom_style_overrides.dart';
 
 void main() {
   group('AppSettings legacy style_id/customStyleOverrides migration', () {

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meshcore_open/models/custom_style_overrides.dart';
+import 'package:meshnomad/models/custom_style_overrides.dart';
 
 void main() {
   test('toJson/fromJson roundtrips spacing overrides', () {

@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meshcore_open/models/packet_observation.dart';
-import 'package:meshcore_open/services/packet_stats_snapshot.dart';
+import 'package:meshnomad/models/packet_observation.dart';
+import 'package:meshnomad/services/packet_stats_snapshot.dart';
 
 PacketObservation _obs({
   required DateTime at,

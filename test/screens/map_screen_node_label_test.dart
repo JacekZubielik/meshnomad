@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:meshcore_open/theme/mesh_tokens.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/theme/mesh_theme.dart';
 
 /// Mirrors the marker `child` built by `_buildNodeLabelMarker` in
 /// `map_screen.dart` post-fix (06-map-bugs.md): no `FittedBox`, fixed

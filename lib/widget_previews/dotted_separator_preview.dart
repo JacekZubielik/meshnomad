@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
-import 'package:meshcore_open/widgets/dotted_separator.dart';
+import 'package:meshnomad/widgets/dotted_separator.dart';
 
 @Preview(name: 'DottedSeparator — on dark bubble')
 Widget dottedSeparatorPreview() {

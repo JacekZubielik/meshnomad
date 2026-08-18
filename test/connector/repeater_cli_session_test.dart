@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/connector/repeater_cli/repeater_cli_session.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/connector/repeater_cli/repeater_cli_session.dart';
 
 /// Minimal controllable fake for [isUsbBlockedByCompanion] — overrides only
 /// the two getters the check reads, following the same pattern as

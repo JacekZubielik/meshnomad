@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:meshcore_open/utils/gpx_export.dart';
-import 'package:meshcore_open/widgets/elements_ui.dart';
+import 'package:meshnomad/utils/gpx_export.dart';
+import 'package:meshnomad/widgets/elements_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 

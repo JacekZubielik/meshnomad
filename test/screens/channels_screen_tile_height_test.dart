@@ -5,16 +5,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/l10n/app_localizations.dart';
-import 'package:meshcore_open/models/channel.dart';
-import 'package:meshcore_open/models/channel_message.dart';
-import 'package:meshcore_open/screens/channels_screen.dart';
-import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/services/ui_view_state_service.dart';
-import 'package:meshcore_open/storage/prefs_manager.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/l10n/app_localizations.dart';
+import 'package:meshnomad/models/channel.dart';
+import 'package:meshnomad/models/channel_message.dart';
+import 'package:meshnomad/screens/channels_screen.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
+import 'package:meshnomad/services/ui_view_state_service.dart';
+import 'package:meshnomad/storage/prefs_manager.dart';
+import 'package:meshnomad/theme/mesh_theme.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
 
 class _FakeConnector extends MeshCoreConnector {
   final List<Channel> _testChannels = [
