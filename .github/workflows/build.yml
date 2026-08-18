@@ -9,6 +9,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
     paths-ignore:
       - 'docs/**'
       - '**.md'
@@ -16,11 +18,23 @@ on:
     paths-ignore:
       - 'docs/**'
       - '**.md'
+  workflow_dispatch:
 
 jobs:
   android:
     runs-on: ubuntu-latest
     steps:
+      - name: Free disk space
+        # ubuntu-latest ran out of disk mid-build (NDK 27 + Gradle + Flutter
+        # caches exceed the ~14GB default free space) - drop preinstalled
+        # toolchains this build never touches. The NDK version we need is
+        # downloaded fresh by the build regardless, so removing preinstalled
+        # NDKs here is safe.
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk/ndk /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          df -h /
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v5
         with:
@@ -47,6 +61,59 @@ jobs:
       # `flutter build` without --no-pub regenerates the registrant release-aware,
       # so the stale reference doesn't break :app:compileReleaseJavaWithJavac.
       - run: flutter build apk --release
+
+  android-release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: android
+    steps:
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk/ndk /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          df -h /
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: "stable"
+          cache: true
+      - name: Cache Gradle
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/build.gradle', 'android/settings.gradle', 'android/app/build.gradle', 'pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Decode keystore and write key.properties
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/meshnomad-release.keystore
+          cat > android/key.properties << EOF
+          storeFile=meshnomad-release.keystore
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+      - run: flutter pub get
+      - name: Build release App Bundle
+        run: flutter build appbundle --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meshnomad-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 30
 
   ios:
     runs-on: macos-latest
