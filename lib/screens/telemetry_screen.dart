@@ -13,6 +13,7 @@ import '../connector/meshcore_protocol.dart';
 import '../services/app_settings_service.dart';
 import '../services/repeater_command_service.dart';
 import '../utils/app_logger.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/routing_sheet.dart';
 import '../helpers/cayenne_lpp.dart';
 import '../utils/battery_utils.dart';
@@ -379,6 +380,7 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
                 : () => _loadTelemetry(),
             tooltip: l10n.repeater_refresh,
           ),
+          const QuickAccessMenuButton(),
         ],
       ),
       body: SafeArea(

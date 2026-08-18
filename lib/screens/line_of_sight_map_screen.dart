@@ -404,6 +404,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
               ),
             ],
           ),
+          const QuickAccessMenuButton(),
         ],
       ),
       body: Stack(

@@ -26,6 +26,7 @@ import '../models/translation_support.dart';
 import '../services/app_settings_service.dart';
 import '../services/chat_text_scale_service.dart';
 import '../services/translation_service.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/byte_count_input.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/chat_zoom_wrapper.dart';
@@ -378,6 +379,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
               ),
             ],
           ),
+          const QuickAccessMenuButton(),
         ],
       ),
       body: SafeArea(

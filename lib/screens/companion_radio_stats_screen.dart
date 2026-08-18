@@ -5,6 +5,7 @@ import 'package:meshnomad/l10n/app_localizations.dart';
 import 'package:meshnomad/l10n/l10n.dart';
 import 'package:meshnomad/services/app_settings_service.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/app_bar.dart';
 import 'package:meshnomad/widgets/mesh_ui.dart';
 import 'package:meshnomad/widgets/radio_stats_band_chart.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ class CompanionRadioStatsScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text(context.l10n.radioStats_screenTitle),
           centerTitle: true,
+          actions: const [QuickAccessMenuButton()],
         ),
         body: const SingleChildScrollView(child: RadioStatsPanel()),
       ),

@@ -18,6 +18,7 @@ import 'package:meshnomad/services/app_settings_service.dart';
 import 'package:meshnomad/services/map_tile_cache_service.dart';
 import 'package:meshnomad/services/path_history_service.dart';
 import 'package:meshnomad/utils/app_logger.dart';
+import 'package:meshnomad/widgets/app_bar.dart';
 import 'package:meshnomad/widgets/path_map_ui.dart';
 import 'package:meshnomad/widgets/snr_indicator.dart';
 import 'package:provider/provider.dart';
@@ -1051,6 +1052,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                 onPressed: _isLoading ? null : _doPathTrace,
                 tooltip: context.l10n.pathTrace_refreshTooltip,
               ),
+              const QuickAccessMenuButton(),
             ],
           ),
           body: SafeArea(

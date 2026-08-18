@@ -13,6 +13,7 @@ import '../services/app_settings_service.dart';
 import '../services/repeater_command_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/battery_utils.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/routing_sheet.dart';
 import '../helpers/snack_bar_builder.dart';
@@ -470,6 +471,7 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
             onPressed: _isLoading ? null : _loadStatus,
             tooltip: l10n.repeater_refresh,
           ),
+          const QuickAccessMenuButton(),
         ],
       ),
       body: SafeArea(

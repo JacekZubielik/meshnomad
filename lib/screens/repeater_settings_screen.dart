@@ -11,6 +11,7 @@ import '../connector/meshcore_protocol.dart';
 import '../services/repeater_command_service.dart';
 import '../services/storage_service.dart';
 import '../theme/mesh_tokens.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/routing_sheet.dart';
 import '../utils/keys.dart';
@@ -1112,6 +1113,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               icon: const Icon(Icons.save),
               label: Text(l10n.common_save),
             ),
+          const QuickAccessMenuButton(),
         ],
       ),
       body: SafeArea(

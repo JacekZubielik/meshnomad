@@ -10,6 +10,7 @@ import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
 import '../services/repeater_command_service.dart';
 import '../theme/mesh_tokens.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/routing_sheet.dart';
@@ -322,6 +323,7 @@ class _NeighborsScreenState extends State<NeighborsScreen> {
             onPressed: _isLoading ? null : _loadNeighbors,
             tooltip: l10n.repeater_refresh,
           ),
+          const QuickAccessMenuButton(),
         ],
       ),
       body: SafeArea(

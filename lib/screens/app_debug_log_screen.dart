@@ -6,6 +6,7 @@ import '../l10n/l10n.dart';
 import '../services/app_debug_log_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/adaptive_app_bar_title.dart';
+import '../widgets/app_bar.dart';
 import '../helpers/snack_bar_builder.dart';
 
 class AppDebugLogScreen extends StatelessWidget {
@@ -59,6 +60,7 @@ class AppDebugLogScreen extends StatelessWidget {
                       }
                     : null,
               ),
+              const QuickAccessMenuButton(),
             ],
           ),
           body: SafeArea(
