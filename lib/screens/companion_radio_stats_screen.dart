@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/models/companion_radio_stats.dart';
-import 'package:meshcore_open/l10n/app_localizations.dart';
-import 'package:meshcore_open/l10n/l10n.dart';
-import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
-import 'package:meshcore_open/widgets/mesh_ui.dart';
-import 'package:meshcore_open/widgets/radio_stats_band_chart.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/models/companion_radio_stats.dart';
+import 'package:meshnomad/l10n/app_localizations.dart';
+import 'package:meshnomad/l10n/l10n.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/mesh_ui.dart';
+import 'package:meshnomad/widgets/radio_stats_band_chart.dart';
 import 'package:provider/provider.dart';
 
 class CompanionRadioStatsScreen extends StatelessWidget {

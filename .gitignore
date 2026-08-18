@@ -102,3 +102,5 @@ CLAUDE.md
 # not part of the app build (no dependency from the root pubspec.yaml),
 # must never reach remote until an explicit decision to publish it
 packages/mesh_ui/
+
+docs/documentation/

@@ -8,7 +8,7 @@
     }
   },
   "@@locale": "nl",
-  "appTitle": "MeshCore Open",
+  "appTitle": "MeshNomad",
   "nav_contacts": "Contacten",
   "nav_channels": "Kanalen",
   "nav_map": "Kaart",
@@ -54,7 +54,7 @@
       }
     }
   },
-  "scanner_title": "MeshCore Open",
+  "scanner_title": "MeshNomad",
   "scanner_scanning": "Scannen naar apparaten...",
   "scanner_connecting": "Verbinden...",
   "scanner_disconnecting": "Verbinding verbreken...",
@@ -127,7 +127,7 @@
   "settings_appDebugLog": "Debuglog van de app",
   "settings_appDebugLogSubtitle": "Toepassingsdebugberichten",
   "settings_about": "Over",
-  "settings_aboutVersion": "MeshCore Open versie {version}",
+  "settings_aboutVersion": "MeshNomad versie {version}",
   "@settings_aboutVersion": {
     "placeholders": {
       "version": {
@@ -135,7 +135,7 @@
       }
     }
   },
-  "settings_aboutLegalese": "MeshCore Open Source Project 2024",
+  "settings_aboutLegalese": "MeshNomad Open Source Project 2024",
   "settings_aboutDescription": "Een open-source Flutter client voor MeshCore LoRa mesh netwerkapparaten.",
   "settings_infoName": "Naam",
   "settings_infoId": "ID",

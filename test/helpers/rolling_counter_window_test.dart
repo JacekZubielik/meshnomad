@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meshcore_open/helpers/rolling_counter_window.dart';
+import 'package:meshnomad/helpers/rolling_counter_window.dart';
 
 void main() {
   final t0 = DateTime(2026, 8, 6, 12);

@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/screens/settings_screen.dart';
-import 'package:meshcore_open/services/app_settings_service.dart';
-import 'package:meshcore_open/storage/prefs_manager.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/screens/settings_screen.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
+import 'package:meshnomad/storage/prefs_manager.dart';
 
 class _CliCapturingConnector extends MeshCoreConnector {
   final List<String> cliCommands = [];

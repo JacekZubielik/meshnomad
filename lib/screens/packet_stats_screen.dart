@@ -1,11 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:meshcore_open/l10n/l10n.dart';
-import 'package:meshcore_open/services/packet_observation_service.dart';
-import 'package:meshcore_open/services/packet_stats_snapshot.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
-import 'package:meshcore_open/widgets/mesh_ui.dart';
+import 'package:meshnomad/l10n/l10n.dart';
+import 'package:meshnomad/services/packet_observation_service.dart';
+import 'package:meshnomad/services/packet_stats_snapshot.dart';
+import 'package:meshnomad/theme/mesh_theme.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/mesh_ui.dart';
 import 'package:provider/provider.dart';
 
 // One entry per payloadTypeLabels entry (10) — previously only 5 colors for

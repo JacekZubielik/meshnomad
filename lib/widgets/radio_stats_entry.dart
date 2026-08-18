@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/models/companion_radio_stats.dart';
-import 'package:meshcore_open/l10n/l10n.dart';
-import 'package:meshcore_open/screens/companion_radio_stats_screen.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/models/companion_radio_stats.dart';
+import 'package:meshnomad/l10n/l10n.dart';
+import 'package:meshnomad/screens/companion_radio_stats_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../theme/mesh_tokens.dart';

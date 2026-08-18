@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:meshcore_open/widgets/mesh_ui.dart';
+import 'package:meshnomad/widgets/mesh_ui.dart';
 
 void main() {
   group('showMeshSheet enableDrag (06-map-bugs.md)', () {

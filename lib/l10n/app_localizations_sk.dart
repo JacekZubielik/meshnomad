@@ -9,7 +9,7 @@ class AppLocalizationsSk extends AppLocalizations {
   AppLocalizationsSk([String locale = 'sk']) : super(locale);
 
   @override
-  String get appTitle => 'MeshCore Open';
+  String get appTitle => 'MeshNomad';
 
   @override
   String get nav_contacts => 'Kontakty';
@@ -136,7 +136,7 @@ class AppLocalizationsSk extends AppLocalizations {
   String get common_interval => 'Časový interval';
 
   @override
-  String get scanner_title => 'MeshCore – Verzia pre verejnosť';
+  String get scanner_title => 'MeshNomad – Verzia pre verejnosť';
 
   @override
   String get connectionChoiceUsbLabel => 'USB';
@@ -608,11 +608,11 @@ class AppLocalizationsSk extends AppLocalizations {
 
   @override
   String settings_aboutVersion(String version) {
-    return 'MeshCore, verzia $version';
+    return 'MeshNomad, verzia $version';
   }
 
   @override
-  String get settings_aboutLegalese => 'MeshCore Open Source Projekt 2024';
+  String get settings_aboutLegalese => 'MeshNomad Open Source Projekt 2024';
 
   @override
   String get settings_aboutDescription =>

@@ -1,11 +1,11 @@
 {
-    "name": "meshcore_open",
-    "short_name": "meshcore_open",
+    "name": "MeshNomad",
+    "short_name": "MeshNomad",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "MeshNomad — independent Flutter client for MeshCore-compatible LoRa mesh devices",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

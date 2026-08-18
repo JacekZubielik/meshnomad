@@ -9,7 +9,7 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
-  String get appTitle => 'MeshCore Open';
+  String get appTitle => 'MeshNomad';
 
   @override
   String get nav_contacts => 'Contactos';
@@ -136,7 +136,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get common_interval => 'Intervalo';
 
   @override
-  String get scanner_title => 'MeshCore: Versão aberta';
+  String get scanner_title => 'MeshNomad: Versão aberta';
 
   @override
   String get connectionChoiceUsbLabel => 'USB';
@@ -614,11 +614,12 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String settings_aboutVersion(String version) {
-    return 'MeshCore Open v$version';
+    return 'MeshNomad v$version';
   }
 
   @override
-  String get settings_aboutLegalese => 'Projeto MeshCore de Código Aberto 2024';
+  String get settings_aboutLegalese =>
+      'Projeto MeshNomad de Código Aberto 2024';
 
   @override
   String get settings_aboutDescription =>

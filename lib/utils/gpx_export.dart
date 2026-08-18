@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:gpx/gpx.dart';
-import 'package:meshcore_open/connector/meshcore_connector.dart';
-import 'package:meshcore_open/connector/meshcore_protocol.dart';
+import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/connector/meshcore_protocol.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../utils/platform_info.dart';

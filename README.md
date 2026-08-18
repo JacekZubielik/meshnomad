@@ -1,16 +1,17 @@
-# MeshCore Open
+# MeshNomad
 
-Open-source Flutter client for MeshCore LoRa mesh networking devices.
+Independent Flutter client for MeshCore-compatible LoRa mesh networking devices.
+
+> **Note on origins**: MeshNomad began as a fork of [MeshCore Open](https://github.com/zjs81/meshcore-open)
+> by [zjs81](https://github.com/zjs81), an MIT-licensed open-source client for MeshCore-compatible
+> LoRa mesh devices. It has since diverged into an independent project with its own name, branding,
+> and roadmap. MeshNomad is not affiliated with, endorsed by, or sponsored by zjs81, Sylvester Corp,
+> MeshCore Technologies Limited, Cloudsto Electronics Ltd, or the MeshCore protocol maintainers.
+> See [LICENSE](LICENSE) for the original and current copyright notices.
 
 ## Overview
 
-MeshCore Open is a cross-platform mobile application for communicating with MeshCore LoRa mesh network devices via Bluetooth Low Energy (BLE). The app enables long-range, off-grid communication through peer-to-peer messaging, public channels, and mesh networking capabilities.
-
-**Website:** [meshcoreopen.org](https://meshcoreopen.org/)
-
-<a href="http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/zjs81/meshcore-open">
-        <img src="assets/badges/badge_obtainium.png" height="80" align="center" alt="Get it on Obtainium"/>
-</a>
+MeshNomad is a cross-platform mobile application for communicating with MeshCore-compatible LoRa mesh network devices via Bluetooth Low Energy (BLE). The app enables long-range, off-grid communication through peer-to-peer messaging, public channels, and mesh networking capabilities.
 
 ## Screenshots
 
@@ -112,20 +113,13 @@ MeshCore Open is a cross-platform mobile application for communicating with Mesh
 
 ### Installation
 
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/zjs81/meshcore-open.git
-   cd meshcore-open
-   ```
-
-2. **Install dependencies**
+1. **Install dependencies**
 
    ```bash
    flutter pub get
    ```
 
-3. **Run the app**
+2. **Run the app**
 
    ```bash
    flutter run
@@ -224,10 +218,6 @@ Messages are transmitted as binary frames using a custom protocol optimized for 
 
 This is an open-source project. Contributions are welcome!
 
-## SWHID and Archive badge
-[![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/zjs81/meshcore-open/)](https://archive.softwareheritage.org/browse/origin/?origin_url=https://github.com/zjs81/meshcore-open)
-[![SWH](https://archive.softwareheritage.org/badge/swh:1:dir:d37a80b06359730864150ad2aeadd46cce9abd55/)](https://archive.softwareheritage.org/swh:1:dir:d37a80b06359730864150ad2aeadd46cce9abd55;origin=https://github.com/zjs81/meshcore-open;visit=swh:1:snp:47656c4b55ab40a689ff8d2f045196725f05096b;anchor=swh:1:rev:0fe250230905fdd05dbedc0f546736990beacf53)
-
 ### Development Guidelines
 
 - Follow the Flutter style guide
@@ -242,24 +232,6 @@ This is an open-source project. Contributions are welcome!
 - Keep functions small and focused
 - Avoid premature abstractions
 - Run dart format on all changes before submitting
-
-## Support
-
-For issues, questions, or feature requests, please open an issue on GitHub:
-<https://github.com/zjs81/meshcore-open/issues>
-
-## Donate
-
-If you find MeshCore Open useful and would like to support development, you can donate Solana or other Solana tokens:
-
-**Solana Address:** `F15YanjZj96YTBtKJYgNa8RLQLCZkx5CEwogPWkqXeoQ`
-
-
-**Monero Address:** `453TxnpUqjkJtXxzdjMsrgERNkBRXEGamPbpC45ENrvKAk9tH7kZbxWF82Hz66etgDZyXFPEBU2JUEqhLeJyWt9kBvTVy5m`
-
-**Bitcoin Address:** `bc1qh45x28v8dslcg4v4upmqd9g0mvc3lnyffmyzr5`
-
-Your support helps maintain and improve this open-source project!
 
 ## Acknowledgments
 

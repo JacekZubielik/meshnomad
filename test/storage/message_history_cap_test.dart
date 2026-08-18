@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meshcore_open/models/message.dart';
-import 'package:meshcore_open/models/channel_message.dart';
-import 'package:meshcore_open/storage/message_store.dart';
-import 'package:meshcore_open/storage/channel_message_store.dart';
-import 'package:meshcore_open/storage/prefs_manager.dart';
+import 'package:meshnomad/models/message.dart';
+import 'package:meshnomad/models/channel_message.dart';
+import 'package:meshnomad/storage/message_store.dart';
+import 'package:meshnomad/storage/channel_message_store.dart';
+import 'package:meshnomad/storage/prefs_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Helper to create a test message

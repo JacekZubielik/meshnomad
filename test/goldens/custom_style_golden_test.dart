@@ -1,9 +1,9 @@
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
-import 'package:meshcore_open/models/custom_style_overrides.dart';
-import 'package:meshcore_open/theme/mesh_tokens.dart';
-import 'package:meshcore_open/theme/styles/custom_style.dart';
-import 'package:meshcore_open/theme/mesh_theme.dart';
+import 'package:meshnomad/models/custom_style_overrides.dart';
+import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/theme/styles/custom_style.dart';
+import 'package:meshnomad/theme/mesh_theme.dart';
 
 void main() {
   Widget sample() {
