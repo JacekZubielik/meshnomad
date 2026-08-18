@@ -1696,10 +1696,7 @@ class _ContactTile extends StatelessWidget {
       child: MeshCard(
         onTap: onTap,
         onLongPress: onLongPress,
-        padding: EdgeInsets.symmetric(
-          horizontal: t.spacingMd,
-          vertical: t.spacingSm,
-        ),
+        padding: EdgeInsets.all(t.spacingMd),
         child: Row(
           children: [
             // Avatar
