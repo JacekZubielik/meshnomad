@@ -48,6 +48,20 @@ class MeshPalette {
   static const secondaryBg = Color(0x1C4A730C);
   static const secondaryLine = Color(0x474A730C);
 
+  // Fixed (non-user-customizable) accents for the Contacts list — same
+  // architectural treatment as mapSensor/mapOnline below: technically routed
+  // through custom_style.dart's baseColorFor() for consistency, but no style
+  // profile sets an override key for these today, so they render identically
+  // regardless of the user's chosen Custom Style. Distinct from `secondary`
+  // (used by the Repeater/Room/Sensor/Chat type system before this token
+  // existed) and from `signal` (telemetry family) — 2026-08-19 design
+  // session, resolving a live color collision between the Room type-pill and
+  // the Route status-badge, both of which used to share `secondary`. Border
+  // and text render at full opacity; the 20%-alpha background fill is
+  // computed at the call site via .withValues(alpha: 0.2), not stored here.
+  static const roomActive = Color(0xFF10B981);
+  static const routeActive = Color(0xFF84CC16);
+
   // Me bubble (dusk primary)
   static const me = Color(0xFF0C4A6E);
   static const meBorder = Color(0xFF0369A1);

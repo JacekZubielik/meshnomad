@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:meshnomad/screens/contact_location_map_screen.dart';
 import 'package:meshnomad/screens/path_trace_map.dart';
 import 'package:meshnomad/services/notification_service.dart';
 import 'package:meshnomad/utils/app_logger.dart';
@@ -21,6 +23,7 @@ import '../theme/mesh_tokens.dart';
 import '../utils/contact_search.dart';
 import '../storage/contact_group_store.dart';
 import '../utils/dialog_utils.dart';
+import '../widgets/dotted_separator.dart';
 import '../utils/disconnect_navigation_mixin.dart';
 import '../utils/emoji_utils.dart';
 import '../utils/route_transitions.dart';
@@ -57,6 +60,11 @@ class _ContactsScreenState extends State<ContactsScreen>
     with DisconnectNavigationMixin {
   final TextEditingController _searchController = TextEditingController();
   final ContactGroupStore _groupStore = ContactGroupStore();
+
+  /// Backs the main contacts `ListView.builder` — lets GPS/Route badge taps
+  /// (2026-08-19 refinement) restore the exact scroll position after the
+  /// operator returns from viewing the map, instead of resetting to the top.
+  final ScrollController _contactsScrollController = ScrollController();
   MeshCoreConnector? _scopeSyncConnector;
   List<ContactGroup> _groups = [];
   String _loadedGroupScopeKeyHex = '';
@@ -99,9 +107,26 @@ class _ContactsScreenState extends State<ContactsScreen>
   void dispose() {
     _searchDebounce?.cancel();
     _searchController.dispose();
+    _contactsScrollController.dispose();
     _frameSubscription?.cancel();
     _scopeSyncConnector?.removeListener(_handleConnectorScopeChange);
     super.dispose();
+  }
+
+  /// Pushes [route], preserving `_contactsScrollController`'s offset across
+  /// the trip — captures it before navigating, restores it once the pushed
+  /// route pops (2026-08-19: GPS/Route badge taps use this so leaving to
+  /// view the map doesn't lose your place in a long contacts list).
+  Future<void> _pushPreservingScroll(Route<void> route) async {
+    final offset = _contactsScrollController.hasClients
+        ? _contactsScrollController.offset
+        : null;
+    await Navigator.push(context, route);
+    if (offset == null || !mounted || !_contactsScrollController.hasClients) {
+      return;
+    }
+    final maxExtent = _contactsScrollController.position.maxScrollExtent;
+    _contactsScrollController.jumpTo(offset.clamp(0.0, maxExtent));
   }
 
   void _handleConnectorScopeChange() {
@@ -922,6 +947,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                     ),
                   )
                 : ListView.builder(
+                    controller: _contactsScrollController,
                     padding: const EdgeInsets.only(
                       bottom: 88,
                     ), // spacing: size-special (>25% off nearest token)
@@ -941,6 +967,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                         onTap: () => _openChat(context, contact),
                         onLongPress: () =>
                             _showContactOptions(context, connector, contact),
+                        pushPreservingScroll: _pushPreservingScroll,
                       );
                     },
                   ),
@@ -1640,6 +1667,7 @@ class _ContactTile extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
+  final Future<void> Function(Route<void> route) pushPreservingScroll;
 
   const _ContactTile({
     required this.contact,
@@ -1649,22 +1677,15 @@ class _ContactTile extends StatelessWidget {
     required this.isFavorite,
     required this.onTap,
     required this.onLongPress,
+    required this.pushPreservingScroll,
   });
 
-  /// Node-type avatar color per design language.
+  /// Node-type avatar color — delegates to [colorForContactType] (shared
+  /// with [ContactTypeBadge] in mesh_ui.dart) so avatar and type-pill can
+  /// never independently drift again (2026-08-19 refinement; they already
+  /// had, for Sensor — see that function's doc comment).
   Color _avatarColor(BuildContext context) {
-    switch (contact.type) {
-      case advTypeRepeater:
-        return MeshTokens.of(context).warn;
-      case advTypeRoom:
-        return MeshTokens.of(context).secondary;
-      case advTypeSensor:
-        return MeshTokens.of(context).mapSensor;
-      default:
-        return MeshTokens.of(
-          context,
-        ).primary; // chat — AvatarCircle handles deterministic hue
-    }
+    return colorForContactType(MeshTokens.of(context), contact.type);
   }
 
   /// Node-type avatar icon. Returns null for chat nodes so AvatarCircle shows initials.
@@ -1688,152 +1709,159 @@ class _ContactTile extends StatelessWidget {
     final emoji = firstEmoji(contact.name);
     final isChat = contact.type == advTypeChat;
     final pathLen = contact.pathBytesForDisplay.length;
-    final isDirect = contact.pathLength >= 0;
     final hasPath = pathLen > 0 || contact.pathLength == 0;
+    // Repeater/Room: the whole-tile tap is a login popup (_openChat's own
+    // dispatch) — scoped to the avatar only as of 2026-08-19 (was
+    // previously reachable from anywhere on the card). Chat/Sensor:
+    // unchanged, whole-tile tap still opens ChatScreen via MeshCard.onTap
+    // below.
+    final needsAvatarLogin =
+        contact.type == advTypeRepeater || contact.type == advTypeRoom;
 
     return GestureDetector(
       onSecondaryTapUp: PlatformInfo.isDesktop ? (_) => onLongPress() : null,
       child: MeshCard(
-        onTap: onTap,
+        onTap: needsAvatarLogin ? null : onTap,
         onLongPress: onLongPress,
         padding: EdgeInsets.all(t.spacingMd),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Avatar
-            if (emoji != null)
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: scheme.surfaceContainerHigh,
-                  border: Border.all(color: scheme.outlineVariant),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  emoji,
-                  style: MeshTokens.of(context).emoji(fontSize: 20),
-                ),
-              )
-            else
-              AvatarCircle(
-                name: contact.name,
-                size: 42,
-                color: isChat ? null : _avatarColor(context),
-                icon: _avatarIcon(),
-                freshnessColor: freshnessOf(
-                  lastSeen,
-                ).colorOf(MeshTokens.of(context)),
-              ),
-            SizedBox(width: t.spacingSm),
-            // Main content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Name row + route chip
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SelectableText(
-                          contact.name,
-                          maxLines: 1,
-                          style: Theme.of(context).textTheme.labelMedium
-                              ?.copyWith(
-                                fontWeight: unreadCount > 0
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                color: scheme.onSurface,
-                              ),
-                        ),
+            // Header: avatar + name + node-type pill (+ unread badge), all
+            // vertically centered on the avatar (2026-08-20 refinement —
+            // was CrossAxisAlignment.start, which top-aligned the avatar
+            // against the old two-line Expanded content instead).
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Avatar — sole login tap-target for Repeater/Room (see
+                // needsAvatarLogin above); inert tap-wise for Chat/Sensor,
+                // whose login-equivalent (opening ChatScreen) is already the
+                // whole tile's job via MeshCard.onTap.
+                if (emoji != null)
+                  GestureDetector(
+                    onTap: needsAvatarLogin ? onTap : null,
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: scheme.surfaceContainerHigh,
+                        border: Border.all(color: scheme.outlineVariant),
                       ),
-                      if (isFavorite) ...[
-                        SizedBox(width: t.spacingXxs),
-                        Icon(
-                          Icons.star,
-                          size: 13,
-                          color: MeshTokens.of(context).warn,
-                        ),
-                      ],
-                      if (contact.hasLocation) ...[
-                        SizedBox(width: t.spacingXxs),
-                        Icon(
-                          Icons.location_on,
-                          size: 13,
-                          color: scheme.onSurfaceVariant.withValues(
-                            alpha: 0.55,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  SizedBox(height: t.spacingXxs),
-                  // Path / subtitle row
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SelectableText(
-                          contact.pathLabel(
-                            context.l10n,
-                            pathHashByteWidth: pathHashByteWidth,
-                          ),
-                          maxLines: 1,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: scheme.onSurfaceVariant),
-                        ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        emoji,
+                        style: MeshTokens.of(context).emoji(fontSize: 20),
                       ),
-                      if (hasPath) ...[
-                        SizedBox(width: t.spacingXs),
-                        RouteChip(
-                          isDirect: isDirect,
-                          hops: isDirect ? contact.pathLength : null,
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: t.spacingSm),
-            // Trailing: time + unread badge
-            // Clamp text scale to prevent overflow in trailing section.
-            MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: TextScaler.linear(
-                  MediaQuery.textScalerOf(context).scale(1.0).clamp(1.0, 1.3),
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (unreadCount > 0)
-                    UnreadBadge(count: unreadCount)
-                  else
-                    // Reserve the badge's footprint so a new unread count
-                    // never changes the tile height (same as channels).
-                    const Visibility(
-                      visible: false,
-                      maintainSize: true,
-                      maintainAnimation: true,
-                      maintainState: true,
-                      child: UnreadBadge(count: 0),
                     ),
-                  SizedBox(height: t.spacingXxs),
-                  Text(
-                    _formatLastSeen(context, lastSeen),
+                  )
+                else
+                  GestureDetector(
+                    onTap: needsAvatarLogin ? onTap : null,
+                    child: AvatarCircle(
+                      name: contact.name,
+                      size: 42,
+                      color: isChat ? null : _avatarColor(context),
+                      icon: _avatarIcon(),
+                      freshnessColor: freshnessOf(
+                        lastSeen,
+                      ).colorOf(MeshTokens.of(context)),
+                    ),
+                  ),
+                SizedBox(width: t.spacingSm),
+                Expanded(
+                  child: Text(
+                    contact.name,
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.right,
-                    style: MeshTokens.of(context).monoCaption(
-                      color: unreadCount > 0
-                          ? MeshTokens.of(context).primary
-                          : scheme.onSurfaceVariant,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      fontWeight: unreadCount > 0
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: scheme.onSurface,
                     ),
                   ),
+                ),
+                SizedBox(width: t.spacingXs),
+                ContactTypeBadge(
+                  type: contact.type,
+                  label: contact.typeLabel(context.l10n),
+                ),
+                if (unreadCount > 0) ...[
+                  SizedBox(width: t.spacingXs),
+                  // Clamp text scale to prevent overflow next to the pill.
+                  MediaQuery(
+                    data: MediaQuery.of(context).copyWith(
+                      textScaler: TextScaler.linear(
+                        MediaQuery.textScalerOf(
+                          context,
+                        ).scale(1.0).clamp(1.0, 1.3),
+                      ),
+                    ),
+                    child: UnreadBadge(count: unreadCount),
+                  ),
                 ],
+              ],
+            ),
+            SizedBox(height: t.spacingSm),
+            // Delicate rule (DottedSeparator, shared with chat bubble
+            // footers) cutting the header off the status-badge row below it
+            // — full card width, 2026-08-20 refinement.
+            DottedSeparator(color: scheme.outlineVariant),
+            SizedBox(height: t.spacingXxs),
+            // Fixed-order status badges (2026-08-19 accepted mockup:
+            // .mockups/contact-tile-badges.html; moved below the header and
+            // left-aligned to the full card width, labels at 3/4 size,
+            // 2026-08-20 refinement:
+            // .mockups/contact-tile-dashed-separator.html) — replaces the
+            // old separate favorite star / location pin / path-label /
+            // RouteChip elements with one consistent, always-rendered set
+            // so a badge's position never depends on its state.
+            ContactBadgeRow(
+              isFavorite: isFavorite,
+              hasLocation: contact.hasLocation,
+              isSmazEnabled: context
+                  .read<MeshCoreConnector>()
+                  .isContactSmazEnabled(contact.publicKeyHex),
+              routeLabel: hasPath
+                  ? contact.pathLabel(
+                      context.l10n,
+                      pathHashByteWidth: pathHashByteWidth,
+                    )
+                  : null,
+              teleBaseEnabled: contact.teleBaseEnabled,
+              teleLocEnabled: contact.teleLocEnabled,
+              teleEnvEnabled: contact.teleEnvEnabled,
+              timeLabel: _formatLastSeen(context, lastSeen),
+              isUnread: unreadCount > 0,
+              onFavoriteTap: () {
+                context.read<MeshCoreConnector>().setContactFlags(
+                  contact,
+                  isFavorite: !isFavorite,
+                );
+              },
+              onGpsTap: () => pushPreservingScroll(
+                MaterialPageRoute(
+                  builder: (context) => ContactLocationMapScreen(
+                    position: LatLng(
+                      contact.latitude ?? 0.0,
+                      contact.longitude ?? 0.0,
+                    ),
+                    contactName: contact.name,
+                  ),
+                ),
+              ),
+              onRouteTap: () => pushPreservingScroll(
+                MaterialPageRoute(
+                  builder: (context) => PathTraceMapScreen(
+                    title: context.l10n.contacts_pathTraceTo(contact.name),
+                    path: contact.pathBytesForDisplay,
+                    flipPathAround: true,
+                    targetContact: contact,
+                    pathHashByteWidth: pathHashByteWidth,
+                  ),
+                ),
               ),
             ),
           ],
@@ -1875,6 +1903,7 @@ class _ContactTileEntrance extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
+  final Future<void> Function(Route<void> route) pushPreservingScroll;
 
   const _ContactTileEntrance({
     required this.index,
@@ -1885,6 +1914,7 @@ class _ContactTileEntrance extends StatelessWidget {
     required this.isFavorite,
     required this.onTap,
     required this.onLongPress,
+    required this.pushPreservingScroll,
   });
 
   @override
@@ -1899,6 +1929,7 @@ class _ContactTileEntrance extends StatelessWidget {
         isFavorite: isFavorite,
         onTap: onTap,
         onLongPress: onLongPress,
+        pushPreservingScroll: pushPreservingScroll,
       ),
     );
   }

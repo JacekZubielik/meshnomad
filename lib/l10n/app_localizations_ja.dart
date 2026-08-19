@@ -1170,6 +1170,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get contact_teleEnvSubtitle => '環境センサーのデータを共有することを許可する';
 
   @override
+  String get contact_teleBaseShort => 'Base';
+
+  @override
+  String get contact_teleLocShort => 'Loc';
+
+  @override
+  String get contact_teleEnvShort => 'Env';
+
+  @override
+  String get contacts_routeUnknown => 'Route';
+
+  @override
   String get channels_title => 'チャンネル';
 
   @override

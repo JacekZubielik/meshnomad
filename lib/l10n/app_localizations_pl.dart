@@ -1241,6 +1241,18 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zezwalaj na udostępnianie danych czujników środowiskowych';
 
   @override
+  String get contact_teleBaseShort => 'Baza';
+
+  @override
+  String get contact_teleLocShort => 'Lok.';
+
+  @override
+  String get contact_teleEnvShort => 'Środ.';
+
+  @override
+  String get contacts_routeUnknown => 'Trasa';
+
+  @override
   String get channels_title => 'Kanały';
 
   @override

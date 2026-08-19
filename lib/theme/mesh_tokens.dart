@@ -38,6 +38,8 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.secondaryBg,
     required this.secondaryLine,
     required this.secondaryInk,
+    required this.roomActive,
+    required this.routeActive,
     required this.me,
     required this.meBorder,
     required this.meInk,
@@ -136,6 +138,19 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   /// Text/icon color drawn on top of a [secondary]-colored background —
   /// mirrors [meInk]'s role for the "me" bubble.
   final Color secondaryInk;
+
+  /// Fixed accent for the Contacts list Room type-pill — see [MeshPalette]
+  /// (`mesh_theme.dart`) doc comment for why this is a separate, non-user-
+  /// customizable token instead of [secondary]. Border + text render at full
+  /// opacity; the badge's background fill is this color at 20% alpha,
+  /// computed at the call site (no separate stored Bg/Ink token — 2026-08-19).
+  final Color roomActive;
+
+  /// Fixed accent for the Contacts list Route status-badge (active state) —
+  /// see [MeshPalette] doc comment; distinct hue from [roomActive] so the
+  /// two never collide again. Same border/text-full-opacity, 20%-alpha-fill
+  /// treatment as [roomActive].
+  final Color routeActive;
   final Color me;
   final Color meBorder;
   final Color meInk;
@@ -274,6 +289,8 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     secondaryBg: MeshPalette.secondaryBg,
     secondaryLine: MeshPalette.secondaryLine,
     secondaryInk: Color(0xFFFFFFFF),
+    roomActive: MeshPalette.roomActive,
+    routeActive: MeshPalette.routeActive,
     me: MeshPalette.me,
     meBorder: MeshPalette.meBorder,
     meInk: MeshPalette.meInk,
@@ -374,6 +391,8 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     secondaryBg: Color(0x1C4A730C),
     secondaryLine: Color(0x474A730C),
     secondaryInk: Color(0xFFFFFFFF),
+    roomActive: MeshPalette.roomActive,
+    routeActive: MeshPalette.routeActive,
     me: MeshPalette.me,
     meBorder: MeshPalette.meBorder,
     meInk: MeshPalette.meInk,
@@ -569,6 +588,8 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     Color? secondaryBg,
     Color? secondaryLine,
     Color? secondaryInk,
+    Color? roomActive,
+    Color? routeActive,
     Color? me,
     Color? meBorder,
     Color? meInk,
@@ -661,6 +682,8 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       secondaryBg: secondaryBg ?? this.secondaryBg,
       secondaryLine: secondaryLine ?? this.secondaryLine,
       secondaryInk: secondaryInk ?? this.secondaryInk,
+      roomActive: roomActive ?? this.roomActive,
+      routeActive: routeActive ?? this.routeActive,
       me: me ?? this.me,
       meBorder: meBorder ?? this.meBorder,
       meInk: meInk ?? this.meInk,
