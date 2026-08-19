@@ -11,6 +11,7 @@ import '../utils/app_logger.dart';
 import '../utils/platform_info.dart';
 import '../utils/usb_port_labels.dart';
 import '../widgets/adaptive_app_bar_title.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/mesh_ui.dart';
 import '../helpers/snack_bar_builder.dart';
@@ -101,6 +102,7 @@ class _UsbScreenState extends State<UsbScreen> {
         ),
         title: AdaptiveAppBarTitle(context.l10n.usbScreenTitle),
         centerTitle: true,
+        actions: const [QuickAccessMenuButton()],
       ),
       body: SafeArea(
         top: false,

@@ -11,6 +11,7 @@ import '../models/community.dart';
 import '../storage/community_store.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/adaptive_app_bar_title.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/qr_scanner_widget.dart';
 
@@ -44,6 +45,7 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
       appBar: AppBar(
         title: AdaptiveAppBarTitle(context.l10n.community_scanQr),
         centerTitle: true,
+        actions: const [QuickAccessMenuButton()],
       ),
       body: _isProcessing
           ? Container(

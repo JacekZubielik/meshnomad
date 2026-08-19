@@ -13,6 +13,7 @@ import '../services/app_settings_service.dart';
 import '../services/repeater_command_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/battery_utils.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/routing_sheet.dart';
 import '../helpers/snack_bar_builder.dart';
@@ -383,20 +384,29 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
     return l10n.repeater_daysHoursMinsSecs(days, hours, minutes, secs);
   }
 
-  String _packetTxText() {
-    if (_packetsSent == null) return '—';
+  /// (headline value, detail line) — kept apart so the flood/direct
+  /// breakdown never has to share the value's line budget with a long
+  /// comma-separated sentence (2026-08-18 Pixel Fold truncation bug).
+  (String, String?) _packetTxStats() {
+    if (_packetsSent == null) return ('—', null);
     final l10n = context.l10n;
     final flood = _formatValue(_floodTx);
     final direct = _formatValue(_directTx);
-    return l10n.repeater_packetTxTotal(_packetsSent!, flood, direct);
+    return (
+      _formatValue(_packetsSent),
+      l10n.repeater_duplicatesFloodDirect(flood, direct),
+    );
   }
 
-  String _packetRxText() {
-    if (_packetsRecv == null) return '—';
+  (String, String?) _packetRxStats() {
+    if (_packetsRecv == null) return ('—', null);
     final l10n = context.l10n;
     final flood = _formatValue(_floodRx);
     final direct = _formatValue(_directRx);
-    return l10n.repeater_packetRxTotal(_packetsRecv!, flood, direct);
+    return (
+      _formatValue(_packetsRecv),
+      l10n.repeater_duplicatesFloodDirect(flood, direct),
+    );
   }
 
   String _chanUtilText() {
@@ -404,19 +414,25 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
     return _formatPercent(_chanUtil);
   }
 
-  String _duplicateText() {
+  (String, String?) _duplicateStats() {
     final l10n = context.l10n;
     if (_dupFlood != null || _dupDirect != null) {
-      final flood = _formatValue(_dupFlood);
-      final direct = _formatValue(_dupDirect);
-      return l10n.repeater_duplicatesFloodDirect(flood, direct);
+      final flood = _dupFlood ?? 0;
+      final direct = _dupDirect ?? 0;
+      return (
+        _formatValue(flood + direct),
+        l10n.repeater_duplicatesFloodDirect(
+          _formatValue(_dupFlood),
+          _formatValue(_dupDirect),
+        ),
+      );
     }
     if (_packetsRecv == null || _floodRx == null || _directRx == null) {
-      return '—';
+      return ('—', null);
     }
     final dupTotal = _packetsRecv! - _floodRx! - _directRx!;
-    if (dupTotal < 0) return '—';
-    return l10n.repeater_duplicatesTotal(dupTotal);
+    if (dupTotal < 0) return ('—', null);
+    return (_formatValue(dupTotal), null);
   }
 
   String _formatValue(num? value, {String? suffix}) {
@@ -470,6 +486,7 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
             onPressed: _isLoading ? null : _loadStatus,
             tooltip: l10n.repeater_refresh,
           ),
+          const QuickAccessMenuButton(),
         ],
       ),
       body: SafeArea(
@@ -486,128 +503,121 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
 
   Widget _buildBody(dynamic l10n, String name) {
     final scheme = Theme.of(context).colorScheme;
+    final txStats = _packetTxStats();
+    final rxStats = _packetRxStats();
+    final dupStats = _duplicateStats();
     return ListView(
-      padding: EdgeInsets.only(bottom: MeshTokens.of(context).spacingLg),
+      padding: EdgeInsets.symmetric(
+        horizontal: MeshTokens.of(context).spacingMd,
+        vertical: MeshTokens.of(context).spacingSm,
+      ),
       children: [
         // ── System ─────────────────────────────────────────────────────────
-        SectionHeader(l10n.repeater_systemInformation),
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MeshTokens.of(context).spacingMd,
+        _buildStatSection(l10n.repeater_systemInformation, [
+          _StatItem(
+            icon: Icons.battery_std,
+            label: l10n.repeater_battery,
+            value: _batteryText(),
+            color: _batteryColor(),
           ),
-          child: _buildStatGrid([
-            _StatItem(
-              icon: Icons.battery_std,
-              label: l10n.repeater_battery,
-              value: _batteryText(),
-              color: _batteryColor(),
-            ),
-            _StatItem(
-              icon: Icons.timer_outlined,
-              label: l10n.repeater_uptime,
-              value: _formatDuration(_uptimeSecs),
-              color: MeshTokens.of(context).primary,
-            ),
-            _StatItem(
-              icon: Icons.schedule,
-              label: l10n.repeater_clockAtLogin,
-              value: _clockText(),
-              color: scheme.onSurfaceVariant,
-            ),
-            _StatItem(
-              icon: Icons.inbox,
-              label: l10n.repeater_queueLength,
-              value: _formatValue(_queueLen),
-              color: scheme.onSurfaceVariant,
-            ),
-            _StatItem(
-              icon: Icons.bug_report_outlined,
-              label: l10n.repeater_debugFlags,
-              value: _formatValue(_debugFlags),
-              color: _debugFlags != null && _debugFlags! > 0
-                  ? MeshTokens.of(context).warn
-                  : scheme.onSurfaceVariant,
-            ),
-          ]),
-        ),
+          _StatItem(
+            icon: Icons.timer_outlined,
+            label: l10n.repeater_uptime,
+            value: _formatDuration(_uptimeSecs),
+            color: MeshTokens.of(context).primary,
+          ),
+          _StatItem(
+            icon: Icons.schedule,
+            label: l10n.repeater_clockAtLogin,
+            value: _clockText(),
+            color: scheme.onSurfaceVariant,
+          ),
+          _StatItem(
+            icon: Icons.inbox,
+            label: l10n.repeater_queueLength,
+            value: _formatValue(_queueLen),
+            color: scheme.onSurfaceVariant,
+          ),
+          _StatItem(
+            icon: Icons.bug_report_outlined,
+            label: l10n.repeater_debugFlags,
+            value: _formatValue(_debugFlags),
+            color: _debugFlags != null && _debugFlags! > 0
+                ? MeshTokens.of(context).warn
+                : scheme.onSurfaceVariant,
+          ),
+        ]),
+        SizedBox(height: MeshTokens.of(context).spacingMd),
 
         // ── Radio ──────────────────────────────────────────────────────────
-        SectionHeader(l10n.repeater_radioStatistics),
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MeshTokens.of(context).spacingMd,
+        _buildStatSection(l10n.repeater_radioStatistics, [
+          _StatItem(
+            icon: Icons.signal_cellular_alt,
+            label: l10n.repeater_lastRssi,
+            value: _formatValue(_lastRssi, suffix: ' dB'),
+            color: MeshTokens.of(context).primary,
           ),
-          child: _buildStatGrid([
-            _StatItem(
-              icon: Icons.signal_cellular_alt,
-              label: l10n.repeater_lastRssi,
-              value: _formatValue(_lastRssi, suffix: ' dB'),
-              color: MeshTokens.of(context).primary,
-            ),
-            _StatItem(
-              icon: Icons.waves,
-              label: l10n.repeater_lastSnr,
-              value: _formatSnr(_lastSnr),
-              color: MeshTokens.of(context).snrColor(_lastSnr, blocked: false),
-            ),
-            _StatItem(
-              icon: Icons.noise_control_off,
-              label: l10n.repeater_noiseFloor,
-              value: _formatValue(_noiseFloor, suffix: ' dB'),
-              color: scheme.onSurfaceVariant,
-            ),
-            _StatItem(
-              icon: Icons.upload,
-              label: l10n.repeater_txAirtime,
-              value: _formatDuration(_txAirSecs),
-              color: MeshTokens.of(context).warn,
-            ),
-            _StatItem(
-              icon: Icons.download,
-              label: l10n.repeater_rxAirtime,
-              value: _formatDuration(_rxAirSecs),
-              color: MeshTokens.of(context).signal,
-            ),
-          ]),
-        ),
+          _StatItem(
+            icon: Icons.waves,
+            label: l10n.repeater_lastSnr,
+            value: _formatSnr(_lastSnr),
+            color: MeshTokens.of(context).snrColor(_lastSnr, blocked: false),
+          ),
+          _StatItem(
+            icon: Icons.noise_control_off,
+            label: l10n.repeater_noiseFloor,
+            value: _formatValue(_noiseFloor, suffix: ' dB'),
+            color: scheme.onSurfaceVariant,
+          ),
+          _StatItem(
+            icon: Icons.upload,
+            label: l10n.repeater_txAirtime,
+            value: _formatDuration(_txAirSecs),
+            color: MeshTokens.of(context).warn,
+          ),
+          _StatItem(
+            icon: Icons.download,
+            label: l10n.repeater_rxAirtime,
+            value: _formatDuration(_rxAirSecs),
+            color: MeshTokens.of(context).signal,
+          ),
+        ]),
+        SizedBox(height: MeshTokens.of(context).spacingMd),
 
         // ── Packets ────────────────────────────────────────────────────────
-        SectionHeader(l10n.repeater_packetStatistics),
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MeshTokens.of(context).spacingMd,
+        _buildStatSection(l10n.repeater_packetStatistics, [
+          _StatItem(
+            icon: Icons.send,
+            label: l10n.repeater_sent,
+            value: txStats.$1,
+            detail: txStats.$2,
+            color: MeshTokens.of(context).primary,
           ),
-          child: _buildStatGrid([
-            _StatItem(
-              icon: Icons.send,
-              label: l10n.repeater_sent,
-              value: _packetTxText(),
-              color: MeshTokens.of(context).primary,
-            ),
-            _StatItem(
-              icon: Icons.call_received,
-              label: l10n.repeater_received,
-              value: _packetRxText(),
-              color: MeshTokens.of(context).signal,
-            ),
-            _StatItem(
-              icon: Icons.content_copy,
-              label: l10n.repeater_duplicates,
-              value: _duplicateText(),
-              color: scheme.onSurfaceVariant,
-            ),
-            _StatItem(
-              icon: Icons.percent,
-              label: l10n.repeater_chanUtil,
-              value: _chanUtilText(),
-              color: _chanUtil != null && _chanUtil! > 80
-                  ? MeshTokens.of(context).alert
-                  : _chanUtil != null && _chanUtil! > 50
-                  ? MeshTokens.of(context).warn
-                  : MeshTokens.of(context).signal,
-            ),
-          ]),
-        ),
+          _StatItem(
+            icon: Icons.call_received,
+            label: l10n.repeater_received,
+            value: rxStats.$1,
+            detail: rxStats.$2,
+            color: MeshTokens.of(context).signal,
+          ),
+          _StatItem(
+            icon: Icons.content_copy,
+            label: l10n.repeater_duplicates,
+            value: dupStats.$1,
+            detail: dupStats.$2,
+            color: scheme.onSurfaceVariant,
+          ),
+          _StatItem(
+            icon: Icons.percent,
+            label: l10n.repeater_chanUtil,
+            value: _chanUtilText(),
+            color: _chanUtil != null && _chanUtil! > 80
+                ? MeshTokens.of(context).alert
+                : _chanUtil != null && _chanUtil! > 50
+                ? MeshTokens.of(context).warn
+                : MeshTokens.of(context).signal,
+          ),
+        ]),
         const SizedBox(height: 8),
       ],
     );
@@ -630,20 +640,16 @@ class _RepeaterStatusScreenState extends State<RepeaterStatusScreen> {
     return MeshTokens.of(context).signal;
   }
 
-  Widget _buildStatGrid(List<_StatItem> items) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      childAspectRatio: 2.2,
+  Widget _buildStatSection(String title, List<_StatItem> items) {
+    return StatSectionCard(
+      title: title,
       children: items
           .map(
-            (item) => StatTile(
+            (item) => StatEntry(
               icon: item.icon,
               label: item.label,
               value: item.value,
+              detail: item.detail,
               color: item.color,
             ),
           )
@@ -656,12 +662,14 @@ class _StatItem {
   final IconData icon;
   final String label;
   final String value;
+  final String? detail;
   final Color color;
 
   const _StatItem({
     required this.icon,
     required this.label,
     required this.value,
+    this.detail,
     required this.color,
   });
 }

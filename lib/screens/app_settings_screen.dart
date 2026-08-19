@@ -15,6 +15,7 @@ import '../services/translation_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../theme/styles/style_registry.dart';
 import '../widgets/adaptive_app_bar_title.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/sync_progress_overlay.dart';
 import '../widgets/theme_profile_selector.dart';
@@ -38,6 +39,7 @@ class AppSettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: AdaptiveAppBarTitle(context.l10n.appSettings_title),
         centerTitle: true,
+        actions: const [QuickAccessMenuButton()],
         bottom: const SyncProgressAppBarBottom(),
       ),
       body: SafeArea(

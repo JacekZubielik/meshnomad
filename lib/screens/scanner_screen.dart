@@ -11,6 +11,7 @@ import '../services/linux_ble_error_classifier.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/app_logger.dart';
 import '../widgets/adaptive_app_bar_title.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/device_tile.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/mesh_ui.dart';
@@ -138,6 +139,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 ).push(MaterialPageRoute(builder: (_) => const TcpScreen()));
               },
             ),
+          const QuickAccessMenuButton(),
         ],
       ),
       body: SafeArea(

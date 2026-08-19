@@ -12,6 +12,7 @@ import '../services/usb_serial_service.dart';
 import '../storage/prefs_manager.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/usb_port_labels.dart';
+import '../widgets/app_bar.dart';
 
 /// Minimal debug screen for [RepeaterCliSession]: a raw TCP or USB terminal
 /// to a repeater's admin CLI, independent of any paired companion
@@ -254,6 +255,7 @@ class _RepeaterDirectConsoleScreenState
         ),
         title: Text(l10n.repeaterHub_directConsole),
         centerTitle: true,
+        actions: const [QuickAccessMenuButton()],
       ),
       body: SafeArea(
         top: false,

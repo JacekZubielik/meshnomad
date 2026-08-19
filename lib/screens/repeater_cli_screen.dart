@@ -7,6 +7,7 @@ import '../models/contact.dart';
 import '../connector/meshcore_connector.dart';
 import '../connector/meshcore_protocol.dart';
 import '../theme/mesh_tokens.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/debug_frame_viewer.dart';
 import '../services/repeater_command_service.dart';
 import '../widgets/routing_sheet.dart';
@@ -318,6 +319,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
               ),
             ],
           ),
+          const QuickAccessMenuButton(),
         ],
       ),
       body: Column(
