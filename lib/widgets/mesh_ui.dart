@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../connector/meshcore_protocol.dart';
 import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
 
@@ -261,8 +262,200 @@ class StatTile extends StatelessWidget {
                   ),
               ],
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Grid of [StatTile]s (or similar fixed-height cards) whose column count
+/// adapts to the available width instead of a hardcoded per-screen value —
+/// avoids the truncation/inconsistency that comes from each screen picking
+/// its own crossAxisCount and childAspectRatio independently.
+class ResponsiveStatGrid extends StatelessWidget {
+  final List<Widget> children;
+  final double minTileWidth;
+  final int maxColumns;
+  final double mainAxisExtent;
+  final double? spacing;
+
+  const ResponsiveStatGrid({
+    super.key,
+    required this.children,
+    this.minTileWidth = 160,
+    this.maxColumns = 4,
+    this.mainAxisExtent = 100,
+    this.spacing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final gap = spacing ?? MeshTokens.of(context).spacingSm;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = (constraints.maxWidth / minTileWidth)
+            .floor()
+            .clamp(1, maxColumns);
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: children.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            mainAxisSpacing: gap,
+            crossAxisSpacing: gap,
+            mainAxisExtent: mainAxisExtent,
+          ),
+          itemBuilder: (context, index) => children[index],
+        );
+      },
+    );
+  }
+}
+
+/// One label/value entry inside a [StatSectionCard] — no card chrome of its
+/// own since it's one of several entries sharing a single parent card.
+/// [detail] is a secondary caption line (e.g. a flood/direct breakdown) kept
+/// separate from [value] so the headline number never has to share its line
+/// budget with a long comma-separated sentence (2026-08-18 Pixel Fold bug:
+/// a single-string "Razem: X, Zalew: Y, Bezpośrednio: Z" value truncated to
+/// "Razem: X, Zalew: Y, B...").
+class StatEntry extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final String? unit;
+  final String? detail;
+  final Color? color;
+
+  const StatEntry({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.unit,
+    this.detail,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    const iconSize = 28.0;
+    final valueIndent = iconSize + tokens.spacingXs;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: iconSize, color: color ?? scheme.primary),
+            SizedBox(width: tokens.spacingXs),
+            Expanded(
+              child: Text(
+                label.toUpperCase(),
+                style: tokens.accentLabel(
+                  color: scheme.onSurfaceVariant,
+                  fontSize: tokens.microLabelSize,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: tokens.spacingXxs),
+        Padding(
+          padding: EdgeInsets.only(left: valueIndent),
+          child: Text.rich(
+            TextSpan(
+              text: value,
+              // Headline number is deliberately larger than monoBodySize
+              // (2026-08-17 readability fix: it reads as a metric, not a
+              // caption) but must still track the slider so the Custom
+              // Style Editor "Mono — treść" control isn't a dead knob for
+              // it — hence a multiple of the token instead of a literal.
+              style: tokens
+                  .monoBody(
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onSurface,
+                  )
+                  .copyWith(fontSize: tokens.monoBodySize * 2),
+              children: [
+                if (unit != null)
+                  TextSpan(
+                    text: ' $unit',
+                    style: tokens.monoCaption(color: scheme.onSurfaceVariant),
+                  ),
+              ],
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        if (detail != null) ...[
+          SizedBox(height: tokens.spacingXxs),
+          Padding(
+            padding: EdgeInsets.only(left: valueIndent),
+            child: Text(
+              detail!,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Groups a titled set of [StatEntry] tiles inside ONE bordered [MeshCard] —
+/// the pattern from the Packet Stats "Podsumowanie" panel, applied wherever
+/// a screen shows several related metrics (avoids the six-separate-boxes
+/// noise a bordered [StatTile] grid produces for the same data).
+class StatSectionCard extends StatelessWidget {
+  final String title;
+  final List<Widget> children;
+  final double minTileWidth;
+  final int maxColumns;
+  final double mainAxisExtent;
+
+  const StatSectionCard({
+    super.key,
+    required this.title,
+    required this.children,
+    this.minTileWidth = 160,
+    this.maxColumns = 4,
+    this.mainAxisExtent = 108,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return MeshCard(
+      margin: EdgeInsets.zero,
+      padding: EdgeInsets.all(tokens.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: tokens.accentLabel(color: scheme.onSurfaceVariant),
+          ),
+          SizedBox(height: tokens.spacingSm),
+          ResponsiveStatGrid(
+            minTileWidth: minTileWidth,
+            maxColumns: maxColumns,
+            mainAxisExtent: mainAxisExtent,
+            spacing: tokens.spacingMd,
+            children: children,
           ),
         ],
       ),
@@ -472,6 +665,223 @@ class RouteChip extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Single source of truth for node-type accent color — shared by the
+/// Contacts-list avatar ([contacts_screen.dart]'s `_ContactTile._avatarColor`)
+/// and [ContactTypeBadge] so the two can never independently drift again (as
+/// of 2026-08-19 they already had: the avatar used `mapSensor` for sensors,
+/// the badge used `signal` — same bug class as the Room/Route color
+/// collision this token system also fixes).
+Color colorForContactType(MeshTokens tokens, int type) {
+  switch (type) {
+    case advTypeRepeater:
+      return tokens.warn;
+    case advTypeRoom:
+      return tokens.roomActive;
+    case advTypeSensor:
+      return tokens.mapSensor;
+    default:
+      return tokens.primary; // chat
+  }
+}
+
+/// Node-type pill next to a contact's name in the Contacts list — border +
+/// text in the type's accent color (see [colorForContactType]), background
+/// filled with that same color at 20% alpha, no icon (2026-08-19 accepted
+/// mockup, .mockups/contact-tile-badges.html; fill treatment added in the
+/// 2026-08-19 refinement, uniform across all 4 types).
+class ContactTypeBadge extends StatelessWidget {
+  final int type;
+  final String label;
+
+  const ContactTypeBadge({super.key, required this.type, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final color = colorForContactType(tokens, type);
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: tokens.spacingXs,
+        vertical: tokens.spacingHairline,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.2),
+        border: Border.all(color: color, width: 1),
+        borderRadius: BorderRadius.circular(tokens.pill),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: tokens
+            .monoCaption(color: color)
+            .copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.3),
+      ),
+    );
+  }
+}
+
+/// One badge inside [ContactBadgeRow] — text + 1px border only, no icon.
+/// Ghosting (opacity 0.30) signals "exists but inactive" without removing
+/// the element, so sibling badges never change position.
+class _ContactBadge extends StatelessWidget {
+  final String label;
+  final Color color;
+  final bool active;
+
+  /// Filled background — only Route (when active) uses this today; every
+  /// other badge stays border-only (null) as accepted 2026-08-19. Text
+  /// always renders in [color] regardless — no separate "ink" color; a
+  /// 20%-alpha fill of the same hue stays legible under it (2026-08-19
+  /// refinement, corrected from an earlier 80%-alpha + white-text attempt).
+  final Color? fillColor;
+
+  /// Tap handler — null means inert (2026-08-19: ghosted Favorite/GPS/Route
+  /// states, and every one of the other 5 badges, pass null here).
+  final VoidCallback? onTap;
+
+  const _ContactBadge({
+    required this.label,
+    required this.color,
+    required this.active,
+    this.fillColor,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final badge = Opacity(
+      opacity: active ? 1.0 : 0.30,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: tokens.spacingXs,
+          vertical: tokens.spacingHairline,
+        ),
+        decoration: BoxDecoration(
+          color: fillColor,
+          border: Border.all(color: color, width: 1),
+          borderRadius: BorderRadius.circular(tokens.xs),
+        ),
+        child: Text(
+          label.toUpperCase(),
+          // Badge row now sits below its own dashed separator (2026-08-20
+          // refinement), so labels shrink to 3/4 of the base mono-caption
+          // size to keep the row compact while leaving room to breathe.
+          style: tokens
+              .monoCaption(color: color)
+              .copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.2,
+                fontSize: tokens.monoCaptionSize * 0.75,
+              ),
+        ),
+      ),
+    );
+    if (onTap == null) return badge;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: badge,
+    );
+  }
+}
+
+/// Fixed-order row of contact status badges — Favorite, GPS, Smaz, Route,
+/// Base, Loc, Env, Time, always in that order, every one always rendered
+/// (ghosted via [_ContactBadge] when inactive/unavailable so position never
+/// shifts). Accepted mockup: .mockups/contact-tile-badges.html, 2026-08-19.
+class ContactBadgeRow extends StatelessWidget {
+  final bool isFavorite;
+  final bool hasLocation;
+  final bool isSmazEnabled;
+
+  /// Null = route unknown for this contact; renders a ghosted placeholder.
+  final String? routeLabel;
+  final bool teleBaseEnabled;
+  final bool teleLocEnabled;
+  final bool teleEnvEnabled;
+  final String timeLabel;
+  final bool isUnread;
+
+  /// Tap targets (2026-08-19 refinement). Favorite always fires regardless
+  /// of state (toggles either direction). GPS/Route only fire when their
+  /// own badge is active — gated INSIDE build() below, not by the caller,
+  /// so a ghosted badge is never accidentally wired live.
+  final VoidCallback? onFavoriteTap;
+  final VoidCallback? onGpsTap;
+  final VoidCallback? onRouteTap;
+
+  const ContactBadgeRow({
+    super.key,
+    required this.isFavorite,
+    required this.hasLocation,
+    required this.isSmazEnabled,
+    required this.routeLabel,
+    required this.teleBaseEnabled,
+    required this.teleLocEnabled,
+    required this.teleEnvEnabled,
+    required this.timeLabel,
+    required this.isUnread,
+    this.onFavoriteTap,
+    this.onGpsTap,
+    this.onRouteTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final neutral = scheme.onSurfaceVariant;
+    return Wrap(
+      spacing: tokens.spacingXxs,
+      runSpacing: tokens.spacingXxs,
+      children: [
+        _ContactBadge(
+          label: context.l10n.listFilter_favorites,
+          color: tokens.warn,
+          active: isFavorite,
+          onTap: onFavoriteTap,
+        ),
+        _ContactBadge(
+          label: 'GPS',
+          color: neutral,
+          active: hasLocation,
+          onTap: hasLocation ? onGpsTap : null,
+        ),
+        _ContactBadge(label: 'Smaz', color: neutral, active: isSmazEnabled),
+        _ContactBadge(
+          label: routeLabel ?? context.l10n.contacts_routeUnknown,
+          color: tokens.routeActive,
+          active: routeLabel != null,
+          fillColor: routeLabel != null
+              ? tokens.routeActive.withValues(alpha: 0.2)
+              : null,
+          onTap: routeLabel != null ? onRouteTap : null,
+        ),
+        _ContactBadge(
+          label: context.l10n.contact_teleBaseShort,
+          color: tokens.signal,
+          active: teleBaseEnabled,
+        ),
+        _ContactBadge(
+          label: context.l10n.contact_teleLocShort,
+          color: tokens.signal,
+          active: teleLocEnabled,
+        ),
+        _ContactBadge(
+          label: context.l10n.contact_teleEnvShort,
+          color: tokens.signal,
+          active: teleEnvEnabled,
+        ),
+        _ContactBadge(
+          label: timeLabel,
+          color: isUnread ? tokens.primary : neutral,
+          active: true,
+        ),
+      ],
     );
   }
 }

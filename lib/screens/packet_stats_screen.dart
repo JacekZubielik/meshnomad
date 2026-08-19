@@ -5,6 +5,7 @@ import 'package:meshnomad/services/packet_observation_service.dart';
 import 'package:meshnomad/services/packet_stats_snapshot.dart';
 import 'package:meshnomad/theme/mesh_theme.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/app_bar.dart';
 import 'package:meshnomad/widgets/mesh_ui.dart';
 import 'package:provider/provider.dart';
 
@@ -186,6 +187,8 @@ class _PacketStatsScreenState extends State<PacketStatsScreen> {
                 onTap: () => service.clear(),
                 child: Text(context.l10n.packetStats_clearLog),
               ),
+              const PopupMenuDivider(),
+              ...quickAccessMenuItems(context),
             ],
           ),
         ],
@@ -415,9 +418,6 @@ class _StatsSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = MeshTokens.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    final wide = MediaQuery.of(context).size.width > 600;
     final ppm = snapshot.packetsPerMinute;
     final ppmText = ppm >= 100
         ? ppm.toStringAsFixed(0)
@@ -436,156 +436,57 @@ class _StatsSummaryCard extends StatelessWidget {
             snapshot.averageSnr!.toStringAsFixed(1),
           );
 
-    return MeshCard(
-      margin: EdgeInsets.zero,
-      padding: EdgeInsets.all(tokens.spacingMd),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.l10n.packetStats_summaryTitle.toUpperCase(),
-            style: tokens.accentLabel(color: scheme.onSurfaceVariant),
-          ),
-          SizedBox(height: tokens.spacingSm),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: wide ? 3 : 2,
-            mainAxisSpacing: tokens.spacingMd,
-            crossAxisSpacing: tokens.spacingMd,
-            childAspectRatio: 1.5,
-            children: [
-              _StatEntry(
-                icon: Icons.speed_outlined,
-                label: context.l10n.packetStats_tilePacketsPerMinute,
-                value: ppmText,
-                detail: context.l10n.packetStats_tilePacketsPerMinuteDetail(
-                  snapshot.packetCount,
-                ),
-              ),
-              _StatEntry(
-                icon: Icons.hub_outlined,
-                label: context.l10n.packetStats_tileUniqueSources,
-                value: '${snapshot.uniqueSources}',
-                detail: context.l10n.packetStats_tileUniqueSourcesDetail,
-              ),
-              _StatEntry(
-                icon: Icons.alt_route_outlined,
-                label: context.l10n.packetStats_tilePathDiversity,
-                value: '${snapshot.distinctPaths}',
-                detail: context.l10n.packetStats_tilePathDiversityDetail(
-                  pathPercent,
-                ),
-              ),
-              _StatEntry(
-                icon: Icons.podcasts_outlined,
-                label: context.l10n.packetStats_tileMedianRssi,
-                value: snapshot.medianRssi == null
-                    ? '—'
-                    : snapshot.medianRssi!.toStringAsFixed(0),
-                unit: snapshot.medianRssi == null ? null : 'dBm',
-                detail: rssiDetail,
-              ),
-              _StatEntry(
-                icon: Icons.graphic_eq_outlined,
-                label: context.l10n.packetStats_tileMedianSnr,
-                value: snapshot.medianSnr == null
-                    ? '—'
-                    : snapshot.medianSnr!.toStringAsFixed(1),
-                unit: snapshot.medianSnr == null ? null : 'dB',
-                detail: snrDetail,
-              ),
-              _StatEntry(
-                icon: Icons.storage_outlined,
-                label: context.l10n.packetStats_tileObservations,
-                value: '${snapshot.packetCount}',
-                detail: context.l10n.packetStats_tileObservationsDetail(
-                  maxObservations,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// One label/value entry inside [_StatsSummaryCard] — same typography as the
-/// rest of the screen (accentLabel/monoBody), but no card chrome of its own
-/// since it's one of several entries sharing a single parent card.
-class _StatEntry extends StatelessWidget {
-  const _StatEntry({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.unit,
-    this.detail,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final String? unit;
-  final String? detail;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = MeshTokens.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
+    return StatSectionCard(
+      title: context.l10n.packetStats_summaryTitle,
+      minTileWidth: 180,
+      maxColumns: 3,
       children: [
-        Row(
-          children: [
-            // At least 2x the size of a StatTile icon (14) — 2026-08-17
-            // operator feedback: icons read too small in the merged card.
-            Icon(icon, size: 28, color: scheme.primary),
-            SizedBox(width: tokens.spacingXs),
-            Expanded(
-              child: Text(
-                label.toUpperCase(),
-                style: tokens.accentLabel(
-                  color: scheme.onSurfaceVariant,
-                  fontSize: tokens.microLabelSize,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: tokens.spacingXxs),
-        Text.rich(
-          TextSpan(
-            text: value,
-            // monoBodySize (13) reads as a caption, not a headline metric —
-            // 2026-08-17 operator feedback: numbers must be much bigger.
-            style: tokens
-                .monoBody(fontWeight: FontWeight.w700, color: scheme.onSurface)
-                .copyWith(fontSize: 26),
-            children: [
-              if (unit != null)
-                TextSpan(
-                  text: ' $unit',
-                  style: tokens.monoCaption(color: scheme.onSurfaceVariant),
-                ),
-            ],
+        StatEntry(
+          icon: Icons.speed_outlined,
+          label: context.l10n.packetStats_tilePacketsPerMinute,
+          value: ppmText,
+          detail: context.l10n.packetStats_tilePacketsPerMinuteDetail(
+            snapshot.packetCount,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
-        if (detail != null) ...[
-          SizedBox(height: tokens.spacingXxs),
-          Text(
-            detail!,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+        StatEntry(
+          icon: Icons.hub_outlined,
+          label: context.l10n.packetStats_tileUniqueSources,
+          value: '${snapshot.uniqueSources}',
+          detail: context.l10n.packetStats_tileUniqueSourcesDetail,
+        ),
+        StatEntry(
+          icon: Icons.alt_route_outlined,
+          label: context.l10n.packetStats_tilePathDiversity,
+          value: '${snapshot.distinctPaths}',
+          detail: context.l10n.packetStats_tilePathDiversityDetail(pathPercent),
+        ),
+        StatEntry(
+          icon: Icons.podcasts_outlined,
+          label: context.l10n.packetStats_tileMedianRssi,
+          value: snapshot.medianRssi == null
+              ? '—'
+              : snapshot.medianRssi!.toStringAsFixed(0),
+          unit: snapshot.medianRssi == null ? null : 'dBm',
+          detail: rssiDetail,
+        ),
+        StatEntry(
+          icon: Icons.graphic_eq_outlined,
+          label: context.l10n.packetStats_tileMedianSnr,
+          value: snapshot.medianSnr == null
+              ? '—'
+              : snapshot.medianSnr!.toStringAsFixed(1),
+          unit: snapshot.medianSnr == null ? null : 'dB',
+          detail: snrDetail,
+        ),
+        StatEntry(
+          icon: Icons.storage_outlined,
+          label: context.l10n.packetStats_tileObservations,
+          value: '${snapshot.packetCount}',
+          detail: context.l10n.packetStats_tileObservationsDetail(
+            maxObservations,
           ),
-        ],
+        ),
       ],
     );
   }

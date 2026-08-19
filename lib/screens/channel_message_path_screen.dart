@@ -21,6 +21,7 @@ import '../models/display_path.dart';
 import '../models/path_playback.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/adaptive_app_bar_title.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/path_map_ui.dart';
 
@@ -116,6 +117,7 @@ class ChannelMessagePathScreen extends StatelessWidget {
                       }
                     : null,
               ),
+              const QuickAccessMenuButton(),
             ],
           ),
           body: SafeArea(
@@ -1008,6 +1010,7 @@ class _ChannelMessagePathMapScreenState
         return Scaffold(
           appBar: AppBar(
             title: AdaptiveAppBarTitle(context.l10n.channelPath_mapTitle),
+            actions: const [QuickAccessMenuButton()],
           ),
           body: SafeArea(
             top: false,

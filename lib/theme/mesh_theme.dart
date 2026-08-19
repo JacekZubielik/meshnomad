@@ -43,10 +43,24 @@ class MeshPalette {
   static const primaryBg = Color(0x290EA5E9);
   static const primaryLine = Color(0x800EA5E9);
 
-  // Magenta
-  static const secondary = Color(0xFFDE7FDB);
-  static const secondaryBg = Color(0x1CDE7FDB);
-  static const secondaryLine = Color(0x47DE7FDB);
+  // Olive green (2026-08-18 operator pick, ~25% HSL lightness)
+  static const secondary = Color(0xFF4A730C);
+  static const secondaryBg = Color(0x1C4A730C);
+  static const secondaryLine = Color(0x474A730C);
+
+  // Fixed (non-user-customizable) accents for the Contacts list — same
+  // architectural treatment as mapSensor/mapOnline below: technically routed
+  // through custom_style.dart's baseColorFor() for consistency, but no style
+  // profile sets an override key for these today, so they render identically
+  // regardless of the user's chosen Custom Style. Distinct from `secondary`
+  // (used by the Repeater/Room/Sensor/Chat type system before this token
+  // existed) and from `signal` (telemetry family) — 2026-08-19 design
+  // session, resolving a live color collision between the Room type-pill and
+  // the Route status-badge, both of which used to share `secondary`. Border
+  // and text render at full opacity; the 20%-alpha background fill is
+  // computed at the call site via .withValues(alpha: 0.2), not stored here.
+  static const roomActive = Color(0xFF10B981);
+  static const routeActive = Color(0xFF84CC16);
 
   // Me bubble (dusk primary)
   static const me = Color(0xFF0C4A6E);
@@ -73,7 +87,7 @@ class MeshPalette {
   static const lightBg3 = Color(0xFFD2DAE1);
   static const lightBg4 = Color(0xFFC6CFD8);
   static const lightInk4 = Color(0xFFB8BDC0);
-  static const lightSecondary = Color(0xFF8C4A8A);
+  static const lightSecondary = Color(0xFF4A730C);
   static const lightWarn = Color(0xFF9A5B16);
   static const lightAlert = Color(0xFFB53D2F);
   static const lightSignal = Color(0xFF16A34A);

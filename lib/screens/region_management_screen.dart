@@ -10,6 +10,7 @@ import 'package:meshnomad/models/contact.dart';
 import 'package:meshnomad/services/app_settings_service.dart';
 import 'package:meshnomad/storage/region_store.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/app_bar.dart';
 import 'package:meshnomad/widgets/mesh_ui.dart';
 import 'package:provider/provider.dart';
 
@@ -88,6 +89,7 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
                     : const Icon(Icons.travel_explore),
                 onPressed: _isFetchingRegions ? null : _showFetchRegionsDialog,
               ),
+              const QuickAccessMenuButton(),
             ],
           ),
           body: RadioGroup<String?>(

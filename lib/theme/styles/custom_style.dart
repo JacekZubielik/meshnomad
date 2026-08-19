@@ -87,6 +87,14 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       me: baseColorFor('me', primaryVariants.primaryDim),
       meBorder: baseColorFor('meBorder', primary),
       meInk: baseColorFor('meInk', base.meInk),
+      // Fixed Contacts-list accents (2026-08-19) — same treatment as the
+      // Map/LOS palette below: routed through baseColorFor() for
+      // architectural consistency, but no profile sets an override key for
+      // these today, so they resolve to the MeshPalette default regardless
+      // of the active Custom Style. *Ink variants intentionally NOT listed
+      // here (same as secondaryInk above) — they pass through from `base`.
+      roomActive: baseColorFor('roomActive', base.roomActive),
+      routeActive: baseColorFor('routeActive', base.routeActive),
       // Map/LOS palettes (A6/04-editor-ui.md) — semantically independent
       // per-marker/per-state colors, applied 1:1, no automat.
       mapOnline: baseColorFor('mapOnline', base.mapOnline),

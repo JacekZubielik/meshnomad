@@ -105,8 +105,8 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
         ),
         centerTitle: true,
         actions: [
-          PopupMenuButton(
-            itemBuilder: (context) => [
+          PopupMenuButton<dynamic>(
+            itemBuilder: (context) => <PopupMenuEntry<dynamic>>[
               PopupMenuItem(
                 child: Row(
                   children: [
@@ -122,6 +122,8 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   _deleteContacts(context, connector);
                 },
               ),
+              const PopupMenuDivider(),
+              ...quickAccessMenuItems(context),
             ],
             icon: const Icon(Icons.more_vert),
           ),

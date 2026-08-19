@@ -10,6 +10,7 @@ import '../services/app_settings_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/platform_info.dart';
 import '../widgets/adaptive_app_bar_title.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'channels_screen.dart';
@@ -97,6 +98,7 @@ class _TcpScreenState extends State<TcpScreen> {
         ),
         title: AdaptiveAppBarTitle(context.l10n.tcpScreenTitle),
         centerTitle: true,
+        actions: const [QuickAccessMenuButton()],
       ),
       body: SafeArea(
         top: false,

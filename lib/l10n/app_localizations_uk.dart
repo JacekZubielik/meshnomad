@@ -1227,6 +1227,18 @@ class AppLocalizationsUk extends AppLocalizations {
       'Дозволити спільний доступ до даних датчиків середовища';
 
   @override
+  String get contact_teleBaseShort => 'Base';
+
+  @override
+  String get contact_teleLocShort => 'Loc';
+
+  @override
+  String get contact_teleEnvShort => 'Env';
+
+  @override
+  String get contacts_routeUnknown => 'Route';
+
+  @override
   String get channels_title => 'Канали';
 
   @override

@@ -6,6 +6,7 @@ import '../services/ble_debug_log_service.dart';
 import '../connector/meshcore_protocol.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/adaptive_app_bar_title.dart';
+import '../widgets/app_bar.dart';
 import '../helpers/snack_bar_builder.dart';
 
 enum _BleLogView { frames, rawLogRx }
@@ -85,6 +86,7 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                       }
                     : null,
               ),
+              const QuickAccessMenuButton(),
             ],
           ),
           body: SafeArea(

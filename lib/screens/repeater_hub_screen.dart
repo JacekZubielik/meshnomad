@@ -8,6 +8,7 @@ import '../models/contact.dart';
 import '../l10n/contact_localization.dart';
 import '../services/app_settings_service.dart';
 import '../theme/mesh_tokens.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
 import 'repeater_direct_console_screen.dart';
 import 'repeater_status_screen.dart';
@@ -53,6 +54,7 @@ class RepeaterHubScreen extends StatelessWidget {
               : (isAdmin ? l10n.room_management : l10n.room_guest),
         ),
         centerTitle: true,
+        actions: const [QuickAccessMenuButton()],
       ),
       body: SafeArea(
         top: false,

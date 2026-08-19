@@ -587,7 +587,14 @@ class _MapScreenState extends State<MapScreen> {
           }
         }
 
-        final allowBack = !connector.isConnected;
+        // Tab-root instances (reached via the QuickSwitchBar) block back
+        // while connected — there's nothing to pop to. Highlighted detail
+        // views (widget.highlightPosition != null — e.g. Contacts' GPS
+        // badge, snr_indicator's "center on node" button) are genuine pushes
+        // and must always be poppable, regardless of connection state
+        // (2026-08-19 fix: this previously left both stuck open).
+        final allowBack =
+            !connector.isConnected || widget.highlightPosition != null;
 
         final visibleContacts = _filterContactsBySettings(
           contactsWithLocation,

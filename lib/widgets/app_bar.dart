@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/screens/settings_screen.dart';
 import 'package:meshnomad/widgets/battery_indicator.dart';
 import 'package:provider/provider.dart';
 
@@ -7,10 +8,63 @@ import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
 import 'indicator_caption.dart';
 import 'mesh_info_dialog.dart';
+import 'quick_style_picker_dialog.dart';
 import 'radio_stats_entry.dart';
 import 'snr_indicator.dart';
 import 'stats_line_chart.dart';
 import 'sync_progress_overlay.dart';
+
+/// The two app-wide destinations every screen should be able to reach
+/// without backtracking to a main card first: Quick Style and Settings.
+/// Use [QuickAccessMenuButton] to add them as their own ⋮ menu, or splice
+/// this list into a screen's existing `PopupMenuButton.itemBuilder` (e.g.
+/// Packet Stats' "clear log" menu) so there's only one ⋮ icon in the bar.
+/// Skip both on screens where a destination would be circular
+/// (`SettingsScreen` itself, `CustomStyleEditorScreen`).
+List<PopupMenuEntry<dynamic>> quickAccessMenuItems(BuildContext context) {
+  return <PopupMenuEntry<dynamic>>[
+    PopupMenuItem(
+      child: Row(
+        children: [
+          const Icon(Icons.palette_outlined),
+          SizedBox(width: MeshTokens.of(context).spacingXs),
+          Text(context.l10n.appSettings_quickStyleMenuItem),
+        ],
+      ),
+      onTap: () => showQuickStylePickerDialog(context),
+    ),
+    PopupMenuItem(
+      child: Row(
+        children: [
+          const Icon(Icons.settings),
+          SizedBox(width: MeshTokens.of(context).spacingXs),
+          Text(context.l10n.settings_title),
+        ],
+      ),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const SettingsScreen()),
+      ),
+    ),
+  ];
+}
+
+/// ⋮ menu offering just [quickAccessMenuItems] — for screens whose AppBar
+/// doesn't already have a menu of its own. For screens NOT built through
+/// [meshMainAppBar] (detail/sub screens — Repeater Status, Neighbors,
+/// chat, …), add this to the `AppBar.actions` list.
+class QuickAccessMenuButton extends StatelessWidget {
+  const QuickAccessMenuButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<dynamic>(
+      tooltip: context.l10n.contacts_moreOptions,
+      itemBuilder: quickAccessMenuItems,
+      child: const AppBarMenuIcon(),
+    );
+  }
+}
 
 /// The ⋮ menu icon for main-screen app bars — same icon size as the
 /// indicators, vertically centered in the toolbar.

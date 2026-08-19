@@ -26,6 +26,7 @@ import '../models/translation_support.dart';
 import '../services/app_settings_service.dart';
 import '../services/chat_text_scale_service.dart';
 import '../services/translation_service.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/byte_count_input.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/chat_zoom_wrapper.dart';
@@ -41,7 +42,6 @@ import '../widgets/translated_message_content.dart';
 import '../widgets/unread_divider.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/dotted_separator.dart';
-import '../widgets/mesh_info_dialog.dart';
 import '../widgets/mesh_ui.dart';
 import 'channel_message_path_screen.dart';
 import 'map_screen.dart';
@@ -378,6 +378,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
               ),
             ],
           ),
+          const QuickAccessMenuButton(),
         ],
       ),
       body: SafeArea(
@@ -1582,10 +1583,11 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     // The route map opens as a popup with the pattern's equal edge insets,
     // not as a full-screen card. The embedded screen keeps its own app bar
     // (title + back) and per-path colors.
+    final spacingMd = MeshTokens.of(context).spacingMd;
     showDialog<void>(
       context: context,
       builder: (_) => Dialog(
-        insetPadding: const EdgeInsets.all(MeshInfoDialog.edgeInset),
+        insetPadding: EdgeInsets.all(spacingMd),
         clipBehavior: Clip.antiAlias,
         child: SizedBox(
           width: double.maxFinite,

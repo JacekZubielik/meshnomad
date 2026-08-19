@@ -82,8 +82,8 @@ void main() {
           .first,
     );
 
-    expect(dialog.top - screen.top, MeshInfoDialog.edgeInset);
-    expect(screen.bottom - dialog.bottom, MeshInfoDialog.edgeInset);
+    expect(dialog.top - screen.top, MeshTokens.defaultTokens.spacingMd);
+    expect(screen.bottom - dialog.bottom, MeshTokens.defaultTokens.spacingMd);
     expect(
       find.descendant(
         of: find.byType(Dialog),

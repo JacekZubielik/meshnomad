@@ -2296,6 +2296,30 @@ abstract class AppLocalizations {
   /// **'Allow sharing environment sensor data'**
   String get contact_teleEnvSubtitle;
 
+  /// No description provided for @contact_teleBaseShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Base'**
+  String get contact_teleBaseShort;
+
+  /// No description provided for @contact_teleLocShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Loc'**
+  String get contact_teleLocShort;
+
+  /// No description provided for @contact_teleEnvShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Env'**
+  String get contact_teleEnvShort;
+
+  /// No description provided for @contacts_routeUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get contacts_routeUnknown;
+
   /// No description provided for @channels_title.
   ///
   /// In en, this message translates to:

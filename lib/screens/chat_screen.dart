@@ -15,6 +15,7 @@ import '../helpers/cyr2lat.dart';
 import '../helpers/path_helper.dart';
 import '../helpers/reaction_helper.dart';
 import '../widgets/message_status_icon.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/empty_state.dart';
 import '../helpers/chat_scroll_controller.dart';
 import '../helpers/gif_helper.dart';
@@ -321,6 +322,7 @@ class _ChatScreenState extends State<ChatScreen> {
               );
             },
           ),
+          const QuickAccessMenuButton(),
         ],
       ),
       body: Consumer<MeshCoreConnector>(
