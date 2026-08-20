@@ -4585,6 +4585,44 @@ class AppLocalizationsEn extends AppLocalizations {
       'Noise floor, RSSI, SNR, and airtime';
 
   @override
+  String get radioStats_core_sectionTitle => 'Device';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Battery: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Uptime: $seconds s';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'No radio errors';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Radio errors: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'queue full';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'CAD timeout';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'RX-start timeout';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Traffic';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Recv errors: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

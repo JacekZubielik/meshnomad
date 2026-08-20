@@ -2187,6 +2187,16 @@
   "radioStats_stripWaiting": "Отримано статистику радіо…",
   "radioStats_settingsTile": "Статистика радіо",
   "radioStats_settingsSubtitle": "Рівень шуму, RSSI, SNR та час в ефірі.",
+  "radioStats_core_sectionTitle": "Пристрій",
+  "radioStats_core_battery": "Батарея: {value}",
+  "radioStats_core_uptime": "Час роботи: {seconds} с",
+  "radioStats_core_errFlags_none": "Немає помилок радіо",
+  "radioStats_core_errFlags_summary": "Помилки радіо: {flags}",
+  "radioStats_core_errFlag_full": "черга заповнена",
+  "radioStats_core_errFlag_cadTimeout": "тайм-аут CAD",
+  "radioStats_core_errFlag_rxTimeout": "тайм-аут запуску RX",
+  "radioStats_packets_sectionTitle": "Трафік",
+  "radioStats_packets_recvErrors": "Помилки прийому: {count}",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {

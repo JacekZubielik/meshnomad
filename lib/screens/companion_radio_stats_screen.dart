@@ -8,6 +8,8 @@ import 'package:meshnomad/theme/mesh_tokens.dart';
 import 'package:meshnomad/widgets/app_bar.dart';
 import 'package:meshnomad/widgets/mesh_ui.dart';
 import 'package:meshnomad/widgets/radio_stats_band_chart.dart';
+import 'package:meshnomad/models/companion_core_stats.dart';
+import 'package:meshnomad/models/companion_packet_stats.dart';
 import 'package:provider/provider.dart';
 
 class CompanionRadioStatsScreen extends StatelessWidget {
@@ -56,6 +58,12 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
     c.acquireRadioStatsPolling();
     c.setPollingInterval(1);
     c.radioStatsNotifier.addListener(_onStatsUpdate);
+    c.coreStatsNotifier.addListener(_onAuxStatsUpdate);
+    c.packetStatsNotifier.addListener(_onAuxStatsUpdate);
+  }
+
+  void _onAuxStatsUpdate() {
+    if (mounted) setState(() {});
   }
 
   void _onStatsUpdate() {
@@ -78,6 +86,8 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
   @override
   void dispose() {
     _connector?.radioStatsNotifier.removeListener(_onStatsUpdate);
+    _connector?.coreStatsNotifier.removeListener(_onAuxStatsUpdate);
+    _connector?.packetStatsNotifier.removeListener(_onAuxStatsUpdate);
     _connector?.releaseRadioStatsPolling();
     _connector?.setPollingInterval(30);
     super.dispose();
@@ -178,6 +188,109 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
             l10n.radioStats_rxAir(stats.rxAirSecs),
             Icons.download,
             tokens.primary,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _errFlagsSummary(AppLocalizations l10n, CompanionCoreStats s) {
+    final flags = <String>[];
+    if (s.queueWasFull) {
+      flags.add(l10n.radioStats_core_errFlag_full);
+    }
+    if (s.cadTimeoutOccurred) {
+      flags.add(l10n.radioStats_core_errFlag_cadTimeout);
+    }
+    if (s.startRxTimeoutOccurred) {
+      flags.add(l10n.radioStats_core_errFlag_rxTimeout);
+    }
+    if (flags.isEmpty) return l10n.radioStats_core_errFlags_none;
+    return l10n.radioStats_core_errFlags_summary(flags.join(', '));
+  }
+
+  Widget _deviceCard(AppLocalizations l10n, CompanionCoreStats stats) {
+    final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
+    final hasErrors = stats.errFlags != 0;
+    return MeshCard(
+      margin: EdgeInsets.symmetric(
+        horizontal: t.spacingMd,
+        vertical: t.spacingXxs,
+      ),
+      padding: EdgeInsets.all(t.spacingXxs),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _tile(
+            l10n.radioStats_core_battery(
+              l10n.common_voltageValue(
+                (stats.batteryMillivolts / 1000.0).toStringAsFixed(2),
+              ),
+            ),
+            Icons.battery_std,
+            scheme.onSurfaceVariant,
+          ),
+          const Divider(height: 1),
+          _tile(
+            l10n.radioStats_core_uptime(stats.uptimeSecs),
+            Icons.schedule,
+            scheme.onSurfaceVariant,
+          ),
+          const Divider(height: 1),
+          _tile(
+            '${l10n.repeater_queueLength}: ${stats.queueLen}',
+            Icons.outbox,
+            scheme.onSurfaceVariant,
+          ),
+          const Divider(height: 1),
+          _tile(
+            _errFlagsSummary(l10n, stats),
+            hasErrors ? Icons.warning_amber : Icons.check_circle_outline,
+            hasErrors ? t.warn : scheme.onSurfaceVariant,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _trafficCard(AppLocalizations l10n, CompanionPacketStats stats) {
+    final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
+    final hasErrors = stats.recvErrors != 0;
+    return MeshCard(
+      margin: EdgeInsets.symmetric(
+        horizontal: t.spacingMd,
+        vertical: t.spacingXxs,
+      ),
+      padding: EdgeInsets.all(t.spacingXxs),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _tile(
+            l10n.repeater_packetTxTotal(
+              stats.sent,
+              stats.sentFlood.toString(),
+              stats.sentDirect.toString(),
+            ),
+            Icons.upload,
+            scheme.onSurfaceVariant,
+          ),
+          const Divider(height: 1),
+          _tile(
+            l10n.repeater_packetRxTotal(
+              stats.recv,
+              stats.recvFlood.toString(),
+              stats.recvDirect.toString(),
+            ),
+            Icons.download,
+            scheme.onSurfaceVariant,
+          ),
+          const Divider(height: 1),
+          _tile(
+            l10n.radioStats_packets_recvErrors(stats.recvErrors),
+            hasErrors ? Icons.warning_amber : Icons.check_circle_outline,
+            hasErrors ? t.warn : scheme.onSurfaceVariant,
           ),
         ],
       ),
@@ -290,6 +403,48 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
                     ),
                   ),
                 ],
+                ValueListenableBuilder<CompanionCoreStats?>(
+                  valueListenable: connector.coreStatsNotifier,
+                  builder: (context, coreStats, _) {
+                    if (coreStats == null) return const SizedBox.shrink();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SectionHeader(
+                          l10n.radioStats_core_sectionTitle,
+                          padding: EdgeInsets.fromLTRB(
+                            t.spacingMd,
+                            t.spacingMd,
+                            t.spacingMd,
+                            t.spacingXs,
+                          ),
+                        ),
+                        _deviceCard(l10n, coreStats),
+                      ],
+                    );
+                  },
+                ),
+                ValueListenableBuilder<CompanionPacketStats?>(
+                  valueListenable: connector.packetStatsNotifier,
+                  builder: (context, packetStats, _) {
+                    if (packetStats == null) return const SizedBox.shrink();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SectionHeader(
+                          l10n.radioStats_packets_sectionTitle,
+                          padding: EdgeInsets.fromLTRB(
+                            t.spacingMd,
+                            t.spacingMd,
+                            t.spacingMd,
+                            t.spacingXs,
+                          ),
+                        ),
+                        _trafficCard(l10n, packetStats),
+                      ],
+                    );
+                  },
+                ),
                 SectionHeader(
                   l10n.radioStats_bandChartCaption,
                   padding: EdgeInsets.fromLTRB(

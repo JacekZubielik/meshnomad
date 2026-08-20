@@ -2304,6 +2304,16 @@
   "radioStats_stripWaiting": "Abrufen von Radiostatus…",
   "radioStats_settingsTile": "Senderinformationen",
   "radioStats_settingsSubtitle": "Rauschpegel, RSSI, Signal-Rausch-Verhältnis (SNR) und Nutzzeit",
+  "radioStats_core_sectionTitle": "Gerät",
+  "radioStats_core_battery": "Akku: {value}",
+  "radioStats_core_uptime": "Laufzeit: {seconds} s",
+  "radioStats_core_errFlags_none": "Keine Funkfehler",
+  "radioStats_core_errFlags_summary": "Funkfehler: {flags}",
+  "radioStats_core_errFlag_full": "Warteschlange voll",
+  "radioStats_core_errFlag_cadTimeout": "CAD-Timeout",
+  "radioStats_core_errFlag_rxTimeout": "RX-Start-Timeout",
+  "radioStats_packets_sectionTitle": "Datenverkehr",
+  "radioStats_packets_recvErrors": "Empfangsfehler: {count}",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {

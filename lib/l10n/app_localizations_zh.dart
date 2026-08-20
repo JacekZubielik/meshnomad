@@ -4323,6 +4323,44 @@ class AppLocalizationsZh extends AppLocalizations {
   String get radioStats_settingsSubtitle => '噪声水平、RSSI、信噪比和空中时间';
 
   @override
+  String get radioStats_core_sectionTitle => '设备';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return '电池：$value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return '运行时间：$seconds 秒';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => '无无线电错误';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return '无线电错误：$flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => '队列已满';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'CAD 超时';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'RX 启动超时';
+
+  @override
+  String get radioStats_packets_sectionTitle => '流量';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return '接收错误：$count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

@@ -4669,6 +4669,44 @@ class AppLocalizationsRu extends AppLocalizations {
       'Уровень шума, RSSI, SNR и время передачи';
 
   @override
+  String get radioStats_core_sectionTitle => 'Устройство';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Батарея: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Время работы: $seconds с';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'Ошибок радио нет';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Ошибки радио: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'очередь заполнена';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'тайм-аут CAD';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'тайм-аут запуска RX';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Трафик';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Ошибки приёма: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

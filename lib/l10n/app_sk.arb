@@ -2178,6 +2178,16 @@
   "radioStats_stripWaiting": "Získavanie údajov o rádiu…",
   "radioStats_settingsTile": "Štatistiky rádiových vysielaní",
   "radioStats_settingsSubtitle": "Úroveň hluku, RSSI, SNR a časové rozloženie",
+  "radioStats_core_sectionTitle": "Zariadenie",
+  "radioStats_core_battery": "Batéria: {value}",
+  "radioStats_core_uptime": "Čas prevádzky: {seconds} s",
+  "radioStats_core_errFlags_none": "Žiadne rádiové chyby",
+  "radioStats_core_errFlags_summary": "Rádiové chyby: {flags}",
+  "radioStats_core_errFlag_full": "front je plný",
+  "radioStats_core_errFlag_cadTimeout": "časový limit CAD",
+  "radioStats_core_errFlag_rxTimeout": "časový limit spustenia RX",
+  "radioStats_packets_sectionTitle": "Prevádzka",
+  "radioStats_packets_recvErrors": "Chyby príjmu: {count}",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {

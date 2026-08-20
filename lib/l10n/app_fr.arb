@@ -2297,6 +2297,16 @@
   "radioStats_stripWaiting": "Récupération des statistiques de la radio…",
   "radioStats_settingsTile": "Statistiques de radio",
   "radioStats_settingsSubtitle": "Niveau de bruit, RSSI, rapport signal/bruit (SNR) et temps d'antenne",
+  "radioStats_core_sectionTitle": "Appareil",
+  "radioStats_core_battery": "Batterie : {value}",
+  "radioStats_core_uptime": "Temps de fonctionnement : {seconds} s",
+  "radioStats_core_errFlags_none": "Aucune erreur radio",
+  "radioStats_core_errFlags_summary": "Erreurs radio : {flags}",
+  "radioStats_core_errFlag_full": "file d'attente pleine",
+  "radioStats_core_errFlag_cadTimeout": "délai CAD dépassé",
+  "radioStats_core_errFlag_rxTimeout": "délai de démarrage RX dépassé",
+  "radioStats_packets_sectionTitle": "Trafic",
+  "radioStats_packets_recvErrors": "Erreurs de réception : {count}",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {
