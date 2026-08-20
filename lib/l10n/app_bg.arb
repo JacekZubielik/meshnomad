@@ -2177,6 +2177,16 @@
   "radioStats_stripWaiting": "Извличане на данни за радиото…",
   "radioStats_settingsTile": "Статистически данни за радиостанции",
   "radioStats_settingsSubtitle": "Ниво на шума, RSSI, SNR и време на пренос",
+  "radioStats_core_sectionTitle": "Устройство",
+  "radioStats_core_battery": "Батерия: {value}",
+  "radioStats_core_uptime": "Време на работа: {seconds} с",
+  "radioStats_core_errFlags_none": "Няма радио грешки",
+  "radioStats_core_errFlags_summary": "Радио грешки: {flags}",
+  "radioStats_core_errFlag_full": "опашката е пълна",
+  "radioStats_core_errFlag_cadTimeout": "таймаут на CAD",
+  "radioStats_core_errFlag_rxTimeout": "таймаут при стартиране на RX",
+  "radioStats_packets_sectionTitle": "Трафик",
+  "radioStats_packets_recvErrors": "Грешки при приемане: {count}",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {

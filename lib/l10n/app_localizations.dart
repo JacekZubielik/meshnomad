@@ -8002,6 +8002,66 @@ abstract class AppLocalizations {
   /// **'Noise floor, RSSI, SNR, and airtime'**
   String get radioStats_settingsSubtitle;
 
+  /// No description provided for @radioStats_core_sectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get radioStats_core_sectionTitle;
+
+  /// No description provided for @radioStats_core_battery.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery: {value}'**
+  String radioStats_core_battery(String value);
+
+  /// No description provided for @radioStats_core_uptime.
+  ///
+  /// In en, this message translates to:
+  /// **'Uptime: {seconds} s'**
+  String radioStats_core_uptime(int seconds);
+
+  /// No description provided for @radioStats_core_errFlags_none.
+  ///
+  /// In en, this message translates to:
+  /// **'No radio errors'**
+  String get radioStats_core_errFlags_none;
+
+  /// No description provided for @radioStats_core_errFlags_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio errors: {flags}'**
+  String radioStats_core_errFlags_summary(String flags);
+
+  /// No description provided for @radioStats_core_errFlag_full.
+  ///
+  /// In en, this message translates to:
+  /// **'queue full'**
+  String get radioStats_core_errFlag_full;
+
+  /// No description provided for @radioStats_core_errFlag_cadTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'CAD timeout'**
+  String get radioStats_core_errFlag_cadTimeout;
+
+  /// No description provided for @radioStats_core_errFlag_rxTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'RX-start timeout'**
+  String get radioStats_core_errFlag_rxTimeout;
+
+  /// No description provided for @radioStats_packets_sectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Traffic'**
+  String get radioStats_packets_sectionTitle;
+
+  /// No description provided for @radioStats_packets_recvErrors.
+  ///
+  /// In en, this message translates to:
+  /// **'Recv errors: {count}'**
+  String radioStats_packets_recvErrors(int count);
+
   /// No description provided for @packetStats_settingsTile.
   ///
   /// In en, this message translates to:

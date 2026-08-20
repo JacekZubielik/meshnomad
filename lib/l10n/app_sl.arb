@@ -2177,6 +2177,16 @@
   "radioStats_stripWaiting": "Prejemanje statistike o radiju…",
   "radioStats_settingsTile": "Radijske statistike",
   "radioStats_settingsSubtitle": "Število šumov, RSSI, SNR in čas, ki ga je napolnila oprema",
+  "radioStats_core_sectionTitle": "Naprava",
+  "radioStats_core_battery": "Baterija: {value}",
+  "radioStats_core_uptime": "Čas delovanja: {seconds} s",
+  "radioStats_core_errFlags_none": "Ni radijskih napak",
+  "radioStats_core_errFlags_summary": "Radijske napake: {flags}",
+  "radioStats_core_errFlag_full": "vrsta polna",
+  "radioStats_core_errFlag_cadTimeout": "časovna omejitev CAD",
+  "radioStats_core_errFlag_rxTimeout": "časovna omejitev zagona RX",
+  "radioStats_packets_sectionTitle": "Promet",
+  "radioStats_packets_recvErrors": "Napake sprejema: {count}",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {

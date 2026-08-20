@@ -2178,6 +2178,16 @@
   "radioStats_stripWaiting": "Hämtar radiostatistik…",
   "radioStats_settingsTile": "Radiostation",
   "radioStats_settingsSubtitle": "Bakgrundsnivå, RSSI, SNR och tillgänglig tid",
+  "radioStats_core_sectionTitle": "Enhet",
+  "radioStats_core_battery": "Batteri: {value}",
+  "radioStats_core_uptime": "Drifttid: {seconds} s",
+  "radioStats_core_errFlags_none": "Inga radiofel",
+  "radioStats_core_errFlags_summary": "Radiofel: {flags}",
+  "radioStats_core_errFlag_full": "kön full",
+  "radioStats_core_errFlag_cadTimeout": "CAD-timeout",
+  "radioStats_core_errFlag_rxTimeout": "RX-starttimeout",
+  "radioStats_packets_sectionTitle": "Trafik",
+  "radioStats_packets_recvErrors": "Mottagningsfel: {count}",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {

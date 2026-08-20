@@ -4435,6 +4435,44 @@ class AppLocalizationsKo extends AppLocalizations {
   String get radioStats_settingsSubtitle => '잡음 수준, RSSI, 신호 대 잡음비, 통신 시간';
 
   @override
+  String get radioStats_core_sectionTitle => '장치';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return '배터리: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return '가동 시간: $seconds초';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => '무선 오류 없음';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return '무선 오류: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => '대기열 가득 참';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'CAD 타임아웃';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'RX 시작 타임아웃';
+
+  @override
+  String get radioStats_packets_sectionTitle => '트래픽';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return '수신 오류: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

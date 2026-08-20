@@ -4650,6 +4650,45 @@ class AppLocalizationsBg extends AppLocalizations {
       'Ниво на шума, RSSI, SNR и време на пренос';
 
   @override
+  String get radioStats_core_sectionTitle => 'Устройство';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Батерия: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Време на работа: $seconds с';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'Няма радио грешки';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Радио грешки: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'опашката е пълна';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'таймаут на CAD';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout =>
+      'таймаут при стартиране на RX';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Трафик';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Грешки при приемане: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

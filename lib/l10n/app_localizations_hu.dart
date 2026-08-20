@@ -4649,6 +4649,44 @@ class AppLocalizationsHu extends AppLocalizations {
   String get radioStats_settingsSubtitle => 'Zajszint, RSSI, SNR és műsoridő';
 
   @override
+  String get radioStats_core_sectionTitle => 'Eszköz';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Akkumulátor: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Üzemidő: $seconds s';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'Nincs rádióhiba';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Rádióhibák: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'várólista megtelt';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'CAD időtúllépés';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'RX-indítási időtúllépés';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Forgalom';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Vételi hibák: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

@@ -2178,6 +2178,16 @@
   "radioStats_stripWaiting": "Radio-statistieken ophalen…",
   "radioStats_settingsTile": "Statistieken over radio",
   "radioStats_settingsSubtitle": "Ruimtelijke ruis, RSSI, SNR en beschikbare tijd",
+  "radioStats_core_sectionTitle": "Apparaat",
+  "radioStats_core_battery": "Batterij: {value}",
+  "radioStats_core_uptime": "Uptime: {seconds} s",
+  "radioStats_core_errFlags_none": "Geen radiofouten",
+  "radioStats_core_errFlags_summary": "Radiofouten: {flags}",
+  "radioStats_core_errFlag_full": "wachtrij vol",
+  "radioStats_core_errFlag_cadTimeout": "CAD-timeout",
+  "radioStats_core_errFlag_rxTimeout": "RX-starttimeout",
+  "radioStats_packets_sectionTitle": "Verkeer",
+  "radioStats_packets_recvErrors": "Ontvangstfouten: {count}",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {

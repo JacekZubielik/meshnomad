@@ -4681,6 +4681,44 @@ class AppLocalizationsPl extends AppLocalizations {
       'Szum tła, RSSI, SNR oraz czas dostępny';
 
   @override
+  String get radioStats_core_sectionTitle => 'Urządzenie';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Bateria: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Czas pracy: $seconds s';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'Brak błędów radiowych';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Błędy radiowe: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'kolejka pełna';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'przekroczony czas CAD';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'przekroczony czas startu RX';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Ruch';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Błędy odbioru: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Statystyki pakietów';
 
   @override
