@@ -116,6 +116,10 @@ jobs:
           retention-days: 30
 
   ios:
+    # Temporarily disabled 2026-08-21 to save Actions minutes on the free
+    # plan (macos-latest runners bill at a 10x multiplier). Re-enable by
+    # removing this `if:` line.
+    if: false
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
@@ -142,6 +146,10 @@ jobs:
       - run: flutter build linux --release --no-pub
 
   macos:
+    # Temporarily disabled 2026-08-21 to save Actions minutes on the free
+    # plan (macos-latest runners bill at a 10x multiplier). Re-enable by
+    # removing this `if:` line.
+    if: false
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
