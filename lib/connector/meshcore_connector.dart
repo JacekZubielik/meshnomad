@@ -11,6 +11,8 @@ import 'package:flutter_blue_plus_platform_interface/flutter_blue_plus_platform_
 
 import '../models/channel.dart';
 import '../models/channel_message.dart';
+import '../models/companion_core_stats.dart';
+import '../models/companion_packet_stats.dart';
 import '../models/companion_radio_stats.dart';
 import '../models/contact.dart';
 import '../models/message.dart';
@@ -249,6 +251,10 @@ class MeshCoreConnector extends ChangeNotifier {
   final List<(DateTime, double)> batteryHistory = [];
   final ValueNotifier<CompanionRadioStats?> radioStatsNotifier =
       ValueNotifier<CompanionRadioStats?>(null);
+  final ValueNotifier<CompanionCoreStats?> coreStatsNotifier =
+      ValueNotifier<CompanionCoreStats?>(null);
+  final ValueNotifier<CompanionPacketStats?> packetStatsNotifier =
+      ValueNotifier<CompanionPacketStats?>(null);
   int _reconnectAttempts = 0;
   bool _notifyListenersDirty = false;
   static const Duration _notifyListenersDebounce = Duration(milliseconds: 50);
@@ -2976,6 +2982,8 @@ class MeshCoreConnector extends ChangeNotifier {
         return;
       }
       unawaited(requestRadioStats());
+      unawaited(requestCoreStats());
+      unawaited(requestPacketStats());
     });
   }
 
@@ -3045,6 +3053,22 @@ class MeshCoreConnector extends ChangeNotifier {
     if (!supportsCompanionRadioStats) return;
     try {
       await sendFrame(buildGetStatsFrame(statsTypeRadio));
+    } catch (_) {}
+  }
+
+  Future<void> requestCoreStats() async {
+    if (!isConnected) return;
+    if (!supportsCompanionRadioStats) return;
+    try {
+      await sendFrame(buildGetStatsFrame(statsTypeCore));
+    } catch (_) {}
+  }
+
+  Future<void> requestPacketStats() async {
+    if (!isConnected) return;
+    if (!supportsCompanionRadioStats) return;
+    try {
+      await sendFrame(buildGetStatsFrame(statsTypePackets));
     } catch (_) {}
   }
 
@@ -5012,6 +5036,23 @@ class MeshCoreConnector extends ChangeNotifier {
   }
 
   void _handleStatsFrame(Uint8List frame) {
+    if (frame.length < 2) return;
+    switch (frame[1]) {
+      case statsTypeRadio:
+        _handleRadioStatsFrame(frame);
+        break;
+      case statsTypeCore:
+        final stats = CompanionCoreStats.tryParse(frame);
+        if (stats != null) coreStatsNotifier.value = stats;
+        break;
+      case statsTypePackets:
+        final stats = CompanionPacketStats.tryParse(frame);
+        if (stats != null) packetStatsNotifier.value = stats;
+        break;
+    }
+  }
+
+  void _handleRadioStatsFrame(Uint8List frame) {
     final stats = CompanionRadioStats.tryParse(frame);
     if (stats == null) return;
     final total = stats.txAirSecs + stats.rxAirSecs;

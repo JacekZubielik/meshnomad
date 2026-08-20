@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:meshnomad/connector/meshcore_connector.dart';
 import 'package:meshnomad/l10n/app_localizations.dart';
+import 'package:meshnomad/models/companion_core_stats.dart';
+import 'package:meshnomad/models/companion_packet_stats.dart';
 import 'package:meshnomad/models/companion_radio_stats.dart';
 import 'package:meshnomad/screens/companion_radio_stats_screen.dart';
 import 'package:meshnomad/services/app_settings_service.dart';
@@ -246,4 +248,83 @@ void main() {
             as RadioStatsSnrStripPainter;
     expect(strip.cursorIndex, band.cursorIndex);
   });
+
+  testWidgets(
+    'Device card shows battery, uptime, queue and decoded error flags',
+    (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const RadioStatsPanel(),
+          connector: connector,
+          settings: settingsService,
+        ),
+      );
+      connector.coreStatsNotifier.value = CompanionCoreStats(
+        batteryMillivolts: 4150,
+        uptimeSecs: 90000,
+        errFlags: 0x3, // queue full + CAD timeout, not RX-start timeout
+        queueLen: 2,
+        receivedAt: t0,
+      );
+      await tester.pump();
+
+      expect(find.text('Battery: 4.15 V'), findsOneWidget);
+      expect(find.text('Uptime: 90000 s'), findsOneWidget);
+      expect(find.text('Queue Length: 2'), findsOneWidget);
+      expect(
+        find.text('Radio errors: queue full, CAD timeout'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('Device card shows "no errors" when errFlags is zero', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        const RadioStatsPanel(),
+        connector: connector,
+        settings: settingsService,
+      ),
+    );
+    connector.coreStatsNotifier.value = CompanionCoreStats(
+      batteryMillivolts: 4150,
+      uptimeSecs: 90000,
+      errFlags: 0,
+      queueLen: 0,
+      receivedAt: t0,
+    );
+    await tester.pump();
+
+    expect(find.text('No radio errors'), findsOneWidget);
+  });
+
+  testWidgets(
+    'Traffic card shows totals, flood/direct breakdown and recv errors',
+    (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const RadioStatsPanel(),
+          connector: connector,
+          settings: settingsService,
+        ),
+      );
+      connector.packetStatsNotifier.value = CompanionPacketStats(
+        recv: 1000,
+        sent: 900,
+        sentFlood: 300,
+        sentDirect: 600,
+        recvFlood: 400,
+        recvDirect: 600,
+        recvErrors: 12,
+        receivedAt: t0,
+      );
+      await tester.pump();
+
+      expect(find.text('Total: 900, Flood: 300, Direct: 600'), findsOneWidget);
+      expect(find.text('Total: 1000, Flood: 400, Direct: 600'), findsOneWidget);
+      expect(find.text('Recv errors: 12'), findsOneWidget);
+    },
+  );
 }

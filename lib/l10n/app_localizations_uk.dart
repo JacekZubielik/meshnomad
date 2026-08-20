@@ -4666,6 +4666,44 @@ class AppLocalizationsUk extends AppLocalizations {
       'Рівень шуму, RSSI, SNR та час в ефірі.';
 
   @override
+  String get radioStats_core_sectionTitle => 'Пристрій';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Батарея: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Час роботи: $seconds с';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'Немає помилок радіо';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Помилки радіо: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'черга заповнена';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'тайм-аут CAD';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'тайм-аут запуску RX';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Трафік';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Помилки прийому: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

@@ -4427,6 +4427,44 @@ class AppLocalizationsJa extends AppLocalizations {
   String get radioStats_settingsSubtitle => 'ノイズレベル、RSSI、SNR、および通信時間';
 
   @override
+  String get radioStats_core_sectionTitle => 'デバイス';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'バッテリー: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return '稼働時間: $seconds 秒';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => '無線エラーなし';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return '無線エラー: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'キュー満杯';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'CADタイムアウト';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'RX開始タイムアウト';
+
+  @override
+  String get radioStats_packets_sectionTitle => '通信量';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return '受信エラー: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

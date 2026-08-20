@@ -4659,6 +4659,44 @@ class AppLocalizationsDe extends AppLocalizations {
       'Rauschpegel, RSSI, Signal-Rausch-Verhältnis (SNR) und Nutzzeit';
 
   @override
+  String get radioStats_core_sectionTitle => 'Gerät';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Akku: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Laufzeit: $seconds s';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'Keine Funkfehler';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Funkfehler: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'Warteschlange voll';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'CAD-Timeout';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'RX-Start-Timeout';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Datenverkehr';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Empfangsfehler: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

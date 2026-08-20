@@ -4633,6 +4633,44 @@ class AppLocalizationsSl extends AppLocalizations {
       'Število šumov, RSSI, SNR in čas, ki ga je napolnila oprema';
 
   @override
+  String get radioStats_core_sectionTitle => 'Naprava';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Baterija: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Čas delovanja: $seconds s';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'Ni radijskih napak';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Radijske napake: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'vrsta polna';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'časovna omejitev CAD';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'časovna omejitev zagona RX';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Promet';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Napake sprejema: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

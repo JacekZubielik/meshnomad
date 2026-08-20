@@ -4654,6 +4654,45 @@ class AppLocalizationsPt extends AppLocalizations {
       'Nível de ruído, RSSI, SNR e tempo de transmissão';
 
   @override
+  String get radioStats_core_sectionTitle => 'Dispositivo';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Bateria: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Tempo ativo: $seconds s';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'Sem erros de rádio';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Erros de rádio: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'fila cheia';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'tempo esgotado de CAD';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout =>
+      'tempo esgotado no início do RX';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Tráfego';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Erros de receção: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

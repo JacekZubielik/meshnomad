@@ -1356,6 +1356,16 @@
   "radioStats_stripWaiting": "Получение данных о радио…",
   "radioStats_settingsTile": "Статистика радиовещания",
   "radioStats_settingsSubtitle": "Уровень шума, RSSI, SNR и время передачи",
+  "radioStats_core_sectionTitle": "Устройство",
+  "radioStats_core_battery": "Батарея: {value}",
+  "radioStats_core_uptime": "Время работы: {seconds} с",
+  "radioStats_core_errFlags_none": "Ошибок радио нет",
+  "radioStats_core_errFlags_summary": "Ошибки радио: {flags}",
+  "radioStats_core_errFlag_full": "очередь заполнена",
+  "radioStats_core_errFlag_cadTimeout": "тайм-аут CAD",
+  "radioStats_core_errFlag_rxTimeout": "тайм-аут запуска RX",
+  "radioStats_packets_sectionTitle": "Трафик",
+  "radioStats_packets_recvErrors": "Ошибки приёма: {count}",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {

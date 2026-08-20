@@ -2305,6 +2305,16 @@
   "radioStats_stripWaiting": "Recupero delle statistiche radio…",
   "radioStats_settingsTile": "Statistiche radio",
   "radioStats_settingsSubtitle": "Livello di rumore, RSSI, rapporto segnale/rumore (SNR) e tempo di trasmissione",
+  "radioStats_core_sectionTitle": "Dispositivo",
+  "radioStats_core_battery": "Batteria: {value}",
+  "radioStats_core_uptime": "Tempo di attività: {seconds} s",
+  "radioStats_core_errFlags_none": "Nessun errore radio",
+  "radioStats_core_errFlags_summary": "Errori radio: {flags}",
+  "radioStats_core_errFlag_full": "coda piena",
+  "radioStats_core_errFlag_cadTimeout": "timeout CAD",
+  "radioStats_core_errFlag_rxTimeout": "timeout avvio RX",
+  "radioStats_packets_sectionTitle": "Traffico",
+  "radioStats_packets_recvErrors": "Errori di ricezione: {count}",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {

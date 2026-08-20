@@ -4634,6 +4634,44 @@ class AppLocalizationsSk extends AppLocalizations {
       'Úroveň hluku, RSSI, SNR a časové rozloženie';
 
   @override
+  String get radioStats_core_sectionTitle => 'Zariadenie';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Batéria: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Čas prevádzky: $seconds s';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'Žiadne rádiové chyby';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Rádiové chyby: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'front je plný';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'časový limit CAD';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'časový limit spustenia RX';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Prevádzka';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Chyby príjmu: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

@@ -4606,6 +4606,44 @@ class AppLocalizationsSv extends AppLocalizations {
       'Bakgrundsnivå, RSSI, SNR och tillgänglig tid';
 
   @override
+  String get radioStats_core_sectionTitle => 'Enhet';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Batteri: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Drifttid: $seconds s';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'Inga radiofel';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Radiofel: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'kön full';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'CAD-timeout';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'RX-starttimeout';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Trafik';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Mottagningsfel: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

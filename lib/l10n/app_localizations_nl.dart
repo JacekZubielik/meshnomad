@@ -4636,6 +4636,44 @@ class AppLocalizationsNl extends AppLocalizations {
       'Ruimtelijke ruis, RSSI, SNR en beschikbare tijd';
 
   @override
+  String get radioStats_core_sectionTitle => 'Apparaat';
+
+  @override
+  String radioStats_core_battery(String value) {
+    return 'Batterij: $value';
+  }
+
+  @override
+  String radioStats_core_uptime(int seconds) {
+    return 'Uptime: $seconds s';
+  }
+
+  @override
+  String get radioStats_core_errFlags_none => 'Geen radiofouten';
+
+  @override
+  String radioStats_core_errFlags_summary(String flags) {
+    return 'Radiofouten: $flags';
+  }
+
+  @override
+  String get radioStats_core_errFlag_full => 'wachtrij vol';
+
+  @override
+  String get radioStats_core_errFlag_cadTimeout => 'CAD-timeout';
+
+  @override
+  String get radioStats_core_errFlag_rxTimeout => 'RX-starttimeout';
+
+  @override
+  String get radioStats_packets_sectionTitle => 'Verkeer';
+
+  @override
+  String radioStats_packets_recvErrors(int count) {
+    return 'Ontvangstfouten: $count';
+  }
+
+  @override
   String get packetStats_settingsTile => 'Packet stats';
 
   @override

@@ -2183,6 +2183,16 @@
   "radioStats_stripWaiting": "正在获取收音机数据…",
   "radioStats_settingsTile": "广播统计数据",
   "radioStats_settingsSubtitle": "噪声水平、RSSI、信噪比和空中时间",
+  "radioStats_core_sectionTitle": "设备",
+  "radioStats_core_battery": "电池：{value}",
+  "radioStats_core_uptime": "运行时间：{seconds} 秒",
+  "radioStats_core_errFlags_none": "无无线电错误",
+  "radioStats_core_errFlags_summary": "无线电错误：{flags}",
+  "radioStats_core_errFlag_full": "队列已满",
+  "radioStats_core_errFlag_cadTimeout": "CAD 超时",
+  "radioStats_core_errFlag_rxTimeout": "RX 启动超时",
+  "radioStats_packets_sectionTitle": "流量",
+  "radioStats_packets_recvErrors": "接收错误：{count}",
   "@translation_downloadFailed": {
     "placeholders": {
       "error": {

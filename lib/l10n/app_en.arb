@@ -2615,6 +2615,44 @@
   "radioStats_stripWaiting": "Fetching radio stats…",
   "radioStats_settingsTile": "Radio stats",
   "radioStats_settingsSubtitle": "Noise floor, RSSI, SNR, and airtime",
+  "radioStats_core_sectionTitle": "Device",
+  "radioStats_core_battery": "Battery: {value}",
+  "@radioStats_core_battery": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "radioStats_core_uptime": "Uptime: {seconds} s",
+  "@radioStats_core_uptime": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "radioStats_core_errFlags_none": "No radio errors",
+  "radioStats_core_errFlags_summary": "Radio errors: {flags}",
+  "@radioStats_core_errFlags_summary": {
+    "placeholders": {
+      "flags": {
+        "type": "String"
+      }
+    }
+  },
+  "radioStats_core_errFlag_full": "queue full",
+  "radioStats_core_errFlag_cadTimeout": "CAD timeout",
+  "radioStats_core_errFlag_rxTimeout": "RX-start timeout",
+  "radioStats_packets_sectionTitle": "Traffic",
+  "radioStats_packets_recvErrors": "Recv errors: {count}",
+  "@radioStats_packets_recvErrors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "packetStats_settingsTile": "Packet stats",
   "packetStats_settingsSubtitle": "Traffic overheard by this radio",
   "packetStats_screenTitle": "Packet stats",
