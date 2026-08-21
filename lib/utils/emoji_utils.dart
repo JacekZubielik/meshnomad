@@ -1,5 +1,16 @@
 import 'package:characters/characters.dart';
 
+/// [name] with every emoji cluster removed (and edges trimmed) — used by
+/// AvatarCircle's per-name hue hash so adding an emoji to a name never
+/// shifts the avatar's tint (2026-08-21 fix).
+String stripEmoji(String name) {
+  final buffer = StringBuffer();
+  for (final cluster in name.characters) {
+    if (!_containsEmoji(cluster)) buffer.write(cluster);
+  }
+  return buffer.toString().trim();
+}
+
 String? firstEmoji(String name) {
   if (name.isEmpty) return null;
   for (final cluster in name.characters) {

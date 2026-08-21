@@ -1739,37 +1739,19 @@ class _ContactTile extends StatelessWidget {
                 // needsAvatarLogin above); inert tap-wise for Chat/Sensor,
                 // whose login-equivalent (opening ChatScreen) is already the
                 // whole tile's job via MeshCard.onTap.
-                if (emoji != null)
-                  GestureDetector(
-                    onTap: needsAvatarLogin ? onTap : null,
-                    child: Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: scheme.surfaceContainerHigh,
-                        border: Border.all(color: scheme.outlineVariant),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        emoji,
-                        style: MeshTokens.of(context).emoji(fontSize: 20),
-                      ),
-                    ),
-                  )
-                else
-                  GestureDetector(
-                    onTap: needsAvatarLogin ? onTap : null,
-                    child: AvatarCircle(
-                      name: contact.name,
-                      size: 42,
-                      color: isChat ? null : _avatarColor(context),
-                      icon: _avatarIcon(),
-                      freshnessColor: freshnessOf(
-                        lastSeen,
-                      ).colorOf(MeshTokens.of(context)),
-                    ),
+                GestureDetector(
+                  onTap: needsAvatarLogin ? onTap : null,
+                  child: AvatarCircle(
+                    name: contact.name,
+                    size: 42,
+                    color: isChat ? null : _avatarColor(context),
+                    icon: _avatarIcon(),
+                    emoji: emoji,
+                    freshnessColor: freshnessOf(
+                      lastSeen,
+                    ).colorOf(MeshTokens.of(context)),
                   ),
+                ),
                 SizedBox(width: t.spacingSm),
                 Expanded(
                   child: Text(

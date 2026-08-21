@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../connector/meshcore_protocol.dart';
 import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
+import '../utils/emoji_utils.dart';
 
 /// MeshCore shared design kit.
 ///
@@ -475,12 +476,16 @@ List<Color> avatarTintPalette(MeshTokens tokens) => [
 ];
 
 /// Initials avatar with a deterministic per-name hue, or a fixed [color]
-/// for node-type coloring. Optional [icon] replaces initials.
+/// for node-type coloring. Optional [icon] replaces initials; optional
+/// [emoji] takes precedence over both — content only, the circle's
+/// background and border never change with it (2026-08-21 fix: the emoji
+/// used to swap the whole decoration for a neutral one).
 class AvatarCircle extends StatelessWidget {
   final String name;
   final double size;
   final Color? color;
   final IconData? icon;
+  final String? emoji;
 
   /// Optional freshness/state signal (e.g. [NodeFreshness.colorOf]) drawn as
   /// a small corner badge, same visual language as the map marker's status
@@ -494,13 +499,17 @@ class AvatarCircle extends StatelessWidget {
     this.size = 40,
     this.color,
     this.icon,
+    this.emoji,
     this.freshnessColor,
   });
 
   Color _colorFor(BuildContext context, String s) {
     final hues = avatarTintPalette(MeshTokens.of(context));
+    // Hash the emoji-free name: an emoji in the name is avatar CONTENT
+    // (see [emoji]) and must never shift the circle's tint (2026-08-21).
+    final hashed = stripEmoji(s);
     var h = 0;
-    for (final c in s.codeUnits) {
+    for (final c in hashed.codeUnits) {
       h = (h * 31 + c) & 0x7fffffff;
     }
     return hues[h % hues.length];
@@ -523,7 +532,12 @@ class AvatarCircle extends StatelessWidget {
             border: Border.all(color: accent.withValues(alpha: 0.4)),
           ),
           alignment: Alignment.center,
-          child: icon != null
+          child: emoji != null
+              ? Text(
+                  emoji!,
+                  style: MeshTokens.of(context).emoji(fontSize: size * 0.48),
+                )
+              : icon != null
               ? Icon(icon, size: size * 0.5, color: accent)
               : Text(
                   initials,
