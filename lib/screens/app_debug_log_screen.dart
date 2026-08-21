@@ -8,6 +8,7 @@ import '../theme/mesh_tokens.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/app_bar.dart';
 import '../helpers/snack_bar_builder.dart';
+import 'repeater_command_drawer_preview_screen.dart';
 
 class AppDebugLogScreen extends StatelessWidget {
   const AppDebugLogScreen({super.key});
@@ -59,6 +60,17 @@ class AppDebugLogScreen extends StatelessWidget {
                         logService.clear();
                       }
                     : null,
+              ),
+              IconButton(
+                tooltip: context.l10n.debugLog_previewCommandDrawer,
+                icon: const Icon(Icons.terminal),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const RepeaterCommandDrawerPreviewScreen(),
+                  ),
+                ),
               ),
               const QuickAccessMenuButton(),
             ],

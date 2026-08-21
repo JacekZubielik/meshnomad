@@ -1548,6 +1548,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gifPicker_noInternet => 'No internet connection';
 
   @override
+  String get debugLog_previewCommandDrawer => 'Preview repeater command drawer';
+
+  @override
   String get debugLog_appTitle => 'App Debug Log';
 
   @override
@@ -3076,6 +3079,30 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sets custom factor to adjust reported battery voltage (only supported on select boards).';
 
   @override
+  String get repeater_cliHelpSetCad =>
+      'Enables Channel Activity Detection (CAD) before transmitting, to reduce collisions with in-progress transmissions on the same channel (v1.17).';
+
+  @override
+  String get repeater_cliHelpSetRadioFemRxgain =>
+      'Controls the front-end module (FEM) RX gain — boosts receive sensitivity on supported boards (v1.17).';
+
+  @override
+  String get repeater_cliHelpSetRadioFemTxgain =>
+      'Controls the front-end module (FEM) TX gain, the sibling setting to radio.fem.rxgain (v1.17.1).';
+
+  @override
+  String get repeater_cliHelpSetExtraSf =>
+      'Enables additional spreading factors on LR2021-based radios (v1.17).';
+
+  @override
+  String get repeater_cliHelpSetFloodMaxAdvert =>
+      'Sets the maximum hop count for flood-routed advert packets, up to 64 (v1.17).';
+
+  @override
+  String get repeater_cliHelpSetFloodMaxUnscoped =>
+      'Sets the maximum hop count for unscoped flood packets, up to 64 (v1.17).';
+
+  @override
   String get repeater_cliHelpTempRadio =>
       'Sets temporary radio params for the given number of minutes, reverting to original radio params afterward. (does NOT save to preferences).';
 
@@ -3169,6 +3196,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get repeater_commandsListTitle => 'Commands List';
+
+  @override
+  String get repeater_commandsGroupsSuffix => 'groups';
+
+  @override
+  String get repeater_commandsExpandAction => 'expand';
+
+  @override
+  String get repeater_commandsFullscreenAction => 'full screen';
+
+  @override
+  String get repeater_commandsCollapseAction => 'collapse';
+
+  @override
+  String get repeater_commandsCollapseToPanelAction => 'collapse to panel';
+
+  @override
+  String repeater_paramPopup_title(String command) {
+    return 'Parameters: $command';
+  }
+
+  @override
+  String get repeater_paramPopup_send => 'Send';
+
+  @override
+  String get repeater_paramPopup_region => 'region / freq';
 
   @override
   String get repeater_commandsListNote =>

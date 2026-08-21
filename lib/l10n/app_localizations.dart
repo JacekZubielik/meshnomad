@@ -2902,6 +2902,12 @@ abstract class AppLocalizations {
   /// **'No internet connection'**
   String get gifPicker_noInternet;
 
+  /// No description provided for @debugLog_previewCommandDrawer.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview repeater command drawer'**
+  String get debugLog_previewCommandDrawer;
+
   /// No description provided for @debugLog_appTitle.
   ///
   /// In en, this message translates to:
@@ -5552,6 +5558,42 @@ abstract class AppLocalizations {
   /// **'Sets custom factor to adjust reported battery voltage (only supported on select boards).'**
   String get repeater_cliHelpSetAdcMultiplier;
 
+  /// No description provided for @repeater_cliHelpSetCad.
+  ///
+  /// In en, this message translates to:
+  /// **'Enables Channel Activity Detection (CAD) before transmitting, to reduce collisions with in-progress transmissions on the same channel (v1.17).'**
+  String get repeater_cliHelpSetCad;
+
+  /// No description provided for @repeater_cliHelpSetRadioFemRxgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Controls the front-end module (FEM) RX gain — boosts receive sensitivity on supported boards (v1.17).'**
+  String get repeater_cliHelpSetRadioFemRxgain;
+
+  /// No description provided for @repeater_cliHelpSetRadioFemTxgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Controls the front-end module (FEM) TX gain, the sibling setting to radio.fem.rxgain (v1.17.1).'**
+  String get repeater_cliHelpSetRadioFemTxgain;
+
+  /// No description provided for @repeater_cliHelpSetExtraSf.
+  ///
+  /// In en, this message translates to:
+  /// **'Enables additional spreading factors on LR2021-based radios (v1.17).'**
+  String get repeater_cliHelpSetExtraSf;
+
+  /// No description provided for @repeater_cliHelpSetFloodMaxAdvert.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets the maximum hop count for flood-routed advert packets, up to 64 (v1.17).'**
+  String get repeater_cliHelpSetFloodMaxAdvert;
+
+  /// No description provided for @repeater_cliHelpSetFloodMaxUnscoped.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets the maximum hop count for unscoped flood packets, up to 64 (v1.17).'**
+  String get repeater_cliHelpSetFloodMaxUnscoped;
+
   /// No description provided for @repeater_cliHelpTempRadio.
   ///
   /// In en, this message translates to:
@@ -5701,6 +5743,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Commands List'**
   String get repeater_commandsListTitle;
+
+  /// No description provided for @repeater_commandsGroupsSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'groups'**
+  String get repeater_commandsGroupsSuffix;
+
+  /// No description provided for @repeater_commandsExpandAction.
+  ///
+  /// In en, this message translates to:
+  /// **'expand'**
+  String get repeater_commandsExpandAction;
+
+  /// No description provided for @repeater_commandsFullscreenAction.
+  ///
+  /// In en, this message translates to:
+  /// **'full screen'**
+  String get repeater_commandsFullscreenAction;
+
+  /// No description provided for @repeater_commandsCollapseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'collapse'**
+  String get repeater_commandsCollapseAction;
+
+  /// No description provided for @repeater_commandsCollapseToPanelAction.
+  ///
+  /// In en, this message translates to:
+  /// **'collapse to panel'**
+  String get repeater_commandsCollapseToPanelAction;
+
+  /// No description provided for @repeater_paramPopup_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Parameters: {command}'**
+  String repeater_paramPopup_title(String command);
+
+  /// No description provided for @repeater_paramPopup_send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get repeater_paramPopup_send;
+
+  /// No description provided for @repeater_paramPopup_region.
+  ///
+  /// In en, this message translates to:
+  /// **'region / freq'**
+  String get repeater_paramPopup_region;
 
   /// No description provided for @repeater_commandsListNote.
   ///

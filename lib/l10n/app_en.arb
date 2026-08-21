@@ -776,6 +776,7 @@
   "gifPicker_failedLoad": "Failed to load GIFs",
   "gifPicker_failedSearch": "Failed to search GIFs",
   "gifPicker_noInternet": "No internet connection",
+  "debugLog_previewCommandDrawer": "Preview repeater command drawer",
   "debugLog_appTitle": "App Debug Log",
   "debugLog_bleTitle": "BLE Debug Log",
   "debugLog_copyLog": "Copy log",
@@ -1658,6 +1659,12 @@
   "repeater_cliHelpSetBridgeBaud": "Set serial link baudrate for rs232 bridges.",
   "repeater_cliHelpSetBridgeSecret": "Set bridge secret for espnow bridges.",
   "repeater_cliHelpSetAdcMultiplier": "Sets custom factor to adjust reported battery voltage (only supported on select boards).",
+  "repeater_cliHelpSetCad": "Enables Channel Activity Detection (CAD) before transmitting, to reduce collisions with in-progress transmissions on the same channel (v1.17).",
+  "repeater_cliHelpSetRadioFemRxgain": "Controls the front-end module (FEM) RX gain — boosts receive sensitivity on supported boards (v1.17).",
+  "repeater_cliHelpSetRadioFemTxgain": "Controls the front-end module (FEM) TX gain, the sibling setting to radio.fem.rxgain (v1.17.1).",
+  "repeater_cliHelpSetExtraSf": "Enables additional spreading factors on LR2021-based radios (v1.17).",
+  "repeater_cliHelpSetFloodMaxAdvert": "Sets the maximum hop count for flood-routed advert packets, up to 64 (v1.17).",
+  "repeater_cliHelpSetFloodMaxUnscoped": "Sets the maximum hop count for unscoped flood packets, up to 64 (v1.17).",
   "repeater_cliHelpTempRadio": "Sets temporary radio params for the given number of minutes, reverting to original radio params afterward. (does NOT save to preferences).",
   "repeater_cliHelpSetPerm": "Modifies the ACL. Removes matching entry (by pubkey prefix) if \"permissions\" is zero. Adds new entry if pubkey-hex is full length and is not currently in ACL. Updates entry by matching pubkey prefix. Permission bits vary per firmware role, but low 2 bits are: 0 (Guest), 1 (Read only), 2 (Read write), 3 (Admin)",
   "repeater_cliHelpGetBridgeType": "Gets bridge type none, rs232, espnow",
@@ -1683,6 +1690,21 @@
   "repeater_cliHelpGpsAdvert": "Gives location advert configuration of the node:\n- none: don't include location in adverts\n- share: share gps location (from SensorManager)\n- prefs: advert the location stored in preferences",
   "repeater_cliHelpGpsAdvertSet": "Sets location advert configuration.",
   "repeater_commandsListTitle": "Commands List",
+  "repeater_commandsGroupsSuffix": "groups",
+  "repeater_commandsExpandAction": "expand",
+  "repeater_commandsFullscreenAction": "full screen",
+  "repeater_commandsCollapseAction": "collapse",
+  "repeater_commandsCollapseToPanelAction": "collapse to panel",
+  "repeater_paramPopup_title": "Parameters: {command}",
+  "@repeater_paramPopup_title": {
+    "placeholders": {
+      "command": {
+        "type": "String"
+      }
+    }
+  },
+  "repeater_paramPopup_send": "Send",
+  "repeater_paramPopup_region": "region / freq",
   "repeater_commandsListNote": "NOTE: for the various \"set ...\" commands, there is also a \"get ...\" command.",
   "repeater_general": "General",
   "repeater_settingsCategory": "Settings",
