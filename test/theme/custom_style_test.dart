@@ -253,18 +253,20 @@ void main() {
       expect((border! as OutlineInputBorder).borderRadius.topLeft.x, 2.0);
     });
 
-    test('a pill radius override wins over the default and reshapes the FAB',
-        () {
-      final style = buildCustomStyle(
-        const CustomStyleOverrides(radiusOverrides: {'pill': 4.0}),
-      );
-      expect(style.theme.extension<MeshTokens>()!.pill, 4.0);
-      final shape = style.theme.floatingActionButtonTheme.shape;
-      expect(shape, isA<RoundedRectangleBorder>());
-      final radius =
-          (shape! as RoundedRectangleBorder).borderRadius as BorderRadius;
-      expect(radius.topLeft.x, 4.0);
-    });
+    test(
+      'a pill radius override wins over the default and reshapes the FAB',
+      () {
+        final style = buildCustomStyle(
+          const CustomStyleOverrides(radiusOverrides: {'pill': 4.0}),
+        );
+        expect(style.theme.extension<MeshTokens>()!.pill, 4.0);
+        final shape = style.theme.floatingActionButtonTheme.shape;
+        expect(shape, isA<RoundedRectangleBorder>());
+        final radius =
+            (shape! as RoundedRectangleBorder).borderRadius as BorderRadius;
+        expect(radius.topLeft.x, 4.0);
+      },
+    );
 
     test('buttons follow the buttons-only radius and border mode '
         '(2026-08-21 Buttons section)', () {
