@@ -19,7 +19,6 @@ class UiViewStateService extends ChangeNotifier {
 
   String _contactsSelectedGroupName = contactsAllGroupsValue;
   String _contactsSearchText = '';
-  bool _contactsSearchExpanded = false;
   ContactSortOption _contactsSortOption = ContactSortOption.lastSeen;
   bool _contactsShowUnreadOnly = false;
   ContactTypeFilter _contactsTypeFilter = ContactTypeFilter.all;
@@ -29,7 +28,6 @@ class UiViewStateService extends ChangeNotifier {
 
   String get contactsSelectedGroupName => _contactsSelectedGroupName;
   String get contactsSearchText => _contactsSearchText;
-  bool get contactsSearchExpanded => _contactsSearchExpanded;
   ContactSortOption get contactsSortOption => _contactsSortOption;
   bool get contactsShowUnreadOnly => _contactsShowUnreadOnly;
   ContactTypeFilter get contactsTypeFilter => _contactsTypeFilter;
@@ -103,12 +101,6 @@ class UiViewStateService extends ChangeNotifier {
   void setContactsSearchText(String value) {
     if (_contactsSearchText == value) return;
     _contactsSearchText = value;
-    notifyListeners();
-  }
-
-  void setContactsSearchExpanded(bool value) {
-    if (_contactsSearchExpanded == value) return;
-    _contactsSearchExpanded = value;
     notifyListeners();
   }
 

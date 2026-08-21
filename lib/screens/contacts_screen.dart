@@ -172,14 +172,6 @@ class _ContactsScreenState extends State<ContactsScreen>
     _loadGroups();
   }
 
-  void _collapseContactsSearch(UiViewStateService viewState) {
-    _searchDebounce?.cancel();
-    _searchDebounce = null;
-    _searchController.clear();
-    viewState.setContactsSearchText('');
-    viewState.setContactsSearchExpanded(false);
-  }
-
   void _showGroupsUnavailableMessage(BuildContext context) {
     showDismissibleSnackBar(
       context,
@@ -612,10 +604,19 @@ class _ContactsScreenState extends State<ContactsScreen>
     final selectedGroupName =
         _selectedGroupForName(viewState.contactsSelectedGroupName)?.name ??
         context.l10n.listFilter_all;
-    final double menuWidth = (MediaQuery.sizeOf(context).width - 16).clamp(
-      0.0,
-      double.infinity,
+    // Menu tracks the collapsed button's width (1/3 of the screen — must
+    // match groupMaxWidth in _buildContactsBody), but never drops below a
+    // legible floor: on narrow screens 1/3 leaves room for the row icons
+    // only, truncating every group name away (2026-08-21 fix).
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+    final double menuWidth = (screenWidth / 3).clamp(
+      240.0,
+      (screenWidth - 16).clamp(240.0, double.infinity),
     );
+    // Same font as the search TextField next to it (and on the Channels
+    // card): M3 TextFields render in bodyLarge, while PopupMenuItem's
+    // default is labelLarge — they visibly diverge without this.
+    final TextStyle? entryStyle = Theme.of(context).textTheme.bodyLarge;
 
     return PopupMenuButton<String>(
       position: PopupMenuPosition.under,
@@ -629,7 +630,7 @@ class _ContactsScreenState extends State<ContactsScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(menuContext.l10n.listFilter_all),
+              Text(menuContext.l10n.listFilter_all, style: entryStyle),
               IconButton(
                 tooltip: menuContext.l10n.contacts_newGroup,
                 icon: const Icon(Icons.group_add, size: 20),
@@ -653,7 +654,11 @@ class _ContactsScreenState extends State<ContactsScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(group.name, overflow: TextOverflow.ellipsis),
+                  child: Text(
+                    group.name,
+                    overflow: TextOverflow.ellipsis,
+                    style: entryStyle,
+                  ),
                 ),
                 IconButton(
                   tooltip: menuContext.l10n.contacts_editGroup,
@@ -696,10 +701,17 @@ class _ContactsScreenState extends State<ContactsScreen>
         }),
       ],
       child: SizedBox(
-        height: 48,
+        // Height comes from the sibling search TextField via the row's
+        // IntrinsicHeight + stretch in _buildContactsBody.
         child: DecoratedBox(
+          // Mirrors the app-wide InputDecorationTheme (mesh_theme.dart) so
+          // the group selector reads as a sibling of the search field next
+          // to it: filled surface + outlineVariant border, same radius.
           decoration: BoxDecoration(
-            border: Border.all(color: Theme.of(context).colorScheme.outline),
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
             borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
           ),
           child: Padding(
@@ -713,6 +725,7 @@ class _ContactsScreenState extends State<ContactsScreen>
                   child: Text(
                     selectedGroupName,
                     overflow: TextOverflow.ellipsis,
+                    style: entryStyle,
                   ),
                 ),
                 SizedBox(width: t.spacingXs),
@@ -814,114 +827,77 @@ class _ContactsScreenState extends State<ContactsScreen>
     final sortedGroups = groupsByName.values.toList()
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final searchExpandedWidth = (screenWidth * 0.52).clamp(
-      97.0,
-      double.infinity,
-    ); // allow expansion up to 52% of screen width, but not less than the collapsed width
-    final searchCollapsedWidth = (screenWidth * 0.22).clamp(
-      97.0,
-      120.0,
-    ); //two 48px icon buttons + 1px divider
+    final groupMaxWidth = MediaQuery.sizeOf(context).width / 3;
 
     return Column(
       children: [
         Padding(
           padding: EdgeInsets.all(t.spacingXs),
-          child: Row(
-            children: [
-              Expanded(
-                child: _buildGroupButton(
-                  context,
-                  connector,
-                  viewState,
-                  contacts,
-                  sortedGroups,
-                ),
-              ),
-              SizedBox(width: t.spacingXs),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
-                width: viewState.contactsSearchExpanded
-                    ? searchExpandedWidth
-                    : searchCollapsedWidth,
-                height: 48,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                    borderRadius: BorderRadius.circular(
-                      MeshTokens.of(context).md,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: viewState.contactsSearchExpanded
-                            ? TextField(
-                                controller: _searchController,
-                                autofocus: true,
-                                decoration: InputDecoration(
-                                  hintText: hintText,
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: t.spacingSm,
-                                    vertical: t.spacingSm,
-                                  ),
-                                ),
-                                onChanged: (value) {
-                                  _searchDebounce?.cancel();
-                                  _searchDebounce = Timer(
-                                    const Duration(milliseconds: 300),
-                                    () {
-                                      if (!mounted) return;
-                                      context
-                                          .read<UiViewStateService>()
-                                          .setContactsSearchText(value);
-                                    },
-                                  );
-                                },
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                      SizedBox(
-                        width: 48,
-                        height: 48,
-                        child: IconButton(
-                          tooltip: viewState.contactsSearchExpanded
-                              ? context.l10n.contacts_searchClose
-                              : context.l10n.contacts_searchOpen,
-                          onPressed: () {
-                            if (viewState.contactsSearchExpanded) {
-                              _collapseContactsSearch(viewState);
-                              return;
-                            }
-                            viewState.setContactsSearchExpanded(true);
-                          },
-                          icon: Icon(
-                            viewState.contactsSearchExpanded
-                                ? Icons.close
-                                : Icons.search,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 1,
-                        height: 24,
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                      SizedBox(
-                        width: 48,
-                        height: 48,
-                        child: _buildFilterButton(context, viewState),
-                      ),
-                    ],
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Group selector capped at 1/3 of the screen; the search field
+                // takes the rest — same themed TextField as the Channels card
+                // (2026-08-21 refinement, replaces the collapsible search box).
+                // IntrinsicHeight + stretch keeps the group button exactly as
+                // tall as the search field next to it.
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: groupMaxWidth),
+                  child: _buildGroupButton(
+                    context,
+                    connector,
+                    viewState,
+                    contacts,
+                    sortedGroups,
                   ),
                 ),
-              ),
-            ],
+                SizedBox(width: t.spacingXs),
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: hintText,
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (viewState.contactsSearchText.isNotEmpty)
+                            IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchDebounce?.cancel();
+                                _searchDebounce = null;
+                                _searchController.clear();
+                                context
+                                    .read<UiViewStateService>()
+                                    .setContactsSearchText('');
+                              },
+                            ),
+                          _buildFilterButton(context, viewState),
+                        ],
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: t.spacingMd,
+                        vertical: t.spacingSm,
+                      ),
+                    ),
+                    onChanged: (value) {
+                      _searchDebounce?.cancel();
+                      _searchDebounce = Timer(
+                        const Duration(milliseconds: 300),
+                        () {
+                          if (!mounted) return;
+                          context
+                              .read<UiViewStateService>()
+                              .setContactsSearchText(value);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         Expanded(
