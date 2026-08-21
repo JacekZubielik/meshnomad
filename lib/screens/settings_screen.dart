@@ -188,7 +188,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final t = MeshTokens.of(context);
     return Row(
       children: [
-        Icon(icon, size: 20, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 20, color: t.primary),
         SizedBox(width: t.spacingSm),
         Expanded(
           child: Column(
@@ -268,7 +268,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
                     Icons.expand_more,
-                    color: scheme.onSurfaceVariant,
+                    color: MeshTokens.of(context).primary,
                   ),
                 ),
               ],
@@ -427,7 +427,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       valueColor = Theme.of(context).colorScheme.tertiary;
     } else {
       icon = Icons.battery_full;
-      iconColor = null;
+      iconColor = MeshTokens.of(context).primary;
       valueColor = null;
     }
 
@@ -718,8 +718,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final effectiveIconColor = iconColor ?? scheme.onSurfaceVariant;
     final t = MeshTokens.of(context);
+    // Accent by default (2026-08-21 refinement); warn/alert tiles still
+    // pass their own semantic color explicitly.
+    final effectiveIconColor = iconColor ?? t.primary;
 
     return InkWell(
       onTap: onTap,
