@@ -67,14 +67,19 @@ jobs:
       # so the stale reference doesn't break :app:compileReleaseJavaWithJavac.
       - run: flutter build apk --release
 
-  android-release:
+  # Split into one job per artifact (APK, AAB) instead of building both
+  # back-to-back in a single job: on ubuntu-latest's ~14GB disk / 7GB RAM,
+  # a split-per-abi APK build followed immediately by an App Bundle build
+  # in the same Gradle daemon/workspace was getting silently killed by the
+  # runner ("The operation was canceled" after ~3min on the App Bundle step,
+  # with no useful log — a resource-exhaustion symptom, not a build error).
+  # Each job below gets its own fresh runner, so a crash in one no longer
+  # wastes the other's already-successful build, and peak disk/memory per
+  # job is roughly halved.
+  android-release-apk:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: android
-    permissions:
-      # The default GITHUB_TOKEN is read-only; creating the GitHub Release
-      # (softprops/action-gh-release) needs contents write.
-      contents: write
     steps:
       - name: Free disk space
         run: |
@@ -83,10 +88,6 @@ jobs:
           sudo docker image prune --all --force
           df -h /
       - uses: actions/checkout@v7
-        with:
-          # git-cliff needs the full history and tags to build release notes;
-          # a shallow clone yields an empty changelog.
-          fetch-depth: 0
       - uses: actions/setup-java@v5
         with:
           distribution: "temurin"
@@ -102,9 +103,9 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/build.gradle', 'android/settings.gradle', 'android/app/build.gradle', 'pubspec.lock') }}
+          key: ${{ runner.os }}-gradle-apk-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/build.gradle', 'android/settings.gradle', 'android/app/build.gradle', 'pubspec.lock') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-gradle-apk-
       - name: Decode keystore and write key.properties
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -123,21 +124,89 @@ jobs:
       - name: Build release APKs (per-ABI)
         # Per-ABI split instead of one fat multi-arch APK: each device only
         # needs one of these, so the download is a fraction of the combined
-        # size. The AAB below stays single-file — Play Store already does
-        # per-ABI delivery on its own for AAB installs.
+        # size. The AAB is built separately below in its own job.
         run: flutter build apk --release --split-per-abi
-      - name: Build release App Bundle
-        run: flutter build appbundle --release
       - uses: actions/upload-artifact@v7
         with:
           name: meshnomad-release-apk
           path: build/app/outputs/flutter-apk/app-*-release.apk
           retention-days: 30
+
+  android-release-aab:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: android
+    steps:
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk/ndk /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          df -h /
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: "stable"
+          cache: true
+      - name: Cache Gradle
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-aab-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/build.gradle', 'android/settings.gradle', 'android/app/build.gradle', 'pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-aab-
+      - name: Decode keystore and write key.properties
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/meshnomad-release.keystore
+          cat > android/key.properties << EOF
+          storeFile=meshnomad-release.keystore
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+      - run: flutter pub get
+      - name: Build release App Bundle
+        run: flutter build appbundle --release
       - uses: actions/upload-artifact@v7
         with:
           name: meshnomad-release-aab
           path: build/app/outputs/bundle/release/app-release.aab
           retention-days: 30
+
+  android-release-publish:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: [android-release-apk, android-release-aab]
+    permissions:
+      # The default GITHUB_TOKEN is read-only; creating the GitHub Release
+      # (softprops/action-gh-release) needs contents write.
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # git-cliff needs the full history and tags to build release notes;
+          # a shallow clone yields an empty changelog.
+          fetch-depth: 0
+      - uses: actions/download-artifact@v6
+        with:
+          name: meshnomad-release-apk
+          path: build/app/outputs/flutter-apk
+      - uses: actions/download-artifact@v6
+        with:
+          name: meshnomad-release-aab
+          path: build/app/outputs/bundle/release
       - name: Determine changelog range
         if: startsWith(github.ref, 'refs/tags/v')
         id: range
