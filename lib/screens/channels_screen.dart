@@ -221,6 +221,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                   padding: EdgeInsets.all(MeshTokens.of(context).spacingXs),
                   child: TextField(
                     controller: _searchController,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     decoration: InputDecoration(
                       hintText: context.l10n.channels_searchChannels,
                       prefixIcon: const Icon(Icons.search),
