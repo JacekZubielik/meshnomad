@@ -7,79 +7,41 @@ env:
 
 on:
   push:
-    # No `branches: [main]` here on purpose: main only ever receives commits
-    # that already passed this exact workflow on their pull_request run (or,
-    # for a plain fast-forward promotion from dev-custom, on dev-custom's own
-    # PRs) — re-running it again right after landing on main just burns
-    # Actions minutes on an already-known-green build. The tag trigger below
-    # is the one that matters for a release; use workflow_dispatch (any
-    # branch/ref) for an ad hoc signed build outside of a tagged release.
+    # No branch triggers and no pull_request trigger on purpose (owner
+    # decision 2026-08-21, private-repo Actions minutes are the scarce
+    # resource): validation before a PR is the local pre-push gate
+    # (analyze+format+test) plus a device build, and flutter_dart.yml still
+    # runs the cheap analyze+test on every PR. Full platform builds are
+    # manual — trigger workflow_dispatch when artifacts are actually needed.
+    # The tag trigger below is what produces a release.
     tags:
       - 'v*'
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
-  pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
   workflow_dispatch:
+    inputs:
+      build_aab:
+        description: >-
+          Also build the Play Store App Bundle (disabled by default: no Play
+          Store presence yet, and the AAB build currently dies on the 7GB
+          ubuntu-latest runner — see android-release-aab comment).
+        type: boolean
+        default: false
 
 jobs:
-  android:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Free disk space
-        # ubuntu-latest ran out of disk mid-build (NDK 27 + Gradle + Flutter
-        # caches exceed the ~14GB default free space) - drop preinstalled
-        # toolchains this build never touches. The NDK version we need is
-        # downloaded fresh by the build regardless, so removing preinstalled
-        # NDKs here is safe.
-        run: |
-          df -h /
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk/ndk /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
-          sudo docker image prune --all --force
-          df -h /
-      - uses: actions/checkout@v7
-      - uses: actions/setup-java@v5
-        with:
-          distribution: "temurin"
-          java-version: "17"
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: "stable"
-          cache: true
-      - name: Cache Gradle
-        uses: actions/cache@v6
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/build.gradle', 'android/settings.gradle', 'android/app/build.gradle', 'pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - run: flutter pub get
-      # No --no-pub here: `flutter pub get` regenerates GeneratedPluginRegistrant
-      # with ALL plugins (including dev-dependency integration_test), while the
-      # release build excludes dev-dependency plugins from the compile classpath.
-      # `flutter build` without --no-pub regenerates the registrant release-aware,
-      # so the stale reference doesn't break :app:compileReleaseJavaWithJavac.
-      - run: flutter build apk --release
+  # No plain unsigned-fat-APK smoke job anymore: every run of this workflow
+  # (tag or manual dispatch) builds the signed per-ABI APKs below, which is a
+  # strictly better artifact from the same minutes. linux/web stay as the
+  # only desktop/web coverage and now upload what they build.
 
-  # Split into one job per artifact (APK, AAB) instead of building both
-  # back-to-back in a single job: on ubuntu-latest's ~14GB disk / 7GB RAM,
-  # a split-per-abi APK build followed immediately by an App Bundle build
-  # in the same Gradle daemon/workspace was getting silently killed by the
-  # runner ("The operation was canceled" after ~3min on the App Bundle step,
-  # with no useful log — a resource-exhaustion symptom, not a build error).
-  # Each job below gets its own fresh runner, so a crash in one no longer
-  # wastes the other's already-successful build, and peak disk/memory per
-  # job is roughly halved.
+  # One job per artifact (APK, AAB): the AAB build dies on ubuntu-latest even
+  # alone on a fresh runner (hangs ~17min on `flutter build appbundle`, then
+  # "The operation was canceled" with no error — the 229MB bundle with
+  # llamadart native libs exhausts the 7GB runner). Keeping the jobs separate
+  # means an AAB crash can never take the APKs down with it.
+  # No `needs: android` — that job is a plain unsigned fat-APK smoke build,
+  # and this job compiles everything itself anyway; chaining them would just
+  # double the Android minutes per release.
   android-release-apk:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-    needs: android
     steps:
       - name: Free disk space
         run: |
@@ -133,9 +95,14 @@ jobs:
           retention-days: 30
 
   android-release-aab:
+    # Disabled by default until further notice (owner decision 2026-08-21):
+    # there is no Play Store presence yet, so the AAB has no consumer — and
+    # this exact build is the one that keeps dying on the 7GB runner (~19min
+    # burned per attempt). Run workflow_dispatch with build_aab=true to get
+    # one when Play publishing becomes real (expect to need memory tuning
+    # first, e.g. capped org.gradle.jvmargs).
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-    needs: android
+    if: github.event_name == 'workflow_dispatch' && inputs.build_aab
     steps:
       - name: Free disk space
         run: |
@@ -187,8 +154,11 @@ jobs:
 
   android-release-publish:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-    needs: [android-release-apk, android-release-aab]
+    # Tag pushes only — a workflow_dispatch build is for grabbing test
+    # artifacts, not for creating a GitHub Release. Depends only on the APKs;
+    # the AAB job is opt-in (see above) and not part of the release assets.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: android-release-apk
     permissions:
       # The default GITHUB_TOKEN is read-only; creating the GitHub Release
       # (softprops/action-gh-release) needs contents write.
@@ -203,12 +173,7 @@ jobs:
         with:
           name: meshnomad-release-apk
           path: build/app/outputs/flutter-apk
-      - uses: actions/download-artifact@v6
-        with:
-          name: meshnomad-release-aab
-          path: build/app/outputs/bundle/release
       - name: Determine changelog range
-        if: startsWith(github.ref, 'refs/tags/v')
         id: range
         run: |
           # Previous v* tag if any; for the very first release fall back to the
@@ -221,7 +186,6 @@ jobs:
           echo "range=${PREV}..HEAD" >> "$GITHUB_OUTPUT"
           echo "Changelog range: ${PREV}..HEAD"
       - name: Generate changelog
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: orhun/git-cliff-action@v4
         id: git-cliff
         with:
@@ -230,12 +194,9 @@ jobs:
         env:
           OUTPUT: CHANGES.md
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            build/app/outputs/flutter-apk/app-*-release.apk
-            build/app/outputs/bundle/release/app-release.aab
+          files: build/app/outputs/flutter-apk/app-*-release.apk
           body: ${{ steps.git-cliff.outputs.content }}
 
   ios:
@@ -256,6 +217,7 @@ jobs:
 
   linux:
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
@@ -267,6 +229,13 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libsecret-1-dev
       - run: flutter pub get
       - run: flutter build linux --release --no-pub
+      - name: Pack Linux bundle
+        run: tar -C build/linux/x64/release -czf meshnomad-linux-x64.tar.gz bundle
+      - uses: actions/upload-artifact@v7
+        with:
+          name: meshnomad-linux-x64
+          path: meshnomad-linux-x64.tar.gz
+          retention-days: 7
 
   macos:
     # Temporarily disabled 2026-08-21 to save Actions minutes on the free
@@ -288,6 +257,7 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
@@ -297,3 +267,8 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter build web --release --no-pub
+      - uses: actions/upload-artifact@v7
+        with:
+          name: meshnomad-web
+          path: build/web
+          retention-days: 7
