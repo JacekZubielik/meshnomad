@@ -720,7 +720,7 @@ class ContactTypeBadge extends StatelessWidget {
     final color = colorForContactType(tokens, type);
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: tokens.spacingXs,
+        horizontal: tokens.spacingXxs,
         vertical: tokens.spacingHairline,
       ),
       decoration: BoxDecoration(
@@ -774,7 +774,7 @@ class _ContactBadge extends StatelessWidget {
       opacity: active ? 1.0 : 0.30,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: tokens.spacingXs,
+          horizontal: tokens.spacingXxs,
           vertical: tokens.spacingHairline,
         ),
         decoration: BoxDecoration(
