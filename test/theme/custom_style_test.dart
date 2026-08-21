@@ -331,8 +331,14 @@ void main() {
       final scheme = theme.colorScheme;
       expect(scheme.primary, const Color(0xFFFF8800));
       expect(theme.floatingActionButtonTheme.backgroundColor, scheme.primary);
+      // Buttons render the tinted-primary language (2026-08-21): 20% tint
+      // fill with the accent itself as ink.
       expect(
         theme.filledButtonTheme.style!.backgroundColor!.resolve({}),
+        scheme.primary.withValues(alpha: 0.2),
+      );
+      expect(
+        theme.filledButtonTheme.style!.foregroundColor!.resolve({}),
         scheme.primary,
       );
       expect(

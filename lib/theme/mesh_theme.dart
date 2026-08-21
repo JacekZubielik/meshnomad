@@ -418,11 +418,16 @@ class MeshTheme {
           letterSpacing: 0.2,
         ),
       ),
+      // App-wide button language (2026-08-21, modeled on the repeater CLI
+      // param-popup steppers): primary tint bg (~20%), primary ink, no
+      // border, soft shadow. Radius/border-mode are user-editable via the
+      // Custom Style editor's Buttons section (buildCustomStyle re-derives).
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: scheme.primary,
-          foregroundColor: scheme.onPrimary,
-          elevation: 0,
+          backgroundColor: scheme.primary.withValues(alpha: 0.2),
+          foregroundColor: scheme.primary,
+          elevation: 1,
+          shadowColor: const Color(0xFF000000),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MeshRadii.pill),
@@ -437,8 +442,11 @@ class MeshTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: scheme.onSurface,
-          side: BorderSide(color: scheme.outline),
+          backgroundColor: scheme.primary.withValues(alpha: 0.2),
+          foregroundColor: scheme.primary,
+          side: BorderSide.none,
+          elevation: 1,
+          shadowColor: const Color(0xFF000000),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MeshRadii.pill),
@@ -656,8 +664,10 @@ class MeshTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: scheme.primary,
-          foregroundColor: scheme.onPrimary,
+          backgroundColor: scheme.primary.withValues(alpha: 0.2),
+          foregroundColor: scheme.primary,
+          elevation: 1,
+          shadowColor: const Color(0xFF000000),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MeshRadii.pill),

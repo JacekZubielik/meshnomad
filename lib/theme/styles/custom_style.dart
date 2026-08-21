@@ -656,14 +656,18 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: (base.elevatedButtonTheme.style ?? const ButtonStyle()).copyWith(
-          backgroundColor: accentUnlessDisabled(scheme.primary),
-          foregroundColor: accentUnlessDisabled(scheme.onPrimary),
+          backgroundColor: accentUnlessDisabled(
+            scheme.primary.withValues(alpha: 0.2),
+          ),
+          foregroundColor: accentUnlessDisabled(scheme.primary),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: (base.filledButtonTheme.style ?? const ButtonStyle()).copyWith(
-          backgroundColor: accentUnlessDisabled(scheme.primary),
-          foregroundColor: accentUnlessDisabled(scheme.onPrimary),
+          backgroundColor: accentUnlessDisabled(
+            scheme.primary.withValues(alpha: 0.2),
+          ),
+          foregroundColor: accentUnlessDisabled(scheme.primary),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -673,7 +677,11 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: (base.outlinedButtonTheme.style ?? const ButtonStyle()).copyWith(
-          foregroundColor: accentUnlessDisabled(scheme.onSurface),
+          backgroundColor: accentUnlessDisabled(
+            scheme.primary.withValues(alpha: 0.2),
+          ),
+          foregroundColor: accentUnlessDisabled(scheme.primary),
+          side: const WidgetStatePropertyAll(BorderSide.none),
         ),
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
