@@ -1,6 +1,12 @@
 [changelog]
-header = ""
+# Stripped in CI (`--strip header`) so the release body stays header-free;
+# kept when generating the committed CHANGELOG.md locally.
+header = """
+# Changelog
+
+"""
 body = """
+{% if version %}## {{ version }}{% if timestamp %} ({{ timestamp | date(format="%Y-%m-%d") }}){% endif %}{% endif %}
 {% for group, commits in commits | group_by(attribute="group") %}
 ### {{ group | upper_first }}
 {% for commit in commits %}
