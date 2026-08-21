@@ -62,11 +62,6 @@
 - Bump GitHub Actions to their Node 24 runtime releases
 
 
-### Chores
-
-- Stop tracking CLAUDE.md, keep it local-only
-
-
 ### Documentation
 
 - Document UI testing layers (golden, integration, patrol, mcp)

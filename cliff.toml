@@ -22,6 +22,9 @@ filter_unconventional = true
 tag_pattern = "^v[0-9]+\\."
 skip_tags = "^(Alpha|PRE-BETA)"
 commit_parsers = [
+  # Never surface internal AI-tooling references (CLAUDE.md, Claude Code) in
+  # public release notes.
+  { message = "(?i)claude", skip = true },
   { message = "^feat", group = "Features" },
   { message = "^fix", group = "Bug Fixes" },
   { message = "^perf", group = "Performance" },
