@@ -13,6 +13,7 @@ import 'indicator_caption.dart';
 import 'mesh_info_dialog.dart';
 import 'mesh_ui.dart';
 import 'signal_ui.dart';
+import 'mesh_dashed_divider.dart';
 
 Contact? _getRepeaterPrefixMatchNearLocation(
   List<Contact> contacts,
@@ -320,7 +321,7 @@ class _SNRIndicatorState extends State<SNRIndicator> {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final (index, repeater) in directBestRepeaters.indexed) ...[
-            if (index > 0) const Divider(height: 1),
+            if (index > 0) const MeshDashedDivider(),
             NearbyRepeaterTile(
               repeater: repeater,
               contact: _getRepeaterPrefixMatchNearLocation(

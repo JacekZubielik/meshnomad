@@ -11,6 +11,7 @@ import 'package:meshnomad/widgets/radio_stats_band_chart.dart';
 import 'package:meshnomad/models/companion_core_stats.dart';
 import 'package:meshnomad/models/companion_packet_stats.dart';
 import 'package:provider/provider.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 class CompanionRadioStatsScreen extends StatelessWidget {
   const CompanionRadioStatsScreen({super.key});
@@ -183,7 +184,7 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
               ).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant),
             ),
           ),
-          const Divider(height: 1),
+          const MeshDashedDivider(),
           _tile(
             l10n.radioStats_rxAir(stats.rxAirSecs),
             Icons.download,
@@ -231,19 +232,19 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
             Icons.battery_std,
             scheme.onSurfaceVariant,
           ),
-          const Divider(height: 1),
+          const MeshDashedDivider(),
           _tile(
             l10n.radioStats_core_uptime(stats.uptimeSecs),
             Icons.schedule,
             scheme.onSurfaceVariant,
           ),
-          const Divider(height: 1),
+          const MeshDashedDivider(),
           _tile(
             '${l10n.repeater_queueLength}: ${stats.queueLen}',
             Icons.outbox,
             scheme.onSurfaceVariant,
           ),
-          const Divider(height: 1),
+          const MeshDashedDivider(),
           _tile(
             _errFlagsSummary(l10n, stats),
             hasErrors ? Icons.warning_amber : Icons.check_circle_outline,
@@ -276,7 +277,7 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
             Icons.upload,
             scheme.onSurfaceVariant,
           ),
-          const Divider(height: 1),
+          const MeshDashedDivider(),
           _tile(
             l10n.repeater_packetRxTotal(
               stats.recv,
@@ -286,7 +287,7 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
             Icons.download,
             scheme.onSurfaceVariant,
           ),
-          const Divider(height: 1),
+          const MeshDashedDivider(),
           _tile(
             l10n.radioStats_packets_recvErrors(stats.recvErrors),
             hasErrors ? Icons.warning_amber : Icons.check_circle_outline,
@@ -359,13 +360,13 @@ class _RadioStatsPanelState extends State<RadioStatsPanel> {
                           Icons.noise_aware,
                           scheme.onSurfaceVariant,
                         ),
-                        const Divider(height: 1),
+                        const MeshDashedDivider(),
                         _tile(
                           l10n.radioStats_lastRssi(stats.lastRssiDbm),
                           Icons.wifi_tethering,
                           scheme.onSurfaceVariant,
                         ),
-                        const Divider(height: 1),
+                        const MeshDashedDivider(),
                         _tile(
                           l10n.radioStats_lastSnr(
                             stats.lastSnrDb.toStringAsFixed(1),

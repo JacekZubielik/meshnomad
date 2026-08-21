@@ -47,6 +47,7 @@ import '../widgets/unread_divider.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 import 'telemetry_screen.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 class ChatScreen extends StatefulWidget {
   final Contact contact;
@@ -921,7 +922,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     context.l10n.chat_location,
                     '${contact.latitude?.toStringAsFixed(4)}, ${contact.longitude?.toStringAsFixed(4)}',
                   ),
-                  const Divider(height: 8),
+                  const MeshDashedDivider(space: 8),
                 ],
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
@@ -945,7 +946,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     });
                   },
                 ),
-                const Divider(height: 8),
+                const MeshDashedDivider(space: 8),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(context.l10n.channels_cyr2latCompression),
@@ -1003,7 +1004,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                 ],
-                const Divider(height: 8),
+                const MeshDashedDivider(space: 8),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(context.l10n.contact_teleBase),
@@ -1013,7 +1014,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     setDialogState(() => teleBaseEnabled = value);
                   },
                 ),
-                const Divider(height: 8),
+                const MeshDashedDivider(space: 8),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(context.l10n.contact_teleLoc),
@@ -1023,7 +1024,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     setDialogState(() => teleLocEnabled = value);
                   },
                 ),
-                const Divider(height: 8),
+                const MeshDashedDivider(space: 8),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(context.l10n.contact_teleEnv),
@@ -1238,7 +1239,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   _openChat(context, contact);
                 },
               ),
-            const Divider(height: 1),
+            const MeshDashedDivider(),
             ListTile(
               leading: Icon(
                 Icons.delete_outline,

@@ -8,6 +8,7 @@ import '../l10n/contact_localization.dart';
 import '../l10n/l10n.dart';
 import '../models/contact.dart';
 import '../theme/mesh_tokens.dart';
+import 'mesh_dashed_divider.dart';
 
 class PathEditorSheet extends StatefulWidget {
   final List<Contact> availableContacts;
@@ -344,7 +345,7 @@ class _PathEditorSheetState extends State<PathEditorSheet> {
                   onReorderItem: _reorderHop,
                   itemBuilder: _hopTile,
                 ),
-              const Divider(),
+              const MeshDashedDivider(space: 16),
               SizedBox(height: MeshTokens.of(context).spacingXs),
               Text(l10n.pathEditor_addHops, style: theme.textTheme.titleSmall),
               SizedBox(height: MeshTokens.of(context).spacingXs),

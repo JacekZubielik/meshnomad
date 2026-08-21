@@ -8,6 +8,7 @@ import '../theme/mesh_tokens.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/app_bar.dart';
 import '../helpers/snack_bar_builder.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 enum _BleLogView { frames, rawLogRx }
 
@@ -124,10 +125,7 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                           itemCount: showingFrames
                               ? entries.length
                               : rawEntries.length,
-                          separatorBuilder: (_, _) => Divider(
-                            height: 1,
-                            color: MeshTokens.of(context).line,
-                          ),
+                          separatorBuilder: (_, _) => const MeshDashedDivider(),
                           itemBuilder: (context, index) {
                             if (showingFrames) {
                               final entry = entries[index];
