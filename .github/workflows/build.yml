@@ -107,13 +107,28 @@ jobs:
           keyPassword=$KEY_PASSWORD
           EOF
       - run: flutter pub get
+      - name: Build release APK
+        run: flutter build apk --release
       - name: Build release App Bundle
         run: flutter build appbundle --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meshnomad-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
           name: meshnomad-release-aab
           path: build/app/outputs/bundle/release/app-release.aab
           retention-days: 30
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+          generate_release_notes: true
 
   ios:
     # Temporarily disabled 2026-08-21 to save Actions minutes on the free
