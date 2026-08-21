@@ -597,25 +597,27 @@ class MeshTheme {
           ),
         ),
       ),
+      // Switch language (2026-08-21): ON = primary tint track (20%) + solid
+      // primary thumb; OFF = secondary tint track (20%) + solid secondary
+      // thumb. No outline in either state — matches the app-wide tinted
+      // button look this session introduced.
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? scheme.onPrimary
-              : scheme.onSurfaceVariant,
+              ? scheme.primary
+              : scheme.secondary,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? scheme.primary
-              : scheme.surfaceContainerHighest,
+              ? scheme.primary.withValues(alpha: 0.2)
+              : scheme.secondary.withValues(alpha: 0.2),
         ),
-        trackOutlineColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? Colors.transparent
-              : scheme.outline,
-        ),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
+      // Sliders: 20%-tint track, solid 100% thumb (2026-08-21) — same
+      // tint/solid split as the switch above.
       sliderTheme: SliderThemeData(
-        activeTrackColor: scheme.primary,
+        activeTrackColor: scheme.primary.withValues(alpha: 0.2),
         inactiveTrackColor: scheme.surfaceContainerHighest,
         thumbColor: scheme.primary,
         overlayColor: scheme.primary.withValues(alpha: 0.12),
