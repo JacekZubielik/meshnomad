@@ -115,16 +115,20 @@ jobs:
           keyPassword=$KEY_PASSWORD
           EOF
       - run: flutter pub get
-      - name: Build release APK
-        run: flutter build apk --release
+      - name: Build release APKs (per-ABI)
+        # Per-ABI split instead of one fat multi-arch APK: each device only
+        # needs one of these, so the download is a fraction of the combined
+        # size. The AAB below stays single-file — Play Store already does
+        # per-ABI delivery on its own for AAB installs.
+        run: flutter build apk --release --split-per-abi
       - name: Build release App Bundle
         run: flutter build appbundle --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: meshnomad-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-*-release.apk
           retention-days: 30
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: meshnomad-release-aab
           path: build/app/outputs/bundle/release/app-release.aab
@@ -156,7 +160,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-*-release.apk
             build/app/outputs/bundle/release/app-release.aab
           body: ${{ steps.git-cliff.outputs.content }}
 
