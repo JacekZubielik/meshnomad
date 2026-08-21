@@ -205,8 +205,8 @@ void main() {
       );
     });
 
-    test('default spacing scale is 6/16/13/28/24/32/48 in both brightnesses '
-        '(2026-08-18 operator-set defaults)', () {
+    test('default spacing scale is 6/16/13/14/24/32/48 in both brightnesses '
+        '(2026-08-21 operator-set defaults)', () {
       for (final tokens in [
         MeshTokens.defaultTokens,
         MeshTokens.defaultTokensLight,
@@ -214,7 +214,7 @@ void main() {
         expect(tokens.spacingXxs, 6);
         expect(tokens.spacingXs, 16);
         expect(tokens.spacingSm, 13);
-        expect(tokens.spacingMd, 28);
+        expect(tokens.spacingMd, 14);
         expect(tokens.spacingLg, 24);
         expect(tokens.spacingXlg, 32);
         expect(tokens.spacingXxlg, 48);
@@ -253,17 +253,41 @@ void main() {
       expect((border! as OutlineInputBorder).borderRadius.topLeft.x, 2.0);
     });
 
-    test('a pill radius override wins over the default and reshapes button '
-        'chrome', () {
+    test(
+      'a pill radius override wins over the default and reshapes the FAB',
+      () {
+        final style = buildCustomStyle(
+          const CustomStyleOverrides(radiusOverrides: {'pill': 4.0}),
+        );
+        expect(style.theme.extension<MeshTokens>()!.pill, 4.0);
+        final shape = style.theme.floatingActionButtonTheme.shape;
+        expect(shape, isA<RoundedRectangleBorder>());
+        final radius =
+            (shape! as RoundedRectangleBorder).borderRadius as BorderRadius;
+        expect(radius.topLeft.x, 4.0);
+      },
+    );
+
+    test('buttons follow the buttons-only radius and border mode '
+        '(2026-08-21 Buttons section)', () {
       final style = buildCustomStyle(
-        const CustomStyleOverrides(radiusOverrides: {'pill': 4.0}),
+        const CustomStyleOverrides(
+          radiusOverrides: {'buttonRadius': 6.0},
+          buttonBorder: 'solid',
+        ),
       );
-      expect(style.theme.extension<MeshTokens>()!.pill, 4.0);
       final shape = style.theme.filledButtonTheme.style?.shape?.resolve({});
       expect(shape, isA<RoundedRectangleBorder>());
-      final radius =
-          (shape! as RoundedRectangleBorder).borderRadius as BorderRadius;
-      expect(radius.topLeft.x, 4.0);
+      final rrb = shape! as RoundedRectangleBorder;
+      expect((rrb.borderRadius as BorderRadius).topLeft.x, 6.0);
+      expect(rrb.side.style, BorderStyle.solid);
+      expect(rrb.side.color, style.theme.colorScheme.primary);
+
+      final none = buildCustomStyle(const CustomStyleOverrides());
+      final noneShape =
+          none.theme.filledButtonTheme.style?.shape?.resolve({})!
+              as RoundedRectangleBorder;
+      expect(noneShape.side, BorderSide.none);
     });
 
     test('pill defaults to fully round (999) when not overridden', () {
@@ -331,8 +355,14 @@ void main() {
       final scheme = theme.colorScheme;
       expect(scheme.primary, const Color(0xFFFF8800));
       expect(theme.floatingActionButtonTheme.backgroundColor, scheme.primary);
+      // Buttons render the tinted-primary language (2026-08-21): 20% tint
+      // fill with the accent itself as ink.
       expect(
         theme.filledButtonTheme.style!.backgroundColor!.resolve({}),
+        scheme.primary.withValues(alpha: 0.2),
+      );
+      expect(
+        theme.filledButtonTheme.style!.foregroundColor!.resolve({}),
         scheme.primary,
       );
       expect(

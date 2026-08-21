@@ -23,6 +23,7 @@ import 'package:meshnomad/widgets/path_map_ui.dart';
 import 'package:meshnomad/widgets/snr_indicator.dart';
 import 'package:provider/provider.dart';
 import '../theme/mesh_tokens.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 export 'package:meshnomad/widgets/path_map_ui.dart'
     show formatDistance, getPathDistanceMeters;
@@ -1748,6 +1749,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                               ? Icons.expand_less
                               : Icons.expand_more,
                           size: 20,
+                          color: MeshTokens.of(context).primary,
                         ),
                         tooltip: _panelCollapsed
                             ? l10n.pathMap_expandPanel
@@ -1796,7 +1798,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                       onToggleVisibility: _togglePathVisibility,
                       onShowAll: () => setState(_hiddenPathIds.clear),
                     ),
-                  const Divider(height: 1),
+                  const MeshDashedDivider(),
                   Expanded(child: _buildHopList(pathTraceData, selected)),
                 ],
               ],
@@ -1844,7 +1846,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
           vertical: MeshTokens.of(context).spacingXxs,
         ),
         itemCount: pathTraceData.pathData.length + 1,
-        separatorBuilder: (_, _) => const Divider(height: 1),
+        separatorBuilder: (_, _) => const MeshDashedDivider(),
         itemBuilder: (context, index) {
           final snrUi = snrUiFromSNR(
             context,
@@ -1911,7 +1913,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
           vertical: MeshTokens.of(context).spacingXxs,
         ),
         itemCount: path.totalTransmissions,
-        separatorBuilder: (_, _) => const Divider(height: 1),
+        separatorBuilder: (_, _) => const MeshDashedDivider(),
         itemBuilder: (context, index) {
           String title;
           String subtitle;

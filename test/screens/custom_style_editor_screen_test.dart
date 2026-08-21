@@ -65,10 +65,10 @@ void main() {
       // Colors is now a collapsed-by-default ExpansionTile, same as
       // Map/LOS (H audit, 2026-08-15) — its title is the raw ExpansionTile
       // text, not SectionHeader's uppercased label.
-      expect(find.text('Colors'), findsOneWidget);
+      expect(find.text('Colors body'), findsOneWidget);
       expect(find.text('Background'), findsNothing);
 
-      await tester.tap(find.text('Colors'));
+      await tester.tap(find.text('Colors body'));
       await tester.pumpAndSettle();
 
       // A sample of the shortlisted color fields, not the full ~60
@@ -76,21 +76,17 @@ void main() {
       expect(find.text('Background'), findsOneWidget);
       expect(find.text('Primary accent'), findsOneWidget);
 
-      // The font sizes section sits below the fold — scroll the ListView to
-      // build it into the tree before asserting on it. Scrolling straight to
-      // the row (not just the section header) avoids relying on how close
-      // the header happens to sit to it.
-      await tester.scrollUntilVisible(
-        find.byKey(const ValueKey('fontRow_bodyMedium')),
-        300,
-      );
-      expect(find.text('FONT SIZES'), findsOneWidget);
-      expect(find.byKey(const ValueKey('fontRow_bodyMedium')), findsOneWidget);
+      // Font sizes is a collapsed-by-default ExpansionTile now, same as the
+      // color sections (2026-08-21) — scroll to it, expand, then assert on
+      // the rows inside.
+      await tester.scrollUntilVisible(find.text('Font sizes'), 300);
+      await tester.ensureVisible(find.text('Font sizes'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('fontRow_bodyMedium')), findsNothing);
 
-      await tester.scrollUntilVisible(
-        find.byKey(const ValueKey('fontRow_monoCaptionSize')),
-        300,
-      );
+      await tester.tap(find.text('Font sizes'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('fontRow_bodyMedium')), findsOneWidget);
       expect(
         find.byKey(const ValueKey('fontRow_monoCaptionSize')),
         findsOneWidget,
@@ -107,20 +103,26 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.scrollUntilVisible(find.text('Map'), 300);
-      expect(find.text('Map'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Colors map'), 300);
+      expect(find.text('Colors map'), findsOneWidget);
       expect(find.byKey(const ValueKey('colorRow_mapOnline')), findsNothing);
 
-      await tester.tap(find.text('Map'));
+      await tester.tap(find.text('Colors map'));
       await tester.pumpAndSettle();
 
       expect(find.byKey(const ValueKey('colorRow_mapOnline')), findsOneWidget);
 
-      await tester.scrollUntilVisible(find.text('Line of sight (LOS)'), 300);
-      expect(find.text('Line of sight (LOS)'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Colors Line of sight'), 300);
+      // scrollUntilVisible stops once the tile is built, which can leave it
+      // just below the 600px test viewport — ensureVisible actually brings
+      // it on-screen so the tap lands (2026-08-21, list shortened by the
+      // collapsed Font/Spacing/Radius/Card sections).
+      await tester.ensureVisible(find.text('Colors Line of sight'));
+      await tester.pumpAndSettle();
+      expect(find.text('Colors Line of sight'), findsOneWidget);
       expect(find.byKey(const ValueKey('colorRow_losTerrain')), findsNothing);
 
-      await tester.tap(find.text('Line of sight (LOS)'));
+      await tester.tap(find.text('Colors Line of sight'));
       await tester.pumpAndSettle();
 
       expect(find.byKey(const ValueKey('colorRow_losTerrain')), findsOneWidget);
@@ -136,8 +138,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.scrollUntilVisible(find.text('Map'), 300);
-      await tester.tap(find.text('Map'));
+      await tester.scrollUntilVisible(find.text('Colors map'), 300);
+      await tester.tap(find.text('Colors map'));
       await tester.pumpAndSettle();
 
       expect(
@@ -180,7 +182,7 @@ void main() {
         isNull,
       );
 
-      await tester.tap(find.text('Colors'));
+      await tester.tap(find.text('Colors body'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Primary accent'));
       await tester.pumpAndSettle();
@@ -209,7 +211,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Colors'));
+      await tester.tap(find.text('Colors body'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Primary accent'));
       await tester.pumpAndSettle();
@@ -237,7 +239,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Colors'));
+      await tester.tap(find.text('Colors body'));
       await tester.pumpAndSettle();
 
       // No override yet — the icon is present but disabled, not hidden.

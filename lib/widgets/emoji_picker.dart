@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
+import 'mesh_dashed_divider.dart';
 
 class EmojiPicker extends StatelessWidget {
   final Function(String) onEmojiSelected;
@@ -283,7 +284,7 @@ class EmojiPicker extends StatelessWidget {
                   .toList(),
             ),
           ),
-          const Divider(),
+          const MeshDashedDivider(space: 16),
           Expanded(
             child: DefaultTabController(
               length: emojiCategories.length,

@@ -13,6 +13,7 @@ import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
 import '../utils/app_logger.dart';
 import 'routing_sheet.dart';
+import 'mesh_dashed_divider.dart';
 
 class RepeaterLoginDialog extends StatefulWidget {
   final Contact repeater;
@@ -400,7 +401,7 @@ class _RepeaterLoginDialogState extends State<RepeaterLoginDialog> {
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: EdgeInsets.zero,
                   ),
-                  const Divider(),
+                  const MeshDashedDivider(space: 16),
                   Row(
                     children: [
                       PopupMenuButton<String>(

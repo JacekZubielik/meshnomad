@@ -24,6 +24,7 @@ import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/path_map_ui.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 class ChannelMessagePathScreen extends StatelessWidget {
   final ChannelMessage message;
@@ -1646,6 +1647,7 @@ class _ChannelMessagePathMapScreenState
                                   ? Icons.expand_less
                                   : Icons.expand_more,
                               size: 20,
+                              color: MeshTokens.of(context).primary,
                             ),
                             tooltip: _panelCollapsed
                                 ? l10n.pathMap_expandPanel
@@ -1710,7 +1712,7 @@ class _ChannelMessagePathMapScreenState
                               ),
                           onShowAll: () => setState(_hiddenPathIds.clear),
                         ),
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       Expanded(
                         child: _buildHopListView(
                           hops,
@@ -1756,7 +1758,7 @@ class _ChannelMessagePathMapScreenState
             vertical: MeshTokens.of(context).spacingXxs,
           ),
           itemCount: hops.length,
-          separatorBuilder: (_, _) => const Divider(height: 1),
+          separatorBuilder: (_, _) => const MeshDashedDivider(),
           itemBuilder: (context, index) {
             final hop = hops[index];
             final isFocused = _focusedHopIndex == hop.index;

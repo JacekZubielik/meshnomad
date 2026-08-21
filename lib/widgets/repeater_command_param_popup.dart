@@ -6,6 +6,7 @@ import '../l10n/l10n.dart';
 import '../models/radio_settings.dart';
 import '../theme/mesh_tokens.dart';
 import 'mesh_ui.dart';
+import 'mesh_dashed_divider.dart';
 
 /// Matches a `{...}` placeholder token in a CLI command template, e.g. the
 /// four tokens in `set radio {freq},{bw},{sf},{cr}`.
@@ -297,11 +298,10 @@ class _RegionPickerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = MeshTokens.of(context);
     return ListView.separated(
       shrinkWrap: true,
       itemCount: RadioSettings.presets.length,
-      separatorBuilder: (_, _) => Divider(height: 1, color: t.line),
+      separatorBuilder: (_, _) => const MeshDashedDivider(),
       itemBuilder: (context, index) {
         final preset = RadioSettings.presets[index];
         return ListTile(

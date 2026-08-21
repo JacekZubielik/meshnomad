@@ -5277,7 +5277,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_brightnessDark => 'Ciemny';
 
   @override
-  String get styleEditor_colorsSection => 'Kolory';
+  String get styleEditor_colorsSection => 'Colors body';
 
   @override
   String get styleEditor_fontSizesSection => 'Rozmiary czcionek';
@@ -5285,6 +5285,14 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get styleEditor_fontSizesIntro =>
       'Tytuły ekranów, przyciski i zakładki skalują się razem z powyższymi rozmiarami.';
+
+  @override
+  String get styleEditor_spacingIntro =>
+      'Odstępy i wewnętrzne marginesy używane w całym układzie aplikacji.';
+
+  @override
+  String get styleEditor_radiusIntro =>
+      'Zaokrąglenie rogów kart, dialogów i innych elementów interfejsu.';
 
   @override
   String get styleEditor_resetAll => 'Resetuj wszystko';
@@ -5312,10 +5320,46 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_hexExamplesCaption => 'Przykłady';
 
   @override
-  String get styleEditor_mapSection => 'Mapa';
+  String get styleEditor_mapSection => 'Colors map';
 
   @override
-  String get styleEditor_losSection => 'Linia widzenia (LOS)';
+  String get styleEditor_losSection => 'Colors Line of sight';
+
+  @override
+  String get styleEditor_colorsIntro => 'Paleta bazowa: tła, tekst, akcenty.';
+
+  @override
+  String get styleEditor_mapIntro =>
+      'Kolory znaczników, paneli i etykiet mapy.';
+
+  @override
+  String get styleEditor_losIntro => 'Kolory wykresu terenu linii widoczności.';
+
+  @override
+  String get styleEditor_buttonsSection => 'Przyciski';
+
+  @override
+  String get styleEditor_buttonsIntro =>
+      'Wspólny wygląd przycisków: zaokrąglenie i obramowanie.';
+
+  @override
+  String get styleEditor_buttonRadius_label => 'Zaokrąglenie rogów';
+
+  @override
+  String get styleEditor_buttonRadius_subtitle =>
+      'Tylko przyciski, niezależnie od promienia pill';
+
+  @override
+  String get styleEditor_buttonBorder_label => 'Obramowanie';
+
+  @override
+  String get styleEditor_buttonBorder_none => 'Brak';
+
+  @override
+  String get styleEditor_buttonBorder_solid => 'Pełne';
+
+  @override
+  String get styleEditor_buttonBorder_dotted => 'Kropkowane';
 
   @override
   String get styleEditor_bg_label => 'Tło';

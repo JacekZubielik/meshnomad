@@ -47,6 +47,7 @@ import 'channel_message_path_screen.dart';
 import 'map_screen.dart';
 import 'region_management_screen.dart';
 import '../storage/region_store.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 class ChannelChatScreen extends StatefulWidget {
   final Channel channel;
@@ -1683,7 +1684,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
                   _markAsUnread(message);
                 },
               ),
-            const Divider(height: 1),
+            const MeshDashedDivider(),
             ListTile(
               leading: Icon(
                 Icons.delete_outline,

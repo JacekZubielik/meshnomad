@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../connector/meshcore_protocol.dart';
+import 'mesh_dashed_divider.dart';
 
 /// Debug widget to show the hex dump of a frame
 class DebugFrameViewer {
@@ -69,7 +70,7 @@ class DebugFrameViewer {
                   context,
                 ).textTheme.bodyMedium?.copyWith(fontFamily: 'monospace'),
               ),
-              const Divider(),
+              const MeshDashedDivider(space: 16),
               Text(
                 context.l10n.debugFrame_hexDump,
                 style: const TextStyle(fontWeight: FontWeight.bold),

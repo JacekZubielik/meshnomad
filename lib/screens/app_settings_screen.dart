@@ -22,6 +22,7 @@ import '../widgets/theme_profile_selector.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'custom_style_editor_screen.dart';
 import 'map_cache_screen.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 class AppSettingsScreen extends StatelessWidget {
   const AppSettingsScreen({super.key});
@@ -192,7 +193,7 @@ class AppSettingsScreen extends StatelessWidget {
             children: [_MotywSection(settingsService: settingsService)],
           ),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         InkWell(
           onTap: () => _showLanguageSheet(context, settingsService),
           child: Padding(
@@ -291,7 +292,7 @@ class AppSettingsScreen extends StatelessWidget {
             }
           },
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -319,7 +320,7 @@ class AppSettingsScreen extends StatelessWidget {
               ? (value) => settingsService.setNotifyOnNewMessage(value)
               : null,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -347,7 +348,7 @@ class AppSettingsScreen extends StatelessWidget {
               ? (value) => settingsService.setNotifyOnNewChannelMessage(value)
               : null,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -409,7 +410,7 @@ class AppSettingsScreen extends StatelessWidget {
             );
           },
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -421,7 +422,7 @@ class AppSettingsScreen extends StatelessWidget {
           value: settingsService.settings.jumpToOldestUnread,
           onChanged: settingsService.setJumpToOldestUnread,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -455,7 +456,7 @@ class AppSettingsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       ListTile(
                         title: Text(context.l10n.appSettings_maxRouteWeight),
                         subtitle: Column(
@@ -478,7 +479,7 @@ class AppSettingsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       ListTile(
                         title: Text(
                           context.l10n.appSettings_initialRouteWeight,
@@ -505,7 +506,7 @@ class AppSettingsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       ListTile(
                         title: Text(
                           context.l10n.appSettings_routeWeightSuccessIncrement,
@@ -535,7 +536,7 @@ class AppSettingsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       ListTile(
                         title: Text(
                           context.l10n.appSettings_routeWeightFailureDecrement,
@@ -565,7 +566,7 @@ class AppSettingsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       ListTile(
                         title: Text(context.l10n.appSettings_maxMessageRetries),
                         subtitle: Column(
@@ -595,7 +596,7 @@ class AppSettingsScreen extends StatelessWidget {
                 )
               : const SizedBox.shrink(),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -609,7 +610,7 @@ class AppSettingsScreen extends StatelessWidget {
             settingsService.setEnableMessageTracing(value);
           },
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         ListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -807,7 +808,7 @@ class AppSettingsScreen extends StatelessWidget {
         value: settingsService.settings.mapShowRepeaters,
         onChanged: (value) => settingsService.setMapShowRepeaters(value),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       SwitchListTile(
         contentPadding: EdgeInsets.symmetric(
           horizontal: t.spacingMd,
@@ -819,7 +820,7 @@ class AppSettingsScreen extends StatelessWidget {
         value: settingsService.settings.mapShowChatNodes,
         onChanged: (value) => settingsService.setMapShowChatNodes(value),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       SwitchListTile(
         contentPadding: EdgeInsets.symmetric(
           horizontal: t.spacingMd,
@@ -831,7 +832,7 @@ class AppSettingsScreen extends StatelessWidget {
         value: settingsService.settings.mapShowOtherNodes,
         onChanged: (value) => settingsService.setMapShowOtherNodes(value),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       InkWell(
         onTap: () => _showTimeFilterSheet(context, settingsService),
         child: Padding(
@@ -881,7 +882,7 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       InkWell(
         onTap: () => _showUnitsSheet(context, settingsService),
         child: Padding(
@@ -924,7 +925,7 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       InkWell(
         onTap: () {
           Navigator.push(
@@ -979,7 +980,7 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       InkWell(
         onTap: () => _showMapRasterSourceDialog(context, settingsService),
         child: Padding(
@@ -1030,7 +1031,7 @@ class AppSettingsScreen extends StatelessWidget {
 
     if (_isStadiaSource(settingsService.settings)) {
       children.addAll([
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         InkWell(
           onTap: () => _showMapRasterEndpointDialog(context, settingsService),
           child: Padding(
@@ -1075,7 +1076,7 @@ class AppSettingsScreen extends StatelessWidget {
             ),
           ),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         InkWell(
           onTap: () => _showMapApiKeyDialog(context, settingsService),
           child: Padding(
@@ -1351,7 +1352,7 @@ class AppSettingsScreen extends StatelessWidget {
           value: settings.translationEnabled,
           onChanged: settingsService.setTranslationEnabled,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -1383,7 +1384,7 @@ class AppSettingsScreen extends StatelessWidget {
               ? settingsService.setAutoTranslateIncomingMessages
               : null,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -1415,7 +1416,7 @@ class AppSettingsScreen extends StatelessWidget {
               ? settingsService.setComposerTranslationEnabled
               : null,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         InkWell(
           onTap: () => _showTranslationLanguageDialog(context, settingsService),
           child: Padding(
@@ -1459,7 +1460,7 @@ class AppSettingsScreen extends StatelessWidget {
             ),
           ),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         Padding(
           padding: EdgeInsets.fromLTRB(
             t.spacingMd,
@@ -1715,6 +1716,17 @@ class AppSettingsScreen extends StatelessWidget {
             SizedBox(width: t.spacingXs),
             Expanded(
               child: OutlinedButton.icon(
+                // Destructive action: swap the app-wide tinted-primary
+                // button look for the same treatment in the alert accent
+                // (2026-08-21) — otherwise Delete rendered identically to
+                // Add/Edit and gave no visual warning before an unrecoverable
+                // profile removal.
+                style: Theme.of(context).outlinedButtonTheme.style?.copyWith(
+                  backgroundColor: WidgetStatePropertyAll(
+                    t.alert.withValues(alpha: 0.2),
+                  ),
+                  foregroundColor: WidgetStatePropertyAll(t.alert),
+                ),
                 onPressed: settingsService.settings.cyr2latProfiles.length > 1
                     ? () => _showDeleteCyr2LatProfileDialog(
                         context,
@@ -1766,40 +1778,8 @@ class AppSettingsScreen extends StatelessWidget {
     switch (languageCode) {
       case 'en':
         return context.l10n.appSettings_languageEn;
-      case 'fr':
-        return context.l10n.appSettings_languageFr;
-      case 'es':
-        return context.l10n.appSettings_languageEs;
-      case 'de':
-        return context.l10n.appSettings_languageDe;
       case 'pl':
         return context.l10n.appSettings_languagePl;
-      case 'sl':
-        return context.l10n.appSettings_languageSl;
-      case 'pt':
-        return context.l10n.appSettings_languagePt;
-      case 'it':
-        return context.l10n.appSettings_languageIt;
-      case 'zh':
-        return context.l10n.appSettings_languageZh;
-      case 'sv':
-        return context.l10n.appSettings_languageSv;
-      case 'nl':
-        return context.l10n.appSettings_languageNl;
-      case 'sk':
-        return context.l10n.appSettings_languageSk;
-      case 'bg':
-        return context.l10n.appSettings_languageBg;
-      case 'ru':
-        return context.l10n.appSettings_languageRu;
-      case 'uk':
-        return context.l10n.appSettings_languageUk;
-      case 'hu':
-        return context.l10n.appSettings_languageHu;
-      case 'ja':
-        return context.l10n.appSettings_languageJa;
-      case 'ko':
-        return context.l10n.appSettings_languageKo;
       default:
         return context.l10n.appSettings_languageSystem;
     }
@@ -1841,171 +1821,11 @@ class AppSettingsScreen extends StatelessWidget {
                 ),
                 _sheetOption<String?>(
                   ctx,
-                  label: context.l10n.appSettings_languageFr,
-                  value: 'fr',
-                  selected: settingsService.settings.languageOverride == 'fr',
-                  onTap: () {
-                    settingsService.setLanguageOverride('fr');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageEs,
-                  value: 'es',
-                  selected: settingsService.settings.languageOverride == 'es',
-                  onTap: () {
-                    settingsService.setLanguageOverride('es');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageDe,
-                  value: 'de',
-                  selected: settingsService.settings.languageOverride == 'de',
-                  onTap: () {
-                    settingsService.setLanguageOverride('de');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
                   label: context.l10n.appSettings_languagePl,
                   value: 'pl',
                   selected: settingsService.settings.languageOverride == 'pl',
                   onTap: () {
                     settingsService.setLanguageOverride('pl');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageSl,
-                  value: 'sl',
-                  selected: settingsService.settings.languageOverride == 'sl',
-                  onTap: () {
-                    settingsService.setLanguageOverride('sl');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languagePt,
-                  value: 'pt',
-                  selected: settingsService.settings.languageOverride == 'pt',
-                  onTap: () {
-                    settingsService.setLanguageOverride('pt');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageIt,
-                  value: 'it',
-                  selected: settingsService.settings.languageOverride == 'it',
-                  onTap: () {
-                    settingsService.setLanguageOverride('it');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageZh,
-                  value: 'zh',
-                  selected: settingsService.settings.languageOverride == 'zh',
-                  onTap: () {
-                    settingsService.setLanguageOverride('zh');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageSv,
-                  value: 'sv',
-                  selected: settingsService.settings.languageOverride == 'sv',
-                  onTap: () {
-                    settingsService.setLanguageOverride('sv');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageNl,
-                  value: 'nl',
-                  selected: settingsService.settings.languageOverride == 'nl',
-                  onTap: () {
-                    settingsService.setLanguageOverride('nl');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageSk,
-                  value: 'sk',
-                  selected: settingsService.settings.languageOverride == 'sk',
-                  onTap: () {
-                    settingsService.setLanguageOverride('sk');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageBg,
-                  value: 'bg',
-                  selected: settingsService.settings.languageOverride == 'bg',
-                  onTap: () {
-                    settingsService.setLanguageOverride('bg');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageRu,
-                  value: 'ru',
-                  selected: settingsService.settings.languageOverride == 'ru',
-                  onTap: () {
-                    settingsService.setLanguageOverride('ru');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageUk,
-                  value: 'uk',
-                  selected: settingsService.settings.languageOverride == 'uk',
-                  onTap: () {
-                    settingsService.setLanguageOverride('uk');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageHu,
-                  value: 'hu',
-                  selected: settingsService.settings.languageOverride == 'hu',
-                  onTap: () {
-                    settingsService.setLanguageOverride('hu');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageJa,
-                  value: 'ja',
-                  selected: settingsService.settings.languageOverride == 'ja',
-                  onTap: () {
-                    settingsService.setLanguageOverride('ja');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageKo,
-                  value: 'ko',
-                  selected: settingsService.settings.languageOverride == 'ko',
-                  onTap: () {
-                    settingsService.setLanguageOverride('ko');
                     Navigator.pop(ctx);
                   },
                 ),

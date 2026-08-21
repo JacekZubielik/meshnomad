@@ -13,6 +13,7 @@ import '../storage/prefs_manager.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/usb_port_labels.dart';
 import '../widgets/app_bar.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 /// Minimal debug screen for [RepeaterCliSession]: a raw TCP or USB terminal
 /// to a repeater's admin CLI, independent of any paired companion
@@ -349,7 +350,7 @@ class _RepeaterDirectConsoleScreenState
                           : l10n.common_connect,
                     ),
                   ),
-                  const Divider(height: 24),
+                  const MeshDashedDivider(space: 24),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -415,7 +416,7 @@ class _RepeaterDirectConsoleScreenState
                 ],
               ),
             ),
-            const Divider(height: 1),
+            const MeshDashedDivider(),
             Expanded(
               child: _log.isEmpty
                   ? Center(
@@ -436,7 +437,7 @@ class _RepeaterDirectConsoleScreenState
                       ),
                     ),
             ),
-            const Divider(height: 1),
+            const MeshDashedDivider(),
             Padding(
               padding: EdgeInsets.all(MeshTokens.of(context).spacingSm),
               child: Row(

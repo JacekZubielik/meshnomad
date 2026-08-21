@@ -13,6 +13,7 @@ import '../services/repeater_command_service.dart';
 import '../widgets/repeater_command_drawer.dart';
 import '../widgets/routing_sheet.dart';
 import '../helpers/snack_bar_builder.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 class RepeaterCliScreen extends StatefulWidget {
   final Contact repeater;
@@ -363,7 +364,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
               ),
             ),
           ),
-          Divider(height: 1, color: MeshTokens.of(context).line),
+          const MeshDashedDivider(),
 
           // Output area
           Expanded(
@@ -372,7 +373,7 @@ class _RepeaterCliScreenState extends State<RepeaterCliScreen> {
                 : _buildCommandHistory(),
           ),
 
-          Divider(height: 1, color: MeshTokens.of(context).line),
+          const MeshDashedDivider(),
 
           // Command input
           Container(

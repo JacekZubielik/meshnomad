@@ -98,6 +98,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.titleSize,
     required this.cardElevated,
     required this.cardShadow,
+    required this.buttonRadius,
     required this.avatarTint5,
     required this.avatarTint6,
   });
@@ -246,6 +247,26 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   /// sites derive their own alpha per layer (see MeshCard).
   final Color cardShadow;
 
+  /// Corner radius for the app-wide tinted buttons (Filled/Elevated/
+  /// Outlined) — user-editable independently of [pill] via the Custom Style
+  /// editor's Buttons section (2026-08-21).
+  final double buttonRadius;
+
+  /// Shared drop shadow for label chips (_ContactBadge, ContactTypeBadge,
+  /// RouteChip, …) — THE single place that defines it. Follows the
+  /// style-wide shadow switch ([cardElevated], the Custom Style "Card
+  /// shadow" toggle): null when shadows are off. Calibrated for ~16dp-tall
+  /// chips (the map markers' blur 8 would read as smear at this size).
+  List<BoxShadow>? get labelShadow => cardElevated
+      ? [
+          BoxShadow(
+            color: cardShadow.withValues(alpha: 0.22),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ]
+      : null;
+
   /// 5th/6th hues in the deterministic avatar-tint palette (see
   /// `avatarTintPalette` in mesh_ui.dart) — the first four reuse
   /// [primary]/[secondary]/[signal]/[warn].
@@ -336,7 +357,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     spacingXxs: 6,
     spacingXs: 16,
     spacingSm: 13,
-    spacingMd: 28,
+    spacingMd: 14,
     spacingLg: 24,
     spacingXlg: 32,
     spacingXxlg: 48,
@@ -349,6 +370,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     titleSize: 16,
     cardElevated: true,
     cardShadow: Color(0xFF000000),
+    buttonRadius: MeshRadii.pill,
     avatarTint5: Color(0xFF8FA8F0),
     avatarTint6: Color(0xFF6FD9CE),
   );
@@ -438,7 +460,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     spacingXxs: 6,
     spacingXs: 16,
     spacingSm: 13,
-    spacingMd: 28,
+    spacingMd: 14,
     spacingLg: 24,
     spacingXlg: 32,
     spacingXxlg: 48,
@@ -451,6 +473,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     titleSize: 16,
     cardElevated: true,
     cardShadow: Color(0xFF000000),
+    buttonRadius: MeshRadii.pill,
     avatarTint5: Color(0xFF8FA8F0),
     avatarTint6: Color(0xFF6FD9CE),
   );
@@ -648,6 +671,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     double? titleSize,
     bool? cardElevated,
     Color? cardShadow,
+    double? buttonRadius,
     Color? avatarTint5,
     Color? avatarTint6,
   }) {
@@ -742,6 +766,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       titleSize: titleSize ?? this.titleSize,
       cardElevated: cardElevated ?? this.cardElevated,
       cardShadow: cardShadow ?? this.cardShadow,
+      buttonRadius: buttonRadius ?? this.buttonRadius,
       avatarTint5: avatarTint5 ?? this.avatarTint5,
       avatarTint6: avatarTint6 ?? this.avatarTint6,
     );

@@ -5172,7 +5172,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get styleEditor_brightnessDark => 'Dark';
 
   @override
-  String get styleEditor_colorsSection => 'Colors';
+  String get styleEditor_colorsSection => 'Colors body';
 
   @override
   String get styleEditor_fontSizesSection => 'Font sizes';
@@ -5180,6 +5180,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get styleEditor_fontSizesIntro =>
       'Screen titles, buttons, and tabs scale together with the sizes above.';
+
+  @override
+  String get styleEditor_spacingIntro =>
+      'Gaps and paddings used throughout the app\'s layout.';
+
+  @override
+  String get styleEditor_radiusIntro =>
+      'Corner rounding of cards, dialogs, and other chrome.';
 
   @override
   String get styleEditor_resetAll => 'Reset all';
@@ -5207,10 +5215,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get styleEditor_hexExamplesCaption => 'Examples';
 
   @override
-  String get styleEditor_mapSection => 'Map';
+  String get styleEditor_mapSection => 'Colors map';
 
   @override
-  String get styleEditor_losSection => 'Line of sight (LOS)';
+  String get styleEditor_losSection => 'Colors Line of sight';
+
+  @override
+  String get styleEditor_colorsIntro =>
+      'Base palette: backgrounds, text, accents.';
+
+  @override
+  String get styleEditor_mapIntro =>
+      'Colors of map markers, panels and labels.';
+
+  @override
+  String get styleEditor_losIntro =>
+      'Colors of the line-of-sight terrain chart.';
+
+  @override
+  String get styleEditor_buttonsSection => 'Buttons';
+
+  @override
+  String get styleEditor_buttonsIntro =>
+      'Shared look of app buttons: corner radius and border.';
+
+  @override
+  String get styleEditor_buttonRadius_label => 'Corner radius';
+
+  @override
+  String get styleEditor_buttonRadius_subtitle =>
+      'Buttons only, independent of the pill radius';
+
+  @override
+  String get styleEditor_buttonBorder_label => 'Border';
+
+  @override
+  String get styleEditor_buttonBorder_none => 'None';
+
+  @override
+  String get styleEditor_buttonBorder_solid => 'Solid';
+
+  @override
+  String get styleEditor_buttonBorder_dotted => 'Dotted';
 
   @override
   String get styleEditor_bg_label => 'Background';

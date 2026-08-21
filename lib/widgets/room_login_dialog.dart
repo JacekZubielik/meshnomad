@@ -15,6 +15,7 @@ import '../widgets/mesh_ui.dart';
 import '../utils/app_logger.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'routing_sheet.dart';
+import 'mesh_dashed_divider.dart';
 
 class RoomLoginDialog extends StatefulWidget {
   final Contact room;
@@ -335,7 +336,7 @@ class _RoomLoginDialogState extends State<RoomLoginDialog> {
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: EdgeInsets.zero,
                   ),
-                  const Divider(),
+                  const MeshDashedDivider(space: 16),
                   Row(
                     children: [
                       PopupMenuButton<String>(

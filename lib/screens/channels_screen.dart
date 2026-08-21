@@ -34,6 +34,7 @@ import 'community_qr_scanner_screen.dart';
 import 'contacts_screen.dart';
 import 'map_screen.dart';
 import 'settings_screen.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 class ChannelsScreen extends StatefulWidget {
   final bool hideBackButton;
@@ -220,6 +221,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                   padding: EdgeInsets.all(MeshTokens.of(context).spacingXs),
                   child: TextField(
                     controller: _searchController,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     decoration: InputDecoration(
                       hintText: context.l10n.channels_searchChannels,
                       prefixIcon: const Icon(Icons.search),
@@ -1869,7 +1871,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
             BottomSheetHeader(
               title: sheetContext.l10n.community_manageCommunities,
             ),
-            const Divider(height: 1),
+            const MeshDashedDivider(),
             Expanded(
               child: _communities.isEmpty
                   ? Center(

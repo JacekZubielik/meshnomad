@@ -14,6 +14,7 @@ import '../services/app_debug_log_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/app_bar.dart';
 import '../helpers/snack_bar_builder.dart';
+import '../widgets/mesh_dashed_divider.dart';
 import '../widgets/mesh_ui.dart';
 import 'app_settings_screen.dart';
 import 'app_debug_log_screen.dart';
@@ -187,7 +188,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final t = MeshTokens.of(context);
     return Row(
       children: [
-        Icon(icon, size: 20, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 20, color: t.primary),
         SizedBox(width: t.spacingSm),
         Expanded(
           child: Column(
@@ -267,7 +268,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
                     Icons.expand_more,
-                    color: scheme.onSurfaceVariant,
+                    color: MeshTokens.of(context).primary,
                   ),
                 ),
               ],
@@ -290,7 +291,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       SizedBox(height: t.spacingSm),
                       _infoRow(
                         context,
@@ -426,7 +427,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       valueColor = Theme.of(context).colorScheme.tertiary;
     } else {
       icon = Icons.battery_full;
-      iconColor = null;
+      iconColor = MeshTokens.of(context).primary;
       valueColor = null;
     }
 
@@ -460,7 +461,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: connector.selfName ?? l10n.settings_nodeNameNotSet,
           onTap: () => _editNodeName(context, connector),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.radio,
@@ -468,7 +469,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: l10n.settings_radioSettingsSubtitle,
           onTap: () => _showRadioSettings(context, connector),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.landscape,
@@ -476,7 +477,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: l10n.settings_regionSettingsSubtitle,
           onTap: () => pushRegionManagementScreen(context),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.sensors_outlined,
@@ -486,7 +487,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ? () => pushCompanionRadioStatsScreen(context)
               : null,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.bar_chart,
@@ -498,7 +499,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 )
               : null,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.route_outlined,
@@ -536,7 +537,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: l10n.settings_locationSubtitle,
           onTap: () => _editLocation(context, connector),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.group_add_outlined,
@@ -544,7 +545,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: l10n.settings_contactSettingsSubtitle,
           onTap: () => _editAutoAddConfig(context, connector),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.visibility_off_outlined,
@@ -570,7 +571,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: l10n.settings_syncTimeSubtitle,
           onTap: () => _syncTime(context, connector),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.refresh,
@@ -578,7 +579,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: l10n.settings_refreshContactsSubtitle,
           onTap: () => connector.getContacts(),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.restart_alt,
@@ -588,7 +589,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           iconColor: MeshTokens.of(context).warn,
           onTap: () => _confirmReboot(context, connector),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.delete_outline,
@@ -627,7 +628,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
           },
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.download_outlined,
@@ -646,7 +647,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
           },
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.download_outlined,
@@ -687,7 +688,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
           },
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         _tappableTile(
           context,
           icon: Icons.code_outlined,
@@ -717,8 +718,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final effectiveIconColor = iconColor ?? scheme.onSurfaceVariant;
     final t = MeshTokens.of(context);
+    // Accent by default (2026-08-21 refinement); warn/alert tiles still
+    // pass their own semantic color explicitly.
+    final effectiveIconColor = iconColor ?? t.primary;
 
     return InkWell(
       onTap: onTap,
@@ -1254,7 +1257,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     setDialogState(() => autoAddSensor = value);
                   },
                 ),
-                const Divider(height: 4),
+                const MeshDashedDivider(),
                 FeatureToggleRow(
                   title: l10n.contactsSettings_overwriteOldestTitle,
                   subtitle: l10n.contactsSettings_overwriteOldestSubtitle,

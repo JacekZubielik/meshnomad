@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../connector/meshcore_protocol.dart';
 import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
+import '../utils/emoji_utils.dart';
 
 /// MeshCore shared design kit.
 ///
@@ -475,12 +476,16 @@ List<Color> avatarTintPalette(MeshTokens tokens) => [
 ];
 
 /// Initials avatar with a deterministic per-name hue, or a fixed [color]
-/// for node-type coloring. Optional [icon] replaces initials.
+/// for node-type coloring. Optional [icon] replaces initials; optional
+/// [emoji] takes precedence over both — content only, the circle's
+/// background and border never change with it (2026-08-21 fix: the emoji
+/// used to swap the whole decoration for a neutral one).
 class AvatarCircle extends StatelessWidget {
   final String name;
   final double size;
   final Color? color;
   final IconData? icon;
+  final String? emoji;
 
   /// Optional freshness/state signal (e.g. [NodeFreshness.colorOf]) drawn as
   /// a small corner badge, same visual language as the map marker's status
@@ -494,13 +499,17 @@ class AvatarCircle extends StatelessWidget {
     this.size = 40,
     this.color,
     this.icon,
+    this.emoji,
     this.freshnessColor,
   });
 
   Color _colorFor(BuildContext context, String s) {
     final hues = avatarTintPalette(MeshTokens.of(context));
+    // Hash the emoji-free name: an emoji in the name is avatar CONTENT
+    // (see [emoji]) and must never shift the circle's tint (2026-08-21).
+    final hashed = stripEmoji(s);
     var h = 0;
-    for (final c in s.codeUnits) {
+    for (final c in hashed.codeUnits) {
       h = (h * 31 + c) & 0x7fffffff;
     }
     return hues[h % hues.length];
@@ -523,7 +532,12 @@ class AvatarCircle extends StatelessWidget {
             border: Border.all(color: accent.withValues(alpha: 0.4)),
           ),
           alignment: Alignment.center,
-          child: icon != null
+          child: emoji != null
+              ? Text(
+                  emoji!,
+                  style: MeshTokens.of(context).emoji(fontSize: size * 0.48),
+                )
+              : icon != null
               ? Icon(icon, size: size * 0.5, color: accent)
               : Text(
                   initials,
@@ -642,6 +656,7 @@ class RouteChip extends StatelessWidget {
         color: scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(tokens.xs),
         border: Border.all(color: scheme.outlineVariant),
+        boxShadow: tokens.labelShadow,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -705,13 +720,14 @@ class ContactTypeBadge extends StatelessWidget {
     final color = colorForContactType(tokens, type);
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: tokens.spacingXs,
+        horizontal: tokens.spacingXxs,
         vertical: tokens.spacingHairline,
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.2),
         border: Border.all(color: color, width: 1),
         borderRadius: BorderRadius.circular(tokens.pill),
+        boxShadow: tokens.labelShadow,
       ),
       child: Text(
         label.toUpperCase(),
@@ -731,8 +747,9 @@ class _ContactBadge extends StatelessWidget {
   final Color color;
   final bool active;
 
-  /// Filled background — only Route (when active) uses this today; every
-  /// other badge stays border-only (null) as accepted 2026-08-19. Text
+  /// Filled background — Favorite, GPS and Route use this when active
+  /// (2026-08-21 refinement); the remaining badges stay border-only (null)
+  /// as accepted 2026-08-19. Text
   /// always renders in [color] regardless — no separate "ink" color; a
   /// 20%-alpha fill of the same hue stays legible under it (2026-08-19
   /// refinement, corrected from an earlier 80%-alpha + white-text attempt).
@@ -757,13 +774,14 @@ class _ContactBadge extends StatelessWidget {
       opacity: active ? 1.0 : 0.30,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: tokens.spacingXs,
+          horizontal: tokens.spacingXxs,
           vertical: tokens.spacingHairline,
         ),
         decoration: BoxDecoration(
           color: fillColor,
           border: Border.all(color: color, width: 1),
           borderRadius: BorderRadius.circular(tokens.xs),
+          boxShadow: tokens.labelShadow,
         ),
         child: Text(
           label.toUpperCase(),
@@ -790,7 +808,7 @@ class _ContactBadge extends StatelessWidget {
 }
 
 /// Fixed-order row of contact status badges — Favorite, GPS, Smaz, Route,
-/// Base, Loc, Env, Time, always in that order, every one always rendered
+/// Time, always in that order, every one always rendered
 /// (ghosted via [_ContactBadge] when inactive/unavailable so position never
 /// shifts). Accepted mockup: .mockups/contact-tile-badges.html, 2026-08-19.
 class ContactBadgeRow extends StatelessWidget {
@@ -800,9 +818,6 @@ class ContactBadgeRow extends StatelessWidget {
 
   /// Null = route unknown for this contact; renders a ghosted placeholder.
   final String? routeLabel;
-  final bool teleBaseEnabled;
-  final bool teleLocEnabled;
-  final bool teleEnvEnabled;
   final String timeLabel;
   final bool isUnread;
 
@@ -820,9 +835,6 @@ class ContactBadgeRow extends StatelessWidget {
     required this.hasLocation,
     required this.isSmazEnabled,
     required this.routeLabel,
-    required this.teleBaseEnabled,
-    required this.teleLocEnabled,
-    required this.teleEnvEnabled,
     required this.timeLabel,
     required this.isUnread,
     this.onFavoriteTap,
@@ -843,12 +855,14 @@ class ContactBadgeRow extends StatelessWidget {
           label: context.l10n.listFilter_favorites,
           color: tokens.warn,
           active: isFavorite,
+          fillColor: isFavorite ? tokens.warn.withValues(alpha: 0.2) : null,
           onTap: onFavoriteTap,
         ),
         _ContactBadge(
           label: 'GPS',
-          color: neutral,
+          color: tokens.primary,
           active: hasLocation,
+          fillColor: hasLocation ? tokens.primary.withValues(alpha: 0.2) : null,
           onTap: hasLocation ? onGpsTap : null,
         ),
         _ContactBadge(label: 'Smaz', color: neutral, active: isSmazEnabled),
@@ -862,24 +876,12 @@ class ContactBadgeRow extends StatelessWidget {
           onTap: routeLabel != null ? onRouteTap : null,
         ),
         _ContactBadge(
-          label: context.l10n.contact_teleBaseShort,
-          color: tokens.signal,
-          active: teleBaseEnabled,
-        ),
-        _ContactBadge(
-          label: context.l10n.contact_teleLocShort,
-          color: tokens.signal,
-          active: teleLocEnabled,
-        ),
-        _ContactBadge(
-          label: context.l10n.contact_teleEnvShort,
-          color: tokens.signal,
-          active: teleEnvEnabled,
-        ),
-        _ContactBadge(
           label: timeLabel,
           color: isUnread ? tokens.primary : neutral,
           active: true,
+          fillColor: (isUnread ? tokens.primary : neutral).withValues(
+            alpha: 0.2,
+          ),
         ),
       ],
     );

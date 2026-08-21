@@ -47,11 +47,18 @@ void main() {
       await tester.pumpWidget(wrap());
       await tester.pumpAndSettle();
 
-      // scrollUntilVisible (not a fixed drag distance) so this doesn't break
-      // again the next time a section above Font sizes changes height (e.g.
-      // Colors collapsing by default, H audit 2026-08-15, shortened the
-      // page enough that the old fixed -800 drag overshot past this row).
+      // Font sizes is a collapsed-by-default ExpansionTile (2026-08-21) —
+      // expand it first, then bring the row itself on-screen. ensureVisible
+      // after scrollUntilVisible because the latter stops as soon as the
+      // widget is built, which can leave it below the test viewport.
+      await tester.scrollUntilVisible(find.text('Font sizes'), 300);
+      await tester.ensureVisible(find.text('Font sizes'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Font sizes'));
+      await tester.pumpAndSettle();
       await tester.scrollUntilVisible(find.text('Body text'), 300);
+      await tester.ensureVisible(find.text('Body text'));
+      await tester.pumpAndSettle();
       expect(find.text('Body text'), findsOneWidget);
 
       await tester.longPress(find.text('Body text'));

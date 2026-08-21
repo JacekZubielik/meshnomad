@@ -180,7 +180,7 @@ class MeshFonts {
 /// a role in the custom style editor also resizes the widgets that read
 /// these increments (B3/B4/C2, 2026-08-04) — matched to today's literal
 /// `fontSize:` values in [MeshTheme._build] at the roles' defaults
-/// (bodyMedium=12, bodySmall=11, titleSmall=13), see `03-roles-chrome.md`.
+/// (bodyMedium=13, bodySmall=11, titleSmall=10), see `03-roles-chrome.md`.
 class MeshTypeScale {
   MeshTypeScale._();
 
@@ -315,13 +315,13 @@ class MeshTheme {
     // Explicit sizes matching the app's dominant `fontSize:` literal clusters
     // (see docs/superpowers/specs/2026-08-02-custom-style-editor-design.md,
     // "role fontów") — the stock Material 2021 scale doesn't match them.
-    const titleSmallSize = 13.0;
+    const titleSmallSize = 10.0;
     final baseText = materialText.copyWith(
-      bodyMedium: materialText.bodyMedium?.copyWith(fontSize: 12),
+      bodyMedium: materialText.bodyMedium?.copyWith(fontSize: 13),
       bodySmall: materialText.bodySmall?.copyWith(fontSize: 11),
       titleSmall: materialText.titleSmall?.copyWith(fontSize: titleSmallSize),
-      // Large titles derived from titleSmall (B3) — at the default 13 these
-      // land exactly on stock M3 (16/22/24), so defaults render unchanged.
+      // Large titles derived from titleSmall (B3) via fixed increments
+      // (2026-08-21: base dropped to 10, so the whole title ladder shrinks).
       titleMedium: materialText.titleMedium?.copyWith(
         fontSize: titleSmallSize + MeshTypeScale.titleMediumIncrement,
       ),
@@ -418,11 +418,16 @@ class MeshTheme {
           letterSpacing: 0.2,
         ),
       ),
+      // App-wide button language (2026-08-21, modeled on the repeater CLI
+      // param-popup steppers): primary tint bg (~20%), primary ink, no
+      // border, soft shadow. Radius/border-mode are user-editable via the
+      // Custom Style editor's Buttons section (buildCustomStyle re-derives).
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: scheme.primary,
-          foregroundColor: scheme.onPrimary,
-          elevation: 0,
+          backgroundColor: scheme.primary.withValues(alpha: 0.2),
+          foregroundColor: scheme.primary,
+          elevation: 1,
+          shadowColor: const Color(0xFF000000),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MeshRadii.pill),
@@ -437,8 +442,11 @@ class MeshTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: scheme.onSurface,
-          side: BorderSide(color: scheme.outline),
+          backgroundColor: scheme.primary.withValues(alpha: 0.2),
+          foregroundColor: scheme.primary,
+          side: BorderSide.none,
+          elevation: 1,
+          shadowColor: const Color(0xFF000000),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MeshRadii.pill),
@@ -589,25 +597,27 @@ class MeshTheme {
           ),
         ),
       ),
+      // Switch language (2026-08-21): ON = primary tint track (20%) + solid
+      // primary thumb; OFF = secondary tint track (20%) + solid secondary
+      // thumb. No outline in either state — matches the app-wide tinted
+      // button look this session introduced.
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? scheme.onPrimary
-              : scheme.onSurfaceVariant,
+              ? scheme.primary
+              : scheme.secondary,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? scheme.primary
-              : scheme.surfaceContainerHighest,
+              ? scheme.primary.withValues(alpha: 0.2)
+              : scheme.secondary.withValues(alpha: 0.2),
         ),
-        trackOutlineColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? Colors.transparent
-              : scheme.outline,
-        ),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
+      // Sliders: 20%-tint track, solid 100% thumb (2026-08-21) — same
+      // tint/solid split as the switch above.
       sliderTheme: SliderThemeData(
-        activeTrackColor: scheme.primary,
+        activeTrackColor: scheme.primary.withValues(alpha: 0.2),
         inactiveTrackColor: scheme.surfaceContainerHighest,
         thumbColor: scheme.primary,
         overlayColor: scheme.primary.withValues(alpha: 0.12),
@@ -656,8 +666,10 @@ class MeshTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: scheme.primary,
-          foregroundColor: scheme.onPrimary,
+          backgroundColor: scheme.primary.withValues(alpha: 0.2),
+          foregroundColor: scheme.primary,
+          elevation: 1,
+          shadowColor: const Color(0xFF000000),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MeshRadii.pill),

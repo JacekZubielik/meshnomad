@@ -13,6 +13,7 @@ import 'package:meshnomad/theme/mesh_tokens.dart';
 import 'package:meshnomad/widgets/app_bar.dart';
 import 'package:meshnomad/widgets/mesh_ui.dart';
 import 'package:provider/provider.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 Future<void> pushRegionManagementScreen(BuildContext context) {
   return Navigator.push(
@@ -111,7 +112,7 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
                   value: settingsService.settings.forceUnscopedFlood,
                   onChanged: (value) => connector.setForceUnscopedFlood(value),
                 ),
-                const Divider(height: 1),
+                const MeshDashedDivider(),
                 Padding(
                   padding: const EdgeInsets.only(top: 12, bottom: 4),
                   child: Text(

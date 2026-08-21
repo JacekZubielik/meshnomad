@@ -349,6 +349,12 @@ class AppSettingsService extends ChangeNotifier {
     );
   }
 
+  Future<void> setCustomButtonBorder(String? value) async {
+    await _updateActiveProfile(
+      activeProfileSavedOverrides.withButtonBorder(value),
+    );
+  }
+
   /// Discards the user's edited copy of the active profile, reverting to
   /// its shipped seed (StyleRegistry). Used by the editor's "Reset" action.
   Future<void> resetActiveProfileToSeed() async {

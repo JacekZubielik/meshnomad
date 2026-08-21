@@ -9,6 +9,7 @@ import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/app_bar.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'repeater_command_drawer_preview_screen.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 class AppDebugLogScreen extends StatelessWidget {
   const AppDebugLogScreen({super.key});
@@ -80,8 +81,7 @@ class AppDebugLogScreen extends StatelessWidget {
             child: hasEntries
                 ? ListView.separated(
                     itemCount: entries.length,
-                    separatorBuilder: (_, _) =>
-                        Divider(height: 1, color: MeshTokens.of(context).line),
+                    separatorBuilder: (_, _) => const MeshDashedDivider(),
                     itemBuilder: (context, index) {
                       final entry = entries[index];
                       return Container(

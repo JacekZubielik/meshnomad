@@ -14,6 +14,7 @@ class CustomStyleOverrides {
     this.spacingOverrides = const {},
     this.radiusOverrides = const {},
     this.cardElevated,
+    this.buttonBorder,
   });
 
   /// The closed set of `MeshTokens` color fields the editor UI exposes.
@@ -98,6 +99,7 @@ class CustomStyleOverrides {
     'lg',
     'xl',
     'pill',
+    'buttonRadius',
   ];
 
   final Map<String, int> colorOverrides; // key -> Color.value (ARGB int)
@@ -109,6 +111,10 @@ class CustomStyleOverrides {
   /// default" (`true`) — use [withCardElevated] to change or clear this,
   /// never `copyWith` (its `??` pattern can't express "back to null").
   final bool? cardElevated;
+
+  /// Button border mode: 'solid' | 'dotted'; `null` means no border (the
+  /// default) — use [withButtonBorder] to change or clear.
+  final String? buttonBorder;
 
   CustomStyleOverrides copyWith({
     Map<String, int>? colorOverrides,
@@ -122,6 +128,7 @@ class CustomStyleOverrides {
       spacingOverrides: spacingOverrides ?? this.spacingOverrides,
       radiusOverrides: radiusOverrides ?? this.radiusOverrides,
       cardElevated: cardElevated,
+      buttonBorder: buttonBorder,
     );
   }
 
@@ -134,6 +141,20 @@ class CustomStyleOverrides {
       spacingOverrides: spacingOverrides,
       radiusOverrides: radiusOverrides,
       cardElevated: value,
+      buttonBorder: buttonBorder,
+    );
+  }
+
+  /// Returns a copy with [buttonBorder] replaced — including back to `null`
+  /// ("no border"), which copyWith's `??` pattern cannot express.
+  CustomStyleOverrides withButtonBorder(String? value) {
+    return CustomStyleOverrides(
+      colorOverrides: colorOverrides,
+      fontSizeOverrides: fontSizeOverrides,
+      spacingOverrides: spacingOverrides,
+      radiusOverrides: radiusOverrides,
+      cardElevated: cardElevated,
+      buttonBorder: value,
     );
   }
 
@@ -144,6 +165,7 @@ class CustomStyleOverrides {
       'spacing': spacingOverrides,
       'radius': radiusOverrides,
       'card_elevated': cardElevated,
+      'button_border': buttonBorder,
     };
   }
 
@@ -169,6 +191,9 @@ class CustomStyleOverrides {
       radiusOverrides: _parseDoubleMap(json['radius']),
       cardElevated: json['card_elevated'] is bool
           ? json['card_elevated'] as bool
+          : null,
+      buttonBorder: json['button_border'] is String
+          ? json['button_border'] as String
           : null,
     );
   }
