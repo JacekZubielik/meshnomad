@@ -70,9 +70,6 @@ void main() {
     bool hasLocation = false,
     bool isSmazEnabled = false,
     String? routeLabel,
-    bool teleBaseEnabled = false,
-    bool teleLocEnabled = false,
-    bool teleEnvEnabled = false,
     String timeLabel = '~ 1 hour',
     bool isUnread = false,
     double width = 400,
@@ -83,9 +80,6 @@ void main() {
         hasLocation: hasLocation,
         isSmazEnabled: isSmazEnabled,
         routeLabel: routeLabel,
-        teleBaseEnabled: teleBaseEnabled,
-        teleLocEnabled: teleLocEnabled,
-        teleEnvEnabled: teleEnvEnabled,
         timeLabel: timeLabel,
         isUnread: isUnread,
       ),
@@ -93,42 +87,33 @@ void main() {
     );
   }
 
-  testWidgets(
-    'ContactBadgeRow always renders all 8 badges in fixed order '
-    '(Favorite, GPS, Smaz, Route, Base, Loc, Env, Time), regardless of state',
-    (tester) async {
-      // Wide viewport so all 8 badges land on one line — this test checks
-      // left-to-right order, not the Wrap widget's wrapping behavior itself.
-      await tester.pumpWidget(badgeRow(routeLabel: null, width: 900));
+  testWidgets('ContactBadgeRow always renders all 5 badges in fixed order '
+      '(Favorite, GPS, Smaz, Route, Time), regardless of state', (
+    tester,
+  ) async {
+    // Wide viewport so all 5 badges land on one line — this test checks
+    // left-to-right order, not the Wrap widget's wrapping behavior itself.
+    await tester.pumpWidget(badgeRow(routeLabel: null, width: 900));
 
-      final labels = [
-        'FAVORITES',
-        'GPS',
-        'SMAZ',
-        'ROUTE',
-        'BASE',
-        'LOC',
-        'ENV',
-      ];
-      for (final label in labels) {
-        expect(find.text(label), findsOneWidget);
-      }
-      expect(find.text('~ 1 HOUR'), findsOneWidget);
+    final labels = ['FAVORITES', 'GPS', 'SMAZ', 'ROUTE'];
+    for (final label in labels) {
+      expect(find.text(label), findsOneWidget);
+    }
+    expect(find.text('~ 1 HOUR'), findsOneWidget);
 
-      // Fixed order: each label's left edge must be strictly to the right
-      // of the previous one's.
-      double lastX = -1;
-      for (final label in [...labels, '~ 1 HOUR']) {
-        final x = tester.getTopLeft(find.text(label)).dx;
-        expect(
-          x,
-          greaterThan(lastX),
-          reason: '$label should come after the previous badge',
-        );
-        lastX = x;
-      }
-    },
-  );
+    // Fixed order: each label's left edge must be strictly to the right
+    // of the previous one's.
+    double lastX = -1;
+    for (final label in [...labels, '~ 1 HOUR']) {
+      final x = tester.getTopLeft(find.text(label)).dx;
+      expect(
+        x,
+        greaterThan(lastX),
+        reason: '$label should come after the previous badge',
+      );
+      lastX = x;
+    }
+  });
 
   testWidgets('ContactBadgeRow ghosts inactive badges instead of hiding them '
       '(2026-08-19 accepted mockup: position never shifts)', (tester) async {
@@ -138,9 +123,6 @@ void main() {
         hasLocation: false,
         isSmazEnabled: false,
         routeLabel: 'Flood',
-        teleBaseEnabled: true,
-        teleLocEnabled: false,
-        teleEnvEnabled: false,
       ),
     );
 
@@ -152,9 +134,6 @@ void main() {
     expect(opacityOf('GPS').opacity, closeTo(0.30, 0.001));
     expect(opacityOf('SMAZ').opacity, closeTo(0.30, 0.001));
     expect(find.text('FLOOD'), findsOneWidget);
-    expect(opacityOf('BASE').opacity, 1.0);
-    expect(opacityOf('LOC').opacity, closeTo(0.30, 0.001));
-    expect(opacityOf('ENV').opacity, closeTo(0.30, 0.001));
   });
 
   testWidgets(
@@ -228,9 +207,6 @@ void main() {
           hasLocation: hasLocation,
           isSmazEnabled: false,
           routeLabel: routeLabel,
-          teleBaseEnabled: false,
-          teleLocEnabled: false,
-          teleEnvEnabled: false,
           timeLabel: '~ 1 hour',
           isUnread: false,
           onFavoriteTap: () => favoriteTaps++,

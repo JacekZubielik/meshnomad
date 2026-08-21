@@ -1830,9 +1830,6 @@ class _ContactTile extends StatelessWidget {
                       pathHashByteWidth: pathHashByteWidth,
                     )
                   : null,
-              teleBaseEnabled: contact.teleBaseEnabled,
-              teleLocEnabled: contact.teleLocEnabled,
-              teleEnvEnabled: contact.teleEnvEnabled,
               timeLabel: _formatLastSeen(context, lastSeen),
               isUnread: unreadCount > 0,
               onFavoriteTap: () {

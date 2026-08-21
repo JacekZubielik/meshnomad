@@ -731,8 +731,9 @@ class _ContactBadge extends StatelessWidget {
   final Color color;
   final bool active;
 
-  /// Filled background — only Route (when active) uses this today; every
-  /// other badge stays border-only (null) as accepted 2026-08-19. Text
+  /// Filled background — Favorite, GPS and Route use this when active
+  /// (2026-08-21 refinement); the remaining badges stay border-only (null)
+  /// as accepted 2026-08-19. Text
   /// always renders in [color] regardless — no separate "ink" color; a
   /// 20%-alpha fill of the same hue stays legible under it (2026-08-19
   /// refinement, corrected from an earlier 80%-alpha + white-text attempt).
@@ -790,7 +791,7 @@ class _ContactBadge extends StatelessWidget {
 }
 
 /// Fixed-order row of contact status badges — Favorite, GPS, Smaz, Route,
-/// Base, Loc, Env, Time, always in that order, every one always rendered
+/// Time, always in that order, every one always rendered
 /// (ghosted via [_ContactBadge] when inactive/unavailable so position never
 /// shifts). Accepted mockup: .mockups/contact-tile-badges.html, 2026-08-19.
 class ContactBadgeRow extends StatelessWidget {
@@ -800,9 +801,6 @@ class ContactBadgeRow extends StatelessWidget {
 
   /// Null = route unknown for this contact; renders a ghosted placeholder.
   final String? routeLabel;
-  final bool teleBaseEnabled;
-  final bool teleLocEnabled;
-  final bool teleEnvEnabled;
   final String timeLabel;
   final bool isUnread;
 
@@ -820,9 +818,6 @@ class ContactBadgeRow extends StatelessWidget {
     required this.hasLocation,
     required this.isSmazEnabled,
     required this.routeLabel,
-    required this.teleBaseEnabled,
-    required this.teleLocEnabled,
-    required this.teleEnvEnabled,
     required this.timeLabel,
     required this.isUnread,
     this.onFavoriteTap,
@@ -843,12 +838,14 @@ class ContactBadgeRow extends StatelessWidget {
           label: context.l10n.listFilter_favorites,
           color: tokens.warn,
           active: isFavorite,
+          fillColor: isFavorite ? tokens.warn.withValues(alpha: 0.2) : null,
           onTap: onFavoriteTap,
         ),
         _ContactBadge(
           label: 'GPS',
-          color: neutral,
+          color: tokens.primary,
           active: hasLocation,
+          fillColor: hasLocation ? tokens.primary.withValues(alpha: 0.2) : null,
           onTap: hasLocation ? onGpsTap : null,
         ),
         _ContactBadge(label: 'Smaz', color: neutral, active: isSmazEnabled),
@@ -862,24 +859,12 @@ class ContactBadgeRow extends StatelessWidget {
           onTap: routeLabel != null ? onRouteTap : null,
         ),
         _ContactBadge(
-          label: context.l10n.contact_teleBaseShort,
-          color: tokens.signal,
-          active: teleBaseEnabled,
-        ),
-        _ContactBadge(
-          label: context.l10n.contact_teleLocShort,
-          color: tokens.signal,
-          active: teleLocEnabled,
-        ),
-        _ContactBadge(
-          label: context.l10n.contact_teleEnvShort,
-          color: tokens.signal,
-          active: teleEnvEnabled,
-        ),
-        _ContactBadge(
           label: timeLabel,
           color: isUnread ? tokens.primary : neutral,
           active: true,
+          fillColor: (isUnread ? tokens.primary : neutral).withValues(
+            alpha: 0.2,
+          ),
         ),
       ],
     );
