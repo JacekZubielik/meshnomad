@@ -180,7 +180,7 @@ class MeshFonts {
 /// a role in the custom style editor also resizes the widgets that read
 /// these increments (B3/B4/C2, 2026-08-04) — matched to today's literal
 /// `fontSize:` values in [MeshTheme._build] at the roles' defaults
-/// (bodyMedium=12, bodySmall=11, titleSmall=13), see `03-roles-chrome.md`.
+/// (bodyMedium=13, bodySmall=11, titleSmall=10), see `03-roles-chrome.md`.
 class MeshTypeScale {
   MeshTypeScale._();
 
@@ -315,13 +315,13 @@ class MeshTheme {
     // Explicit sizes matching the app's dominant `fontSize:` literal clusters
     // (see docs/superpowers/specs/2026-08-02-custom-style-editor-design.md,
     // "role fontów") — the stock Material 2021 scale doesn't match them.
-    const titleSmallSize = 13.0;
+    const titleSmallSize = 10.0;
     final baseText = materialText.copyWith(
-      bodyMedium: materialText.bodyMedium?.copyWith(fontSize: 12),
+      bodyMedium: materialText.bodyMedium?.copyWith(fontSize: 13),
       bodySmall: materialText.bodySmall?.copyWith(fontSize: 11),
       titleSmall: materialText.titleSmall?.copyWith(fontSize: titleSmallSize),
-      // Large titles derived from titleSmall (B3) — at the default 13 these
-      // land exactly on stock M3 (16/22/24), so defaults render unchanged.
+      // Large titles derived from titleSmall (B3) via fixed increments
+      // (2026-08-21: base dropped to 10, so the whole title ladder shrinks).
       titleMedium: materialText.titleMedium?.copyWith(
         fontSize: titleSmallSize + MeshTypeScale.titleMediumIncrement,
       ),
