@@ -1749,6 +1749,7 @@ class _PathTraceMapScreenState extends State<PathTraceMapScreen>
                               ? Icons.expand_less
                               : Icons.expand_more,
                           size: 20,
+                          color: MeshTokens.of(context).primary,
                         ),
                         tooltip: _panelCollapsed
                             ? l10n.pathMap_expandPanel

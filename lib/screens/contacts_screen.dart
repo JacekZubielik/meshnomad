@@ -613,10 +613,10 @@ class _ContactsScreenState extends State<ContactsScreen>
       240.0,
       (screenWidth - 16).clamp(240.0, double.infinity),
     );
-    // Same font as the search TextField next to it (and on the Channels
-    // card): M3 TextFields render in bodyLarge, while PopupMenuItem's
-    // default is labelLarge — they visibly diverge without this.
-    final TextStyle? entryStyle = Theme.of(context).textTheme.bodyLarge;
+    // Same font as the search TextField next to it: both pin bodyMedium
+    // explicitly (2026-08-21 — the group label rendered visibly larger than
+    // the search hint before).
+    final TextStyle? entryStyle = Theme.of(context).textTheme.bodyMedium;
 
     return PopupMenuButton<String>(
       position: PopupMenuPosition.under,
@@ -729,7 +729,10 @@ class _ContactsScreenState extends State<ContactsScreen>
                   ),
                 ),
                 SizedBox(width: t.spacingXs),
-                const Icon(Icons.arrow_drop_down),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: MeshTokens.of(context).primary,
+                ),
               ],
             ),
           ),
