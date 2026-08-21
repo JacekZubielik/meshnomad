@@ -1587,6 +1587,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get gifPicker_noInternet => 'Brak połączenia internetowego';
 
   @override
+  String get debugLog_previewCommandDrawer =>
+      'Podgląd szuflady komend repeatera';
+
+  @override
   String get debugLog_appTitle => 'Log Wykonywania Aplikacji';
 
   @override
@@ -3138,6 +3142,30 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ustawia niestandardowy współczynnik do korekty zgłaszanego napięcia baterii (obsługa tylko na wybranych płytach).';
 
   @override
+  String get repeater_cliHelpSetCad =>
+      'Włącza wykrywanie aktywności kanału (CAD) przed transmisją, żeby ograniczyć kolizje z trwającymi transmisjami na tym samym kanale (v1.17).';
+
+  @override
+  String get repeater_cliHelpSetRadioFemRxgain =>
+      'Steruje wzmocnieniem RX modułu front-end (FEM) — zwiększa czułość odbioru na obsługiwanych płytkach (v1.17).';
+
+  @override
+  String get repeater_cliHelpSetRadioFemTxgain =>
+      'Steruje wzmocnieniem TX modułu front-end (FEM), siostrzane ustawienie do radio.fem.rxgain (v1.17.1).';
+
+  @override
+  String get repeater_cliHelpSetExtraSf =>
+      'Włącza dodatkowe współczynniki rozpraszania (SF) na radiach opartych o LR2021 (v1.17).';
+
+  @override
+  String get repeater_cliHelpSetFloodMaxAdvert =>
+      'Ustawia maksymalną liczbę hopów dla pakietów advert wysyłanych metodą flood, do 64 (v1.17).';
+
+  @override
+  String get repeater_cliHelpSetFloodMaxUnscoped =>
+      'Ustawia maksymalną liczbę hopów dla pakietów flood typu unscoped, do 64 (v1.17).';
+
+  @override
   String get repeater_cliHelpTempRadio =>
       'Ustawia tymczasowe parametry radia na podany czas trwania w minutach, a następnie powraca do oryginalnych parametrów radia. (nie zapisuje zmian w preferencjach).';
 
@@ -3233,6 +3261,32 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get repeater_commandsListTitle => 'Lista poleceń';
+
+  @override
+  String get repeater_commandsGroupsSuffix => 'grup';
+
+  @override
+  String get repeater_commandsExpandAction => 'powiększ';
+
+  @override
+  String get repeater_commandsFullscreenAction => 'pełny ekran';
+
+  @override
+  String get repeater_commandsCollapseAction => 'zwiń';
+
+  @override
+  String get repeater_commandsCollapseToPanelAction => 'zwiń do panelu';
+
+  @override
+  String repeater_paramPopup_title(String command) {
+    return 'Parametry: $command';
+  }
+
+  @override
+  String get repeater_paramPopup_send => 'Wyślij';
+
+  @override
+  String get repeater_paramPopup_region => 'region / częst.';
 
   @override
   String get repeater_commandsListNote =>
