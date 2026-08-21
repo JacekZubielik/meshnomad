@@ -66,6 +66,10 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: android
+    permissions:
+      # The default GITHUB_TOKEN is read-only; creating the GitHub Release
+      # (softprops/action-gh-release) needs contents write.
+      contents: write
     steps:
       - name: Free disk space
         run: |
