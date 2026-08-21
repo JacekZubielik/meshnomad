@@ -22,6 +22,7 @@ import '../widgets/theme_profile_selector.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'custom_style_editor_screen.dart';
 import 'map_cache_screen.dart';
+import '../widgets/mesh_dashed_divider.dart';
 
 class AppSettingsScreen extends StatelessWidget {
   const AppSettingsScreen({super.key});
@@ -192,7 +193,7 @@ class AppSettingsScreen extends StatelessWidget {
             children: [_MotywSection(settingsService: settingsService)],
           ),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         InkWell(
           onTap: () => _showLanguageSheet(context, settingsService),
           child: Padding(
@@ -291,7 +292,7 @@ class AppSettingsScreen extends StatelessWidget {
             }
           },
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -319,7 +320,7 @@ class AppSettingsScreen extends StatelessWidget {
               ? (value) => settingsService.setNotifyOnNewMessage(value)
               : null,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -347,7 +348,7 @@ class AppSettingsScreen extends StatelessWidget {
               ? (value) => settingsService.setNotifyOnNewChannelMessage(value)
               : null,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -409,7 +410,7 @@ class AppSettingsScreen extends StatelessWidget {
             );
           },
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -421,7 +422,7 @@ class AppSettingsScreen extends StatelessWidget {
           value: settingsService.settings.jumpToOldestUnread,
           onChanged: settingsService.setJumpToOldestUnread,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -455,7 +456,7 @@ class AppSettingsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       ListTile(
                         title: Text(context.l10n.appSettings_maxRouteWeight),
                         subtitle: Column(
@@ -478,7 +479,7 @@ class AppSettingsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       ListTile(
                         title: Text(
                           context.l10n.appSettings_initialRouteWeight,
@@ -505,7 +506,7 @@ class AppSettingsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       ListTile(
                         title: Text(
                           context.l10n.appSettings_routeWeightSuccessIncrement,
@@ -535,7 +536,7 @@ class AppSettingsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       ListTile(
                         title: Text(
                           context.l10n.appSettings_routeWeightFailureDecrement,
@@ -565,7 +566,7 @@ class AppSettingsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Divider(height: 1),
+                      const MeshDashedDivider(),
                       ListTile(
                         title: Text(context.l10n.appSettings_maxMessageRetries),
                         subtitle: Column(
@@ -595,7 +596,7 @@ class AppSettingsScreen extends StatelessWidget {
                 )
               : const SizedBox.shrink(),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -609,7 +610,7 @@ class AppSettingsScreen extends StatelessWidget {
             settingsService.setEnableMessageTracing(value);
           },
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         ListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -807,7 +808,7 @@ class AppSettingsScreen extends StatelessWidget {
         value: settingsService.settings.mapShowRepeaters,
         onChanged: (value) => settingsService.setMapShowRepeaters(value),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       SwitchListTile(
         contentPadding: EdgeInsets.symmetric(
           horizontal: t.spacingMd,
@@ -819,7 +820,7 @@ class AppSettingsScreen extends StatelessWidget {
         value: settingsService.settings.mapShowChatNodes,
         onChanged: (value) => settingsService.setMapShowChatNodes(value),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       SwitchListTile(
         contentPadding: EdgeInsets.symmetric(
           horizontal: t.spacingMd,
@@ -831,7 +832,7 @@ class AppSettingsScreen extends StatelessWidget {
         value: settingsService.settings.mapShowOtherNodes,
         onChanged: (value) => settingsService.setMapShowOtherNodes(value),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       InkWell(
         onTap: () => _showTimeFilterSheet(context, settingsService),
         child: Padding(
@@ -881,7 +882,7 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       InkWell(
         onTap: () => _showUnitsSheet(context, settingsService),
         child: Padding(
@@ -924,7 +925,7 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       InkWell(
         onTap: () {
           Navigator.push(
@@ -979,7 +980,7 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ),
       ),
-      const Divider(height: 1, indent: 16),
+      const MeshDashedDivider(indent: 16),
       InkWell(
         onTap: () => _showMapRasterSourceDialog(context, settingsService),
         child: Padding(
@@ -1030,7 +1031,7 @@ class AppSettingsScreen extends StatelessWidget {
 
     if (_isStadiaSource(settingsService.settings)) {
       children.addAll([
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         InkWell(
           onTap: () => _showMapRasterEndpointDialog(context, settingsService),
           child: Padding(
@@ -1075,7 +1076,7 @@ class AppSettingsScreen extends StatelessWidget {
             ),
           ),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         InkWell(
           onTap: () => _showMapApiKeyDialog(context, settingsService),
           child: Padding(
@@ -1351,7 +1352,7 @@ class AppSettingsScreen extends StatelessWidget {
           value: settings.translationEnabled,
           onChanged: settingsService.setTranslationEnabled,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -1383,7 +1384,7 @@ class AppSettingsScreen extends StatelessWidget {
               ? settingsService.setAutoTranslateIncomingMessages
               : null,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         SwitchListTile(
           contentPadding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
@@ -1415,7 +1416,7 @@ class AppSettingsScreen extends StatelessWidget {
               ? settingsService.setComposerTranslationEnabled
               : null,
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         InkWell(
           onTap: () => _showTranslationLanguageDialog(context, settingsService),
           child: Padding(
@@ -1459,7 +1460,7 @@ class AppSettingsScreen extends StatelessWidget {
             ),
           ),
         ),
-        const Divider(height: 1, indent: 16),
+        const MeshDashedDivider(indent: 16),
         Padding(
           padding: EdgeInsets.fromLTRB(
             t.spacingMd,
