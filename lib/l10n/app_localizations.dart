@@ -5,24 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
-import 'app_localizations_bg.dart';
-import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
-import 'app_localizations_es.dart';
-import 'app_localizations_fr.dart';
-import 'app_localizations_hu.dart';
-import 'app_localizations_it.dart';
-import 'app_localizations_ja.dart';
-import 'app_localizations_ko.dart';
-import 'app_localizations_nl.dart';
 import 'app_localizations_pl.dart';
-import 'app_localizations_pt.dart';
-import 'app_localizations_ru.dart';
-import 'app_localizations_sk.dart';
-import 'app_localizations_sl.dart';
-import 'app_localizations_sv.dart';
-import 'app_localizations_uk.dart';
-import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
 
@@ -110,24 +94,8 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
-    Locale('bg'),
-    Locale('de'),
     Locale('en'),
-    Locale('es'),
-    Locale('fr'),
-    Locale('hu'),
-    Locale('it'),
-    Locale('ja'),
-    Locale('ko'),
-    Locale('nl'),
     Locale('pl'),
-    Locale('pt'),
-    Locale('ru'),
-    Locale('sk'),
-    Locale('sl'),
-    Locale('sv'),
-    Locale('uk'),
-    Locale('zh'),
   ];
 
   /// No description provided for @appTitle.
@@ -9007,7 +8975,7 @@ abstract class AppLocalizations {
   /// No description provided for @styleEditor_colorsSection.
   ///
   /// In en, this message translates to:
-  /// **'Colors'**
+  /// **'Colors body'**
   String get styleEditor_colorsSection;
 
   /// No description provided for @styleEditor_fontSizesSection.
@@ -9021,6 +8989,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Screen titles, buttons, and tabs scale together with the sizes above.'**
   String get styleEditor_fontSizesIntro;
+
+  /// No description provided for @styleEditor_spacingIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Gaps and paddings used throughout the app\'s layout.'**
+  String get styleEditor_spacingIntro;
+
+  /// No description provided for @styleEditor_radiusIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Corner rounding of cards, dialogs, and other chrome.'**
+  String get styleEditor_radiusIntro;
 
   /// No description provided for @styleEditor_resetAll.
   ///
@@ -9073,14 +9053,80 @@ abstract class AppLocalizations {
   /// No description provided for @styleEditor_mapSection.
   ///
   /// In en, this message translates to:
-  /// **'Map'**
+  /// **'Colors map'**
   String get styleEditor_mapSection;
 
   /// No description provided for @styleEditor_losSection.
   ///
   /// In en, this message translates to:
-  /// **'Line of sight (LOS)'**
+  /// **'Colors Line of sight'**
   String get styleEditor_losSection;
+
+  /// No description provided for @styleEditor_colorsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Base palette: backgrounds, text, accents.'**
+  String get styleEditor_colorsIntro;
+
+  /// No description provided for @styleEditor_mapIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors of map markers, panels and labels.'**
+  String get styleEditor_mapIntro;
+
+  /// No description provided for @styleEditor_losIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors of the line-of-sight terrain chart.'**
+  String get styleEditor_losIntro;
+
+  /// No description provided for @styleEditor_buttonsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Buttons'**
+  String get styleEditor_buttonsSection;
+
+  /// No description provided for @styleEditor_buttonsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared look of app buttons: corner radius and border.'**
+  String get styleEditor_buttonsIntro;
+
+  /// No description provided for @styleEditor_buttonRadius_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Corner radius'**
+  String get styleEditor_buttonRadius_label;
+
+  /// No description provided for @styleEditor_buttonRadius_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buttons only, independent of the pill radius'**
+  String get styleEditor_buttonRadius_subtitle;
+
+  /// No description provided for @styleEditor_buttonBorder_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Border'**
+  String get styleEditor_buttonBorder_label;
+
+  /// No description provided for @styleEditor_buttonBorder_none.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get styleEditor_buttonBorder_none;
+
+  /// No description provided for @styleEditor_buttonBorder_solid.
+  ///
+  /// In en, this message translates to:
+  /// **'Solid'**
+  String get styleEditor_buttonBorder_solid;
+
+  /// No description provided for @styleEditor_buttonBorder_dotted.
+  ///
+  /// In en, this message translates to:
+  /// **'Dotted'**
+  String get styleEditor_buttonBorder_dotted;
 
   /// No description provided for @styleEditor_bg_label.
   ///
@@ -9885,26 +9931,8 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) => <String>[
-    'bg',
-    'de',
-    'en',
-    'es',
-    'fr',
-    'hu',
-    'it',
-    'ja',
-    'ko',
-    'nl',
-    'pl',
-    'pt',
-    'ru',
-    'sk',
-    'sl',
-    'sv',
-    'uk',
-    'zh',
-  ].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'pl'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -9913,42 +9941,10 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'bg':
-      return AppLocalizationsBg();
-    case 'de':
-      return AppLocalizationsDe();
     case 'en':
       return AppLocalizationsEn();
-    case 'es':
-      return AppLocalizationsEs();
-    case 'fr':
-      return AppLocalizationsFr();
-    case 'hu':
-      return AppLocalizationsHu();
-    case 'it':
-      return AppLocalizationsIt();
-    case 'ja':
-      return AppLocalizationsJa();
-    case 'ko':
-      return AppLocalizationsKo();
-    case 'nl':
-      return AppLocalizationsNl();
     case 'pl':
       return AppLocalizationsPl();
-    case 'pt':
-      return AppLocalizationsPt();
-    case 'ru':
-      return AppLocalizationsRu();
-    case 'sk':
-      return AppLocalizationsSk();
-    case 'sl':
-      return AppLocalizationsSl();
-    case 'sv':
-      return AppLocalizationsSv();
-    case 'uk':
-      return AppLocalizationsUk();
-    case 'zh':
-      return AppLocalizationsZh();
   }
 
   throw FlutterError(
