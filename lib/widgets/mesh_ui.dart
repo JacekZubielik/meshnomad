@@ -656,6 +656,7 @@ class RouteChip extends StatelessWidget {
         color: scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(tokens.xs),
         border: Border.all(color: scheme.outlineVariant),
+        boxShadow: tokens.labelShadow,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -726,6 +727,7 @@ class ContactTypeBadge extends StatelessWidget {
         color: color.withValues(alpha: 0.2),
         border: Border.all(color: color, width: 1),
         borderRadius: BorderRadius.circular(tokens.pill),
+        boxShadow: tokens.labelShadow,
       ),
       child: Text(
         label.toUpperCase(),
@@ -779,6 +781,7 @@ class _ContactBadge extends StatelessWidget {
           color: fillColor,
           border: Border.all(color: color, width: 1),
           borderRadius: BorderRadius.circular(tokens.xs),
+          boxShadow: tokens.labelShadow,
         ),
         child: Text(
           label.toUpperCase(),

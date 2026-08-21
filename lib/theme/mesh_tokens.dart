@@ -246,6 +246,21 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   /// sites derive their own alpha per layer (see MeshCard).
   final Color cardShadow;
 
+  /// Shared drop shadow for label chips (_ContactBadge, ContactTypeBadge,
+  /// RouteChip, …) — THE single place that defines it. Follows the
+  /// style-wide shadow switch ([cardElevated], the Custom Style "Card
+  /// shadow" toggle): null when shadows are off. Calibrated for ~16dp-tall
+  /// chips (the map markers' blur 8 would read as smear at this size).
+  List<BoxShadow>? get labelShadow => cardElevated
+      ? [
+          BoxShadow(
+            color: cardShadow.withValues(alpha: 0.22),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ]
+      : null;
+
   /// 5th/6th hues in the deterministic avatar-tint palette (see
   /// `avatarTintPalette` in mesh_ui.dart) — the first four reuse
   /// [primary]/[secondary]/[signal]/[warn].
