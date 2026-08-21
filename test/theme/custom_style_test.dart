@@ -253,17 +253,39 @@ void main() {
       expect((border! as OutlineInputBorder).borderRadius.topLeft.x, 2.0);
     });
 
-    test('a pill radius override wins over the default and reshapes button '
-        'chrome', () {
+    test('a pill radius override wins over the default and reshapes the FAB',
+        () {
       final style = buildCustomStyle(
         const CustomStyleOverrides(radiusOverrides: {'pill': 4.0}),
       );
       expect(style.theme.extension<MeshTokens>()!.pill, 4.0);
-      final shape = style.theme.filledButtonTheme.style?.shape?.resolve({});
+      final shape = style.theme.floatingActionButtonTheme.shape;
       expect(shape, isA<RoundedRectangleBorder>());
       final radius =
           (shape! as RoundedRectangleBorder).borderRadius as BorderRadius;
       expect(radius.topLeft.x, 4.0);
+    });
+
+    test('buttons follow the buttons-only radius and border mode '
+        '(2026-08-21 Buttons section)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(
+          radiusOverrides: {'buttonRadius': 6.0},
+          buttonBorder: 'solid',
+        ),
+      );
+      final shape = style.theme.filledButtonTheme.style?.shape?.resolve({});
+      expect(shape, isA<RoundedRectangleBorder>());
+      final rrb = shape! as RoundedRectangleBorder;
+      expect((rrb.borderRadius as BorderRadius).topLeft.x, 6.0);
+      expect(rrb.side.style, BorderStyle.solid);
+      expect(rrb.side.color, style.theme.colorScheme.primary);
+
+      final none = buildCustomStyle(const CustomStyleOverrides());
+      final noneShape =
+          none.theme.filledButtonTheme.style?.shape?.resolve({})!
+              as RoundedRectangleBorder;
+      expect(noneShape.side, BorderSide.none);
     });
 
     test('pill defaults to fully round (999) when not overridden', () {

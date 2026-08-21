@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/custom_style_overrides.dart';
 import '../mesh_derived.dart';
 import '../mesh_theme.dart' show MeshTheme, MeshTypeScale;
+import '../dashed_rounded_border.dart';
 import '../mesh_tokens.dart';
 import '../style.dart';
 
@@ -426,6 +427,21 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
   ThemeData applyChromeRadii(ThemeData base, MeshTokens t) {
     RoundedRectangleBorder rrb(double r) =>
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(r));
+    // Buttons get their own user-set radius and border mode (none/solid/
+    // dotted, Buttons section 2026-08-21) — border always in the primary
+    // accent, matching the tinted-fill button language.
+    final buttonSide = overrides.buttonBorder == null
+        ? BorderSide.none
+        : BorderSide(color: base.colorScheme.primary);
+    final OutlinedBorder buttonShape = overrides.buttonBorder == 'dotted'
+        ? DashedRoundedRectangleBorder(
+            side: buttonSide,
+            borderRadius: BorderRadius.circular(t.buttonRadius),
+          )
+        : RoundedRectangleBorder(
+            side: buttonSide,
+            borderRadius: BorderRadius.circular(t.buttonRadius),
+          );
     OutlineInputBorder? oib(InputBorder? b, double r) => b is OutlineInputBorder
         ? b.copyWith(borderRadius: BorderRadius.circular(r))
         : null;
@@ -473,12 +489,12 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: base.elevatedButtonTheme.style?.copyWith(
-          shape: WidgetStatePropertyAll(rrb(t.pill)),
+          shape: WidgetStatePropertyAll(buttonShape),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: base.outlinedButtonTheme.style?.copyWith(
-          shape: WidgetStatePropertyAll(rrb(t.pill)),
+          shape: WidgetStatePropertyAll(buttonShape),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -488,7 +504,7 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: base.filledButtonTheme.style?.copyWith(
-          shape: WidgetStatePropertyAll(rrb(t.pill)),
+          shape: WidgetStatePropertyAll(buttonShape),
         ),
       ),
       chipTheme: base.chipTheme.copyWith(shape: rrb(t.pill)),
@@ -736,6 +752,7 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     lg: radiusFor('lg', baseTokens.lg),
     xl: radiusFor('xl', baseTokens.xl),
     pill: radiusFor('pill', baseTokens.pill),
+    buttonRadius: radiusFor('buttonRadius', baseTokens.buttonRadius),
     cardElevated: overrides.cardElevated ?? true,
   );
 

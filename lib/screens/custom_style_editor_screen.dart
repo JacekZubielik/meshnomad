@@ -276,6 +276,15 @@ final List<_SpacingFieldSpec> _radiusFields = [
   _SpacingFieldSpec('pill', MeshTokens.defaultTokens.pill, 0, 40),
 ];
 
+/// Buttons-only radius (2026-08-21) — its own section, not part of
+/// [_radiusFields]; same clamp-above-max convention as `pill`.
+final _SpacingFieldSpec _buttonRadiusField = _SpacingFieldSpec(
+  'buttonRadius',
+  MeshTokens.defaultTokens.buttonRadius,
+  0,
+  40,
+);
+
 /// Maps a color field key to its localized (label, subtitle) pair. One
 /// switch covering the base + map + LOS sections (04-editor-ui.md).
 (String, String) _colorFieldText(AppLocalizations l10n, String key) {
@@ -796,6 +805,99 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                     value: overrides.cardElevated ?? true,
                     onChanged: (v) => settingsService.setCustomCardElevated(v),
                   ),
+                ),
+                _EditorSectionCard(
+                  key: const ValueKey('buttonsSection'),
+                  title: l10n.styleEditor_buttonsSection,
+                  intro: l10n.styleEditor_buttonsIntro,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: MeshTokens.of(context).spacingXs,
+                      ),
+                      child: Center(
+                        child: FilledButton(
+                          onPressed: () {},
+                          child: Text(l10n.styleEditor_buttonsSection),
+                        ),
+                      ),
+                    ),
+                    const MeshDashedDivider(indent: 16, endIndent: 16),
+                    Builder(
+                      builder: (context) {
+                        final spec = _buttonRadiusField;
+                        final override = overrides.radiusOverrides[spec.key];
+                        return _TokenFieldRow(
+                          key: const ValueKey('radiusRow_buttonRadius'),
+                          spec: spec,
+                          kind: _TokenPreviewKind.radius,
+                          currentValue: override ?? spec.defaultValue,
+                          hasOverride: override != null,
+                          label: l10n.styleEditor_buttonRadius_label,
+                          subtitle: l10n.styleEditor_buttonRadius_subtitle,
+                          onChanged: (v) => settingsService
+                              .setCustomRadiusOverride(spec.key, v),
+                          onReset: () => settingsService
+                              .resetCustomRadiusOverride(spec.key),
+                        );
+                      },
+                    ),
+                    const MeshDashedDivider(indent: 16, endIndent: 16),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MeshTokens.of(context).spacingMd,
+                        vertical: MeshTokens.of(context).spacingXs,
+                      ),
+                      // Label above, segmented control on its own full-width
+                      // row below (2026-08-21 fix): the previous Row put the
+                      // 3-way control next to the label with no width of its
+                      // own, so on narrower screens / longer locale strings
+                      // (e.g. Polish "Kropkowane") it overflowed past the
+                      // card edge and got clipped un-tappable by MeshCard's
+                      // ClipRRect. `expandedInsets` makes the control size
+                      // itself off the ACTUAL available width (split evenly
+                      // across the 3 segments) instead of each segment's
+                      // intrinsic content width, so it always fits.
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.styleEditor_buttonBorder_label,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          SizedBox(height: MeshTokens.of(context).spacingXs),
+                          SegmentedButton<String>(
+                            key: const ValueKey('buttonBorderSegments'),
+                            expandedInsets: EdgeInsets.zero,
+                            showSelectedIcon: false,
+                            segments: [
+                              ButtonSegment(
+                                value: 'none',
+                                label: Text(l10n.styleEditor_buttonBorder_none),
+                              ),
+                              ButtonSegment(
+                                value: 'solid',
+                                label: Text(
+                                  l10n.styleEditor_buttonBorder_solid,
+                                ),
+                              ),
+                              ButtonSegment(
+                                value: 'dotted',
+                                label: Text(
+                                  l10n.styleEditor_buttonBorder_dotted,
+                                ),
+                              ),
+                            ],
+                            selected: {overrides.buttonBorder ?? 'none'},
+                            onSelectionChanged: (sel) =>
+                                settingsService.setCustomButtonBorder(
+                                  sel.first == 'none' ? null : sel.first,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(

@@ -44,7 +44,8 @@ void main() {
     expect(decoded.radiusOverrides, {'md': 20.0});
   });
 
-  test('editableRadiusKeys lists 6 editable steps, including pill', () {
+  test('editableRadiusKeys lists 7 editable steps, including pill and the '
+      'buttons-only radius (2026-08-21)', () {
     expect(CustomStyleOverrides.editableRadiusKeys, [
       'xs',
       'sm',
@@ -52,6 +53,7 @@ void main() {
       'lg',
       'xl',
       'pill',
+      'buttonRadius',
     ]);
   });
 }
