@@ -5,10 +5,11 @@ env:
   # drift day-to-day off `channel: stable` (per flutter-cicd-meshcore skill).
   FLUTTER_VERSION: "3.44.9"
 
+# Tag trigger intentionally removed: Cloudflare secrets are not configured yet
+# (deferred by owner, 2026-08-21) and every tag push produced a failing run.
+# Restore `push: tags: ['v*']` here once CLOUDFLARE_API_TOKEN and
+# CLOUDFLARE_ACCOUNT_ID secrets exist.
 on:
-  push:
-    tags:
-      - '*'
   workflow_dispatch:
 
 jobs:
