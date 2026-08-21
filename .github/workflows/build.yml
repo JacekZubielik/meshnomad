@@ -74,6 +74,10 @@ jobs:
           sudo docker image prune --all --force
           df -h /
       - uses: actions/checkout@v7
+        with:
+          # git-cliff needs the full history and tags to build release notes;
+          # a shallow clone yields an empty changelog.
+          fetch-depth: 0
       - uses: actions/setup-java@v5
         with:
           distribution: "temurin"
@@ -121,6 +125,28 @@ jobs:
           name: meshnomad-release-aab
           path: build/app/outputs/bundle/release/app-release.aab
           retention-days: 30
+      - name: Determine changelog range
+        if: startsWith(github.ref, 'refs/tags/v')
+        id: range
+        run: |
+          # Previous v* tag if any; for the very first release fall back to the
+          # fork merge-base with upstream (2026-07-28) so upstream history is
+          # excluded from the notes.
+          PREV=$(git describe --tags --abbrev=0 --match 'v[0-9]*' "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+          if [ -z "$PREV" ]; then
+            PREV=98f6cf37455168466b5d973b94c74a8d8b0f624c
+          fi
+          echo "range=${PREV}..HEAD" >> "$GITHUB_OUTPUT"
+          echo "Changelog range: ${PREV}..HEAD"
+      - name: Generate changelog
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          config: cliff.toml
+          args: --strip header ${{ steps.range.outputs.range }}
+        env:
+          OUTPUT: CHANGES.md
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
@@ -128,7 +154,7 @@ jobs:
           files: |
             build/app/outputs/flutter-apk/app-release.apk
             build/app/outputs/bundle/release/app-release.aab
-          generate_release_notes: true
+          body: ${{ steps.git-cliff.outputs.content }}
 
   ios:
     # Temporarily disabled 2026-08-21 to save Actions minutes on the free
