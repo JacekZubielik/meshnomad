@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.9.0 (2026-08-21)
+
+### Features
+
+- Redesign repeater CLI command help as a draggable drawer with param popup (#81)
+
+### Performance
+
+- Split release APK per-ABI to shrink per-device downloads (#82)
+
+### Chores
+
+- Remove internal tooling reference from CHANGELOG
+
 ## v0.8.0 (2026-08-21)
 
 ### Highlights
