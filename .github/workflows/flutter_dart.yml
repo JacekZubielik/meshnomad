@@ -15,6 +15,9 @@ on:
     paths-ignore:
       - 'docs/**'
       - '**.md'
+      # CI-only changes can't break Dart code — analyzing and testing the
+      # whole app for a workflow edit just burns minutes.
+      - '.github/**'
 
 jobs:
   analyze:
