@@ -6,13 +6,12 @@ env:
   FLUTTER_VERSION: "3.44.9"
 
 on:
+  # No `push: branches: [main]` on purpose: every commit that lands on main
+  # already ran this exact analyze+test job on its pull_request check (or,
+  # for a fast-forward promotion, on dev-custom's own PR) — repeating it
+  # right after landing on main re-tests an already-known-green commit for
+  # no benefit, just Actions minutes.
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
-  push:
-    branches:
-      - main
     paths-ignore:
       - 'docs/**'
       - '**.md'

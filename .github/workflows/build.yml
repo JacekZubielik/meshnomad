@@ -7,8 +7,13 @@ env:
 
 on:
   push:
-    branches:
-      - main
+    # No `branches: [main]` here on purpose: main only ever receives commits
+    # that already passed this exact workflow on their pull_request run (or,
+    # for a plain fast-forward promotion from dev-custom, on dev-custom's own
+    # PRs) — re-running it again right after landing on main just burns
+    # Actions minutes on an already-known-green build. The tag trigger below
+    # is the one that matters for a release; use workflow_dispatch (any
+    # branch/ref) for an ad hoc signed build outside of a tagged release.
     tags:
       - 'v*'
     paths-ignore:
