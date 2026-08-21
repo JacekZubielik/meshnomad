@@ -1716,6 +1716,17 @@ class AppSettingsScreen extends StatelessWidget {
             SizedBox(width: t.spacingXs),
             Expanded(
               child: OutlinedButton.icon(
+                // Destructive action: swap the app-wide tinted-primary
+                // button look for the same treatment in the alert accent
+                // (2026-08-21) — otherwise Delete rendered identically to
+                // Add/Edit and gave no visual warning before an unrecoverable
+                // profile removal.
+                style: Theme.of(context).outlinedButtonTheme.style?.copyWith(
+                  backgroundColor: WidgetStatePropertyAll(
+                    t.alert.withValues(alpha: 0.2),
+                  ),
+                  foregroundColor: WidgetStatePropertyAll(t.alert),
+                ),
                 onPressed: settingsService.settings.cyr2latProfiles.length > 1
                     ? () => _showDeleteCyr2LatProfileDialog(
                         context,
