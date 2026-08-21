@@ -1135,7 +1135,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                   _buildActionsCard(),
                   _buildAdvancedCard(),
                   _buildKeysCard(),
-                  const SizedBox(height: 16),
+                  SizedBox(height: MeshTokens.of(context).spacingMd),
                   _buildDangerZoneCard(),
                 ],
               ),
@@ -1174,7 +1174,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                 ),
                 onChanged: (_) => _markChanged(_SettingField.name),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: MeshTokens.of(context).spacingSm),
               TextField(
                 controller: _passwordController,
                 decoration: InputDecoration(
@@ -1184,7 +1184,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                 obscureText: true,
                 onChanged: (_) => _flagHasChanges(),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: MeshTokens.of(context).spacingSm),
               TextField(
                 controller: _guestPasswordController,
                 decoration: InputDecoration(
@@ -1262,7 +1262,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                   if (index != null) _applyRadioPreset(index);
                 },
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: MeshTokens.of(context).spacingSm),
               TextField(
                 controller: _freqController,
                 decoration: InputDecoration(
@@ -1275,12 +1275,12 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                 ),
                 onChanged: (_) => _markChanged(_SettingField.radio),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: MeshTokens.of(context).spacingSm),
               Text(
                 l10n.repeater_txPower,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: MeshTokens.of(context).spacingXs),
               SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   showValueIndicator: ShowValueIndicator.alwaysVisible,
@@ -1319,7 +1319,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                   }
                 },
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: MeshTokens.of(context).spacingSm),
               DropdownButtonFormField<int>(
                 initialValue: _spreadingFactor,
                 decoration: InputDecoration(
@@ -1335,7 +1335,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                   }
                 },
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: MeshTokens.of(context).spacingSm),
               DropdownButtonFormField<int>(
                 initialValue: _codingRate,
                 decoration: InputDecoration(
@@ -1361,12 +1361,14 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                 },
                 contentPadding: EdgeInsets.zero,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: MeshTokens.of(context).spacingXs),
               Text(
                 l10n.repeater_dutyCycle,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              const SizedBox(height: 20),
+              SizedBox(
+                height: MeshTokens.of(context).spacingLg,
+              ), // spacing: 20->Lg (+4px, remis w gore)
               SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   showValueIndicator: ShowValueIndicator.alwaysVisible,
@@ -1437,7 +1439,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: MeshTokens.of(context).spacingSm),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1654,7 +1656,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                       }
                     : null,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: MeshTokens.of(context).spacingXs),
               Row(
                 children: [
                   Expanded(
@@ -1713,7 +1715,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                       }
                     : null,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: MeshTokens.of(context).spacingXs),
               Row(
                 children: [
                   Expanded(
@@ -1956,7 +1958,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: MeshTokens.of(context).spacingSm),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1981,7 +1983,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: MeshTokens.of(context).spacingSm),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2006,7 +2008,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: MeshTokens.of(context).spacingSm),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2029,7 +2031,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: MeshTokens.of(context).spacingSm),
           Row(
             children: [
               Expanded(
@@ -2120,7 +2122,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: MeshTokens.of(context).spacingXs),
               Padding(
                 padding: EdgeInsets.only(top: MeshTokens.of(context).spacingXs),
                 child: _searchingForKeyPair
@@ -2141,7 +2143,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: MeshTokens.of(context).spacingMd),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2162,7 +2164,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: MeshTokens.of(context).spacingMd),
               Padding(
                 padding: EdgeInsets.only(top: MeshTokens.of(context).spacingSm),
                 child: SizedBox(
@@ -2173,10 +2175,10 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                       : null,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: MeshTokens.of(context).spacingXs),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: MeshTokens.of(context).spacingMd),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2198,7 +2200,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 48),
+              SizedBox(width: MeshTokens.of(context).spacingXxlg),
             ],
           ),
         ],
@@ -2221,7 +2223,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
           Row(
             children: [
               Icon(Icons.warning, color: MeshTokens.of(context).alert),
-              const SizedBox(width: 8),
+              SizedBox(width: MeshTokens.of(context).spacingXs),
               Text(
                 l10n.repeater_dangerZone,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
