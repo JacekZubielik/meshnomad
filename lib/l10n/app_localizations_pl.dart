@@ -349,6 +349,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settings_nodeSettings => 'Ustawienia węzła';
 
   @override
+  String get settings_nodeSettingsSubtitle =>
+      'Nazwa, radio, region i diagnostyka';
+
+  @override
   String get settings_nodeName => 'Nazwa węzła';
 
   @override
@@ -4459,6 +4463,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get notification_receivedNewMessage => 'Otrzymano nową wiadomość';
+
+  @override
+  String get settings_gpxExport => 'Eksport do GPX';
+
+  @override
+  String get settings_gpxExportSubtitle => 'Przekaźniki, kontakty lub wszystko';
 
   @override
   String get settings_gpxExportRepeaters =>

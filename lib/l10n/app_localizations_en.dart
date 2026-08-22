@@ -342,6 +342,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_nodeSettings => 'Node Settings';
 
   @override
+  String get settings_nodeSettingsSubtitle =>
+      'Name, radio, region, and diagnostics';
+
+  @override
   String get settings_nodeName => 'Node Name';
 
   @override
@@ -4369,6 +4373,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notification_receivedNewMessage => 'Received new message';
+
+  @override
+  String get settings_gpxExport => 'Export to GPX';
+
+  @override
+  String get settings_gpxExportSubtitle =>
+      'Repeaters, companions, or everything';
 
   @override
   String get settings_gpxExportRepeaters =>

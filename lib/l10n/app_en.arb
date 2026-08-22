@@ -151,6 +151,7 @@
   "settings_appSettings": "App Settings",
   "settings_appSettingsSubtitle": "Notifications, messaging, and map preferences",
   "settings_nodeSettings": "Node Settings",
+  "settings_nodeSettingsSubtitle": "Name, radio, region, and diagnostics",
   "settings_nodeName": "Node Name",
   "settings_nodeNameNotSet": "Not set",
   "settings_nodeNameHint": "Enter node name",
@@ -2492,6 +2493,8 @@
     }
   },
   "notification_receivedNewMessage": "Received new message",
+  "settings_gpxExport": "Export to GPX",
+  "settings_gpxExportSubtitle": "Repeaters, companions, or everything",
   "settings_gpxExportRepeaters": "Export repeaters / room server to GPX",
   "settings_gpxExportRepeatersSubtitle": "Exports repeaters / roomserver with a location to GPX file.",
   "settings_gpxExportContacts": "Export companions to GPX",
