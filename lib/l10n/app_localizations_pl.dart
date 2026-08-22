@@ -1054,6 +1054,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Rejestruj komunikaty debugowania aplikacji w celu diagnozowania problemów.';
 
   @override
+  String get appSettings_customStyleSubtitle =>
+      'Dostrajanie kolorów, fontów, odstępów i przycisków';
+
+  @override
   String get appSettings_appDebugLoggingEnabled =>
       'Logowanie debugowania aplikacji włączone';
 

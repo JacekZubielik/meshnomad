@@ -419,6 +419,7 @@
   "appSettings_debugCard": "Debug",
   "appSettings_appDebugLogging": "App Debug Logging",
   "appSettings_appDebugLoggingSubtitle": "Log app debug messages for troubleshooting",
+  "appSettings_customStyleSubtitle": "Fine-tune colors, fonts, spacing, and buttons",
   "appSettings_appDebugLoggingEnabled": "App debug logging enabled",
   "appSettings_appDebugLoggingDisabled": "App debug logging disabled",
   "contacts_title": "Contacts",

@@ -1964,6 +1964,12 @@ abstract class AppLocalizations {
   /// **'Log app debug messages for troubleshooting'**
   String get appSettings_appDebugLoggingSubtitle;
 
+  /// No description provided for @appSettings_customStyleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine-tune colors, fonts, spacing, and buttons'**
+  String get appSettings_customStyleSubtitle;
+
   /// No description provided for @appSettings_appDebugLoggingEnabled.
   ///
   /// In en, this message translates to:

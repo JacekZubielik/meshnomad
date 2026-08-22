@@ -1036,6 +1036,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Log app debug messages for troubleshooting';
 
   @override
+  String get appSettings_customStyleSubtitle =>
+      'Fine-tune colors, fonts, spacing, and buttons';
+
+  @override
   String get appSettings_appDebugLoggingEnabled => 'App debug logging enabled';
 
   @override

@@ -63,8 +63,7 @@ void main() {
   }
 
   group('AppSettingsScreen — Motyw section (theme + profile chip rows)', () {
-    testWidgets('Default theme and Green profile are selected by default; edit '
-        'icon is always present and opens CustomStyleEditorScreen', (
+    testWidgets('Default theme and Green profile are selected by default', (
       tester,
     ) async {
       await tester.pumpWidget(wrap());
@@ -76,9 +75,29 @@ void main() {
       expect(greenChip, findsOneWidget);
       expect(tester.widget<ChoiceChip>(defaultChip).selected, isTrue);
       expect(tester.widget<ChoiceChip>(greenChip).selected, isTrue);
+    });
 
-      expect(find.byIcon(Icons.tune), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.tune));
+    testWidgets('Custom style row lives in the Debug section and opens '
+        'CustomStyleEditorScreen (2026-08-22: relocated from Appearance)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(wrap());
+      await tester.pumpAndSettle();
+
+      // No tune icon left in the theme/profile chip section itself.
+      expect(find.byIcon(Icons.tune), findsNothing);
+
+      await tester.scrollUntilVisible(
+        find.text('Custom style'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      // scrollUntilVisible stops once the row is built, which can leave it
+      // just below the fixed test viewport — ensureVisible actually brings
+      // it on-screen so the tap lands.
+      await tester.ensureVisible(find.text('Custom style'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Custom style'));
       await tester.pumpAndSettle();
 
       expect(find.byType(CustomStyleEditorScreen), findsOneWidget);

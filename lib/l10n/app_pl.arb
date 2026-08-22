@@ -275,6 +275,7 @@
   "appSettings_debugCard": "Naprawianie błędów",
   "appSettings_appDebugLogging": "Logowanie Debugowania Aplikacji",
   "appSettings_appDebugLoggingSubtitle": "Rejestruj komunikaty debugowania aplikacji w celu diagnozowania problemów.",
+  "appSettings_customStyleSubtitle": "Dostrajanie kolorów, fontów, odstępów i przycisków",
   "appSettings_appDebugLoggingEnabled": "Logowanie debugowania aplikacji włączone",
   "appSettings_appDebugLoggingDisabled": "Logowanie debugowania aplikacji wyłączone.",
   "contacts_title": "Kontakty",
