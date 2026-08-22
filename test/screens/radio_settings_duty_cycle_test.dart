@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:meshnomad/connector/meshcore_connector.dart';
-import 'package:meshnomad/screens/settings_screen.dart';
+import 'package:meshnomad/screens/node_settings_screen.dart';
 import 'package:meshnomad/services/app_settings_service.dart';
 import 'package:meshnomad/storage/prefs_manager.dart';
 

@@ -1165,3 +1165,75 @@ class _ListEntranceState extends State<ListEntrance>
     );
   }
 }
+
+/// Icon + title/subtitle row with a trailing chevron — the shared building
+/// block for every Settings card row (Node/Location/Actions/Export/Debug
+/// screens). Icon defaults to the primary accent; pass [iconColor]/
+/// [titleColor] for a warn/alert semantic row (e.g. "Reboot device").
+class SettingsTappableTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback? onTap;
+  final Color? titleColor;
+  final Color? iconColor;
+
+  const SettingsTappableTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.onTap,
+    this.titleColor,
+    this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final t = MeshTokens.of(context);
+    final effectiveIconColor = iconColor ?? t.primary;
+    final effectiveTitleColor = titleColor;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: t.spacingMd,
+          vertical: t.spacingSm,
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: effectiveIconColor),
+            SizedBox(width: t.spacingSm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: effectiveTitleColor,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: effectiveTitleColor != null
+                          ? effectiveTitleColor.withValues(alpha: 0.7)
+                          : scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: scheme.onSurfaceVariant, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
