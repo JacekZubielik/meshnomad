@@ -338,12 +338,9 @@ void main() {
       expect(theme.inputDecorationTheme.fillColor, scheme.surfaceContainerHigh);
       expect(
         theme.switchTheme.trackColor!.resolve({WidgetState.selected}),
-        scheme.primary,
+        scheme.primary.withValues(alpha: 0.2),
       );
-      expect(
-        theme.switchTheme.thumbColor!.resolve({}),
-        scheme.onSurfaceVariant,
-      );
+      expect(theme.switchTheme.thumbColor!.resolve({}), scheme.secondary);
     });
 
     test('a primary override re-derives button/FAB/progress accents '
@@ -370,7 +367,10 @@ void main() {
         scheme.primary,
       );
       expect(theme.progressIndicatorTheme.color, scheme.primary);
-      expect(theme.sliderTheme.activeTrackColor, scheme.primary);
+      expect(
+        theme.sliderTheme.activeTrackColor,
+        scheme.primary.withValues(alpha: 0.2),
+      );
       expect(theme.sliderTheme.thumbColor, scheme.primary);
       expect(theme.cardTheme.color, scheme.surfaceContainerLow);
       // Containers (used e.g. by the path editor sheet) must follow the
