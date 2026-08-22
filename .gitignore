@@ -104,3 +104,5 @@ CLAUDE.md
 packages/mesh_ui/
 
 docs/documentation/
+.venv-docs/
+site/

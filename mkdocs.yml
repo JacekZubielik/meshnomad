@@ -1,0 +1,61 @@
+site_name: MeshNomad
+site_url: https://meshnomad.org
+site_description: Independent Flutter client for MeshCore-compatible LoRa mesh networking devices.
+repo_url: https://github.com/JacekZubielik/meshnomad
+repo_name: JacekZubielik/meshnomad
+docs_dir: docs
+site_dir: site
+
+exclude_docs: |
+  documentation/
+  superpowers/
+  BLE_PROTOCOL.md
+  PRIVACY_POLICY.md
+  screenshots/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+  features:
+    - navigation.tracking
+    - navigation.tabs
+    - content.code.copy
+    - toc.follow
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: pl
+          name: Polski
+          build: true
+
+extra:
+  version:
+    provider: mike
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - toc:
+      permalink: true
