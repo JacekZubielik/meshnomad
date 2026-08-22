@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://meshnomad.org/0.10/</loc>
+        <lastmod>2026-08-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://meshnomad.org/0.10/"/>
+        <xhtml:link rel="alternate" hreflang="pl" href="https://meshnomad.org/0.10pl/"/>
+    </url>
+    <url>
+        <loc>https://meshnomad.org/0.10/pl/</loc>
+        <lastmod>2026-08-22</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="pl" href="https://meshnomad.org/0.10/pl/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://meshnomad.org/0.10"/>
+    </url>
+</urlset>
