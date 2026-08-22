@@ -791,21 +791,6 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                     ],
                   ],
                 ),
-                SectionHeader(l10n.styleEditor_cardSection),
-                MeshCard(
-                  padding: EdgeInsets.zero,
-                  // Live preview ON THIS CARD (Wariant C): the switch drives
-                  // the shadow of its own section card, regardless of which
-                  // style is currently active in the app.
-                  elevated: overrides.cardElevated ?? true,
-                  child: SwitchListTile(
-                    key: const ValueKey('cardShadowSwitch'),
-                    title: Text(l10n.styleEditor_cardShadow_label),
-                    subtitle: Text(l10n.styleEditor_cardShadow_subtitle),
-                    value: overrides.cardElevated ?? true,
-                    onChanged: (v) => settingsService.setCustomCardElevated(v),
-                  ),
-                ),
                 _EditorSectionCard(
                   key: const ValueKey('buttonsSection'),
                   title: l10n.styleEditor_buttonsSection,

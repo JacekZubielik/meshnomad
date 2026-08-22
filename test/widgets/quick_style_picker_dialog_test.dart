@@ -54,11 +54,11 @@ void main() {
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(ChoiceChip, 'Default'), findsOneWidget);
-    expect(find.widgetWithText(ChoiceChip, 'Terminal'), findsOneWidget);
-    expect(find.widgetWithText(ChoiceChip, 'Omarchy'), findsOneWidget);
-    expect(find.widgetWithText(ChoiceChip, 'Green'), findsOneWidget);
-    expect(find.widgetWithText(ChoiceChip, 'Blue'), findsOneWidget);
+    expect(find.text('Default'), findsOneWidget);
+    expect(find.text('Terminal'), findsOneWidget);
+    expect(find.text('Omarchy'), findsOneWidget);
+    expect(find.text('Green'), findsOneWidget);
+    expect(find.text('Blue'), findsOneWidget);
   });
 
   testWidgets('tapping Blue re-themes live and sets activeProfileId', (
@@ -68,7 +68,7 @@ void main() {
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Blue'));
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Blue'));
     await tester.pumpAndSettle();
 
     expect(settingsService.settings.activeProfileId, 'blue');
@@ -81,14 +81,11 @@ void main() {
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Terminal'));
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Terminal'));
       await tester.pumpAndSettle();
 
       expect(settingsService.settings.activeThemeId, 'default');
-      final terminalChip = tester.widget<ChoiceChip>(
-        find.widgetWithText(ChoiceChip, 'Terminal'),
-      );
-      expect(terminalChip.selected, isTrue);
+      expect(find.widgetWithText(FilledButton, 'Terminal'), findsOneWidget);
     },
   );
 

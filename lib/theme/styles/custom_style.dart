@@ -615,22 +615,22 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
                   borderSide: BorderSide(color: scheme.primary, width: 1.5),
                 ),
       ),
+      // Track fill matches the app-wide tinted-button look (20%-alpha
+      // primary/secondary track + solid thumb, no outline) — mirrors
+      // mesh_theme.dart's switchTheme instead of the solid-track pattern
+      // this override previously baked in, which drifted from the buttons.
       switchTheme: base.switchTheme.copyWith(
         thumbColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? scheme.onPrimary
-              : scheme.onSurfaceVariant,
+              ? scheme.primary
+              : scheme.secondary,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? scheme.primary
-              : scheme.surfaceContainerHighest,
+              ? scheme.primary.withValues(alpha: 0.2)
+              : scheme.secondary.withValues(alpha: 0.2),
         ),
-        trackOutlineColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? Colors.transparent
-              : scheme.outline,
-        ),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
       // Button-family accents bake scheme.primary at ThemeData construction
       // (FAB, filled/elevated/text buttons, progress) — third instance of the
@@ -648,8 +648,12 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
               )
             : base.cardTheme.shape,
       ),
+      // Active track matches the app-wide tinted-fill look (20%-alpha
+      // primary, same as buttons/switches) — thumb stays solid, mirroring
+      // mesh_theme.dart's sliderTheme instead of the solid-track pattern
+      // this override previously baked in.
       sliderTheme: base.sliderTheme.copyWith(
-        activeTrackColor: scheme.primary,
+        activeTrackColor: scheme.primary.withValues(alpha: 0.2),
         inactiveTrackColor: scheme.surfaceContainerHighest,
         thumbColor: scheme.primary,
         overlayColor: scheme.primary.withValues(alpha: 0.12),

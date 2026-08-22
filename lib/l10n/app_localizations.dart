@@ -710,6 +710,12 @@ abstract class AppLocalizations {
   /// **'Node Settings'**
   String get settings_nodeSettings;
 
+  /// No description provided for @settings_nodeSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, radio, region, and diagnostics'**
+  String get settings_nodeSettingsSubtitle;
+
   /// No description provided for @settings_nodeName.
   ///
   /// In en, this message translates to:
@@ -1957,6 +1963,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log app debug messages for troubleshooting'**
   String get appSettings_appDebugLoggingSubtitle;
+
+  /// No description provided for @appSettings_customStyleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine-tune colors, fonts, spacing, and buttons'**
+  String get appSettings_customStyleSubtitle;
 
   /// No description provided for @appSettings_appDebugLoggingEnabled.
   ///
@@ -7603,6 +7615,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Received new message'**
   String get notification_receivedNewMessage;
+
+  /// No description provided for @settings_gpxExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export to GPX'**
+  String get settings_gpxExport;
+
+  /// No description provided for @settings_gpxExportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeaters, companions, or everything'**
+  String get settings_gpxExportSubtitle;
 
   /// No description provided for @settings_gpxExportRepeaters.
   ///

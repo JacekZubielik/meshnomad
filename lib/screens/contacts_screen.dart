@@ -630,7 +630,13 @@ class _ContactsScreenState extends State<ContactsScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(menuContext.l10n.listFilter_all, style: entryStyle),
+              Expanded(
+                child: Text(
+                  menuContext.l10n.listFilter_all,
+                  overflow: TextOverflow.ellipsis,
+                  style: entryStyle,
+                ),
+              ),
               IconButton(
                 tooltip: menuContext.l10n.contacts_newGroup,
                 icon: const Icon(Icons.group_add, size: 20),

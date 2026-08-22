@@ -241,6 +241,22 @@ class AppSettingsScreen extends StatelessWidget {
             ),
           ),
         ),
+        const MeshDashedDivider(indent: 16),
+        // Card shadow toggle — relocated from the Custom Style editor's own
+        // "Card style" section (2026-08-22): a style-wide visual switch
+        // belongs alongside the rest of Appearance, not nested three levels
+        // deep under Debug/Custom style.
+        SwitchListTile(
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
+          ),
+          secondary: const Icon(Icons.layers_outlined, size: 20),
+          title: Text(context.l10n.styleEditor_cardShadow_label),
+          subtitle: Text(context.l10n.styleEditor_cardShadow_subtitle),
+          value: settingsService.activeProfileOverrides.cardElevated ?? true,
+          onChanged: (v) => settingsService.setCustomCardElevated(v),
+        ),
       ],
     );
   }
@@ -1749,28 +1765,46 @@ class AppSettingsScreen extends StatelessWidget {
     AppSettingsService settingsService,
   ) {
     final t = MeshTokens.of(context);
-    return SwitchListTile(
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: t.spacingMd,
-        vertical: t.spacingXxs,
-      ),
-      secondary: const Icon(Icons.bug_report_outlined, size: 20),
-      title: Text(context.l10n.appSettings_appDebugLogging),
-      subtitle: Text(context.l10n.appSettings_appDebugLoggingSubtitle),
-      value: settingsService.settings.appDebugLogEnabled,
-      onChanged: (value) async {
-        await settingsService.setAppDebugLogEnabled(value);
-        if (!context.mounted) return;
-        showDismissibleSnackBar(
-          context,
-          content: Text(
-            value
-                ? context.l10n.appSettings_appDebugLoggingEnabled
-                : context.l10n.appSettings_appDebugLoggingDisabled,
+    return Column(
+      children: [
+        SwitchListTile(
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
           ),
-          duration: const Duration(seconds: 2),
-        );
-      },
+          secondary: const Icon(Icons.bug_report_outlined, size: 20),
+          title: Text(context.l10n.appSettings_appDebugLogging),
+          subtitle: Text(context.l10n.appSettings_appDebugLoggingSubtitle),
+          value: settingsService.settings.appDebugLogEnabled,
+          onChanged: (value) async {
+            await settingsService.setAppDebugLogEnabled(value);
+            if (!context.mounted) return;
+            showDismissibleSnackBar(
+              context,
+              content: Text(
+                value
+                    ? context.l10n.appSettings_appDebugLoggingEnabled
+                    : context.l10n.appSettings_appDebugLoggingDisabled,
+              ),
+              duration: const Duration(seconds: 2),
+            );
+          },
+        ),
+        const MeshDashedDivider(indent: 16),
+        // Custom Style editor — relocated from Appearance (2026-08-22),
+        // same CustomStyleEditorScreen push, just a different home; the
+        // plain edit-icon IconButton is replaced with the standard
+        // SettingsTappableTile nav-row pattern used everywhere else.
+        SettingsTappableTile(
+          icon: Icons.tune,
+          title: context.l10n.styleEditor_title,
+          subtitle: context.l10n.appSettings_customStyleSubtitle,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CustomStyleEditorScreen()),
+          ),
+        ),
+      ],
     );
   }
 
@@ -2390,15 +2424,6 @@ class _MotywSectionState extends State<_MotywSection> {
           onProfileSelected: _previewThemeId == null
               ? settingsService.setActiveProfile
               : (_) {},
-        ),
-        SizedBox(height: t.spacingSm),
-        IconButton(
-          icon: const Icon(Icons.tune, size: 18),
-          tooltip: context.l10n.appSettings_editCustomStyleTooltip,
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const CustomStyleEditorScreen()),
-          ),
         ),
       ],
     );
