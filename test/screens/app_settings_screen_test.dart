@@ -69,12 +69,8 @@ void main() {
       await tester.pumpWidget(wrap());
       await tester.pumpAndSettle();
 
-      final defaultChip = find.widgetWithText(ChoiceChip, 'Default');
-      final greenChip = find.widgetWithText(ChoiceChip, 'Green');
-      expect(defaultChip, findsOneWidget);
-      expect(greenChip, findsOneWidget);
-      expect(tester.widget<ChoiceChip>(defaultChip).selected, isTrue);
-      expect(tester.widget<ChoiceChip>(greenChip).selected, isTrue);
+      expect(find.widgetWithText(FilledButton, 'Default'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Green'), findsOneWidget);
     });
 
     testWidgets('Custom style row lives in the Debug section and opens '
@@ -108,16 +104,11 @@ void main() {
       await tester.pumpWidget(wrap());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Blue'));
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Blue'));
       await tester.pumpAndSettle();
 
       expect(settingsService.settings.activeProfileId, 'blue');
-      expect(
-        tester
-            .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Blue'))
-            .selected,
-        isTrue,
-      );
+      expect(find.widgetWithText(FilledButton, 'Blue'), findsOneWidget);
     });
 
     testWidgets('tapping the inert Terminal theme chip shows selection '
@@ -125,15 +116,10 @@ void main() {
       await tester.pumpWidget(wrap());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Terminal'));
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Terminal'));
       await tester.pumpAndSettle();
 
-      expect(
-        tester
-            .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Terminal'))
-            .selected,
-        isTrue,
-      );
+      expect(find.widgetWithText(FilledButton, 'Terminal'), findsOneWidget);
       expect(settingsService.settings.activeThemeId, 'default');
     });
   });
