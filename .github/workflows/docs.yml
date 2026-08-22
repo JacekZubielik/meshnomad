@@ -1,0 +1,44 @@
+name: docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mkdocs.yml'
+      - 'docs/**'
+      - 'requirements-docs.txt'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install docs dependencies
+        run: pip install -r requirements-docs.txt
+
+      - name: Configure git identity for mike's commit
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+
+      - name: Extract version from pubspec.yaml
+        id: version
+        run: |
+          FULL=$(grep '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//')
+          MAJOR_MINOR=$(echo "$FULL" | cut -d. -f1,2)
+          echo "value=$MAJOR_MINOR" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy with mike
+        run: mike deploy ${{ steps.version.outputs.value }} latest --update-aliases --push
