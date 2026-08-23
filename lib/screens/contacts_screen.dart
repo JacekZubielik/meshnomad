@@ -481,9 +481,31 @@ class _ContactsScreenState extends State<ContactsScreen>
           ],
         ),
         body: _buildContactsBody(context, connector),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _showAddContactSheet(context),
-          child: const Icon(Icons.person_add),
+        // Group management FAB stacked above the add-contact FAB (2026-08-23
+        // — moved off the top bar, same visual treatment via the app-wide
+        // floatingActionButtonTheme tint). Distinct heroTags: Flutter throws
+        // on two FloatingActionButtons sharing the default tag.
+        floatingActionButton: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FloatingActionButton(
+              heroTag: 'contacts_groups_fab',
+              tooltip: context.l10n.contacts_groupsSheetTitle,
+              onPressed: () => _showGroupManagementSheet(
+                context,
+                context.read<UiViewStateService>(),
+                connector.contacts,
+                _sortedGroups(),
+              ),
+              child: const Icon(Icons.group),
+            ),
+            SizedBox(height: MeshTokens.of(context).spacingXs),
+            FloatingActionButton(
+              heroTag: 'contacts_add_fab',
+              onPressed: () => _showAddContactSheet(context),
+              child: const Icon(Icons.person_add),
+            ),
+          ],
         ),
         bottomNavigationBar: SafeArea(
           top: false,
@@ -550,6 +572,17 @@ class _ContactsScreenState extends State<ContactsScreen>
     return null;
   }
 
+  /// Dedupes `_groups` by name (device can report the same group twice) and
+  /// sorts alphabetically — shared by the groups sheet.
+  List<ContactGroup> _sortedGroups() {
+    final groupsByName = <String, ContactGroup>{};
+    for (final group in _groups) {
+      groupsByName.putIfAbsent(group.name, () => group);
+    }
+    return groupsByName.values.toList()
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  }
+
   void _ensureValidSelectedGroup() {
     final viewState = context.read<UiViewStateService>();
     if (viewState.contactsSelectedGroupName == contactsAllGroupsValue) return;
@@ -559,17 +592,6 @@ class _ContactsScreenState extends State<ContactsScreen>
     if (!exists) {
       viewState.setContactsSelectedGroupName(contactsAllGroupsValue);
     }
-  }
-
-  void _closeDropdownAndRun(BuildContext popupContext, VoidCallback action) {
-    final route = ModalRoute.of(popupContext);
-    if (route != null && route.isCurrent) {
-      Navigator.of(popupContext).pop();
-    }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      action();
-    });
   }
 
   Widget _buildFilterButton(
@@ -592,157 +614,106 @@ class _ContactsScreenState extends State<ContactsScreen>
     );
   }
 
-  Widget _buildGroupButton(
+  // Bottom-sheet group management (2026-08-23) — replaces the old top-bar
+  // PopupMenuButton. Behavior mirrors RepeaterCommandDrawer's draggable
+  // multi-stop sheet; visuals go through showMeshSheet/BottomSheetHeader
+  // (the color-picker sheet's chrome) instead of a raw terminal-skinned
+  // Container. _showGroupEditor/_confirmDeleteGroup already self-guard on
+  // _hasGroupStoreScope (showing _showGroupsUnavailableMessage themselves),
+  // so this sheet calls them directly without re-checking.
+  Future<void> _showGroupManagementSheet(
     BuildContext context,
-    MeshCoreConnector connector,
     UiViewStateService viewState,
     List<Contact> contacts,
     List<ContactGroup> sortedGroups,
   ) {
-    final canManageGroups = _hasGroupStoreScope(connector);
-    final t = MeshTokens.of(context);
-    final selectedGroupName =
-        _selectedGroupForName(viewState.contactsSelectedGroupName)?.name ??
-        context.l10n.listFilter_all;
-    // Menu tracks the collapsed button's width (1/3 of the screen — must
-    // match groupMaxWidth in _buildContactsBody), but never drops below a
-    // legible floor: on narrow screens 1/3 leaves room for the row icons
-    // only, truncating every group name away (2026-08-21 fix).
-    final double screenWidth = MediaQuery.sizeOf(context).width;
-    final double menuWidth = (screenWidth / 3).clamp(
-      240.0,
-      (screenWidth - 16).clamp(240.0, double.infinity),
-    );
-    // Same font as the search TextField next to it: both pin bodyMedium
-    // explicitly (2026-08-21 — the group label rendered visibly larger than
-    // the search hint before).
-    final TextStyle? entryStyle = Theme.of(context).textTheme.bodyMedium;
+    return showMeshSheet<void>(
+      context,
+      builder: (sheetContext) => DraggableScrollableSheet(
+        initialChildSize: 0.5,
+        minChildSize: 0.35,
+        maxChildSize: 0.9,
+        snap: true,
+        snapSizes: const [0.35, 0.5, 0.9],
+        expand: false,
+        builder: (sheetContext, scrollController) {
+          final scheme = Theme.of(sheetContext).colorScheme;
+          final selectedGroupName =
+              _selectedGroupForName(
+                viewState.contactsSelectedGroupName,
+              )?.name ??
+              sheetContext.l10n.listFilter_all;
 
-    return PopupMenuButton<String>(
-      position: PopupMenuPosition.under,
-      constraints: BoxConstraints.tightFor(width: menuWidth),
-      onSelected: (String value) {
-        viewState.setContactsSelectedGroupName(value);
-      },
-      itemBuilder: (menuContext) => [
-        PopupMenuItem<String>(
-          value: contactsAllGroupsValue,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Widget checkIfSelected(String name) => name == selectedGroupName
+              ? Icon(Icons.check, color: scheme.primary)
+              : const SizedBox.shrink();
+
+          return Column(
             children: [
-              Expanded(
-                child: Text(
-                  menuContext.l10n.listFilter_all,
-                  overflow: TextOverflow.ellipsis,
-                  style: entryStyle,
+              BottomSheetHeader(
+                title: sheetContext.l10n.contacts_groupsSheetTitle,
+                trailing: IconButton(
+                  tooltip: sheetContext.l10n.contacts_newGroup,
+                  icon: const Icon(Icons.group_add),
+                  onPressed: () => _showGroupEditor(sheetContext, contacts),
                 ),
               ),
-              IconButton(
-                tooltip: menuContext.l10n.contacts_newGroup,
-                icon: const Icon(Icons.group_add, size: 20),
-                onPressed: canManageGroups
-                    ? () => _closeDropdownAndRun(
-                        menuContext,
-                        () => _showGroupEditor(this.context, contacts),
-                      )
-                    : () => _closeDropdownAndRun(
-                        menuContext,
-                        () => _showGroupsUnavailableMessage(this.context),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  children: [
+                    ListTile(
+                      title: Text(sheetContext.l10n.listFilter_all),
+                      trailing: checkIfSelected(
+                        sheetContext.l10n.listFilter_all,
                       ),
+                      onTap: () {
+                        viewState.setContactsSelectedGroupName(
+                          contactsAllGroupsValue,
+                        );
+                        Navigator.of(sheetContext).maybePop();
+                      },
+                    ),
+                    ...sortedGroups.map(
+                      (group) => ListTile(
+                        title: Text(group.name),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            checkIfSelected(group.name),
+                            IconButton(
+                              tooltip: sheetContext.l10n.contacts_editGroup,
+                              icon: const Icon(Icons.edit, size: 20),
+                              onPressed: () => _showGroupEditor(
+                                sheetContext,
+                                contacts,
+                                group: group,
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: sheetContext.l10n.contacts_deleteGroup,
+                              icon: Icon(
+                                Icons.delete,
+                                size: 20,
+                                color: scheme.error,
+                              ),
+                              onPressed: () =>
+                                  _confirmDeleteGroup(sheetContext, group),
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          viewState.setContactsSelectedGroupName(group.name);
+                          Navigator.of(sheetContext).maybePop();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
-          ),
-        ),
-        ...sortedGroups.map((group) {
-          return PopupMenuItem<String>(
-            value: group.name,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    group.name,
-                    overflow: TextOverflow.ellipsis,
-                    style: entryStyle,
-                  ),
-                ),
-                IconButton(
-                  tooltip: menuContext.l10n.contacts_editGroup,
-                  icon: const Icon(Icons.edit, size: 20),
-                  onPressed: canManageGroups
-                      ? () => _closeDropdownAndRun(
-                          menuContext,
-                          () => _showGroupEditor(
-                            this.context,
-                            contacts,
-                            group: group,
-                          ),
-                        )
-                      : () => _closeDropdownAndRun(
-                          menuContext,
-                          () => _showGroupsUnavailableMessage(this.context),
-                        ),
-                ),
-                SizedBox(width: MeshTokens.of(menuContext).spacingXs),
-                IconButton(
-                  tooltip: menuContext.l10n.contacts_deleteGroup,
-                  icon: Icon(
-                    Icons.delete,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  onPressed: canManageGroups
-                      ? () => _closeDropdownAndRun(
-                          menuContext,
-                          () => _confirmDeleteGroup(this.context, group),
-                        )
-                      : () => _closeDropdownAndRun(
-                          menuContext,
-                          () => _showGroupsUnavailableMessage(this.context),
-                        ),
-                ),
-              ],
-            ),
           );
-        }),
-      ],
-      child: SizedBox(
-        // Height comes from the sibling search TextField via the row's
-        // IntrinsicHeight + stretch in _buildContactsBody.
-        child: DecoratedBox(
-          // Mirrors the app-wide InputDecorationTheme (mesh_theme.dart) so
-          // the group selector reads as a sibling of the search field next
-          // to it: filled surface + outlineVariant border, same radius.
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHigh,
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outlineVariant,
-            ),
-            borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: t.spacingSm,
-              vertical: t.spacingSm,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    selectedGroupName,
-                    overflow: TextOverflow.ellipsis,
-                    style: entryStyle,
-                  ),
-                ),
-                SizedBox(width: t.spacingXs),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: MeshTokens.of(context).primary,
-                ),
-              ],
-            ),
-          ),
-        ),
+        },
       ),
     );
   }
@@ -829,84 +800,47 @@ class _ContactsScreenState extends State<ContactsScreen>
         break;
     }
 
-    final groupsByName = <String, ContactGroup>{};
-    for (final group in _groups) {
-      groupsByName.putIfAbsent(group.name, () => group);
-    }
-    final sortedGroups = groupsByName.values.toList()
-      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-
-    final groupMaxWidth = MediaQuery.sizeOf(context).width / 3;
-
     return Column(
       children: [
         Padding(
           padding: EdgeInsets.all(t.spacingXs),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Group selector capped at 1/3 of the screen; the search field
-                // takes the rest — same themed TextField as the Channels card
-                // (2026-08-21 refinement, replaces the collapsible search box).
-                // IntrinsicHeight + stretch keeps the group button exactly as
-                // tall as the search field next to it.
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: groupMaxWidth),
-                  child: _buildGroupButton(
-                    context,
-                    connector,
-                    viewState,
-                    contacts,
-                    sortedGroups,
-                  ),
-                ),
-                SizedBox(width: t.spacingXs),
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: hintText,
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (viewState.contactsSearchText.isNotEmpty)
-                            IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchDebounce?.cancel();
-                                _searchDebounce = null;
-                                _searchController.clear();
-                                context
-                                    .read<UiViewStateService>()
-                                    .setContactsSearchText('');
-                              },
-                            ),
-                          _buildFilterButton(context, viewState),
-                        ],
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: t.spacingMd,
-                        vertical: t.spacingSm,
-                      ),
+          // Full-width search field — the group selector moved to its own
+          // FAB + bottom sheet (2026-08-23), so it no longer shares this row.
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: hintText,
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (viewState.contactsSearchText.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchDebounce?.cancel();
+                        _searchDebounce = null;
+                        _searchController.clear();
+                        context
+                            .read<UiViewStateService>()
+                            .setContactsSearchText('');
+                      },
                     ),
-                    onChanged: (value) {
-                      _searchDebounce?.cancel();
-                      _searchDebounce = Timer(
-                        const Duration(milliseconds: 300),
-                        () {
-                          if (!mounted) return;
-                          context
-                              .read<UiViewStateService>()
-                              .setContactsSearchText(value);
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
+                  _buildFilterButton(context, viewState),
+                ],
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: t.spacingMd,
+                vertical: t.spacingSm,
+              ),
             ),
+            onChanged: (value) {
+              _searchDebounce?.cancel();
+              _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+                if (!mounted) return;
+                context.read<UiViewStateService>().setContactsSearchText(value);
+              });
+            },
           ),
         ),
         Expanded(
@@ -1199,6 +1133,10 @@ class _ContactsScreenState extends State<ContactsScreen>
     final nameController = TextEditingController(text: group?.name ?? '');
     final selectedKeys = <String>{...group?.memberKeys ?? []};
     String filterQuery = '';
+    // Type filter for the member picker (2026-08-23) — reuses the same
+    // ContactTypeFilter enum and _matchesTypeFilter predicate as the main
+    // Contacts list filter, instead of inventing separate logic.
+    var typeFilter = ContactTypeFilter.all;
     final sortedContacts = List<Contact>.from(contacts)
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
@@ -1206,13 +1144,14 @@ class _ContactsScreenState extends State<ContactsScreen>
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (builderContext, setDialogState) {
-          final filteredContacts = filterQuery.isEmpty
-              ? sortedContacts
-              : sortedContacts
-                    .where(
-                      (contact) => matchesContactQuery(contact, filterQuery),
-                    )
-                    .toList();
+          final filteredContacts = sortedContacts
+              .where((contact) => _matchesTypeFilter(contact, typeFilter))
+              .where(
+                (contact) =>
+                    filterQuery.isEmpty ||
+                    matchesContactQuery(contact, filterQuery),
+              )
+              .toList();
           return AlertDialog(
             title: Text(
               isEditing
@@ -1247,6 +1186,42 @@ class _ContactsScreenState extends State<ContactsScreen>
                         setDialogState(() {
                           filterQuery = value.toLowerCase();
                         });
+                      },
+                    ),
+                    SizedBox(height: t.spacingSm),
+                    DropdownButtonFormField<ContactTypeFilter>(
+                      key: const ValueKey('groupEditorTypeFilter'),
+                      initialValue: typeFilter,
+                      decoration: InputDecoration(
+                        labelText: context.l10n.listFilter_filters,
+                        border: const OutlineInputBorder(),
+                        isDense: true,
+                      ),
+                      items: [
+                        DropdownMenuItem(
+                          value: ContactTypeFilter.all,
+                          child: Text(context.l10n.listFilter_all),
+                        ),
+                        DropdownMenuItem(
+                          value: ContactTypeFilter.favorites,
+                          child: Text(context.l10n.listFilter_favorites),
+                        ),
+                        DropdownMenuItem(
+                          value: ContactTypeFilter.users,
+                          child: Text(context.l10n.listFilter_users),
+                        ),
+                        DropdownMenuItem(
+                          value: ContactTypeFilter.repeaters,
+                          child: Text(context.l10n.listFilter_repeaters),
+                        ),
+                        DropdownMenuItem(
+                          value: ContactTypeFilter.rooms,
+                          child: Text(context.l10n.listFilter_roomServers),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value == null) return;
+                        setDialogState(() => typeFilter = value);
                       },
                     ),
                     SizedBox(height: t.spacingSm),
