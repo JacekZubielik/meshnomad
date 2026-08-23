@@ -2163,10 +2163,10 @@
       }
     }
   },
-  "settings_allowByContact": "Wg flag kontaktu",
+  "settings_allowByContact": "Wg kontaktu",
   "settings_allowAll": "Zezwalaj na wszystko",
-  "settings_telemetryLocationMode": "Tryb położenia telemetrycznego",
-  "settings_telemetryEnvironmentMode": "Tryb środowiska telemetrycznego",
+  "settings_telemetryLocationMode": "Tryb położenia",
+  "settings_telemetryEnvironmentMode": "Tryb środowiska",
   "settings_advertLocation": "Lokalizacja reklamowa",
   "settings_advertLocationSubtitle": "Uwzględnij lokalizację w ogłoszeniu",
   "settings_denyAll": "Odmów wszystkim",
@@ -2174,7 +2174,8 @@
   "settings_privacy": "Ustawienia prywatności",
   "settings_privacySettingsDescription": "Wybierz jakie informacje urządzenie udostępni innym.",
   "contact_info": "Informacje kontaktowe",
-  "settings_telemetryBaseMode": "Tryb podstawowy telemetrii",
+  "settings_telemetrySection": "Telemetria",
+  "settings_telemetryBaseMode": "Tryb bazowy",
   "contact_teleBase": "Baza telemetryczna",
   "contact_teleLoc": "Lokalizacja telemetryczna",
   "contact_teleLocSubtitle": "Zezwalaj na udostępnianie danych lokalizacji",

@@ -1007,7 +1007,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_allowByContact.
   ///
   /// In en, this message translates to:
-  /// **'Per-contact flags'**
+  /// **'Per-contact'**
   String get settings_allowByContact;
 
   /// No description provided for @settings_allowAll.
@@ -1016,22 +1016,28 @@ abstract class AppLocalizations {
   /// **'Allow all'**
   String get settings_allowAll;
 
+  /// No description provided for @settings_telemetrySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Telemetry'**
+  String get settings_telemetrySection;
+
   /// No description provided for @settings_telemetryBaseMode.
   ///
   /// In en, this message translates to:
-  /// **'Telemetry Base Mode'**
+  /// **'Base mode'**
   String get settings_telemetryBaseMode;
 
   /// No description provided for @settings_telemetryLocationMode.
   ///
   /// In en, this message translates to:
-  /// **'Telemetry Location Mode'**
+  /// **'Location mode'**
   String get settings_telemetryLocationMode;
 
   /// No description provided for @settings_telemetryEnvironmentMode.
   ///
   /// In en, this message translates to:
-  /// **'Telemetry Environment Mode'**
+  /// **'Env. mode'**
   String get settings_telemetryEnvironmentMode;
 
   /// No description provided for @settings_advertLocation.

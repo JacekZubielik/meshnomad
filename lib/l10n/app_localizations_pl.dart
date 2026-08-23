@@ -517,20 +517,22 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settings_denyAll => 'Odmów wszystkim';
 
   @override
-  String get settings_allowByContact => 'Wg flag kontaktu';
+  String get settings_allowByContact => 'Wg kontaktu';
 
   @override
   String get settings_allowAll => 'Zezwalaj na wszystko';
 
   @override
-  String get settings_telemetryBaseMode => 'Tryb podstawowy telemetrii';
+  String get settings_telemetrySection => 'Telemetria';
 
   @override
-  String get settings_telemetryLocationMode => 'Tryb położenia telemetrycznego';
+  String get settings_telemetryBaseMode => 'Tryb bazowy';
 
   @override
-  String get settings_telemetryEnvironmentMode =>
-      'Tryb środowiska telemetrycznego';
+  String get settings_telemetryLocationMode => 'Tryb położenia';
+
+  @override
+  String get settings_telemetryEnvironmentMode => 'Tryb środowiska';
 
   @override
   String get settings_advertLocation => 'Lokalizacja reklamowa';

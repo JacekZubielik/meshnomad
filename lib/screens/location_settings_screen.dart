@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../connector/meshcore_connector.dart';
-import '../connector/meshcore_protocol.dart';
 import '../l10n/l10n.dart';
 import '../services/app_settings_service.dart';
 import '../theme/mesh_tokens.dart';
@@ -10,8 +9,9 @@ import '../helpers/snack_bar_builder.dart';
 import '../widgets/elements_ui.dart';
 import '../widgets/mesh_dashed_divider.dart';
 import '../widgets/mesh_ui.dart';
-import '../widgets/settings_value_stepper.dart';
+import 'contact_settings_screen.dart';
 import 'gpx_export_screen.dart';
+import 'privacy_settings_screen.dart';
 
 Future<void> pushLocationSettingsScreen(BuildContext context) {
   return Navigator.push(
@@ -90,14 +90,16 @@ class LocationSettingsScreen extends StatelessWidget {
           icon: Icons.group_add_outlined,
           title: l10n.settings_contactSettings,
           subtitle: l10n.settings_contactSettingsSubtitle,
-          onTap: () => _editAutoAddConfig(context, connector),
+          // Card screen instead of the former popup (2026-08-23).
+          onTap: () => pushContactSettingsScreen(context),
         ),
         const MeshDashedDivider(indent: 16),
         SettingsTappableTile(
           icon: Icons.visibility_off_outlined,
           title: l10n.settings_privacy,
           subtitle: l10n.settings_privacySubtitle,
-          onTap: () => _privacySettings(context, connector),
+          // Card screen instead of the former popup (2026-08-23).
+          onTap: () => pushPrivacySettingsScreen(context),
         ),
       ],
     );
@@ -276,279 +278,4 @@ class LocationSettingsScreen extends StatelessWidget {
       ),
     );
   }
-
-  void _editAutoAddConfig(BuildContext context, MeshCoreConnector connector) {
-    final l10n = context.l10n;
-    bool autoAddChat = false;
-    bool autoAddRepeater = false;
-    bool autoAddRoomServer = false;
-    bool autoAddSensor = false;
-    bool overwriteOldest = false;
-
-    final connector = context.read<MeshCoreConnector>();
-    autoAddChat = connector.autoAddUsers ?? false;
-    autoAddRepeater = connector.autoAddRepeaters ?? false;
-    autoAddRoomServer = connector.autoAddRoomServers ?? false;
-    autoAddSensor = connector.autoAddSensors ?? false;
-    overwriteOldest = connector.autoAddOverwriteOldest ?? false;
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: Text(l10n.contactsSettings_autoAddTitle),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FeatureToggleRow(
-                  title: l10n.contactsSettings_autoAddUsersTitle,
-                  subtitle: l10n.contactsSettings_autoAddUsersSubtitle,
-                  value: autoAddChat,
-                  onChanged: (value) {
-                    setDialogState(() => autoAddChat = value);
-                  },
-                ),
-                SizedBox(height: MeshTokens.of(context).spacingXs),
-                FeatureToggleRow(
-                  title: l10n.contactsSettings_autoAddRepeatersTitle,
-                  subtitle: l10n.contactsSettings_autoAddRepeatersSubtitle,
-                  value: autoAddRepeater,
-                  onChanged: (value) {
-                    setDialogState(() => autoAddRepeater = value);
-                  },
-                ),
-                SizedBox(height: MeshTokens.of(context).spacingXs),
-                FeatureToggleRow(
-                  title: l10n.contactsSettings_autoAddRoomServersTitle,
-                  subtitle: l10n.contactsSettings_autoAddRoomServersSubtitle,
-                  value: autoAddRoomServer,
-                  onChanged: (value) {
-                    setDialogState(() => autoAddRoomServer = value);
-                  },
-                ),
-                SizedBox(height: MeshTokens.of(context).spacingXs),
-                FeatureToggleRow(
-                  title: l10n.contactsSettings_autoAddSensorsTitle,
-                  subtitle: l10n.contactsSettings_autoAddSensorsSubtitle,
-                  value: autoAddSensor,
-                  onChanged: (value) {
-                    setDialogState(() => autoAddSensor = value);
-                  },
-                ),
-                const MeshDashedDivider(),
-                FeatureToggleRow(
-                  title: l10n.contactsSettings_overwriteOldestTitle,
-                  subtitle: l10n.contactsSettings_overwriteOldestSubtitle,
-                  value: overwriteOldest,
-                  onChanged: (value) {
-                    setDialogState(() => overwriteOldest = value);
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.common_cancel),
-            ),
-            TextButton(
-              onPressed: () {
-                _sendSettings(
-                  connector,
-                  autoAddChat,
-                  autoAddRepeater,
-                  autoAddRoomServer,
-                  autoAddSensor,
-                  overwriteOldest,
-                );
-                Navigator.pop(context);
-              },
-              child: Text(l10n.common_save),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _sendSettings(
-    MeshCoreConnector connector,
-    bool autoAddChat,
-    bool autoAddRepeater,
-    bool autoAddRoomServer,
-    bool autoAddSensor,
-    bool overwriteOldest,
-  ) async {
-    final frame = buildSetAutoAddConfigFrame(
-      autoAddChat: autoAddChat,
-      autoAddRepeater: autoAddRepeater,
-      autoAddRoomServer: autoAddRoomServer,
-      autoAddSensor: autoAddSensor,
-      overwriteOldest: overwriteOldest,
-    );
-    await connector.sendFrame(frame);
-    await connector.sendFrame(buildGetAutoAddFlagsFrame());
-  }
-}
-
-void _privacySettings(BuildContext context, MeshCoreConnector connector) {
-  final l10n = context.l10n;
-  final settingsService = context.read<AppSettingsService>();
-
-  int telemetryMode = connector.telemetryModeBase;
-  int telemetryLocMode = connector.telemetryModeLoc;
-  int telemetryEnvMode = connector.telemetryModeEnv;
-  bool advertLocPolicy = connector.advertLocationPolicy == 0 ? false : true;
-  int multiAcks = connector.multiAcks;
-  bool autoZeroHopAdvertOnGpsUpdate =
-      settingsService.settings.autoSendZeroHopAdvertOnGpsUpdate;
-
-  // Shared choice cycle for the three telemetry-mode steppers (former
-  // dropdowns — user spec 2026-08-23: same control as Appearance -> Button
-  // border, with shortened option labels).
-  const telemModeValues = [teleModeDeny, teleModeAllowFlags, teleModeAllowAll];
-  String telemModeLabel(BuildContext ctx, int v) => switch (v) {
-    teleModeAllowFlags => ctx.l10n.settings_allowByContact,
-    teleModeAllowAll => ctx.l10n.settings_allowAll,
-    _ => ctx.l10n.settings_denyAll,
-  };
-  Widget telemModeRow({
-    required BuildContext ctx,
-    required String label,
-    required Key stepperKey,
-    required int value,
-    required ValueChanged<int> onChanged,
-  }) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            label,
-            // Same style as the Multi-ACKs SwitchListTile title above —
-            // the theme's ListTile titleTextStyle, not a bolded variant.
-            style: Theme.of(ctx).listTileTheme.titleTextStyle,
-          ),
-        ),
-        SizedBox(width: MeshTokens.of(ctx).spacingSm),
-        SettingsValueStepper<int>(
-          key: stepperKey,
-          values: telemModeValues,
-          value: value,
-          labelOf: telemModeLabel,
-          buttonBorder: settingsService.activeProfileOverrides.buttonBorder,
-          onChanged: onChanged,
-        ),
-      ],
-    );
-  }
-
-  showDialog(
-    context: context,
-    builder: (dialogContext) => StatefulBuilder(
-      builder: (context, setDialogState) => AlertDialog(
-        title: Text(l10n.settings_privacy),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l10n.settings_privacySettingsDescription),
-              SizedBox(height: MeshTokens.of(context).spacingMd),
-              FeatureToggleRow(
-                title: l10n.settings_advertLocation,
-                subtitle: l10n.settings_advertLocationSubtitle,
-                value: advertLocPolicy,
-                onChanged: (value) {
-                  setDialogState(() => advertLocPolicy = value);
-                },
-              ),
-              SizedBox(height: MeshTokens.of(context).spacingXs),
-              FeatureToggleRow(
-                title: l10n.settings_autoZeroHopAdvertOnGpsUpdate,
-                subtitle: l10n.settings_autoZeroHopAdvertOnGpsUpdateSubtitle,
-                value: autoZeroHopAdvertOnGpsUpdate,
-                enabled: advertLocPolicy,
-                onChanged: advertLocPolicy
-                    ? (value) {
-                        setDialogState(
-                          () => autoZeroHopAdvertOnGpsUpdate = value,
-                        );
-                      }
-                    : null,
-              ),
-              SizedBox(height: MeshTokens.of(context).spacingXs),
-              SwitchListTile(
-                title: Text(l10n.settings_multiAck),
-                value: multiAcks == 1,
-                onChanged: (value) {
-                  setDialogState(() => multiAcks = value ? 1 : 0);
-                },
-                contentPadding: EdgeInsets.zero,
-              ),
-              SizedBox(height: MeshTokens.of(context).spacingMd),
-              telemModeRow(
-                ctx: context,
-                label: l10n.settings_telemetryBaseMode,
-                stepperKey: const ValueKey('telemetryBaseModeStepper'),
-                value: telemetryMode,
-                onChanged: (value) {
-                  setDialogState(() => telemetryMode = value);
-                },
-              ),
-              SizedBox(height: MeshTokens.of(context).spacingMd),
-              telemModeRow(
-                ctx: context,
-                label: l10n.settings_telemetryLocationMode,
-                stepperKey: const ValueKey('telemetryLocationModeStepper'),
-                value: telemetryLocMode,
-                onChanged: (value) {
-                  setDialogState(() => telemetryLocMode = value);
-                },
-              ),
-              SizedBox(height: MeshTokens.of(context).spacingMd),
-              telemModeRow(
-                ctx: context,
-                label: l10n.settings_telemetryEnvironmentMode,
-                stepperKey: const ValueKey('telemetryEnvModeStepper'),
-                value: telemetryEnvMode,
-                onChanged: (value) {
-                  setDialogState(() => telemetryEnvMode = value);
-                },
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.common_cancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await connector.setTelemetryModeBase(
-                telemetryMode,
-                telemetryLocMode,
-                telemetryEnvMode,
-                advertLocPolicy ? 1 : 0,
-                multiAcks,
-              );
-              await settingsService.setAutoSendZeroHopAdvertOnGpsUpdate(
-                autoZeroHopAdvertOnGpsUpdate,
-              );
-              await connector.refreshDeviceInfo();
-              if (!context.mounted) return;
-              showDismissibleSnackBar(
-                context,
-                content: Text(l10n.settings_telemetryModeUpdated),
-              );
-            },
-            child: Text(l10n.common_save),
-          ),
-        ],
-      ),
-    ),
-  );
 }

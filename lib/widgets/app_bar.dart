@@ -311,6 +311,14 @@ class AppBarTitle extends StatelessWidget {
     final connector = context.watch<MeshCoreConnector>();
     final selfName = connector.selfName;
 
+    // Bare configuration (no indicators, no subtitle, no leading/trailing —
+    // the Settings screen): return an intrinsic-width Text so the AppBar's
+    // centerTitle can actually center it. The full-cluster layout below is
+    // a MaxWidth Row and always paints the title flush left.
+    if (!indicators && !subtitle && leading == null && trailing == null) {
+      return Text(title, maxLines: 1, overflow: TextOverflow.ellipsis);
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.hasBoundedWidth

@@ -505,19 +505,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_denyAll => 'Deny all';
 
   @override
-  String get settings_allowByContact => 'Per-contact flags';
+  String get settings_allowByContact => 'Per-contact';
 
   @override
   String get settings_allowAll => 'Allow all';
 
   @override
-  String get settings_telemetryBaseMode => 'Telemetry Base Mode';
+  String get settings_telemetrySection => 'Telemetry';
 
   @override
-  String get settings_telemetryLocationMode => 'Telemetry Location Mode';
+  String get settings_telemetryBaseMode => 'Base mode';
 
   @override
-  String get settings_telemetryEnvironmentMode => 'Telemetry Environment Mode';
+  String get settings_telemetryLocationMode => 'Location mode';
+
+  @override
+  String get settings_telemetryEnvironmentMode => 'Env. mode';
 
   @override
   String get settings_advertLocation => 'Advert Location';
