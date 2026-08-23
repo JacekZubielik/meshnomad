@@ -376,68 +376,70 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ustawienia radia zostały zaktualizowane';
 
   @override
-  String get settings_regionSettings => 'Regions';
+  String get settings_regionSettings => 'Regiony';
 
   @override
-  String get settings_regionSettingsSubtitle => 'Manage stored regions';
+  String get settings_regionSettingsSubtitle =>
+      'Zarządzaj zapisanymi regionami';
 
   @override
-  String get settings_regionManagement_screenTitle => 'Region Management';
+  String get settings_regionManagement_screenTitle => 'Zarządzanie regionami';
 
   @override
-  String get settings_regionNameHint => 'Enter region name';
+  String get settings_regionNameHint => 'Podaj nazwę regionu';
 
   @override
-  String get settings_regionAddRegion => 'Add region';
+  String get settings_regionAddRegion => 'Dodaj region';
 
   @override
-  String get settings_regionFetchRegions => 'Fetch regions from repeaters';
+  String get settings_regionFetchRegions => 'Pobierz regiony z repeaterów';
 
   @override
-  String get settings_regionFetchRegionsFail => 'No regions were found';
+  String get settings_regionFetchRegionsFail =>
+      'Nie znaleziono żadnych regionów';
 
   @override
   String get settings_regionFetchRegionsAlreadyExists =>
-      'This region has already been added';
+      'Ten region został już dodany';
 
   @override
-  String get settings_regionName => 'Region Name';
+  String get settings_regionName => 'Nazwa regionu';
 
   @override
-  String get settings_regionDeleted => 'Region deleted';
+  String get settings_regionDeleted => 'Region usunięty';
 
   @override
-  String get settings_deleteRegion => 'Delete Region';
+  String get settings_deleteRegion => 'Usuń region';
 
   @override
   String settings_deleteRegionConfirm(String region) {
-    return 'Remove \"$region\" from region list?';
+    return 'Usunąć \"$region\" z listy regionów?';
   }
 
   @override
-  String get settings_regionForceUnscoped => 'Force global flood';
+  String get settings_regionForceUnscoped => 'Wymuś globalny flood';
 
   @override
   String get settings_regionForceUnscopedSubtitle =>
-      'Ignores every flood scope — messages are sent as a global flood. Stays on across reconnects.';
+      'Ignoruje wszystkie zakresy flood — wiadomości są wysyłane jako globalny flood. Pozostaje włączone po ponownym połączeniu.';
 
   @override
-  String get settings_regionDefaultSection => 'Default Region';
+  String get settings_regionDefaultSection => 'Region domyślny';
 
   @override
   String settings_regionCurrentDefault(String name) {
-    return 'Current default: $name';
+    return 'Obecny domyślny: $name';
   }
 
   @override
-  String get settings_regionNoDefault => 'No default region set';
+  String get settings_regionNoDefault => 'Nie ustawiono domyślnego regionu';
 
   @override
   String get settings_regionNoneOption =>
-      'None (unscoped when nothing else is scoped)';
+      'Brak (bez zakresu, gdy nic innego go nie nadaje)';
 
   @override
-  String get settings_regionDefaultTag => 'DEFAULT';
+  String get settings_regionDefaultTag => 'DOMYŚLNY';
 
   @override
   String get settings_location => 'Lokalizacja';
@@ -515,7 +517,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settings_denyAll => 'Odmów wszystkim';
 
   @override
-  String get settings_allowByContact => 'Zezwalaj według flag kontaktowych';
+  String get settings_allowByContact => 'Wg flag kontaktu';
 
   @override
   String get settings_allowAll => 'Zezwalaj na wszystko';
@@ -781,16 +783,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_languageUk => 'Ukraińska';
 
   @override
-  String get repeater_pathHashModeOption0 => '0 - 1 byte';
+  String get repeater_pathHashModeOption0 => '1 bajt';
 
   @override
-  String get repeater_pathHashModeOption1 => '1 - 2 bytes';
+  String get repeater_pathHashModeOption1 => '2 bajty';
 
   @override
-  String get repeater_pathHashModeOption2 => '2 - 3 bytes';
-
-  @override
-  String get repeater_pathHashModeOption3 => '3 - 4 bytes';
+  String get repeater_pathHashModeOption2 => '3 bajty';
 
   @override
   String get appSettings_enableMessageTracing => 'Włącz śledzenie wiadomości';
@@ -1488,13 +1487,13 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get channels_regionNotSet => 'Region: none';
+  String get channels_regionNotSet => 'Region: brak';
 
   @override
-  String get channels_regionSelect_Title => 'Select a region';
+  String get channels_regionSelect_Title => 'Wybierz region';
 
   @override
-  String get channels_clearRegion => 'Clear region';
+  String get channels_clearRegion => 'Wyczyść region';
 
   @override
   String get chat_noMessages => 'Brak jeszcze wiadomości';
@@ -1553,7 +1552,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chat_sendGif => 'Wyślij GIF';
 
   @override
-  String get chat_receivedGif => 'Received a GIF';
+  String get chat_receivedGif => 'Otrzymano GIF';
 
   @override
   String get chat_reply => 'Odpowiedz';
@@ -2828,42 +2827,46 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_pathHashMode => 'Tryb haszujący ścieżkę';
 
   @override
+  String get repeater_pathHashMode_subtitle =>
+      'Bajty ID w znacznikach ścieżek flood';
+
+  @override
   String get repeater_pathHashModeHelper =>
       'Bajty używane do kodowania identyfikatora tego repeatera w tagach ścieżki flood/wykrywania pętli. 0=1 bajt (256 identyfikatorów, do 64 skoków), 1=2 bajty (65 000 identyfikatorów, do 32 skoków), 2=3 bajty (16 milionów identyfikatorów, do 21 skoków). Firmware sprzed v1.14 zawsze używał ścieżek 1-bajtowych; v1.14 i nowsze można skonfigurować na ścieżki 2- lub 3-bajtowe.';
 
   @override
-  String get repeater_keySettings => 'Change Identity Keys';
+  String get repeater_keySettings => 'Zmień klucze tożsamości';
 
   @override
   String get repeater_keySettingsSubtitle =>
-      'Change the public/private keypair';
+      'Zmień parę kluczy publiczny/prywatny';
 
   @override
-  String get repeater_prvKey => 'Private key';
+  String get repeater_prvKey => 'Klucz prywatny';
 
   @override
   String get repeater_prvKeyHelper =>
-      'A new private key for the repeater, a 128-character hex string.';
+      'Nowy klucz prywatny repeatera, 128-znakowy ciąg hex.';
 
   @override
-  String get repeater_generatePrvKey => 'Generate a random keypair';
+  String get repeater_generatePrvKey => 'Wygeneruj losową parę kluczy';
 
   @override
-  String get repeater_stopGeneratingPrvKey => 'Interrupt search for keypair';
+  String get repeater_stopGeneratingPrvKey => 'Przerwij szukanie pary kluczy';
 
   @override
-  String get repeater_pubKey => 'Public key';
+  String get repeater_pubKey => 'Klucz publiczny';
 
   @override
   String get repeater_pubKeyHelper =>
-      'This is the public key that goes with the generated private key. You can\'t set this directly.';
+      'To jest klucz publiczny pasujący do wygenerowanego klucza prywatnego. Nie można go ustawić bezpośrednio.';
 
   @override
-  String get repeater_pubKeyPrefix => 'Desired prefix';
+  String get repeater_pubKeyPrefix => 'Oczekiwany prefiks';
 
   @override
   String repeater_pubKeyPrefixHelper(int tries) {
-    return 'Find a public key that starts with these hex digits. Expected tries needed: $tries.';
+    return 'Znajdź klucz publiczny zaczynający się od tych cyfr hex. Oczekiwana liczba prób: $tries.';
   }
 
   @override

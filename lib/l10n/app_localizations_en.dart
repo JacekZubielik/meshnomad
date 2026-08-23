@@ -505,7 +505,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_denyAll => 'Deny all';
 
   @override
-  String get settings_allowByContact => 'Allow by contact flags';
+  String get settings_allowByContact => 'Per-contact flags';
 
   @override
   String get settings_allowAll => 'Allow all';
@@ -765,16 +765,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appSettings_languageUk => 'Українська';
 
   @override
-  String get repeater_pathHashModeOption0 => '0 - 1 byte';
+  String get repeater_pathHashModeOption0 => '1 byte';
 
   @override
-  String get repeater_pathHashModeOption1 => '1 - 2 bytes';
+  String get repeater_pathHashModeOption1 => '2 bytes';
 
   @override
-  String get repeater_pathHashModeOption2 => '2 - 3 bytes';
-
-  @override
-  String get repeater_pathHashModeOption3 => '3 - 4 bytes';
+  String get repeater_pathHashModeOption2 => '3 bytes';
 
   @override
   String get appSettings_enableMessageTracing => 'Enable Message Tracing';
@@ -2763,6 +2760,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get repeater_pathHashMode => 'Path hash mode';
+
+  @override
+  String get repeater_pathHashMode_subtitle => 'ID bytes in flood path tags';
 
   @override
   String get repeater_pathHashModeHelper =>

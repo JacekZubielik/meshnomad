@@ -16,6 +16,7 @@ import '../theme/dashed_rounded_border.dart';
 import '../theme/mesh_tokens.dart';
 import '../theme/styles/style_registry.dart';
 import '../widgets/adaptive_app_bar_title.dart';
+import '../widgets/settings_value_stepper.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/sync_progress_overlay.dart';
@@ -231,7 +232,7 @@ class AppSettingsScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(width: t.spacingSm),
-              _SettingsValueStepper<String?>(
+              SettingsValueStepper<String?>(
                 key: const ValueKey('languageStepper'),
                 values: const [null, 'en', 'pl'],
                 value: settingsService.settings.languageOverride,
@@ -699,7 +700,7 @@ class AppSettingsScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(width: t.spacingMd),
-              _SettingsValueStepper<int>(
+              SettingsValueStepper<int>(
                 key: const ValueKey('messageHistoryLimitStepper'),
                 values: const [200, 500, 1000, 0],
                 value: settingsService.settings.messageHistoryLimit,
@@ -774,7 +775,7 @@ class AppSettingsScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(width: t.spacingSm),
-              _SettingsValueStepper<String>(
+              SettingsValueStepper<String>(
                 key: const ValueKey('batteryChemistryStepper'),
                 values: const ['nmc', 'lifepo4', 'lipo'],
                 value: selection,
@@ -879,7 +880,7 @@ class AppSettingsScreen extends StatelessWidget {
               ),
             ),
             SizedBox(width: t.spacingSm),
-            _SettingsValueStepper<double>(
+            SettingsValueStepper<double>(
               key: const ValueKey('mapTimeFilterStepper'),
               values: const [0, 1, 6, 24, 168],
               value: settingsService.settings.mapTimeFilterHours,
@@ -929,7 +930,7 @@ class AppSettingsScreen extends StatelessWidget {
               ),
             ),
             SizedBox(width: t.spacingSm),
-            _SettingsValueStepper<UnitSystem>(
+            SettingsValueStepper<UnitSystem>(
               key: const ValueKey('unitsStepper'),
               values: const [UnitSystem.metric, UnitSystem.imperial],
               value: settingsService.settings.unitSystem,
@@ -2260,123 +2261,6 @@ class _BorderOverrideStepper extends StatelessWidget {
                   _label(context, v),
                   textAlign: TextAlign.center,
                   style: t.monoBody(color: scheme.onSurface),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        circleButton(Icons.remove, () => _step(-1)),
-        SizedBox(width: t.spacingXxs),
-        valuePill,
-        SizedBox(width: t.spacingXxs),
-        circleButton(Icons.add, () => _step(1)),
-      ],
-    );
-  }
-}
-
-/// Generic settings value stepper — same pattern as [_BorderOverrideStepper]
-/// (circular tinted +/- buttons flanking a stable-width mono value pill),
-/// cycling through a fixed list of choices that previously lived in bottom
-/// sheets / dropdowns (user spec 2026-08-23: every such picker in App
-/// Settings looks identical to the Button border control). Unlike
-/// [_BorderOverrideStepper] — whose circles preview the border value being
-/// edited — these circles follow the app-wide `buttonBorder` setting, like
-/// every other member of the button family (they are hand-drawn, not theme
-/// buttons, so the side/shape is derived here the same way).
-class _SettingsValueStepper<T> extends StatelessWidget {
-  const _SettingsValueStepper({
-    super.key,
-    required this.values,
-    required this.value,
-    required this.labelOf,
-    required this.buttonBorder,
-    required this.onChanged,
-    this.enabled = true,
-  });
-
-  final List<T> values;
-  final T value;
-  final String Function(BuildContext, T) labelOf;
-
-  /// Current app-wide buttonBorder ('none'/'solid'/'dotted', null == 'none').
-  final String? buttonBorder;
-  final ValueChanged<T> onChanged;
-  final bool enabled;
-
-  void _step(int direction) {
-    final index = values.indexOf(value);
-    // A stored value outside the fixed cycle (possible only for prefs
-    // predating the choice list) lands on the first choice with one tap.
-    final next = index == -1
-        ? values.first
-        : values[(index + direction + values.length) % values.length];
-    onChanged(next);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final t = MeshTokens.of(context);
-
-    final borderStyle = buttonBorder ?? 'none';
-    final circleBorderSide = borderStyle == 'none'
-        ? BorderSide.none
-        : BorderSide(color: scheme.primary);
-    final circleShape = borderStyle == 'dotted'
-        ? DashedCircleBorder(side: circleBorderSide)
-        : CircleBorder(side: circleBorderSide);
-
-    Widget circleButton(IconData icon, VoidCallback onPressed) {
-      return SizedBox(
-        width: 36,
-        height: 36,
-        child: DecoratedBox(
-          decoration: ShapeDecoration(
-            shape: circleShape,
-            color: scheme.primary.withValues(alpha: 0.2),
-          ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            iconSize: 18,
-            color: scheme.primary,
-            icon: Icon(icon),
-            onPressed: enabled ? onPressed : null,
-          ),
-        ),
-      );
-    }
-
-    final valuePill = Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: t.spacingSm,
-        vertical: t.spacingSm,
-      ),
-      decoration: BoxDecoration(
-        color: scheme.primary.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(t.sm),
-      ),
-      child: IntrinsicWidth(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            for (final v in values)
-              Visibility(
-                visible: v == value,
-                maintainState: true,
-                maintainAnimation: true,
-                maintainSize: true,
-                child: Text(
-                  labelOf(context, v),
-                  textAlign: TextAlign.center,
-                  style: t.monoBody(
-                    color: enabled ? scheme.onSurface : scheme.onSurfaceVariant,
-                  ),
                 ),
               ),
           ],

@@ -1007,7 +1007,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_allowByContact.
   ///
   /// In en, this message translates to:
-  /// **'Allow by contact flags'**
+  /// **'Per-contact flags'**
   String get settings_allowByContact;
 
   /// No description provided for @settings_allowAll.
@@ -1499,26 +1499,20 @@ abstract class AppLocalizations {
   /// No description provided for @repeater_pathHashModeOption0.
   ///
   /// In en, this message translates to:
-  /// **'0 - 1 byte'**
+  /// **'1 byte'**
   String get repeater_pathHashModeOption0;
 
   /// No description provided for @repeater_pathHashModeOption1.
   ///
   /// In en, this message translates to:
-  /// **'1 - 2 bytes'**
+  /// **'2 bytes'**
   String get repeater_pathHashModeOption1;
 
   /// No description provided for @repeater_pathHashModeOption2.
   ///
   /// In en, this message translates to:
-  /// **'2 - 3 bytes'**
+  /// **'3 bytes'**
   String get repeater_pathHashModeOption2;
-
-  /// No description provided for @repeater_pathHashModeOption3.
-  ///
-  /// In en, this message translates to:
-  /// **'3 - 4 bytes'**
-  String get repeater_pathHashModeOption3;
 
   /// No description provided for @appSettings_enableMessageTracing.
   ///
@@ -5003,6 +4997,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Path hash mode'**
   String get repeater_pathHashMode;
+
+  /// No description provided for @repeater_pathHashMode_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'ID bytes in flood path tags'**
+  String get repeater_pathHashMode_subtitle;
 
   /// No description provided for @repeater_pathHashModeHelper.
   ///

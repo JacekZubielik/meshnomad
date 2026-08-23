@@ -10,6 +10,7 @@ import '../helpers/snack_bar_builder.dart';
 import '../widgets/elements_ui.dart';
 import '../widgets/mesh_dashed_divider.dart';
 import '../widgets/mesh_ui.dart';
+import '../widgets/settings_value_stepper.dart';
 import 'gpx_export_screen.dart';
 
 Future<void> pushLocationSettingsScreen(BuildContext context) {
@@ -404,17 +405,44 @@ void _privacySettings(BuildContext context, MeshCoreConnector connector) {
   bool autoZeroHopAdvertOnGpsUpdate =
       settingsService.settings.autoSendZeroHopAdvertOnGpsUpdate;
 
-  final telemModeBase = [
-    DropdownMenuItem(value: teleModeDeny, child: Text(l10n.settings_denyAll)),
-    DropdownMenuItem(
-      value: teleModeAllowFlags,
-      child: Text(l10n.settings_allowByContact),
-    ),
-    DropdownMenuItem(
-      value: teleModeAllowAll,
-      child: Text(l10n.settings_allowAll),
-    ),
-  ];
+  // Shared choice cycle for the three telemetry-mode steppers (former
+  // dropdowns — user spec 2026-08-23: same control as Appearance -> Button
+  // border, with shortened option labels).
+  const telemModeValues = [teleModeDeny, teleModeAllowFlags, teleModeAllowAll];
+  String telemModeLabel(BuildContext ctx, int v) => switch (v) {
+    teleModeAllowFlags => ctx.l10n.settings_allowByContact,
+    teleModeAllowAll => ctx.l10n.settings_allowAll,
+    _ => ctx.l10n.settings_denyAll,
+  };
+  Widget telemModeRow({
+    required BuildContext ctx,
+    required String label,
+    required Key stepperKey,
+    required int value,
+    required ValueChanged<int> onChanged,
+  }) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            // Same style as the Multi-ACKs SwitchListTile title above —
+            // the theme's ListTile titleTextStyle, not a bolded variant.
+            style: Theme.of(ctx).listTileTheme.titleTextStyle,
+          ),
+        ),
+        SizedBox(width: MeshTokens.of(ctx).spacingSm),
+        SettingsValueStepper<int>(
+          key: stepperKey,
+          values: telemModeValues,
+          value: value,
+          labelOf: telemModeLabel,
+          buttonBorder: settingsService.activeProfileOverrides.buttonBorder,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
 
   showDialog(
     context: context,
@@ -460,45 +488,33 @@ void _privacySettings(BuildContext context, MeshCoreConnector connector) {
                 contentPadding: EdgeInsets.zero,
               ),
               SizedBox(height: MeshTokens.of(context).spacingMd),
-              DropdownButtonFormField<int>(
-                initialValue: telemetryMode,
-                decoration: InputDecoration(
-                  labelText: l10n.settings_telemetryBaseMode,
-                  border: const OutlineInputBorder(),
-                ),
-                items: telemModeBase,
+              telemModeRow(
+                ctx: context,
+                label: l10n.settings_telemetryBaseMode,
+                stepperKey: const ValueKey('telemetryBaseModeStepper'),
+                value: telemetryMode,
                 onChanged: (value) {
-                  if (value != null) {
-                    setDialogState(() => telemetryMode = value);
-                  }
+                  setDialogState(() => telemetryMode = value);
                 },
               ),
               SizedBox(height: MeshTokens.of(context).spacingMd),
-              DropdownButtonFormField<int>(
-                initialValue: telemetryLocMode,
-                decoration: InputDecoration(
-                  labelText: l10n.settings_telemetryLocationMode,
-                  border: const OutlineInputBorder(),
-                ),
-                items: telemModeBase,
+              telemModeRow(
+                ctx: context,
+                label: l10n.settings_telemetryLocationMode,
+                stepperKey: const ValueKey('telemetryLocationModeStepper'),
+                value: telemetryLocMode,
                 onChanged: (value) {
-                  if (value != null) {
-                    setDialogState(() => telemetryLocMode = value);
-                  }
+                  setDialogState(() => telemetryLocMode = value);
                 },
               ),
               SizedBox(height: MeshTokens.of(context).spacingMd),
-              DropdownButtonFormField<int>(
-                initialValue: telemetryEnvMode,
-                decoration: InputDecoration(
-                  labelText: l10n.settings_telemetryEnvironmentMode,
-                  border: const OutlineInputBorder(),
-                ),
-                items: telemModeBase,
+              telemModeRow(
+                ctx: context,
+                label: l10n.settings_telemetryEnvironmentMode,
+                stepperKey: const ValueKey('telemetryEnvModeStepper'),
+                value: telemetryEnvMode,
                 onChanged: (value) {
-                  if (value != null) {
-                    setDialogState(() => telemetryEnvMode = value);
-                  }
+                  setDialogState(() => telemetryEnvMode = value);
                 },
               ),
             ],
