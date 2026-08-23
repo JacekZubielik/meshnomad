@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import '../l10n/l10n.dart';
+import '../services/app_settings_service.dart';
 import '../services/ble_debug_log_service.dart';
 import '../connector/meshcore_protocol.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/app_bar.dart';
+import '../widgets/settings_value_stepper.dart';
 import '../helpers/snack_bar_builder.dart';
 import '../widgets/mesh_dashed_divider.dart';
 
@@ -101,21 +103,23 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                     MeshTokens.of(context).spacingMd,
                     0,
                   ),
-                  child: SegmentedButton<_BleLogView>(
-                    segments: [
-                      ButtonSegment(
-                        value: _BleLogView.frames,
-                        label: Text(context.l10n.debugLog_frames),
-                      ),
-                      ButtonSegment(
-                        value: _BleLogView.rawLogRx,
-                        label: Text(context.l10n.debugLog_rawLogRx),
-                      ),
-                    ],
-                    selected: {_view},
-                    onSelectionChanged: (selection) {
-                      setState(() => _view = selection.first);
-                    },
+                  // Shared -/+ value stepper instead of the two-segment
+                  // button (user spec 2026-08-23) — follows the app-wide
+                  // buttonBorder style like every other picker.
+                  child: Center(
+                    child: SettingsValueStepper<_BleLogView>(
+                      key: const ValueKey('bleLogViewStepper'),
+                      values: _BleLogView.values,
+                      value: _view,
+                      labelOf: (ctx, v) => v == _BleLogView.frames
+                          ? ctx.l10n.debugLog_frames
+                          : ctx.l10n.debugLog_rawLogRx,
+                      buttonBorder: context
+                          .watch<AppSettingsService>()
+                          .activeProfileOverrides
+                          .buttonBorder,
+                      onChanged: (v) => setState(() => _view = v),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
