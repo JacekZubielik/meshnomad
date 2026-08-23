@@ -200,55 +200,75 @@ class _PacketStatsScreenState extends State<PacketStatsScreen> {
         ],
       ),
       body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.all(tokens.spacingMd),
+        child: Stack(
           children: [
-            _CoverageCard(
-              service: service,
-              snapshot: snapshot,
-              window: _window,
-              onWindowChanged: (w) => setState(() => _window = w),
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _StatsSummaryCard(
-              snapshot: snapshot,
-              maxObservations: service.maxObservations,
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _TrafficTimelineCard(snapshot: snapshot),
-            SizedBox(height: tokens.spacingSm),
-            _RankedCard(
-              title: context.l10n.packetStats_sectionPacketTypes,
-              stats: snapshot.payloadBreakdown,
-              colorFor: _colorForPayloadType,
-              labelFor: _payloadDisplayLabel,
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _RankedCard(
-              title: context.l10n.packetStats_sectionRouteMix,
-              stats: snapshot.routeBreakdown,
-              labelFor: _routeDisplayLabel,
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _RankedCard(
-              title: context.l10n.packetStats_sectionHopProfile,
-              stats: snapshot.hopProfile,
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _RankedCard(
-              title: context.l10n.packetStats_sectionHopByteWidth,
-              stats: snapshot.hopByteWidth,
-              labelFor: _hopWidthDisplayLabel,
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _RankedCard(
-              title: context.l10n.packetStats_sectionSignalDistribution,
-              stats: snapshot.rssiBuckets,
-              labelFor: _signalDisplayLabel,
+            // Window stepper floats over the top-right of the BODY (user
+            // corrections 2026-08-23: not in the coverage card, not in a
+            // FAB slot that straddles the app bar) — visually resting on
+            // the coverage card corner, where the old picker chip lived.
+            _buildStatsList(context, service, snapshot, tokens),
+            Positioned(
+              top: tokens.spacingMd + tokens.spacingXxs,
+              right: tokens.spacingMd + tokens.spacingSm,
+              child: _WindowPill(
+                window: _window,
+                onChanged: (w) => setState(() => _window = w),
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatsList(
+    BuildContext context,
+    PacketObservationService service,
+    PacketStatsSnapshot snapshot,
+    MeshTokens tokens,
+  ) {
+    return ListView(
+      padding: EdgeInsets.all(tokens.spacingMd),
+      children: [
+        _CoverageCard(service: service, snapshot: snapshot, window: _window),
+        SizedBox(height: tokens.spacingSm),
+        _StatsSummaryCard(
+          snapshot: snapshot,
+          maxObservations: service.maxObservations,
+        ),
+        SizedBox(height: tokens.spacingSm),
+        _TrafficTimelineCard(snapshot: snapshot),
+        SizedBox(height: tokens.spacingSm),
+        _RankedCard(
+          title: context.l10n.packetStats_sectionPacketTypes,
+          stats: snapshot.payloadBreakdown,
+          colorFor: _colorForPayloadType,
+          labelFor: _payloadDisplayLabel,
+        ),
+        SizedBox(height: tokens.spacingSm),
+        _RankedCard(
+          title: context.l10n.packetStats_sectionRouteMix,
+          stats: snapshot.routeBreakdown,
+          labelFor: _routeDisplayLabel,
+        ),
+        SizedBox(height: tokens.spacingSm),
+        _RankedCard(
+          title: context.l10n.packetStats_sectionHopProfile,
+          stats: snapshot.hopProfile,
+        ),
+        SizedBox(height: tokens.spacingSm),
+        _RankedCard(
+          title: context.l10n.packetStats_sectionHopByteWidth,
+          stats: snapshot.hopByteWidth,
+          labelFor: _hopWidthDisplayLabel,
+        ),
+        SizedBox(height: tokens.spacingSm),
+        _RankedCard(
+          title: context.l10n.packetStats_sectionSignalDistribution,
+          stats: snapshot.rssiBuckets,
+          labelFor: _signalDisplayLabel,
+        ),
+      ],
     );
   }
 }
@@ -258,13 +278,11 @@ class _CoverageCard extends StatelessWidget {
     required this.service,
     required this.snapshot,
     required this.window,
-    required this.onWindowChanged,
   });
 
   final PacketObservationService service;
   final PacketStatsSnapshot snapshot;
   final StatsWindow window;
-  final ValueChanged<StatsWindow> onWindowChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -319,23 +337,12 @@ class _CoverageCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                // Same vertical inset as _WindowPill's Container padding, so
-                // the label and the pill share one padding value and their
-                // text sits on a matched line (operator alignment request
-                // 2026-08-17).
-                padding: EdgeInsets.symmetric(vertical: tokens.spacingXxs),
-                child: Text(
-                  context.l10n.packetStats_coverageLabel,
-                  style: tokens.accentLabel(color: scheme.onSurfaceVariant),
-                ),
-              ),
-              _WindowPill(window: window, onChanged: onWindowChanged),
-            ],
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: tokens.spacingXxs),
+            child: Text(
+              context.l10n.packetStats_coverageLabel,
+              style: tokens.accentLabel(color: scheme.onSurfaceVariant),
+            ),
           ),
           SizedBox(height: tokens.spacingXs),
           ...messageLines,
