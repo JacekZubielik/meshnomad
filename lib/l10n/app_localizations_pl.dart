@@ -661,6 +661,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settings_presets => 'Presety';
 
   @override
+  String get settings_presetCustom => 'Własny';
+
+  @override
   String get settings_frequency => 'Częstotliwość (MHz)';
 
   @override

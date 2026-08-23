@@ -1262,6 +1262,12 @@ abstract class AppLocalizations {
   /// **'Presets'**
   String get settings_presets;
 
+  /// No description provided for @settings_presetCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get settings_presetCustom;
+
   /// No description provided for @settings_frequency.
   ///
   /// In en, this message translates to:

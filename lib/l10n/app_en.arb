@@ -264,6 +264,7 @@
   "settings_infoContactsCount": "Contacts Count",
   "settings_infoChannelCount": "Channel Count",
   "settings_presets": "Presets",
+  "settings_presetCustom": "Custom",
   "settings_frequency": "Frequency (MHz)",
   "settings_frequencyHelper": "300.0 - 2500.0",
   "settings_frequencyInvalid": "Invalid frequency (300-2500 MHz)",
