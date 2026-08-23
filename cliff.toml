@@ -18,7 +18,14 @@ trim = true
 
 [git]
 conventional_commits = true
-filter_unconventional = true
+# false (2026-08-23, was true): a squash-merge commit whose PR title lacked
+# a conventional-commit prefix (e.g. "Settings overhaul: ..." for #100)
+# silently vanished from release notes under the old `true` setting —
+# v0.11.0 shipped a GitHub Release body missing its two largest PRs (#98,
+# #100) until caught and hand-corrected. The catch-all parser below now
+# nets anything without a recognized prefix into "Other Changes" instead,
+# so a missing prefix degrades the changelog's grouping, not its content.
+filter_unconventional = false
 tag_pattern = "^v[0-9]+\\."
 skip_tags = "^(Alpha|PRE-BETA)"
 commit_parsers = [
@@ -33,6 +40,9 @@ commit_parsers = [
   { message = "^chore", group = "Chores" },
   { message = "^docs", group = "Documentation" },
   { message = "^test", group = "Testing" },
+  # Catch-all: PR titles are still expected to carry a conventional-commit
+  # prefix, but a missed one lands here instead of disappearing.
+  { message = ".*", group = "Other Changes" },
 ]
 filter_commits = true
 sort_commits = "newest"
