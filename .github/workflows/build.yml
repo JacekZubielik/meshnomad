@@ -87,7 +87,13 @@ jobs:
         # Per-ABI split instead of one fat multi-arch APK: each device only
         # needs one of these, so the download is a fraction of the combined
         # size. The AAB is built separately below in its own job.
-        run: flutter build apk --release --split-per-abi
+        run: |
+          flutter build apk --release --split-per-abi \
+            --dart-define=GIT_SHA=${GITHUB_SHA::8} \
+            --dart-define=GIT_BRANCH=${GITHUB_REF_NAME} \
+            --dart-define=GIT_DIRTY=false \
+            --dart-define=BUILD_TIME=$(date -u +%Y-%m-%dT%H:%MZ) \
+            --dart-define=BUILD_SOURCE=ci
       - uses: actions/upload-artifact@v7
         with:
           name: meshnomad-release-apk

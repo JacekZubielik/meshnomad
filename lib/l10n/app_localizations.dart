@@ -9997,6 +9997,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Distance units'**
   String get appSettings_units_subtitle;
+
+  /// No description provided for @about_copyVersionTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy version info'**
+  String get about_copyVersionTooltip;
+
+  /// No description provided for @about_versionCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Version info copied'**
+  String get about_versionCopied;
+
+  /// No description provided for @about_buildDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Build details'**
+  String get about_buildDetails;
+
+  /// No description provided for @about_buildCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Commit'**
+  String get about_buildCommit;
+
+  /// No description provided for @about_buildBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch'**
+  String get about_buildBranch;
+
+  /// No description provided for @about_buildDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Built'**
+  String get about_buildDate;
+
+  /// No description provided for @about_buildSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get about_buildSource;
+
+  /// No description provided for @about_buildModified.
+  ///
+  /// In en, this message translates to:
+  /// **'modified'**
+  String get about_buildModified;
+
+  /// No description provided for @about_buildSourceLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Local build'**
+  String get about_buildSourceLocal;
+
+  /// No description provided for @about_buildSourceCi.
+  ///
+  /// In en, this message translates to:
+  /// **'CI release'**
+  String get about_buildSourceCi;
+
+  /// No description provided for @about_website.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get about_website;
+
+  /// No description provided for @about_documentation.
+  ///
+  /// In en, this message translates to:
+  /// **'Documentation'**
+  String get about_documentation;
+
+  /// No description provided for @about_releaseNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Release notes'**
+  String get about_releaseNotes;
+
+  /// No description provided for @about_sourceCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code'**
+  String get about_sourceCode;
+
+  /// No description provided for @about_reportIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Report an issue'**
+  String get about_reportIssue;
+
+  /// No description provided for @about_openSourceLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source licenses'**
+  String get about_openSourceLicenses;
 }
 
 class _AppLocalizationsDelegate

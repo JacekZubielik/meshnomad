@@ -3032,5 +3032,21 @@
   "repeater_pubKey": "Klucz publiczny",
   "repeater_pubKeyHelper": "To jest klucz publiczny pasujący do wygenerowanego klucza prywatnego. Nie można go ustawić bezpośrednio.",
   "repeater_pubKeyPrefix": "Oczekiwany prefiks",
-  "repeater_pubKeyPrefixHelper": "Znajdź klucz publiczny zaczynający się od tych cyfr hex. Oczekiwana liczba prób: {tries}."
+  "repeater_pubKeyPrefixHelper": "Znajdź klucz publiczny zaczynający się od tych cyfr hex. Oczekiwana liczba prób: {tries}.",
+  "about_copyVersionTooltip": "Skopiuj informacje o wersji",
+  "about_versionCopied": "Skopiowano informacje o wersji",
+  "about_buildDetails": "Szczegóły buildu",
+  "about_buildCommit": "Commit",
+  "about_buildBranch": "Gałąź",
+  "about_buildDate": "Zbudowano",
+  "about_buildSource": "Źródło",
+  "about_buildModified": "zmodyfikowany",
+  "about_buildSourceLocal": "Build lokalny",
+  "about_buildSourceCi": "Wydanie CI",
+  "about_website": "Strona WWW",
+  "about_documentation": "Dokumentacja",
+  "about_releaseNotes": "Informacje o wydaniach",
+  "about_sourceCode": "Kod źródłowy",
+  "about_reportIssue": "Zgłoś problem",
+  "about_openSourceLicenses": "Licencje open source"
 }

@@ -5724,4 +5724,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appSettings_units_subtitle => 'Distance units';
+
+  @override
+  String get about_copyVersionTooltip => 'Copy version info';
+
+  @override
+  String get about_versionCopied => 'Version info copied';
+
+  @override
+  String get about_buildDetails => 'Build details';
+
+  @override
+  String get about_buildCommit => 'Commit';
+
+  @override
+  String get about_buildBranch => 'Branch';
+
+  @override
+  String get about_buildDate => 'Built';
+
+  @override
+  String get about_buildSource => 'Source';
+
+  @override
+  String get about_buildModified => 'modified';
+
+  @override
+  String get about_buildSourceLocal => 'Local build';
+
+  @override
+  String get about_buildSourceCi => 'CI release';
+
+  @override
+  String get about_website => 'Website';
+
+  @override
+  String get about_documentation => 'Documentation';
+
+  @override
+  String get about_releaseNotes => 'Release notes';
+
+  @override
+  String get about_sourceCode => 'Source code';
+
+  @override
+  String get about_reportIssue => 'Report an issue';
+
+  @override
+  String get about_openSourceLicenses => 'Open source licenses';
 }

@@ -3164,5 +3164,21 @@
   "appSettings_borderOverride_subtitle": "Off, solid, or dotted line",
   "appSettings_messageHistoryLimit_subtitle": "Messages kept per conversation",
   "appSettings_language_subtitle": "Interface language",
-  "appSettings_units_subtitle": "Distance units"
+  "appSettings_units_subtitle": "Distance units",
+  "about_copyVersionTooltip": "Copy version info",
+  "about_versionCopied": "Version info copied",
+  "about_buildDetails": "Build details",
+  "about_buildCommit": "Commit",
+  "about_buildBranch": "Branch",
+  "about_buildDate": "Built",
+  "about_buildSource": "Source",
+  "about_buildModified": "modified",
+  "about_buildSourceLocal": "Local build",
+  "about_buildSourceCi": "CI release",
+  "about_website": "Website",
+  "about_documentation": "Documentation",
+  "about_releaseNotes": "Release notes",
+  "about_sourceCode": "Source code",
+  "about_reportIssue": "Report an issue",
+  "about_openSourceLicenses": "Open source licenses"
 }

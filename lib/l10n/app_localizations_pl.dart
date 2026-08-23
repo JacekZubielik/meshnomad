@@ -5833,4 +5833,52 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get appSettings_units_subtitle => 'Jednostki odległości';
+
+  @override
+  String get about_copyVersionTooltip => 'Skopiuj informacje o wersji';
+
+  @override
+  String get about_versionCopied => 'Skopiowano informacje o wersji';
+
+  @override
+  String get about_buildDetails => 'Szczegóły buildu';
+
+  @override
+  String get about_buildCommit => 'Commit';
+
+  @override
+  String get about_buildBranch => 'Gałąź';
+
+  @override
+  String get about_buildDate => 'Zbudowano';
+
+  @override
+  String get about_buildSource => 'Źródło';
+
+  @override
+  String get about_buildModified => 'zmodyfikowany';
+
+  @override
+  String get about_buildSourceLocal => 'Build lokalny';
+
+  @override
+  String get about_buildSourceCi => 'Wydanie CI';
+
+  @override
+  String get about_website => 'Strona WWW';
+
+  @override
+  String get about_documentation => 'Dokumentacja';
+
+  @override
+  String get about_releaseNotes => 'Informacje o wydaniach';
+
+  @override
+  String get about_sourceCode => 'Kod źródłowy';
+
+  @override
+  String get about_reportIssue => 'Zgłoś problem';
+
+  @override
+  String get about_openSourceLicenses => 'Licencje open source';
 }
