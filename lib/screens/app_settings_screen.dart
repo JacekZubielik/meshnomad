@@ -22,6 +22,7 @@ import '../widgets/mesh_ui.dart';
 import '../widgets/sync_progress_overlay.dart';
 import '../widgets/theme_profile_selector.dart';
 import '../helpers/snack_bar_builder.dart';
+import 'auto_route_rotation_screen.dart';
 import 'custom_style_editor_screen.dart';
 import 'map_cache_screen.dart';
 import '../widgets/mesh_dashed_divider.dart';
@@ -446,7 +447,6 @@ class AppSettingsScreen extends StatelessWidget {
     BuildContext context,
     AppSettingsService settingsService,
   ) {
-    final autoRouteEnabled = settingsService.settings.autoRouteRotationEnabled;
     final t = MeshTokens.of(context);
     return Column(
       children: [
@@ -485,178 +485,13 @@ class AppSettingsScreen extends StatelessWidget {
           onChanged: settingsService.setJumpToOldestUnread,
         ),
         const MeshDashedDivider(indent: 16),
-        SwitchListTile(
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: t.spacingMd,
-            vertical: t.spacingXxs,
-          ),
-          secondary: const Icon(Icons.alt_route, size: 20),
-          title: Text(context.l10n.appSettings_autoRouteRotation),
-          subtitle: Text(context.l10n.appSettings_autoRouteRotationSubtitle),
-          value: autoRouteEnabled,
-          onChanged: (value) {
-            settingsService.setAutoRouteRotationEnabled(value);
-            showDismissibleSnackBar(
-              context,
-              content: Text(
-                value
-                    ? context.l10n.appSettings_autoRouteRotationEnabled
-                    : context.l10n.appSettings_autoRouteRotationDisabled,
-              ),
-              duration: const Duration(seconds: 2),
-            );
-          },
-        ),
-        // AnimatedSize sub-options for auto-route rotation
-        AnimatedSize(
-          duration: const Duration(milliseconds: 200),
-          alignment: Alignment.topCenter,
-          child: autoRouteEnabled
-              ? Container(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  padding: EdgeInsets.only(left: t.spacingMd),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const MeshDashedDivider(),
-                      ListTile(
-                        title: Text(context.l10n.appSettings_maxRouteWeight),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.l10n.appSettings_maxRouteWeightSubtitle,
-                            ),
-                            Slider(
-                              value: settingsService.settings.maxRouteWeight,
-                              min: 1,
-                              max: 10,
-                              divisions: 9,
-                              label: settingsService.settings.maxRouteWeight
-                                  .round()
-                                  .toString(),
-                              onChanged: (value) =>
-                                  settingsService.setMaxRouteWeight(value),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const MeshDashedDivider(),
-                      ListTile(
-                        title: Text(
-                          context.l10n.appSettings_initialRouteWeight,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context
-                                  .l10n
-                                  .appSettings_initialRouteWeightSubtitle,
-                            ),
-                            Slider(
-                              value:
-                                  settingsService.settings.initialRouteWeight,
-                              min: 0.5,
-                              max: 5.0,
-                              divisions: 9,
-                              label: settingsService.settings.initialRouteWeight
-                                  .toStringAsFixed(1),
-                              onChanged: (value) =>
-                                  settingsService.setInitialRouteWeight(value),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const MeshDashedDivider(),
-                      ListTile(
-                        title: Text(
-                          context.l10n.appSettings_routeWeightSuccessIncrement,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context
-                                  .l10n
-                                  .appSettings_routeWeightSuccessIncrementSubtitle,
-                            ),
-                            Slider(
-                              value: settingsService
-                                  .settings
-                                  .routeWeightSuccessIncrement,
-                              min: 0.1,
-                              max: 2.0,
-                              divisions: 19,
-                              label: settingsService
-                                  .settings
-                                  .routeWeightSuccessIncrement
-                                  .toStringAsFixed(1),
-                              onChanged: (value) => settingsService
-                                  .setRouteWeightSuccessIncrement(value),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const MeshDashedDivider(),
-                      ListTile(
-                        title: Text(
-                          context.l10n.appSettings_routeWeightFailureDecrement,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context
-                                  .l10n
-                                  .appSettings_routeWeightFailureDecrementSubtitle,
-                            ),
-                            Slider(
-                              value: settingsService
-                                  .settings
-                                  .routeWeightFailureDecrement,
-                              min: 0.1,
-                              max: 2.0,
-                              divisions: 19,
-                              label: settingsService
-                                  .settings
-                                  .routeWeightFailureDecrement
-                                  .toStringAsFixed(1),
-                              onChanged: (value) => settingsService
-                                  .setRouteWeightFailureDecrement(value),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const MeshDashedDivider(),
-                      ListTile(
-                        title: Text(context.l10n.appSettings_maxMessageRetries),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context
-                                  .l10n
-                                  .appSettings_maxMessageRetriesSubtitle,
-                            ),
-                            Slider(
-                              value: settingsService.settings.maxMessageRetries
-                                  .toDouble(),
-                              min: 2,
-                              max: 10,
-                              divisions: 8,
-                              label: settingsService.settings.maxMessageRetries
-                                  .toString(),
-                              onChanged: (value) => settingsService
-                                  .setMaxMessageRetries(value.toInt()),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : const SizedBox.shrink(),
+        // Navigation tile (redesign 2026-08-23): the enable switch and its
+        // tuning rows moved to their own AutoRouteRotationScreen.
+        SettingsTappableTile(
+          icon: Icons.alt_route,
+          title: context.l10n.appSettings_autoRouteRotation,
+          subtitle: context.l10n.appSettings_autoRouteRotationSubtitle,
+          onTap: () => pushAutoRouteRotationScreen(context),
         ),
         const MeshDashedDivider(indent: 16),
         SwitchListTile(
