@@ -1378,6 +1378,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get channels_cyr2latSettingsSubheading => 'Lista zamian';
 
   @override
+  String get channels_cyr2latSettingsDescription =>
+      'Zamienia cyrylicę na identyczne z wyglądu litery łacińskie w wysyłanych wiadomościach — tekst lepiej się kompresuje i więcej mieści w pakiecie.';
+
+  @override
   String get channels_cyr2latSettingsDscr =>
       'Edytuj konfigurację JSON zamiany znaków';
 

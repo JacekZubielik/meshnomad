@@ -2498,6 +2498,12 @@ abstract class AppLocalizations {
   /// **'List of replacements'**
   String get channels_cyr2latSettingsSubheading;
 
+  /// No description provided for @channels_cyr2latSettingsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Swaps Cyrillic letters for identical-looking Latin ones in outgoing messages — text compresses better and more fits in a packet.'**
+  String get channels_cyr2latSettingsDescription;
+
   /// No description provided for @channels_cyr2latSettingsDscr.
   ///
   /// In en, this message translates to:

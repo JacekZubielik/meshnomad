@@ -649,6 +649,7 @@
   "channels_cyr2latCompressionDscr": "Replaces some Cyrillic characters with Latin characters when sending.",
   "channels_cyr2latSettingsHeading": "Cyr2Lat Setup",
   "channels_cyr2latSettingsSubheading": "List of replacements",
+  "channels_cyr2latSettingsDescription": "Swaps Cyrillic letters for identical-looking Latin ones in outgoing messages — text compresses better and more fits in a packet.",
   "channels_cyr2latSettingsDscr": "Edit the JSON configuration of character replacement",
   "channels_cyr2latSettingsDialogHint": "JSON replacement map",
   "channels_cyr2latSettingsDialogWrongJSON": "Invalid JSON: {error}",

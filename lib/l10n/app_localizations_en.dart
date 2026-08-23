@@ -1344,6 +1344,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get channels_cyr2latSettingsSubheading => 'List of replacements';
 
   @override
+  String get channels_cyr2latSettingsDescription =>
+      'Swaps Cyrillic letters for identical-looking Latin ones in outgoing messages — text compresses better and more fits in a packet.';
+
+  @override
   String get channels_cyr2latSettingsDscr =>
       'Edit the JSON configuration of character replacement';
 

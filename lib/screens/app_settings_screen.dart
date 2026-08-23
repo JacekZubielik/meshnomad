@@ -1501,85 +1501,164 @@ class AppSettingsScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: t.spacingXs),
-        // Inline value stepper instead of the former dropdown (user spec
-        // 2026-08-23: same control as the Battery type row). Values are the
-        // user-defined profiles, so the list is dynamic, not const.
+        // Header row: literal Cyrillic glyph as the leading icon (Material
+        // Symbols has no Cyrillic icon), title, and a short what/why
+        // description underneath (user-accepted copy 2026-08-23).
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
+            SizedBox(
+              width: 20,
               child: Text(
-                context.l10n.channels_cyr2latSettingsSubheading,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                '\u042F',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: MeshTokens.of(context).primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                ),
               ),
             ),
             SizedBox(width: t.spacingSm),
-            SettingsValueStepper<String>(
-              key: const ValueKey('cyr2latProfileStepper'),
-              values: [
-                for (final profile in settingsService.settings.cyr2latProfiles)
-                  profile.id,
-              ],
-              value: settingsService.settings.selectedCyr2latProfileId,
-              labelOf: (ctx, id) =>
-                  settingsService.getCyr2LatProfileById(id)?.name ?? id,
-              buttonBorder: settingsService.activeProfileOverrides.buttonBorder,
-              onChanged: (id) => settingsService.setSelectedCyr2LatProfile(id),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.channels_cyr2latSettingsSubheading,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    context.l10n.channels_cyr2latSettingsDescription,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
         SizedBox(height: t.spacingSm),
+        // Profile stepper on its own line (user layout 2026-08-23): fully
+        // decoupled from the title, so neither can crush the other. The
+        // pill is still capped so an over-long profile name ellipsizes
+        // instead of overflowing the line.
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final pillMaxWidth =
+                constraints.maxWidth - 2 * 36 - 2 * t.spacingXxs;
+            return Align(
+              alignment: Alignment.centerRight,
+              child: SettingsValueStepper<String>(
+                key: const ValueKey('cyr2latProfileStepper'),
+                values: [
+                  for (final profile
+                      in settingsService.settings.cyr2latProfiles)
+                    profile.id,
+                ],
+                value: settingsService.settings.selectedCyr2latProfileId,
+                labelOf: (ctx, id) =>
+                    settingsService.getCyr2LatProfileById(id)?.name ?? id,
+                buttonBorder:
+                    settingsService.activeProfileOverrides.buttonBorder,
+                pillMaxWidth: pillMaxWidth,
+                onChanged: (id) =>
+                    settingsService.setSelectedCyr2LatProfile(id),
+              ),
+            );
+          },
+        ),
+        SizedBox(height: t.spacingSm),
+        // Icon-only circles, exactly the stepper's -/+ treatment (user spec
+        // 2026-08-23): Add IS the stepper's plus circle, Edit/Delete reuse
+        // the pencil/trash glyphs the text buttons already carried. Delete
+        // keeps the alert accent (2026-08-21 decision: a destructive action
+        // must not render identically to Add/Edit).
         Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () =>
-                    _showAddCyr2LatProfileDialog(context, settingsService),
-                icon: const Icon(Icons.add),
-                label: Text(context.l10n.common_add),
+            _cyr2latCircleButton(
+              context,
+              settingsService,
+              icon: Icons.add,
+              tooltip: context.l10n.common_add,
+              onPressed: () =>
+                  _showAddCyr2LatProfileDialog(context, settingsService),
+            ),
+            SizedBox(width: t.spacingXs),
+            _cyr2latCircleButton(
+              context,
+              settingsService,
+              icon: Icons.edit,
+              tooltip: context.l10n.common_edit,
+              onPressed: () => _showEditCyr2LatProfileDialog(
+                context,
+                settingsService,
+                selectedProfile,
               ),
             ),
             SizedBox(width: t.spacingXs),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _showEditCyr2LatProfileDialog(
-                  context,
-                  settingsService,
-                  selectedProfile,
-                ),
-                icon: const Icon(Icons.edit),
-                label: Text(context.l10n.common_edit),
-              ),
-            ),
-            SizedBox(width: t.spacingXs),
-            Expanded(
-              child: OutlinedButton.icon(
-                // Destructive action: swap the app-wide tinted-primary
-                // button look for the same treatment in the alert accent
-                // (2026-08-21) — otherwise Delete rendered identically to
-                // Add/Edit and gave no visual warning before an unrecoverable
-                // profile removal.
-                style: Theme.of(context).outlinedButtonTheme.style?.copyWith(
-                  backgroundColor: WidgetStatePropertyAll(
-                    t.alert.withValues(alpha: 0.2),
-                  ),
-                  foregroundColor: WidgetStatePropertyAll(t.alert),
-                ),
-                onPressed: settingsService.settings.cyr2latProfiles.length > 1
-                    ? () => _showDeleteCyr2LatProfileDialog(
-                        context,
-                        settingsService,
-                        selectedProfile,
-                      )
-                    : null,
-                icon: const Icon(Icons.delete),
-                label: Text(context.l10n.common_delete),
-              ),
+            _cyr2latCircleButton(
+              context,
+              settingsService,
+              icon: Icons.delete,
+              tooltip: context.l10n.common_delete,
+              accent: t.alert,
+              onPressed: settingsService.settings.cyr2latProfiles.length > 1
+                  ? () => _showDeleteCyr2LatProfileDialog(
+                      context,
+                      settingsService,
+                      selectedProfile,
+                    )
+                  : null,
             ),
           ],
         ),
       ],
+    );
+  }
+
+  /// 36x36 tinted circle identical to the SettingsValueStepper -/+ buttons
+  /// (same size, fill, icon size and buttonBorder-driven shape); [accent]
+  /// swaps the primary tint for another accent (alert for Delete).
+  Widget _cyr2latCircleButton(
+    BuildContext context,
+    AppSettingsService settingsService, {
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback? onPressed,
+    Color? accent,
+  }) {
+    final color = accent ?? Theme.of(context).colorScheme.primary;
+    final borderStyle =
+        settingsService.activeProfileOverrides.buttonBorder ?? 'none';
+    final side = borderStyle == 'none'
+        ? BorderSide.none
+        : BorderSide(color: color);
+    final shape = borderStyle == 'dotted'
+        ? DashedCircleBorder(side: side)
+        : CircleBorder(side: side);
+    return SizedBox(
+      width: 36,
+      height: 36,
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
+          shape: shape,
+          color: color.withValues(alpha: 0.2),
+        ),
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          iconSize: 18,
+          color: color,
+          tooltip: tooltip,
+          icon: Icon(icon),
+          onPressed: onPressed,
+        ),
+      ),
     );
   }
 

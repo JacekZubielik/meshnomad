@@ -24,6 +24,7 @@ class SettingsValueStepper<T> extends StatelessWidget {
     required this.buttonBorder,
     required this.onChanged,
     this.enabled = true,
+    this.pillMaxWidth,
   });
 
   final List<T> values;
@@ -34,6 +35,12 @@ class SettingsValueStepper<T> extends StatelessWidget {
   final String? buttonBorder;
   final ValueChanged<T> onChanged;
   final bool enabled;
+
+  /// Optional cap on the value pill's width. The pill normally sizes to the
+  /// WIDEST label in [values]; with user-defined labels (e.g. CYR2LAT
+  /// profile names) that is unbounded, so callers on narrow layouts pass a
+  /// cap and over-long labels ellipsize instead of crushing their row.
+  final double? pillMaxWidth;
 
   void _step(int direction) {
     final index = values.indexOf(value);
@@ -78,34 +85,42 @@ class SettingsValueStepper<T> extends StatelessWidget {
       );
     }
 
-    final valuePill = Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: t.spacingSm,
-        vertical: t.spacingSm,
-      ),
-      decoration: BoxDecoration(
-        color: scheme.primary.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(t.sm),
-      ),
-      child: IntrinsicWidth(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            for (final v in values)
-              Visibility(
-                visible: v == value,
-                maintainState: true,
-                maintainAnimation: true,
-                maintainSize: true,
-                child: Text(
-                  labelOf(context, v),
-                  textAlign: TextAlign.center,
-                  style: t.monoBody(
-                    color: enabled ? scheme.onSurface : scheme.onSurfaceVariant,
+    final valuePill = ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: pillMaxWidth ?? double.infinity),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: t.spacingSm,
+          vertical: t.spacingSm,
+        ),
+        decoration: BoxDecoration(
+          color: scheme.primary.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(t.sm),
+        ),
+        child: IntrinsicWidth(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              for (final v in values)
+                Visibility(
+                  visible: v == value,
+                  maintainState: true,
+                  maintainAnimation: true,
+                  maintainSize: true,
+                  child: Text(
+                    labelOf(context, v),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.monoBody(
+                      color: enabled
+                          ? scheme.onSurface
+                          : scheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
