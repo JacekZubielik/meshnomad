@@ -102,22 +102,6 @@ class AppSettingsScreen extends StatelessWidget {
                           ),
                         ),
 
-                        // BATTERY
-                        SectionHeader(context.l10n.appSettings_battery),
-                        MeshCard(
-                          padding: EdgeInsets.fromLTRB(
-                            t.spacingMd,
-                            t.spacingXxs,
-                            t.spacingMd,
-                            t.spacingMd,
-                          ),
-                          child: _buildBatteryContent(
-                            context,
-                            settingsService,
-                            connector,
-                          ),
-                        ),
-
                         // MAP
                         SectionHeader(context.l10n.appSettings_mapDisplay),
                         MeshCard(
@@ -591,88 +575,6 @@ class AppSettingsScreen extends StatelessWidget {
                 buttonBorder:
                     settingsService.activeProfileOverrides.buttonBorder,
                 onChanged: (v) => settingsService.setMessageHistoryLimit(v),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBatteryContent(
-    BuildContext context,
-    AppSettingsService settingsService,
-    MeshCoreConnector connector,
-  ) {
-    final deviceId = connector.batteryDeviceKey;
-    final isConnected = connector.isConnected && deviceId != null;
-    final selection = isConnected
-        ? settingsService.batteryChemistryForDevice(deviceId)
-        : 'nmc';
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final t = MeshTokens.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Inline value stepper instead of the former dropdown (user spec
-        // 2026-08-23: same control as Appearance -> Button border). Stays
-        // disabled until a device is connected, like the dropdown did.
-        Padding(
-          padding: EdgeInsets.only(top: t.spacingSm, bottom: t.spacingXxs),
-          child: Row(
-            children: [
-              Icon(
-                Icons.battery_full,
-                size: 20,
-                color: MeshTokens.of(context).primary,
-              ),
-              SizedBox(width: t.spacingSm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.l10n.appSettings_batteryChemistry,
-                      style: textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      isConnected
-                          ? context.l10n.appSettings_batteryChemistryPerDevice(
-                              connector.deviceDisplayName,
-                            )
-                          : context
-                                .l10n
-                                .appSettings_batteryChemistryConnectFirst,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: t.spacingSm),
-              SettingsValueStepper<String>(
-                key: const ValueKey('batteryChemistryStepper'),
-                values: const ['nmc', 'lifepo4', 'lipo'],
-                value: selection,
-                labelOf: (ctx, v) => switch (v) {
-                  'lifepo4' => ctx.l10n.appSettings_batteryLifepo4,
-                  'lipo' => ctx.l10n.appSettings_batteryLipo,
-                  _ => ctx.l10n.appSettings_batteryNmc,
-                },
-                buttonBorder:
-                    settingsService.activeProfileOverrides.buttonBorder,
-                enabled: isConnected,
-                onChanged: (v) {
-                  if (deviceId != null) {
-                    settingsService.setBatteryChemistryForDevice(deviceId, v);
-                  }
-                },
               ),
             ],
           ),

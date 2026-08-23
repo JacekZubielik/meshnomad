@@ -125,7 +125,81 @@ class NodeSettingsScreen extends StatelessWidget {
         // 2026-08-23: same control as Appearance -> Button border). Applies
         // to the device immediately, like the other steppers do.
         _buildPathHashModeRow(context, connector),
+        const MeshDashedDivider(indent: 16),
+        // Battery type — relocated here from its own App Settings card
+        // (user spec 2026-08-23): it is a per-device setting, so it
+        // belongs with the rest of the node rows.
+        _buildBatteryTypeRow(context, connector),
       ],
+    );
+  }
+
+  Widget _buildBatteryTypeRow(
+    BuildContext context,
+    MeshCoreConnector connector,
+  ) {
+    final deviceId = connector.batteryDeviceKey;
+    final isConnected = connector.isConnected && deviceId != null;
+    final settingsService = context.watch<AppSettingsService>();
+    final selection = isConnected
+        ? settingsService.batteryChemistryForDevice(deviceId)
+        : 'nmc';
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final t = MeshTokens.of(context);
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: t.spacingMd,
+        vertical: t.spacingSm,
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.battery_full, size: 20, color: t.primary),
+          SizedBox(width: t.spacingSm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.l10n.appSettings_batteryChemistry,
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isConnected
+                      ? context.l10n.appSettings_batteryChemistryPerDevice(
+                          connector.deviceDisplayName,
+                        )
+                      : context.l10n.appSettings_batteryChemistryConnectFirst,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: t.spacingSm),
+          SettingsValueStepper<String>(
+            key: const ValueKey('batteryChemistryStepper'),
+            values: const ['nmc', 'lifepo4', 'lipo'],
+            value: selection,
+            labelOf: (ctx, v) => switch (v) {
+              'lifepo4' => ctx.l10n.appSettings_batteryLifepo4,
+              'lipo' => ctx.l10n.appSettings_batteryLipo,
+              _ => ctx.l10n.appSettings_batteryNmc,
+            },
+            buttonBorder: settingsService.activeProfileOverrides.buttonBorder,
+            enabled: isConnected,
+            onChanged: (v) {
+              if (deviceId != null) {
+                settingsService.setBatteryChemistryForDevice(deviceId, v);
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 
