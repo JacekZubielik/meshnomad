@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.11.0 (2026-08-23)
+
+### Highlights
+
+- Settings overhaul: every fixed-choice picker (sheets, dropdowns, segmented buttons) replaced with a shared -/+ value stepper that follows the app-wide button border style (#100)
+- About screen with build provenance: commit/branch/build-time/source stamped into every APK (local builds via `tool/build_apk.sh`, CI builds via the release workflow) (#100)
+
+### Features
+
+- About: version with build number and copy-to-clipboard, project links (meshnomad.org, docs in the app language, releases, source, issues), open-source licenses page (#100)
+
+- Packet stats: wider analysis windows (15/30/60 min, 24 h, 7 days, 2 weeks, Session) with a floating window stepper (#100)
+
+- Message history limit gains a 2000 step (#100)
+
+### Fixes
+
+- Button border (none/solid/dotted) styles only the active button of a selection group; action buttons (Save, Download model) are always borderless (#98) (#100)
+
+- Auto route rotation, Radio settings, Radio stats, Contact settings, Privacy settings and Node name moved from popups to dedicated card screens (#100)
+
+- Battery type relocated to Node settings (LiPo/NMC/LiFePO4); path hash mode inline stepper limited to the firmware-supported 1/2/3-byte modes (#100)
+
+- Leading row icons tinted with the theme primary across Settings; centered Settings title; notification row text colors restored (#100)
+
+- Contacts: draggable group-management sheet, full-width search, group type filter, tinted filter icon (#98)
+
+- Blue profile secondary accent defaults to cyan #06B6D4; CYR2LAT section layout with description and icon-circle actions; shortened selector labels (EN/PL) (#100)
+
+- Localization: all 38 previously missing Polish keys filled (#100)
+
 ## v0.10.0 (2026-08-22)
 
 ### Highlights
