@@ -220,9 +220,9 @@
     }
   },
   "appSettings_batteryChemistryConnectFirst": "Połącz się z urządzeniem, aby wybrać",
-  "appSettings_batteryNmc": "NMC (3,0-4,2V)",
-  "appSettings_batteryLifepo4": "LiFePO4 (2,6-3,65 V)",
-  "appSettings_batteryLipo": "LiPo (3,0-4,2V)",
+  "appSettings_batteryNmc": "NMC",
+  "appSettings_batteryLifepo4": "LiFePO4",
+  "appSettings_batteryLipo": "LiPo",
   "appSettings_mapDisplay": "Wyświetlanie mapy",
   "appSettings_showRepeaters": "Pokaż przekaźniki",
   "appSettings_showRepeatersSubtitle": "Wyświetl węzły przekaźników na mapie",

@@ -581,19 +581,41 @@ class _RadioSettingsScreenState extends State<RadioSettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _stepperRow<int>(
-                      context,
-                      stepperKey: const ValueKey('radioPresetStepper'),
-                      label: l10n.settings_presets,
-                      values: presetValues,
-                      value: _selectedPresetIndex ?? -1,
-                      labelOf: (i) => i < 0
-                          ? l10n.settings_presetCustom
-                          : RadioSettings.presets[i].$1,
-                      onChanged: (i) {
-                        if (i >= 0) {
-                          _applyPreset(i);
-                        }
+                    // Presets on TWO lines (user spec 2026-08-23): preset
+                    // names are long and were crushing the title, so the
+                    // title owns its line and the stepper sits below,
+                    // right-aligned, with the pill capped to the card
+                    // width minus the stepper circles.
+                    Text(
+                      l10n.settings_presets,
+                      style: Theme.of(context).listTileTheme.titleTextStyle,
+                    ),
+                    SizedBox(height: t.spacingXs),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final pillMaxWidth =
+                            constraints.maxWidth - 2 * 36 - 2 * t.spacingXxs;
+                        return Align(
+                          alignment: Alignment.centerRight,
+                          child: SettingsValueStepper<int>(
+                            key: const ValueKey('radioPresetStepper'),
+                            values: presetValues,
+                            value: _selectedPresetIndex ?? -1,
+                            labelOf: (_, i) => i < 0
+                                ? l10n.settings_presetCustom
+                                : RadioSettings.presets[i].$1,
+                            buttonBorder: context
+                                .watch<AppSettingsService>()
+                                .activeProfileOverrides
+                                .buttonBorder,
+                            pillMaxWidth: pillMaxWidth,
+                            onChanged: (i) {
+                              if (i >= 0) {
+                                _applyPreset(i);
+                              }
+                            },
+                          ),
+                        );
                       },
                     ),
                     SizedBox(height: t.spacingMd),

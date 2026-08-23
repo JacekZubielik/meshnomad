@@ -1757,19 +1757,19 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings_batteryNmc.
   ///
   /// In en, this message translates to:
-  /// **'NMC (3.0-4.2V)'**
+  /// **'NMC'**
   String get appSettings_batteryNmc;
 
   /// No description provided for @appSettings_batteryLifepo4.
   ///
   /// In en, this message translates to:
-  /// **'LiFePO4 (2.6-3.65V)'**
+  /// **'LiFePO4'**
   String get appSettings_batteryLifepo4;
 
   /// No description provided for @appSettings_batteryLipo.
   ///
   /// In en, this message translates to:
-  /// **'LiPo (3.0-4.2V)'**
+  /// **'LiPo'**
   String get appSettings_batteryLipo;
 
   /// No description provided for @appSettings_mapDisplay.

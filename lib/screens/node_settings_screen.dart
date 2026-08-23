@@ -182,7 +182,7 @@ class NodeSettingsScreen extends StatelessWidget {
           SizedBox(width: t.spacingSm),
           SettingsValueStepper<String>(
             key: const ValueKey('batteryChemistryStepper'),
-            values: const ['nmc', 'lifepo4', 'lipo'],
+            values: const ['lipo', 'nmc', 'lifepo4'],
             value: selection,
             labelOf: (ctx, v) => switch (v) {
               'lifepo4' => ctx.l10n.appSettings_batteryLifepo4,

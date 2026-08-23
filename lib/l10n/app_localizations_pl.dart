@@ -939,13 +939,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'Połącz się z urządzeniem, aby wybrać';
 
   @override
-  String get appSettings_batteryNmc => 'NMC (3,0-4,2V)';
+  String get appSettings_batteryNmc => 'NMC';
 
   @override
-  String get appSettings_batteryLifepo4 => 'LiFePO4 (2,6-3,65 V)';
+  String get appSettings_batteryLifepo4 => 'LiFePO4';
 
   @override
-  String get appSettings_batteryLipo => 'LiPo (3,0-4,2V)';
+  String get appSettings_batteryLipo => 'LiPo';
 
   @override
   String get appSettings_mapDisplay => 'Wyświetlanie mapy';
