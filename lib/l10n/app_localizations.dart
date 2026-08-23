@@ -8186,29 +8186,41 @@ abstract class AppLocalizations {
   /// **'COVERAGE'**
   String get packetStats_coverageLabel;
 
-  /// No description provided for @packetStats_windowOneMinute.
+  /// No description provided for @packetStats_windowFifteenMinutes.
   ///
   /// In en, this message translates to:
-  /// **'1 min'**
-  String get packetStats_windowOneMinute;
+  /// **'15 min'**
+  String get packetStats_windowFifteenMinutes;
 
-  /// No description provided for @packetStats_windowFiveMinutes.
+  /// No description provided for @packetStats_windowSixtyMinutes.
   ///
   /// In en, this message translates to:
-  /// **'5 min'**
-  String get packetStats_windowFiveMinutes;
+  /// **'60 min'**
+  String get packetStats_windowSixtyMinutes;
 
-  /// No description provided for @packetStats_windowTenMinutes.
+  /// No description provided for @packetStats_windowOneDay.
   ///
   /// In en, this message translates to:
-  /// **'10 min'**
-  String get packetStats_windowTenMinutes;
+  /// **'24 h'**
+  String get packetStats_windowOneDay;
 
   /// No description provided for @packetStats_windowThirtyMinutes.
   ///
   /// In en, this message translates to:
   /// **'30 min'**
   String get packetStats_windowThirtyMinutes;
+
+  /// No description provided for @packetStats_windowSevenDays.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get packetStats_windowSevenDays;
+
+  /// No description provided for @packetStats_windowTwoWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'2 weeks'**
+  String get packetStats_windowTwoWeeks;
 
   /// No description provided for @packetStats_windowSession.
   ///

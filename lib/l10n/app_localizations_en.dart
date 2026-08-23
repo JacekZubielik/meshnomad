@@ -4712,16 +4712,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get packetStats_coverageLabel => 'COVERAGE';
 
   @override
-  String get packetStats_windowOneMinute => '1 min';
+  String get packetStats_windowFifteenMinutes => '15 min';
 
   @override
-  String get packetStats_windowFiveMinutes => '5 min';
+  String get packetStats_windowSixtyMinutes => '60 min';
 
   @override
-  String get packetStats_windowTenMinutes => '10 min';
+  String get packetStats_windowOneDay => '24 h';
 
   @override
   String get packetStats_windowThirtyMinutes => '30 min';
+
+  @override
+  String get packetStats_windowSevenDays => '7 days';
+
+  @override
+  String get packetStats_windowTwoWeeks => '2 weeks';
 
   @override
   String get packetStats_windowSession => 'Session';
