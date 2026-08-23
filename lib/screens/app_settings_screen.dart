@@ -367,17 +367,13 @@ class AppSettingsScreen extends StatelessWidget {
           title: Text(
             context.l10n.appSettings_messageNotifications,
             style: TextStyle(
-              color: notifEnabled
-                  ? MeshTokens.of(context).primary
-                  : Theme.of(context).disabledColor,
+              color: notifEnabled ? null : Theme.of(context).disabledColor,
             ),
           ),
           subtitle: Text(
             context.l10n.appSettings_messageNotificationsSubtitle,
             style: TextStyle(
-              color: notifEnabled
-                  ? MeshTokens.of(context).primary
-                  : Theme.of(context).disabledColor,
+              color: notifEnabled ? null : Theme.of(context).disabledColor,
             ),
           ),
           value: settingsService.settings.notifyOnNewMessage,
@@ -401,17 +397,13 @@ class AppSettingsScreen extends StatelessWidget {
           title: Text(
             context.l10n.appSettings_channelMessageNotifications,
             style: TextStyle(
-              color: notifEnabled
-                  ? MeshTokens.of(context).primary
-                  : Theme.of(context).disabledColor,
+              color: notifEnabled ? null : Theme.of(context).disabledColor,
             ),
           ),
           subtitle: Text(
             context.l10n.appSettings_channelMessageNotificationsSubtitle,
             style: TextStyle(
-              color: notifEnabled
-                  ? MeshTokens.of(context).primary
-                  : Theme.of(context).disabledColor,
+              color: notifEnabled ? null : Theme.of(context).disabledColor,
             ),
           ),
           value: settingsService.settings.notifyOnNewChannelMessage,
@@ -435,17 +427,13 @@ class AppSettingsScreen extends StatelessWidget {
           title: Text(
             context.l10n.appSettings_advertisementNotifications,
             style: TextStyle(
-              color: notifEnabled
-                  ? MeshTokens.of(context).primary
-                  : Theme.of(context).disabledColor,
+              color: notifEnabled ? null : Theme.of(context).disabledColor,
             ),
           ),
           subtitle: Text(
             context.l10n.appSettings_advertisementNotificationsSubtitle,
             style: TextStyle(
-              color: notifEnabled
-                  ? MeshTokens.of(context).primary
-                  : Theme.of(context).disabledColor,
+              color: notifEnabled ? null : Theme.of(context).disabledColor,
             ),
           ),
           value: settingsService.settings.notifyOnNewAdvert,
@@ -1714,14 +1702,19 @@ class AppSettingsScreen extends StatelessWidget {
     );
   }
 
+  /// Locale-NEUTRAL labels on purpose (2026-08-23): picking a language
+  /// re-resolves every l10n string instantly, so localized labels made the
+  /// stepper pill's widest-label width jump on each switch. Endonyms plus
+  /// the universally understood "System" render identically in every
+  /// locale, keeping the pill width stable.
   String _languageLabel(BuildContext context, String? languageCode) {
     switch (languageCode) {
       case 'en':
-        return context.l10n.appSettings_languageEn;
+        return 'English';
       case 'pl':
-        return context.l10n.appSettings_languagePl;
+        return 'Polski';
       default:
-        return context.l10n.appSettings_languageSystem;
+        return 'System';
     }
   }
 

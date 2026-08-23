@@ -383,10 +383,10 @@
   "appSettings_mapTimeFilter": "Map Time Filter",
   "appSettings_showNodesDiscoveredWithin": "Show nodes discovered within:",
   "appSettings_allTime": "All time",
-  "appSettings_lastHour": "Last hour",
-  "appSettings_last6Hours": "Last 6 hours",
-  "appSettings_last24Hours": "Last 24 hours",
-  "appSettings_lastWeek": "Last week",
+  "appSettings_lastHour": "Hour",
+  "appSettings_last6Hours": "6 hours",
+  "appSettings_last24Hours": "24 hours",
+  "appSettings_lastWeek": "Week",
   "appSettings_rasterTileSource": "Raster Tile Source",
   "appSettings_stadiaEndpoint": "Stadia Endpoint",
   "appSettings_stadiaApiKey": "Stadia API Key",
@@ -402,8 +402,8 @@
   "appSettings_stadiaApiKeyDialogDescription": "Enter your Stadia Maps API key. This app uses it for raster tile requests.",
   "appSettings_offlineMapCache": "Offline Map Cache",
   "appSettings_unitsTitle": "Units",
-  "appSettings_unitsMetric": "Metric (m / km)",
-  "appSettings_unitsImperial": "Imperial (ft / mi)",
+  "appSettings_unitsMetric": "m/km",
+  "appSettings_unitsImperial": "ft/mi",
   "appSettings_noAreaSelected": "No area selected",
   "appSettings_areaSelectedZoom": "Area selected (zoom {minZoom}-{maxZoom})",
   "@appSettings_areaSelectedZoom": {
@@ -3162,6 +3162,6 @@
   "appSettings_borderOverride_label": "Button border",
   "appSettings_borderOverride_subtitle": "Off, solid, or dotted line",
   "appSettings_messageHistoryLimit_subtitle": "Messages kept per conversation",
-  "appSettings_language_subtitle": "App display language",
+  "appSettings_language_subtitle": "Interface language",
   "appSettings_units_subtitle": "Distance units"
 }

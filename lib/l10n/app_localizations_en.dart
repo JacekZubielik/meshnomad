@@ -972,16 +972,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appSettings_allTime => 'All time';
 
   @override
-  String get appSettings_lastHour => 'Last hour';
+  String get appSettings_lastHour => 'Hour';
 
   @override
-  String get appSettings_last6Hours => 'Last 6 hours';
+  String get appSettings_last6Hours => '6 hours';
 
   @override
-  String get appSettings_last24Hours => 'Last 24 hours';
+  String get appSettings_last24Hours => '24 hours';
 
   @override
-  String get appSettings_lastWeek => 'Last week';
+  String get appSettings_lastWeek => 'Week';
 
   @override
   String get appSettings_rasterTileSource => 'Raster Tile Source';
@@ -1012,10 +1012,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appSettings_unitsTitle => 'Units';
 
   @override
-  String get appSettings_unitsMetric => 'Metric (m / km)';
+  String get appSettings_unitsMetric => 'm/km';
 
   @override
-  String get appSettings_unitsImperial => 'Imperial (ft / mi)';
+  String get appSettings_unitsImperial => 'ft/mi';
 
   @override
   String get appSettings_noAreaSelected => 'No area selected';
@@ -5717,7 +5717,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Messages kept per conversation';
 
   @override
-  String get appSettings_language_subtitle => 'App display language';
+  String get appSettings_language_subtitle => 'Interface language';
 
   @override
   String get appSettings_units_subtitle => 'Distance units';

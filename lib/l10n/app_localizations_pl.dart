@@ -992,16 +992,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_allTime => 'Cały czas';
 
   @override
-  String get appSettings_lastHour => 'Ostatnia godzina';
+  String get appSettings_lastHour => 'Godzina';
 
   @override
-  String get appSettings_last6Hours => 'Ostatnie 6 godzin';
+  String get appSettings_last6Hours => '6 godzin';
 
   @override
-  String get appSettings_last24Hours => 'Ostatnie 24 godziny';
+  String get appSettings_last24Hours => '24 godziny';
 
   @override
-  String get appSettings_lastWeek => 'Ostatni tydzień';
+  String get appSettings_lastWeek => 'Tydzień';
 
   @override
   String get appSettings_rasterTileSource => 'Źródło kafelków rastrowych';
@@ -1032,10 +1032,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_unitsTitle => 'Jednostki';
 
   @override
-  String get appSettings_unitsMetric => 'Metryczne (m / km)';
+  String get appSettings_unitsMetric => 'm/km';
 
   @override
-  String get appSettings_unitsImperial => 'Imperialne (ft / mi)';
+  String get appSettings_unitsImperial => 'ft/mi';
 
   @override
   String get appSettings_noAreaSelected => 'Nie wybrano żadnego obszaru.';
@@ -5827,7 +5827,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Liczba wiadomości przechowywanych na rozmowę';
 
   @override
-  String get appSettings_language_subtitle => 'Język interfejsu aplikacji';
+  String get appSettings_language_subtitle => 'Język interfejsu';
 
   @override
   String get appSettings_units_subtitle => 'Jednostki odległości';

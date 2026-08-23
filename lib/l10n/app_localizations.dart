@@ -1853,25 +1853,25 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings_lastHour.
   ///
   /// In en, this message translates to:
-  /// **'Last hour'**
+  /// **'Hour'**
   String get appSettings_lastHour;
 
   /// No description provided for @appSettings_last6Hours.
   ///
   /// In en, this message translates to:
-  /// **'Last 6 hours'**
+  /// **'6 hours'**
   String get appSettings_last6Hours;
 
   /// No description provided for @appSettings_last24Hours.
   ///
   /// In en, this message translates to:
-  /// **'Last 24 hours'**
+  /// **'24 hours'**
   String get appSettings_last24Hours;
 
   /// No description provided for @appSettings_lastWeek.
   ///
   /// In en, this message translates to:
-  /// **'Last week'**
+  /// **'Week'**
   String get appSettings_lastWeek;
 
   /// No description provided for @appSettings_rasterTileSource.
@@ -1925,13 +1925,13 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings_unitsMetric.
   ///
   /// In en, this message translates to:
-  /// **'Metric (m / km)'**
+  /// **'m/km'**
   String get appSettings_unitsMetric;
 
   /// No description provided for @appSettings_unitsImperial.
   ///
   /// In en, this message translates to:
-  /// **'Imperial (ft / mi)'**
+  /// **'ft/mi'**
   String get appSettings_unitsImperial;
 
   /// No description provided for @appSettings_noAreaSelected.
@@ -9983,7 +9983,7 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings_language_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'App display language'**
+  /// **'Interface language'**
   String get appSettings_language_subtitle;
 
   /// No description provided for @appSettings_units_subtitle.
