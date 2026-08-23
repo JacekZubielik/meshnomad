@@ -1,89 +1,14 @@
 # Changelog
 
-## v0.9.0 (2026-08-21)
-
-### Features
-
-- Redesign repeater CLI command help as a draggable drawer with param popup (#81)
-
-### Performance
-
-- Split release APK per-ABI to shrink per-device downloads (#82)
-
-### Chores
-
-- Remove internal tooling reference from CHANGELOG
-
-## v0.8.0 (2026-08-21)
+## v0.10.0 (2026-08-22)
 
 ### Highlights
 
 - Rebrand: MeshCore Open -> MeshNomad — new app identity, `com.meshnomad.app` application ID across all platforms (#65)
 
-### Bug Fixes
-
-- Encrypt repeater passwords at rest (#64)
-
-- Scope path_history to the connected device (#45) (#62)
-
-- Verify Ed25519 signatures on received adverts (#59)
-
-- Route RouteChip's hop-count label through l10n (closes #36) (#42)
-
-- Convert SerialPortError to StateError on desktop USB write
-
-- Disable auto-enabled flutter_skill indicators and restore debug banner
-
-- Keep the style editor reset icon visible but disabled when there's nothing to reset
-
-- Build custom style light variant from light base tokens
-
-- Mirror the app bar's right margin to the title's left inset
-
-- Raise quick switch bar height so pill, labels and badge fit
-
-- Keep color picker hex field clear of system nav bar
-
-- Eliminate idle-CPU busy-loop on BLE reconnect and USB transport (#16)
-
-- Scope text selection to visible content and enable copying in style editor
-
-- Uniform node label font size and text selection in node details sheet
-
-- Simplify contacts_ping label to 'Ping' in Polish
-
-- Give app-wide SelectionArea a reachable Overlay ancestor
-
-- Debounce PathHistoryService persistence to stop BLE sync freeze
-
-- Correct PL telemetry battery unit typo (W to V)
-
-- Repair broken path_trace_test.dart and clear repo-wide formatting drift
-
-
-### CI/CD
-
-- GitHub Release pipeline (signed APK+AAB, git-cliff notes, Cloudflare deferral) (#80)
-
-- Add signed Android App Bundle release job (#66)
-
-- Pin Flutter version across workflows (#30)
-
-- Drop --no-pub from android build so plugin registrant is regenerated release-aware
-
-- Skip Flutter build/analyze workflows for docs-only changes
-
-- Bump GitHub Actions to their Node 24 runtime releases
-
-
-### Documentation
-
-- Document UI testing layers (golden, integration, patrol, mcp)
-
-- Document the style picker added by the theme system
-
-
 ### Features
+
+- Redesign repeater CLI command help as a draggable drawer with param popup (#81)
 
 - Implement GET_STATS CORE/PACKETS subtypes (#70)
 
@@ -141,11 +66,61 @@
 
 - Add style registry infrastructure (default style unchanged)
 
+### Bug Fixes
+
+- Match switch/slider fills to the tinted-button track pattern (#93)
+
+- Make Theme/Style chip buttons respect the Buttons section's radius and border (#92)
+
+- Relocate Custom Style entry and Card shadow toggle within App Settings (#92)
+
+- Unify Node/Location/About settings into dedicated screens, relocate GPX export (#92)
+
+- Wrap the group-dropdown "All groups" label to prevent overflow (#91)
+
+- Encrypt repeater passwords at rest (#64)
+
+- Scope path_history to the connected device (#45) (#62)
+
+- Verify Ed25519 signatures on received adverts (#59)
+
+- Route RouteChip's hop-count label through l10n (closes #36) (#42)
+
+- Convert SerialPortError to StateError on desktop USB write
+
+- Disable auto-enabled flutter_skill indicators and restore debug banner
+
+- Keep the style editor reset icon visible but disabled when there's nothing to reset
+
+- Build custom style light variant from light base tokens
+
+- Mirror the app bar's right margin to the title's left inset
+
+- Raise quick switch bar height so pill, labels and badge fit
+
+- Keep color picker hex field clear of system nav bar
+
+- Eliminate idle-CPU busy-loop on BLE reconnect and USB transport (#16)
+
+- Scope text selection to visible content and enable copying in style editor
+
+- Uniform node label font size and text selection in node details sheet
+
+- Simplify contacts_ping label to 'Ping' in Polish
+
+- Give app-wide SelectionArea a reachable Overlay ancestor
+
+- Debounce PathHistoryService persistence to stop BLE sync freeze
+
+- Correct PL telemetry battery unit typo (W to V)
+
+- Repair broken path_trace_test.dart and clear repo-wide formatting drift
 
 ### Performance
 
-- Avoid O(n^2) unread lookups and switch contact sync to incremental
+- Split release APK per-ABI to shrink per-device downloads (#82)
 
+- Avoid O(n^2) unread lookups and switch contact sync to incremental
 
 ### Refactoring
 
@@ -161,6 +136,25 @@
 
 - Migrate map/LOS screens to MeshTokens
 
+### CI/CD
+
+- GitHub Release pipeline (signed APK+AAB, git-cliff notes, Cloudflare deferral) (#80)
+
+- Add signed Android App Bundle release job (#66)
+
+- Pin Flutter version across workflows (#30)
+
+- Drop --no-pub from android build so plugin registrant is regenerated release-aware
+
+- Skip Flutter build/analyze workflows for docs-only changes
+
+- Bump GitHub Actions to their Node 24 runtime releases
+
+### Documentation
+
+- Document UI testing layers (golden, integration, patrol, mcp)
+
+- Document the style picker added by the theme system
 
 ### Testing
 
@@ -173,4 +167,3 @@
 - Add golden tests pinning default style text roles
 
 - Add alchemist golden test infrastructure
-

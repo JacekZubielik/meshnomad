@@ -25,20 +25,28 @@ class SortFilterMenu<T> extends StatelessWidget {
   final List<SortFilterMenuSection<T>> sections;
   final ValueChanged<T> onSelected;
   final String tooltip;
-  final Widget icon;
+  final Widget? icon;
 
   const SortFilterMenu({
     super.key,
     required this.sections,
     required this.onSelected,
     required this.tooltip,
-    this.icon = const Icon(Icons.filter_list_outlined),
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<T>(
-      icon: icon,
+      // Explicit primary tint (2026-08-23) — matches the app-wide button
+      // ink color instead of inheriting the ambient onSurfaceVariant
+      // iconTheme.
+      icon:
+          icon ??
+          Icon(
+            Icons.filter_list_outlined,
+            color: Theme.of(context).colorScheme.primary,
+          ),
       tooltip: tooltip,
       onSelected: onSelected,
       itemBuilder: (context) {

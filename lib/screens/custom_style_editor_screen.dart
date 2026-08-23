@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../l10n/l10n.dart';
 import '../models/custom_style_overrides.dart';
 import '../services/app_settings_service.dart';
+import '../theme/dashed_rounded_border.dart';
 import '../theme/mesh_theme.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
@@ -268,11 +269,11 @@ final List<_SpacingFieldSpec> _radiusFields = [
   _SpacingFieldSpec('sm', MeshTokens.defaultTokens.sm, 0, 20),
   _SpacingFieldSpec('md', MeshTokens.defaultTokens.md, 0, 24),
   _SpacingFieldSpec('lg', MeshTokens.defaultTokens.lg, 0, 32),
-  _SpacingFieldSpec('xl', MeshTokens.defaultTokens.xl, 0, 40),
   // Default value (999) is intentionally above `max` — `_TokenFieldRow`
   // clamps it for display, so an unedited style still shows/renders fully
   // round (matching the previous non-editable MeshRadii.pill behavior)
-  // while the slider itself stays on the same usable 0-40 scale as `xl`.
+  // while the slider itself stays on the same usable 0-40 scale as the
+  // other radius fields.
   _SpacingFieldSpec('pill', MeshTokens.defaultTokens.pill, 0, 40),
 ];
 
@@ -543,11 +544,6 @@ final _SpacingFieldSpec _buttonRadiusField = _SpacingFieldSpec(
       return (
         l10n.styleEditor_radiusLg_label,
         l10n.styleEditor_radiusLg_subtitle,
-      );
-    case 'xl':
-      return (
-        l10n.styleEditor_radiusXl_label,
-        l10n.styleEditor_radiusXl_subtitle,
       );
     case 'pill':
       return (
@@ -851,32 +847,25 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           SizedBox(height: MeshTokens.of(context).spacingXs),
-                          SegmentedButton<String>(
-                            key: const ValueKey('buttonBorderSegments'),
-                            expandedInsets: EdgeInsets.zero,
-                            showSelectedIcon: false,
-                            segments: [
-                              ButtonSegment(
-                                value: 'none',
-                                label: Text(l10n.styleEditor_buttonBorder_none),
-                              ),
-                              ButtonSegment(
-                                value: 'solid',
-                                label: Text(
-                                  l10n.styleEditor_buttonBorder_solid,
-                                ),
-                              ),
-                              ButtonSegment(
-                                value: 'dotted',
-                                label: Text(
-                                  l10n.styleEditor_buttonBorder_dotted,
-                                ),
-                              ),
-                            ],
-                            selected: {overrides.buttonBorder ?? 'none'},
-                            onSelectionChanged: (sel) =>
+                          // Self-contained on/off/style control for the
+                          // button family, independent of the app-wide "Show
+                          // borders" switch in App Settings > Appearance
+                          // (2026-08-23: restored 'none' after the
+                          // bordersVisible-gated version broke this control
+                          // for the user). Rebuilt as a +/- stepper cycling
+                          // through the fixed value list (2026-08-23,
+                          // .mockups/repeater-cli-drawer-fixes.html Variant B
+                          // — same "cycle real allowed values, no free text"
+                          // pattern already accepted for the repeater CLI's
+                          // bw/sf/cr fields) instead of a SegmentedButton,
+                          // matching the accepted mockup's circular +/-
+                          // buttons + centered mono value pill.
+                          _BorderStyleStepper(
+                            key: const ValueKey('buttonBorderStepper'),
+                            value: overrides.buttonBorder ?? 'none',
+                            onChanged: (value) =>
                                 settingsService.setCustomButtonBorder(
-                                  sel.first == 'none' ? null : sel.first,
+                                  value == 'none' ? null : value,
                                 ),
                           ),
                         ],
@@ -935,6 +924,131 @@ class _CustomStyleEditorScreenState extends State<CustomStyleEditorScreen> {
     if (confirmed == true) {
       await settingsService.resetActiveProfileToSeed();
     }
+  }
+}
+
+/// +/- stepper cycling through a fixed value list, no free text entry —
+/// same pattern as the repeater CLI drawer's bw/sf/cr fields
+/// (.mockups/repeater-cli-drawer-fixes.html Variant B, accepted 2026-08-21):
+/// circular tinted +/- buttons flanking a centered mono value pill. Used
+/// here for the Buttons section's border-style control (none/solid/dotted)
+/// instead of a SegmentedButton (2026-08-23).
+class _BorderStyleStepper extends StatelessWidget {
+  const _BorderStyleStepper({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
+
+  static const _values = ['none', 'solid', 'dotted'];
+
+  final String value;
+  final ValueChanged<String> onChanged;
+
+  String _label(BuildContext context, String v) {
+    final l10n = context.l10n;
+    return switch (v) {
+      'solid' => l10n.styleEditor_buttonBorder_solid,
+      'dotted' => l10n.styleEditor_buttonBorder_dotted,
+      _ => l10n.styleEditor_buttonBorder_none,
+    };
+  }
+
+  void _step(int direction) {
+    final index = _values.indexOf(value);
+    final next = _values[(index + direction + _values.length) % _values.length];
+    onChanged(next);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
+
+    // Same buttonSide/buttonShape logic as applyChromeRadii in
+    // custom_style.dart (the "real" button family) — these circular +/-
+    // controls are visually part of that family and must show/hide/style
+    // their own border exactly the same way 'new buttons' currently do,
+    // live, as the value being edited changes (2026-08-23: first fixed
+    // show/hide, then found the line STYLE was still always solid even for
+    // 'dotted' — CircleBorder has no built-in dashed variant, hence
+    // DashedCircleBorder).
+    final circleBorderSide = value == 'none'
+        ? BorderSide.none
+        : BorderSide(color: scheme.primary);
+    final circleShape = value == 'dotted'
+        ? DashedCircleBorder(side: circleBorderSide)
+        : CircleBorder(side: circleBorderSide);
+
+    Widget circleButton(IconData icon, VoidCallback onPressed) {
+      return SizedBox(
+        width: 36,
+        height: 36,
+        child: DecoratedBox(
+          decoration: ShapeDecoration(
+            shape: circleShape,
+            color: scheme.primary.withValues(alpha: 0.2),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            iconSize: 18,
+            color: scheme.primary,
+            icon: Icon(icon),
+            onPressed: onPressed,
+          ),
+        ),
+      );
+    }
+
+    // Value pill sized to the WIDEST of the three possible labels (not just
+    // the current one) so switching value never jumps the pill's width —
+    // built as a Stack of all three labels with the two inactive ones
+    // invisible-but-laid-out, wrapped in IntrinsicWidth so the Stack (and so
+    // the pill) always reports the widest child's width. A touch of extra
+    // horizontal padding makes it "a bit wider than the widest label" per
+    // the mockup, not a tight fit.
+    final valuePill = Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: t.spacingSm,
+        vertical: t.spacingSm,
+      ),
+      decoration: BoxDecoration(
+        color: scheme.primary.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(t.sm),
+      ),
+      child: IntrinsicWidth(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            for (final v in _values)
+              Visibility(
+                visible: v == value,
+                maintainState: true,
+                maintainAnimation: true,
+                maintainSize: true,
+                child: Text(
+                  _label(context, v),
+                  textAlign: TextAlign.center,
+                  style: t.monoBody(color: scheme.onSurface),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+
+    return Center(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          circleButton(Icons.remove, () => _step(-1)),
+          SizedBox(width: t.spacingXxs),
+          valuePill,
+          SizedBox(width: t.spacingXxs),
+          circleButton(Icons.add, () => _step(1)),
+        ],
+      ),
+    );
   }
 }
 

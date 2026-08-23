@@ -416,7 +416,7 @@
       }
     }
   },
-  "appSettings_debugCard": "Debug",
+  "appSettings_debugCard": "DEBUG/DEV",
   "appSettings_appDebugLogging": "App Debug Logging",
   "appSettings_appDebugLoggingSubtitle": "Log app debug messages for troubleshooting",
   "appSettings_customStyleSubtitle": "Fine-tune colors, fonts, spacing, and buttons",
@@ -508,6 +508,7 @@
     }
   },
   "contacts_newGroup": "New Group",
+  "contacts_groupsSheetTitle": "Groups",
   "contacts_moreOptions": "More options",
   "contacts_searchOpen": "Search contacts",
   "contacts_searchClose": "Close search",
@@ -3146,8 +3147,6 @@
   "styleEditor_radiusMd_subtitle": "Cards, text fields",
   "styleEditor_radiusLg_label": "Large (lg)",
   "styleEditor_radiusLg_subtitle": "Chat bubbles, sheets",
-  "styleEditor_radiusXl_label": "Extra large (xl)",
-  "styleEditor_radiusXl_subtitle": "Large panels",
   "styleEditor_radiusPill_label": "Pill",
   "styleEditor_radiusPill_subtitle": "Buttons, FAB, chips",
   "styleEditor_cardSection": "Card style",
@@ -3155,5 +3154,7 @@
   "styleEditor_cardShadow_subtitle": "Floating shadow under cards",
   "appSettings_about": "About",
   "appSettings_editCustomStyleTooltip": "Edit custom style",
-  "protocol_contactsFullWarning": "Device contact table is full — oldest contacts may be overwritten"
+  "protocol_contactsFullWarning": "Device contact table is full — oldest contacts may be overwritten",
+  "appSettings_borderOverride_label": "Button border",
+  "appSettings_borderOverride_subtitle": "Off, solid, or dotted line"
 }

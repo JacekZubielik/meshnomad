@@ -37,6 +37,13 @@ class AppSettingsService extends ChangeNotifier {
       spacingOverrides: {...seed.spacingOverrides, ...saved.spacingOverrides},
       radiusOverrides: {...seed.radiusOverrides, ...saved.radiusOverrides},
       cardElevated: saved.cardElevated ?? seed.cardElevated,
+      // buttonBorder/borderOverride were missing from this merge entirely
+      // (root cause, 2026-08-23): both fields always resolved to null here
+      // regardless of what the user saved, so the Buttons-section line-style
+      // control and the Appearance "Show borders" switch silently had no
+      // effect on the actual rendered theme.
+      buttonBorder: saved.buttonBorder ?? seed.buttonBorder,
+      borderOverride: saved.borderOverride ?? seed.borderOverride,
     );
   }
 
@@ -352,6 +359,12 @@ class AppSettingsService extends ChangeNotifier {
   Future<void> setCustomButtonBorder(String? value) async {
     await _updateActiveProfile(
       activeProfileSavedOverrides.withButtonBorder(value),
+    );
+  }
+
+  Future<void> setCustomBorderOverride(bool? value) async {
+    await _updateActiveProfile(
+      activeProfileSavedOverrides.withBorderOverride(value),
     );
   }
 

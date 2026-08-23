@@ -427,10 +427,15 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
   ThemeData applyChromeRadii(ThemeData base, MeshTokens t) {
     RoundedRectangleBorder rrb(double r) =>
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(r));
-    // Buttons get their own user-set radius and border mode (none/solid/
-    // dotted, Buttons section 2026-08-21) — border always in the primary
-    // accent, matching the tinted-fill button language.
-    final buttonSide = overrides.buttonBorder == null
+    // Buttons keep their own independent, self-contained border control
+    // (none/solid/dotted, Buttons section 2026-08-21) — NOT gated by the
+    // app-wide bordersVisible toggle (reverted 2026-08-23: buttons are the
+    // one family the user wants a dedicated on/off/style control for,
+    // separate from the global Divider/Card/TextField/etc. sweep). Border
+    // always in the primary accent, matching the tinted-fill button
+    // language.
+    final buttonSide =
+        overrides.buttonBorder == null || overrides.buttonBorder == 'none'
         ? BorderSide.none
         : BorderSide(color: base.colorScheme.primary);
     final OutlinedBorder buttonShape = overrides.buttonBorder == 'dotted'
@@ -471,7 +476,9 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       snackBarTheme: base.snackBarTheme.copyWith(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(t.md),
-          side: BorderSide(color: base.colorScheme.outlineVariant),
+          side: t.bordersVisible
+              ? BorderSide(color: base.colorScheme.outlineVariant)
+              : BorderSide.none,
         ),
       ),
       popupMenuTheme: base.popupMenuTheme.copyWith(shape: rrb(t.md)),
@@ -492,6 +499,16 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
           shape: WidgetStatePropertyAll(buttonShape),
         ),
       ),
+      // `side` deliberately NOT re-derived here (2026-08-23, user spec):
+      // buttonBorder (none/solid/dotted) styles ONLY the ACTIVE button of a
+      // selection group. In this design language OutlinedButton is the
+      // inactive/aux state (see _SelectableChipButton: FilledButton when
+      // selected, OutlinedButton otherwise), so it must never render
+      // buttonBorder. mesh_theme.dart's base style pins OutlinedButton to
+      // `side: BorderSide.none`, and ButtonStyle.side — a separate top-level
+      // property — wins over buttonShape's embedded side at render time,
+      // which is exactly the mechanism that keeps inactive buttons
+      // borderless. Only the shape's radius applies below.
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: base.outlinedButtonTheme.style?.copyWith(
           shape: WidgetStatePropertyAll(buttonShape),
@@ -508,9 +525,13 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
         ),
       ),
       chipTheme: base.chipTheme.copyWith(shape: rrb(t.pill)),
+      // buttonRadius, not pill (2026-08-23) — SegmentedButton is part of the
+      // same tinted button family as Filled/Outlined (both already use
+      // buttonShape's buttonRadius); it was the one holdout still on pill,
+      // another source of the "every button has a different fill" report.
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: base.segmentedButtonTheme.style?.copyWith(
-          shape: WidgetStatePropertyAll(rrb(t.pill)),
+          shape: WidgetStatePropertyAll(rrb(t.buttonRadius)),
         ),
       ),
     );
@@ -535,7 +556,9 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
         // comment describes, just missed for this field. Without this, the
         // AppBar's bottom border stayed the old line-token blue on every
         // screen no matter what outline/outlineVariant resolved to above.
-        shape: Border(bottom: BorderSide(color: scheme.outlineVariant)),
+        shape: tokens.bordersVisible
+            ? Border(bottom: BorderSide(color: scheme.outlineVariant))
+            : null,
       ),
       listTileTheme: base.listTileTheme.copyWith(
         textColor: scheme.onSurface,
@@ -574,7 +597,9 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       ),
       chipTheme: base.chipTheme.copyWith(
         backgroundColor: scheme.surfaceContainerLow,
-        side: BorderSide(color: scheme.outlineVariant),
+        side: tokens.bordersVisible
+            ? BorderSide(color: scheme.outlineVariant)
+            : BorderSide.none,
         labelStyle: base.chipTheme.labelStyle?.copyWith(
           color: scheme.onSurfaceVariant,
         ),
@@ -603,17 +628,33 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
         fillColor: scheme.surfaceContainerHigh,
         hintStyle: TextStyle(color: scheme.onSurfaceVariant),
         border: (base.inputDecorationTheme.border as OutlineInputBorder?)
-            ?.copyWith(borderSide: BorderSide(color: scheme.outline)),
+            ?.copyWith(
+              borderSide: tokens.bordersVisible
+                  ? BorderSide(color: scheme.outline)
+                  : BorderSide.none,
+            ),
         enabledBorder:
             (base.inputDecorationTheme.enabledBorder as OutlineInputBorder?)
                 ?.copyWith(
-                  borderSide: BorderSide(color: scheme.outlineVariant),
+                  borderSide: tokens.bordersVisible
+                      ? BorderSide(color: scheme.outlineVariant)
+                      : BorderSide.none,
                 ),
         focusedBorder:
             (base.inputDecorationTheme.focusedBorder as OutlineInputBorder?)
                 ?.copyWith(
-                  borderSide: BorderSide(color: scheme.primary, width: 1.5),
+                  borderSide: tokens.bordersVisible
+                      ? BorderSide(color: scheme.primary, width: 1.5)
+                      : BorderSide.none,
                 ),
+      ),
+      // No dividerTheme override existed here before (2026-08-23) — Divider
+      // inherited mesh_theme.dart's fixed color unconditionally, missing the
+      // app-wide bordersVisible toggle entirely.
+      dividerTheme: base.dividerTheme.copyWith(
+        color: tokens.bordersVisible
+            ? scheme.outlineVariant
+            : Colors.transparent,
       ),
       // Track fill matches the app-wide tinted-button look (20%-alpha
       // primary/secondary track + solid thumb, no outline) — mirrors
@@ -636,15 +677,20 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       // (FAB, filled/elevated/text buttons, progress) — third instance of the
       // baked-chrome class (after popups and inputs), reported live
       // 2026-08-10: default-blue buttons on a custom orange accent.
+      // FAB fill matches the app-wide tinted-button look (20%-alpha primary,
+      // 2026-08-23) instead of a solid fill — same language as filled/
+      // outlined buttons, switches and sliders.
       floatingActionButtonTheme: base.floatingActionButtonTheme.copyWith(
-        backgroundColor: scheme.primary,
-        foregroundColor: scheme.onPrimary,
+        backgroundColor: scheme.primary.withValues(alpha: 0.2),
+        foregroundColor: scheme.primary,
       ),
       cardTheme: base.cardTheme.copyWith(
         color: scheme.surfaceContainerLow,
         shape: base.cardTheme.shape is RoundedRectangleBorder
             ? (base.cardTheme.shape! as RoundedRectangleBorder).copyWith(
-                side: BorderSide(color: scheme.outlineVariant),
+                side: tokens.bordersVisible
+                    ? BorderSide(color: scheme.outlineVariant)
+                    : BorderSide.none,
               )
             : base.cardTheme.shape,
       ),
@@ -671,7 +717,9 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(tokens.sm),
-          border: Border.all(color: scheme.outline),
+          border: tokens.bordersVisible
+              ? Border.all(color: scheme.outline)
+              : null,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -695,21 +743,28 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
           foregroundColor: accentUnlessDisabled(scheme.primary),
         ),
       ),
+      // side intentionally omitted here (2026-08-23): it used to hard-set
+      // BorderSide.none, silently defeating buttonBorder — the embedded side
+      // on applyChromeRadii's buttonShape (below) is the single source of
+      // truth for whether/how an outlined button's border renders.
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: (base.outlinedButtonTheme.style ?? const ButtonStyle()).copyWith(
           backgroundColor: accentUnlessDisabled(
             scheme.primary.withValues(alpha: 0.2),
           ),
           foregroundColor: accentUnlessDisabled(scheme.primary),
-          side: const WidgetStatePropertyAll(BorderSide.none),
         ),
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: (base.segmentedButtonTheme.style ?? const ButtonStyle())
             .copyWith(
+              // 20% alpha (2026-08-23) — was 16%, a silent drift from the
+              // rest of the tinted-fill button family (Filled/Outlined
+              // both use 0.2), one of the "every button has a different
+              // fill" inconsistencies reported live.
               backgroundColor: WidgetStateProperty.resolveWith(
                 (states) => states.contains(WidgetState.selected)
-                    ? scheme.primary.withValues(alpha: 0.16)
+                    ? scheme.primary.withValues(alpha: 0.2)
                     : null,
               ),
               foregroundColor: WidgetStateProperty.resolveWith(
@@ -718,7 +773,9 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
                     : scheme.onSurface,
               ),
               side: WidgetStatePropertyAll(
-                BorderSide(color: scheme.outlineVariant),
+                tokens.bordersVisible
+                    ? BorderSide(color: scheme.outlineVariant)
+                    : BorderSide.none,
               ),
             ),
       ),
@@ -754,10 +811,13 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     sm: radiusFor('sm', baseTokens.sm),
     md: radiusFor('md', baseTokens.md),
     lg: radiusFor('lg', baseTokens.lg),
-    xl: radiusFor('xl', baseTokens.xl),
     pill: radiusFor('pill', baseTokens.pill),
     buttonRadius: radiusFor('buttonRadius', baseTokens.buttonRadius),
     cardElevated: overrides.cardElevated ?? true,
+    // Independent override wins; otherwise borders show exactly when the
+    // shadow is off (2026-08-23 border/shadow unification).
+    bordersVisible:
+        overrides.borderOverride ?? !(overrides.cardElevated ?? true),
   );
 
   return MeshStyle(

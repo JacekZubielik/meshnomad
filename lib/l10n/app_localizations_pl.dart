@@ -1044,7 +1044,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get appSettings_debugCard => 'Naprawianie błędów';
+  String get appSettings_debugCard => 'DEBUG/DEV';
 
   @override
   String get appSettings_appDebugLogging => 'Logowanie Debugowania Aplikacji';
@@ -1154,6 +1154,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get contacts_newGroup => 'Nowa Grupa';
+
+  @override
+  String get contacts_groupsSheetTitle => 'Grupy';
 
   @override
   String get contacts_moreOptions => 'Więcej opcji';
@@ -5772,12 +5775,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_radiusLg_subtitle => 'Dymki czatu, arkusze';
 
   @override
-  String get styleEditor_radiusXl_label => 'Bardzo duże (xl)';
-
-  @override
-  String get styleEditor_radiusXl_subtitle => 'Duże panele';
-
-  @override
   String get styleEditor_radiusPill_label => 'Kapsuła';
 
   @override
@@ -5801,4 +5798,11 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get protocol_contactsFullWarning =>
       'Tabela kontaktów urządzenia pełna — najstarsze kontakty mogą być nadpisywane';
+
+  @override
+  String get appSettings_borderOverride_label => 'Border przycisków';
+
+  @override
+  String get appSettings_borderOverride_subtitle =>
+      'Brak, linia ciągła albo kropkowana';
 }

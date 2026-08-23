@@ -15,6 +15,7 @@ class CustomStyleOverrides {
     this.radiusOverrides = const {},
     this.cardElevated,
     this.buttonBorder,
+    this.borderOverride,
   });
 
   /// The closed set of `MeshTokens` color fields the editor UI exposes.
@@ -97,7 +98,6 @@ class CustomStyleOverrides {
     'sm',
     'md',
     'lg',
-    'xl',
     'pill',
     'buttonRadius',
   ];
@@ -112,9 +112,22 @@ class CustomStyleOverrides {
   /// never `copyWith` (its `??` pattern can't express "back to null").
   final bool? cardElevated;
 
-  /// Button border mode: 'solid' | 'dotted'; `null` means no border (the
-  /// default) — use [withButtonBorder] to change or clear.
+  /// Button border mode: 'none' | 'solid' | 'dotted'; `null` behaves like
+  /// 'none' (no border) — use [withButtonBorder] to change or clear. This is
+  /// a self-contained control independent of [borderOverride]/[cardElevated]
+  /// — buttons show/hide their own border regardless of the app-wide switch
+  /// (2026-08-23: reverted after `bordersVisible`-gating made this control
+  /// appear broken to the user, who wants buttons to keep their own
+  /// dedicated on/off/style control).
   final String? buttonBorder;
+
+  /// Independent override for whether borders show on every OTHER widget
+  /// across the app (Divider, Card, TextField, Chip, SnackBar, AppBar,
+  /// Tooltip, SegmentedButton — NOT the button family, see [buttonBorder]),
+  /// regardless of [cardElevated]. `null` means "auto" (borders show when
+  /// [cardElevated] is false, hidden when true); `true`/`false` force borders
+  /// on/off respectively — use [withBorderOverride] to change or clear.
+  final bool? borderOverride;
 
   CustomStyleOverrides copyWith({
     Map<String, int>? colorOverrides,
@@ -129,6 +142,7 @@ class CustomStyleOverrides {
       radiusOverrides: radiusOverrides ?? this.radiusOverrides,
       cardElevated: cardElevated,
       buttonBorder: buttonBorder,
+      borderOverride: borderOverride,
     );
   }
 
@@ -142,11 +156,12 @@ class CustomStyleOverrides {
       radiusOverrides: radiusOverrides,
       cardElevated: value,
       buttonBorder: buttonBorder,
+      borderOverride: borderOverride,
     );
   }
 
   /// Returns a copy with [buttonBorder] replaced — including back to `null`
-  /// ("no border"), which copyWith's `??` pattern cannot express.
+  /// ("default line style"), which copyWith's `??` pattern cannot express.
   CustomStyleOverrides withButtonBorder(String? value) {
     return CustomStyleOverrides(
       colorOverrides: colorOverrides,
@@ -155,6 +170,21 @@ class CustomStyleOverrides {
       radiusOverrides: radiusOverrides,
       cardElevated: cardElevated,
       buttonBorder: value,
+      borderOverride: borderOverride,
+    );
+  }
+
+  /// Returns a copy with [borderOverride] replaced — including back to `null`
+  /// ("auto"), which copyWith's `??` pattern cannot express.
+  CustomStyleOverrides withBorderOverride(bool? value) {
+    return CustomStyleOverrides(
+      colorOverrides: colorOverrides,
+      fontSizeOverrides: fontSizeOverrides,
+      spacingOverrides: spacingOverrides,
+      radiusOverrides: radiusOverrides,
+      cardElevated: cardElevated,
+      buttonBorder: buttonBorder,
+      borderOverride: value,
     );
   }
 
@@ -166,6 +196,7 @@ class CustomStyleOverrides {
       'radius': radiusOverrides,
       'card_elevated': cardElevated,
       'button_border': buttonBorder,
+      'border_override': borderOverride,
     };
   }
 
@@ -194,6 +225,9 @@ class CustomStyleOverrides {
           : null,
       buttonBorder: json['button_border'] is String
           ? json['button_border'] as String
+          : null,
+      borderOverride: json['border_override'] is bool
+          ? json['border_override'] as bool
           : null,
     );
   }
