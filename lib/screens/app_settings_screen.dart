@@ -16,11 +16,13 @@ import '../theme/dashed_rounded_border.dart';
 import '../theme/mesh_tokens.dart';
 import '../theme/styles/style_registry.dart';
 import '../widgets/adaptive_app_bar_title.dart';
+import '../widgets/settings_value_stepper.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/sync_progress_overlay.dart';
 import '../widgets/theme_profile_selector.dart';
 import '../helpers/snack_bar_builder.dart';
+import 'auto_route_rotation_screen.dart';
 import 'custom_style_editor_screen.dart';
 import 'map_cache_screen.dart';
 import '../widgets/mesh_dashed_divider.dart';
@@ -97,22 +99,6 @@ class AppSettingsScreen extends StatelessWidget {
                           child: _buildMessagingContent(
                             context,
                             settingsService,
-                          ),
-                        ),
-
-                        // BATTERY
-                        SectionHeader(context.l10n.appSettings_battery),
-                        MeshCard(
-                          padding: EdgeInsets.fromLTRB(
-                            t.spacingMd,
-                            t.spacingXxs,
-                            t.spacingMd,
-                            t.spacingMd,
-                          ),
-                          child: _buildBatteryContent(
-                            context,
-                            settingsService,
-                            connector,
                           ),
                         ),
 
@@ -195,51 +181,52 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ),
         const MeshDashedDivider(indent: 16),
-        InkWell(
-          onTap: () => _showLanguageSheet(context, settingsService),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: t.spacingMd,
-              vertical: t.spacingSm,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.language_outlined,
-                  size: 20,
-                  color: scheme.onSurfaceVariant,
-                ),
-                SizedBox(width: t.spacingSm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.l10n.appSettings_language,
-                        style: textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+        // Inline value stepper instead of the former picker sheet (user
+        // spec 2026-08-23: same control as Appearance -> Button border).
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingSm,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.language_outlined,
+                size: 20,
+                color: MeshTokens.of(context).primary,
+              ),
+              SizedBox(width: t.spacingSm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.l10n.appSettings_language,
+                      style: textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _languageLabel(
-                          context,
-                          settingsService.settings.languageOverride,
-                        ),
-                        style: textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      context.l10n.appSettings_language_subtitle,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Icon(
-                  Icons.chevron_right,
-                  color: scheme.onSurfaceVariant,
-                  size: 16,
-                ),
-              ],
-            ),
+              ),
+              SizedBox(width: t.spacingSm),
+              SettingsValueStepper<String?>(
+                key: const ValueKey('languageStepper'),
+                values: const [null, 'en', 'pl'],
+                value: settingsService.settings.languageOverride,
+                labelOf: _languageLabel,
+                buttonBorder:
+                    settingsService.activeProfileOverrides.buttonBorder,
+                onChanged: (v) => settingsService.setLanguageOverride(v),
+              ),
+            ],
           ),
         ),
         const MeshDashedDivider(indent: 16),
@@ -252,7 +239,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.layers_outlined, size: 20),
+          secondary: Icon(
+            Icons.layers_outlined,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.styleEditor_cardShadow_label),
           subtitle: Text(context.l10n.styleEditor_cardShadow_subtitle),
           value: settingsService.activeProfileOverrides.cardElevated ?? true,
@@ -274,7 +265,11 @@ class AppSettingsScreen extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.border_style, size: 20),
+              Icon(
+                Icons.border_style,
+                size: 20,
+                color: MeshTokens.of(context).primary,
+              ),
               SizedBox(width: t.spacingMd),
               Expanded(
                 child: Column(
@@ -318,7 +313,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.notifications_outlined, size: 20),
+          secondary: Icon(
+            Icons.notifications_outlined,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.appSettings_enableNotifications),
           subtitle: Text(context.l10n.appSettings_enableNotificationsSubtitle),
           value: settingsService.settings.notificationsEnabled,
@@ -361,7 +360,9 @@ class AppSettingsScreen extends StatelessWidget {
           secondary: Icon(
             Icons.message_outlined,
             size: 20,
-            color: notifEnabled ? null : Theme.of(context).disabledColor,
+            color: notifEnabled
+                ? MeshTokens.of(context).primary
+                : Theme.of(context).disabledColor,
           ),
           title: Text(
             context.l10n.appSettings_messageNotifications,
@@ -389,7 +390,9 @@ class AppSettingsScreen extends StatelessWidget {
           secondary: Icon(
             Icons.forum_outlined,
             size: 20,
-            color: notifEnabled ? null : Theme.of(context).disabledColor,
+            color: notifEnabled
+                ? MeshTokens.of(context).primary
+                : Theme.of(context).disabledColor,
           ),
           title: Text(
             context.l10n.appSettings_channelMessageNotifications,
@@ -417,7 +420,9 @@ class AppSettingsScreen extends StatelessWidget {
           secondary: Icon(
             Icons.cell_tower,
             size: 20,
-            color: notifEnabled ? null : Theme.of(context).disabledColor,
+            color: notifEnabled
+                ? MeshTokens.of(context).primary
+                : Theme.of(context).disabledColor,
           ),
           title: Text(
             context.l10n.appSettings_advertisementNotifications,
@@ -444,7 +449,6 @@ class AppSettingsScreen extends StatelessWidget {
     BuildContext context,
     AppSettingsService settingsService,
   ) {
-    final autoRouteEnabled = settingsService.settings.autoRouteRotationEnabled;
     final t = MeshTokens.of(context);
     return Column(
       children: [
@@ -453,7 +457,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.refresh_outlined, size: 20),
+          secondary: Icon(
+            Icons.refresh_outlined,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.appSettings_clearPathOnMaxRetry),
           subtitle: Text(context.l10n.appSettings_clearPathOnMaxRetrySubtitle),
           value: settingsService.settings.clearPathOnMaxRetry,
@@ -476,185 +484,24 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.vertical_align_top, size: 20),
+          secondary: Icon(
+            Icons.vertical_align_top,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.appSettings_jumpToOldestUnread),
           subtitle: Text(context.l10n.appSettings_jumpToOldestUnreadSubtitle),
           value: settingsService.settings.jumpToOldestUnread,
           onChanged: settingsService.setJumpToOldestUnread,
         ),
         const MeshDashedDivider(indent: 16),
-        SwitchListTile(
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: t.spacingMd,
-            vertical: t.spacingXxs,
-          ),
-          secondary: const Icon(Icons.alt_route, size: 20),
-          title: Text(context.l10n.appSettings_autoRouteRotation),
-          subtitle: Text(context.l10n.appSettings_autoRouteRotationSubtitle),
-          value: autoRouteEnabled,
-          onChanged: (value) {
-            settingsService.setAutoRouteRotationEnabled(value);
-            showDismissibleSnackBar(
-              context,
-              content: Text(
-                value
-                    ? context.l10n.appSettings_autoRouteRotationEnabled
-                    : context.l10n.appSettings_autoRouteRotationDisabled,
-              ),
-              duration: const Duration(seconds: 2),
-            );
-          },
-        ),
-        // AnimatedSize sub-options for auto-route rotation
-        AnimatedSize(
-          duration: const Duration(milliseconds: 200),
-          alignment: Alignment.topCenter,
-          child: autoRouteEnabled
-              ? Container(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  padding: EdgeInsets.only(left: t.spacingMd),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const MeshDashedDivider(),
-                      ListTile(
-                        title: Text(context.l10n.appSettings_maxRouteWeight),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.l10n.appSettings_maxRouteWeightSubtitle,
-                            ),
-                            Slider(
-                              value: settingsService.settings.maxRouteWeight,
-                              min: 1,
-                              max: 10,
-                              divisions: 9,
-                              label: settingsService.settings.maxRouteWeight
-                                  .round()
-                                  .toString(),
-                              onChanged: (value) =>
-                                  settingsService.setMaxRouteWeight(value),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const MeshDashedDivider(),
-                      ListTile(
-                        title: Text(
-                          context.l10n.appSettings_initialRouteWeight,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context
-                                  .l10n
-                                  .appSettings_initialRouteWeightSubtitle,
-                            ),
-                            Slider(
-                              value:
-                                  settingsService.settings.initialRouteWeight,
-                              min: 0.5,
-                              max: 5.0,
-                              divisions: 9,
-                              label: settingsService.settings.initialRouteWeight
-                                  .toStringAsFixed(1),
-                              onChanged: (value) =>
-                                  settingsService.setInitialRouteWeight(value),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const MeshDashedDivider(),
-                      ListTile(
-                        title: Text(
-                          context.l10n.appSettings_routeWeightSuccessIncrement,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context
-                                  .l10n
-                                  .appSettings_routeWeightSuccessIncrementSubtitle,
-                            ),
-                            Slider(
-                              value: settingsService
-                                  .settings
-                                  .routeWeightSuccessIncrement,
-                              min: 0.1,
-                              max: 2.0,
-                              divisions: 19,
-                              label: settingsService
-                                  .settings
-                                  .routeWeightSuccessIncrement
-                                  .toStringAsFixed(1),
-                              onChanged: (value) => settingsService
-                                  .setRouteWeightSuccessIncrement(value),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const MeshDashedDivider(),
-                      ListTile(
-                        title: Text(
-                          context.l10n.appSettings_routeWeightFailureDecrement,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context
-                                  .l10n
-                                  .appSettings_routeWeightFailureDecrementSubtitle,
-                            ),
-                            Slider(
-                              value: settingsService
-                                  .settings
-                                  .routeWeightFailureDecrement,
-                              min: 0.1,
-                              max: 2.0,
-                              divisions: 19,
-                              label: settingsService
-                                  .settings
-                                  .routeWeightFailureDecrement
-                                  .toStringAsFixed(1),
-                              onChanged: (value) => settingsService
-                                  .setRouteWeightFailureDecrement(value),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const MeshDashedDivider(),
-                      ListTile(
-                        title: Text(context.l10n.appSettings_maxMessageRetries),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context
-                                  .l10n
-                                  .appSettings_maxMessageRetriesSubtitle,
-                            ),
-                            Slider(
-                              value: settingsService.settings.maxMessageRetries
-                                  .toDouble(),
-                              min: 2,
-                              max: 10,
-                              divisions: 8,
-                              label: settingsService.settings.maxMessageRetries
-                                  .toString(),
-                              onChanged: (value) => settingsService
-                                  .setMaxMessageRetries(value.toInt()),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : const SizedBox.shrink(),
+        // Navigation tile (redesign 2026-08-23): the enable switch and its
+        // tuning rows moved to their own AutoRouteRotationScreen.
+        SettingsTappableTile(
+          icon: Icons.alt_route,
+          title: context.l10n.appSettings_autoRouteRotation,
+          subtitle: context.l10n.appSettings_autoRouteRotationSubtitle,
+          onTap: () => pushAutoRouteRotationScreen(context),
         ),
         const MeshDashedDivider(indent: 16),
         SwitchListTile(
@@ -662,7 +509,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.location_searching, size: 20),
+          secondary: Icon(
+            Icons.location_searching,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.appSettings_enableMessageTracing),
           subtitle: Text(context.l10n.appSettings_enableMessageTracingSubtitle),
           value: settingsService.settings.enableMessageTracing,
@@ -671,179 +522,50 @@ class AppSettingsScreen extends StatelessWidget {
           },
         ),
         const MeshDashedDivider(indent: 16),
-        ListTile(
-          contentPadding: EdgeInsets.symmetric(
+        // Same row layout and stepper control as Appearance -> Button border
+        // (user spec 2026-08-23): the picker sheet is gone, the value cycles
+        // inline through 200/500/1000/Unlimited.
+        Padding(
+          padding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          leading: const Icon(Icons.history, size: 20),
-          title: Text(context.l10n.settings_messageHistoryLimit),
-          subtitle: Text(
-            _messageHistoryLimitLabel(
-              context,
-              settingsService.settings.messageHistoryLimit,
-            ),
-          ),
-          onTap: () => _showMessageHistoryLimitSheet(context, settingsService),
-        ),
-      ],
-    );
-  }
-
-  void _showMessageHistoryLimitSheet(
-    BuildContext context,
-    AppSettingsService settingsService,
-  ) {
-    showMeshSheet(
-      context,
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          BottomSheetHeader(title: context.l10n.settings_messageHistoryLimit),
-          _sheetOption<int>(
-            ctx,
-            label: '200',
-            value: 200,
-            selected: settingsService.settings.messageHistoryLimit == 200,
-            onTap: () {
-              settingsService.setMessageHistoryLimit(200);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<int>(
-            ctx,
-            label: '500',
-            value: 500,
-            selected: settingsService.settings.messageHistoryLimit == 500,
-            onTap: () {
-              settingsService.setMessageHistoryLimit(500);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<int>(
-            ctx,
-            label: '1000',
-            value: 1000,
-            selected: settingsService.settings.messageHistoryLimit == 1000,
-            onTap: () {
-              settingsService.setMessageHistoryLimit(1000);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<int>(
-            ctx,
-            label: context.l10n.settings_messageHistoryLimitUnlimited,
-            value: 0,
-            selected: settingsService.settings.messageHistoryLimit == 0,
-            onTap: () {
-              settingsService.setMessageHistoryLimit(0);
-              Navigator.pop(ctx);
-            },
-          ),
-          SizedBox(
-            height:
-                MediaQuery.paddingOf(ctx).bottom + MeshTokens.of(ctx).spacingXs,
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _messageHistoryLimitLabel(BuildContext context, int limit) {
-    if (limit == 0) {
-      return context.l10n.settings_messageHistoryLimitUnlimited;
-    }
-    return limit.toString();
-  }
-
-  Widget _buildBatteryContent(
-    BuildContext context,
-    AppSettingsService settingsService,
-    MeshCoreConnector connector,
-  ) {
-    final deviceId = connector.batteryDeviceKey;
-    final isConnected = connector.isConnected && deviceId != null;
-    final selection = isConnected
-        ? settingsService.batteryChemistryForDevice(deviceId)
-        : 'nmc';
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final t = MeshTokens.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: t.spacingSm, bottom: t.spacingXxs),
           child: Row(
             children: [
               Icon(
-                Icons.battery_full,
+                Icons.history,
                 size: 20,
-                color: scheme.onSurfaceVariant,
+                color: MeshTokens.of(context).primary,
               ),
-              SizedBox(width: t.spacingSm),
+              SizedBox(width: t.spacingMd),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(context.l10n.settings_messageHistoryLimit),
                     Text(
-                      context.l10n.appSettings_batteryChemistry,
-                      style: textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      isConnected
-                          ? context.l10n.appSettings_batteryChemistryPerDevice(
-                              connector.deviceDisplayName,
-                            )
-                          : context
-                                .l10n
-                                .appSettings_batteryChemistryConnectFirst,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
+                      context.l10n.appSettings_messageHistoryLimit_subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
                 ),
               ),
+              SizedBox(width: t.spacingMd),
+              SettingsValueStepper<int>(
+                key: const ValueKey('messageHistoryLimitStepper'),
+                values: const [200, 500, 1000, 2000, 0],
+                value: settingsService.settings.messageHistoryLimit,
+                labelOf: (ctx, v) => v == 0
+                    ? ctx.l10n.settings_messageHistoryLimitUnlimited
+                    : '$v',
+                buttonBorder:
+                    settingsService.activeProfileOverrides.buttonBorder,
+                onChanged: (v) => settingsService.setMessageHistoryLimit(v),
+              ),
             ],
           ),
-        ),
-        SizedBox(height: t.spacingXs),
-        DropdownButtonFormField<String>(
-          initialValue: selection,
-          isExpanded: true,
-          decoration: const InputDecoration(
-            border: UnderlineInputBorder(),
-            isDense: true,
-          ),
-          onChanged: isConnected
-              ? (value) {
-                  if (value != null) {
-                    settingsService.setBatteryChemistryForDevice(
-                      deviceId,
-                      value,
-                    );
-                  }
-                }
-              : null,
-          items: [
-            DropdownMenuItem(
-              value: 'nmc',
-              child: Text(context.l10n.appSettings_batteryNmc),
-            ),
-            DropdownMenuItem(
-              value: 'lifepo4',
-              child: Text(context.l10n.appSettings_batteryLifepo4),
-            ),
-            DropdownMenuItem(
-              value: 'lipo',
-              child: Text(context.l10n.appSettings_batteryLipo),
-            ),
-          ],
         ),
       ],
     );
@@ -862,7 +584,11 @@ class AppSettingsScreen extends StatelessWidget {
           horizontal: t.spacingMd,
           vertical: t.spacingXxs,
         ),
-        secondary: const Icon(Icons.router_outlined, size: 20),
+        secondary: Icon(
+          Icons.router_outlined,
+          size: 20,
+          color: MeshTokens.of(context).primary,
+        ),
         title: Text(context.l10n.appSettings_showRepeaters),
         subtitle: Text(context.l10n.appSettings_showRepeatersSubtitle),
         value: settingsService.settings.mapShowRepeaters,
@@ -874,7 +600,11 @@ class AppSettingsScreen extends StatelessWidget {
           horizontal: t.spacingMd,
           vertical: t.spacingXxs,
         ),
-        secondary: const Icon(Icons.chat_outlined, size: 20),
+        secondary: Icon(
+          Icons.chat_outlined,
+          size: 20,
+          color: MeshTokens.of(context).primary,
+        ),
         title: Text(context.l10n.appSettings_showChatNodes),
         subtitle: Text(context.l10n.appSettings_showChatNodesSubtitle),
         value: settingsService.settings.mapShowChatNodes,
@@ -886,103 +616,118 @@ class AppSettingsScreen extends StatelessWidget {
           horizontal: t.spacingMd,
           vertical: t.spacingXxs,
         ),
-        secondary: const Icon(Icons.people_outline, size: 20),
+        secondary: Icon(
+          Icons.people_outline,
+          size: 20,
+          color: MeshTokens.of(context).primary,
+        ),
         title: Text(context.l10n.appSettings_showOtherNodes),
         subtitle: Text(context.l10n.appSettings_showOtherNodesSubtitle),
         value: settingsService.settings.mapShowOtherNodes,
         onChanged: (value) => settingsService.setMapShowOtherNodes(value),
       ),
       const MeshDashedDivider(indent: 16),
-      InkWell(
-        onTap: () => _showTimeFilterSheet(context, settingsService),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: t.spacingMd,
-            vertical: t.spacingSm,
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.timer_outlined,
-                size: 20,
-                color: scheme.onSurfaceVariant,
-              ),
-              SizedBox(width: t.spacingSm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.l10n.appSettings_timeFilter,
-                      style: textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+      // Inline value stepper instead of the former picker sheet (user spec
+      // 2026-08-23: same control as Appearance -> Button border).
+      Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: t.spacingMd,
+          vertical: t.spacingSm,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.timer_outlined,
+              size: 20,
+              color: MeshTokens.of(context).primary,
+            ),
+            SizedBox(width: t.spacingSm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.appSettings_timeFilter,
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      settingsService.settings.mapTimeFilterHours == 0
-                          ? context.l10n.appSettings_timeFilterShowAll
-                          : context.l10n.appSettings_timeFilterShowLast(
-                              settingsService.settings.mapTimeFilterHours
-                                  .toInt(),
-                            ),
-                      style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    context.l10n.appSettings_showNodesDiscoveredWithin,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Icon(
-                Icons.chevron_right,
-                color: scheme.onSurfaceVariant,
-                size: 16,
-              ),
-            ],
-          ),
+            ),
+            SizedBox(width: t.spacingSm),
+            SettingsValueStepper<double>(
+              key: const ValueKey('mapTimeFilterStepper'),
+              values: const [0, 1, 6, 24, 168],
+              value: settingsService.settings.mapTimeFilterHours,
+              labelOf: (ctx, v) => switch (v) {
+                1 => ctx.l10n.appSettings_lastHour,
+                6 => ctx.l10n.appSettings_last6Hours,
+                24 => ctx.l10n.appSettings_last24Hours,
+                168 => ctx.l10n.appSettings_lastWeek,
+                _ => ctx.l10n.appSettings_allTime,
+              },
+              buttonBorder: settingsService.activeProfileOverrides.buttonBorder,
+              onChanged: (v) => settingsService.setMapTimeFilterHours(v),
+            ),
+          ],
         ),
       ),
       const MeshDashedDivider(indent: 16),
-      InkWell(
-        onTap: () => _showUnitsSheet(context, settingsService),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: t.spacingMd,
-            vertical: t.spacingSm,
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.straighten, size: 20, color: scheme.onSurfaceVariant),
-              SizedBox(width: t.spacingSm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.l10n.appSettings_unitsTitle,
-                      style: textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+      // Inline value stepper instead of the former picker sheet (user spec
+      // 2026-08-23: same control as Appearance -> Button border).
+      Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: t.spacingMd,
+          vertical: t.spacingSm,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.straighten,
+              size: 20,
+              color: MeshTokens.of(context).primary,
+            ),
+            SizedBox(width: t.spacingSm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.appSettings_unitsTitle,
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      settingsService.settings.unitSystem == UnitSystem.imperial
-                          ? context.l10n.appSettings_unitsImperial
-                          : context.l10n.appSettings_unitsMetric,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    context.l10n.appSettings_units_subtitle,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Icon(
-                Icons.chevron_right,
-                color: scheme.onSurfaceVariant,
-                size: 16,
-              ),
-            ],
-          ),
+            ),
+            SizedBox(width: t.spacingSm),
+            SettingsValueStepper<UnitSystem>(
+              key: const ValueKey('unitsStepper'),
+              values: const [UnitSystem.metric, UnitSystem.imperial],
+              value: settingsService.settings.unitSystem,
+              labelOf: (ctx, v) => v == UnitSystem.imperial
+                  ? ctx.l10n.appSettings_unitsImperial
+                  : ctx.l10n.appSettings_unitsMetric,
+              buttonBorder: settingsService.activeProfileOverrides.buttonBorder,
+              onChanged: (v) => settingsService.setUnitSystem(v),
+            ),
+          ],
         ),
       ),
       const MeshDashedDivider(indent: 16),
@@ -1003,7 +748,7 @@ class AppSettingsScreen extends StatelessWidget {
               Icon(
                 Icons.download_outlined,
                 size: 20,
-                color: scheme.onSurfaceVariant,
+                color: MeshTokens.of(context).primary,
               ),
               SizedBox(width: t.spacingSm),
               Expanded(
@@ -1053,7 +798,7 @@ class AppSettingsScreen extends StatelessWidget {
               Icon(
                 Icons.layers_outlined,
                 size: 20,
-                color: scheme.onSurfaceVariant,
+                color: MeshTokens.of(context).primary,
               ),
               SizedBox(width: t.spacingSm),
               Expanded(
@@ -1104,7 +849,7 @@ class AppSettingsScreen extends StatelessWidget {
                 Icon(
                   Icons.public_outlined,
                   size: 20,
-                  color: scheme.onSurfaceVariant,
+                  color: MeshTokens.of(context).primary,
                 ),
                 SizedBox(width: t.spacingSm),
                 Expanded(
@@ -1149,7 +894,7 @@ class AppSettingsScreen extends StatelessWidget {
                 Icon(
                   Icons.key_outlined,
                   size: 20,
-                  color: scheme.onSurfaceVariant,
+                  color: MeshTokens.of(context).primary,
                 ),
                 SizedBox(width: t.spacingSm),
                 Expanded(
@@ -1406,7 +1151,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.translate, size: 20),
+          secondary: Icon(
+            Icons.translate,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.translation_enableTitle),
           subtitle: Text(context.l10n.translation_enableSubtitle),
           value: settings.translationEnabled,
@@ -1421,7 +1170,9 @@ class AppSettingsScreen extends StatelessWidget {
           secondary: Icon(
             Icons.auto_awesome_outlined,
             size: 20,
-            color: translationEnabled ? null : Theme.of(context).disabledColor,
+            color: translationEnabled
+                ? MeshTokens.of(context).primary
+                : Theme.of(context).disabledColor,
           ),
           title: Text(
             context.l10n.translation_autoIncomingTitle,
@@ -1453,7 +1204,9 @@ class AppSettingsScreen extends StatelessWidget {
           secondary: Icon(
             Icons.outgoing_mail,
             size: 20,
-            color: translationEnabled ? null : Theme.of(context).disabledColor,
+            color: translationEnabled
+                ? MeshTokens.of(context).primary
+                : Theme.of(context).disabledColor,
           ),
           title: Text(
             context.l10n.translation_composerTitle,
@@ -1486,7 +1239,11 @@ class AppSettingsScreen extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.language, size: 20, color: scheme.onSurfaceVariant),
+                Icon(
+                  Icons.language,
+                  size: 20,
+                  color: MeshTokens.of(context).primary,
+                ),
                 SizedBox(width: t.spacingSm),
                 Expanded(
                   child: Column(
@@ -1732,75 +1489,164 @@ class AppSettingsScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: t.spacingXs),
-        DropdownButtonFormField<String>(
-          initialValue: settingsService.settings.selectedCyr2latProfileId,
-          decoration: InputDecoration(
-            labelText: context.l10n.channels_cyr2latSettingsSubheading,
-            border: const OutlineInputBorder(),
-          ),
-          items: settingsService.settings.cyr2latProfiles.map((profile) {
-            return DropdownMenuItem(
-              value: profile.id,
-              child: Text(profile.name),
-            );
-          }).toList(),
-          onChanged: (value) {
-            if (value != null) {
-              settingsService.setSelectedCyr2LatProfile(value);
-            }
-          },
-        ),
-        SizedBox(height: t.spacingSm),
+        // Header row: literal Cyrillic glyph as the leading icon (Material
+        // Symbols has no Cyrillic icon), title, and a short what/why
+        // description underneath (user-accepted copy 2026-08-23).
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () =>
-                    _showAddCyr2LatProfileDialog(context, settingsService),
-                icon: const Icon(Icons.add),
-                label: Text(context.l10n.common_add),
-              ),
-            ),
-            SizedBox(width: t.spacingXs),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _showEditCyr2LatProfileDialog(
-                  context,
-                  settingsService,
-                  selectedProfile,
+            SizedBox(
+              width: 20,
+              child: Text(
+                '\u042F',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: MeshTokens.of(context).primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
                 ),
-                icon: const Icon(Icons.edit),
-                label: Text(context.l10n.common_edit),
               ),
             ),
-            SizedBox(width: t.spacingXs),
+            SizedBox(width: t.spacingSm),
             Expanded(
-              child: OutlinedButton.icon(
-                // Destructive action: swap the app-wide tinted-primary
-                // button look for the same treatment in the alert accent
-                // (2026-08-21) — otherwise Delete rendered identically to
-                // Add/Edit and gave no visual warning before an unrecoverable
-                // profile removal.
-                style: Theme.of(context).outlinedButtonTheme.style?.copyWith(
-                  backgroundColor: WidgetStatePropertyAll(
-                    t.alert.withValues(alpha: 0.2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.channels_cyr2latSettingsSubheading,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  foregroundColor: WidgetStatePropertyAll(t.alert),
-                ),
-                onPressed: settingsService.settings.cyr2latProfiles.length > 1
-                    ? () => _showDeleteCyr2LatProfileDialog(
-                        context,
-                        settingsService,
-                        selectedProfile,
-                      )
-                    : null,
-                icon: const Icon(Icons.delete),
-                label: Text(context.l10n.common_delete),
+                  const SizedBox(height: 2),
+                  Text(
+                    context.l10n.channels_cyr2latSettingsDescription,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
+        SizedBox(height: t.spacingSm),
+        // Profile stepper on its own line (user layout 2026-08-23): fully
+        // decoupled from the title, so neither can crush the other. The
+        // pill is still capped so an over-long profile name ellipsizes
+        // instead of overflowing the line.
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final pillMaxWidth =
+                constraints.maxWidth - 2 * 36 - 2 * t.spacingXxs;
+            return Align(
+              alignment: Alignment.centerRight,
+              child: SettingsValueStepper<String>(
+                key: const ValueKey('cyr2latProfileStepper'),
+                values: [
+                  for (final profile
+                      in settingsService.settings.cyr2latProfiles)
+                    profile.id,
+                ],
+                value: settingsService.settings.selectedCyr2latProfileId,
+                labelOf: (ctx, id) =>
+                    settingsService.getCyr2LatProfileById(id)?.name ?? id,
+                buttonBorder:
+                    settingsService.activeProfileOverrides.buttonBorder,
+                pillMaxWidth: pillMaxWidth,
+                onChanged: (id) =>
+                    settingsService.setSelectedCyr2LatProfile(id),
+              ),
+            );
+          },
+        ),
+        SizedBox(height: t.spacingSm),
+        // Icon-only circles, exactly the stepper's -/+ treatment (user spec
+        // 2026-08-23): Add IS the stepper's plus circle, Edit/Delete reuse
+        // the pencil/trash glyphs the text buttons already carried. Delete
+        // keeps the alert accent (2026-08-21 decision: a destructive action
+        // must not render identically to Add/Edit).
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            _cyr2latCircleButton(
+              context,
+              settingsService,
+              icon: Icons.add,
+              tooltip: context.l10n.common_add,
+              onPressed: () =>
+                  _showAddCyr2LatProfileDialog(context, settingsService),
+            ),
+            SizedBox(width: t.spacingXs),
+            _cyr2latCircleButton(
+              context,
+              settingsService,
+              icon: Icons.edit,
+              tooltip: context.l10n.common_edit,
+              onPressed: () => _showEditCyr2LatProfileDialog(
+                context,
+                settingsService,
+                selectedProfile,
+              ),
+            ),
+            SizedBox(width: t.spacingXs),
+            _cyr2latCircleButton(
+              context,
+              settingsService,
+              icon: Icons.delete,
+              tooltip: context.l10n.common_delete,
+              accent: t.alert,
+              onPressed: settingsService.settings.cyr2latProfiles.length > 1
+                  ? () => _showDeleteCyr2LatProfileDialog(
+                      context,
+                      settingsService,
+                      selectedProfile,
+                    )
+                  : null,
+            ),
+          ],
+        ),
       ],
+    );
+  }
+
+  /// 36x36 tinted circle identical to the SettingsValueStepper -/+ buttons
+  /// (same size, fill, icon size and buttonBorder-driven shape); [accent]
+  /// swaps the primary tint for another accent (alert for Delete).
+  Widget _cyr2latCircleButton(
+    BuildContext context,
+    AppSettingsService settingsService, {
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback? onPressed,
+    Color? accent,
+  }) {
+    final color = accent ?? Theme.of(context).colorScheme.primary;
+    final borderStyle =
+        settingsService.activeProfileOverrides.buttonBorder ?? 'none';
+    final side = borderStyle == 'none'
+        ? BorderSide.none
+        : BorderSide(color: color);
+    final shape = borderStyle == 'dotted'
+        ? DashedCircleBorder(side: side)
+        : CircleBorder(side: side);
+    return SizedBox(
+      width: 36,
+      height: 36,
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
+          shape: shape,
+          color: color.withValues(alpha: 0.2),
+        ),
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          iconSize: 18,
+          color: color,
+          tooltip: tooltip,
+          icon: Icon(icon),
+          onPressed: onPressed,
+        ),
+      ),
     );
   }
 
@@ -1816,7 +1662,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.bug_report_outlined, size: 20),
+          secondary: Icon(
+            Icons.bug_report_outlined,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.appSettings_appDebugLogging),
           subtitle: Text(context.l10n.appSettings_appDebugLoggingSubtitle),
           value: settingsService.settings.appDebugLogEnabled,
@@ -1852,208 +1702,20 @@ class AppSettingsScreen extends StatelessWidget {
     );
   }
 
+  /// Locale-NEUTRAL labels on purpose (2026-08-23): picking a language
+  /// re-resolves every l10n string instantly, so localized labels made the
+  /// stepper pill's widest-label width jump on each switch. Endonyms plus
+  /// the universally understood "System" render identically in every
+  /// locale, keeping the pill width stable.
   String _languageLabel(BuildContext context, String? languageCode) {
     switch (languageCode) {
       case 'en':
-        return context.l10n.appSettings_languageEn;
+        return 'English';
       case 'pl':
-        return context.l10n.appSettings_languagePl;
+        return 'Polski';
       default:
-        return context.l10n.appSettings_languageSystem;
+        return 'System';
     }
-  }
-
-  void _showLanguageSheet(
-    BuildContext context,
-    AppSettingsService settingsService,
-  ) {
-    showMeshSheet(
-      context,
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          BottomSheetHeader(title: context.l10n.appSettings_language),
-          SizedBox(
-            height: 400,
-            child: ListView(
-              children: [
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageSystem,
-                  value: null,
-                  selected: settingsService.settings.languageOverride == null,
-                  onTap: () {
-                    settingsService.setLanguageOverride(null);
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageEn,
-                  value: 'en',
-                  selected: settingsService.settings.languageOverride == 'en',
-                  onTap: () {
-                    settingsService.setLanguageOverride('en');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languagePl,
-                  value: 'pl',
-                  selected: settingsService.settings.languageOverride == 'pl',
-                  onTap: () {
-                    settingsService.setLanguageOverride('pl');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                SizedBox(
-                  height:
-                      MediaQuery.paddingOf(ctx).bottom +
-                      MeshTokens.of(ctx).spacingXs,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showTimeFilterSheet(
-    BuildContext context,
-    AppSettingsService settingsService,
-  ) {
-    showMeshSheet(
-      context,
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          BottomSheetHeader(title: context.l10n.appSettings_mapTimeFilter),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              MeshTokens.of(ctx).spacingMd,
-              MeshTokens.of(ctx).spacingXxs,
-              MeshTokens.of(ctx).spacingMd,
-              MeshTokens.of(ctx).spacingXs,
-            ),
-            child: Text(context.l10n.appSettings_showNodesDiscoveredWithin),
-          ),
-          _sheetOption<double>(
-            ctx,
-            label: context.l10n.appSettings_allTime,
-            value: 0,
-            selected: settingsService.settings.mapTimeFilterHours == 0,
-            onTap: () {
-              settingsService.setMapTimeFilterHours(0);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<double>(
-            ctx,
-            label: context.l10n.appSettings_lastHour,
-            value: 1,
-            selected: settingsService.settings.mapTimeFilterHours == 1,
-            onTap: () {
-              settingsService.setMapTimeFilterHours(1);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<double>(
-            ctx,
-            label: context.l10n.appSettings_last6Hours,
-            value: 6,
-            selected: settingsService.settings.mapTimeFilterHours == 6,
-            onTap: () {
-              settingsService.setMapTimeFilterHours(6);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<double>(
-            ctx,
-            label: context.l10n.appSettings_last24Hours,
-            value: 24,
-            selected: settingsService.settings.mapTimeFilterHours == 24,
-            onTap: () {
-              settingsService.setMapTimeFilterHours(24);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<double>(
-            ctx,
-            label: context.l10n.appSettings_lastWeek,
-            value: 168,
-            selected: settingsService.settings.mapTimeFilterHours == 168,
-            onTap: () {
-              settingsService.setMapTimeFilterHours(168);
-              Navigator.pop(ctx);
-            },
-          ),
-          SizedBox(
-            height:
-                MediaQuery.paddingOf(ctx).bottom + MeshTokens.of(ctx).spacingXs,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showUnitsSheet(
-    BuildContext context,
-    AppSettingsService settingsService,
-  ) {
-    showMeshSheet(
-      context,
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          BottomSheetHeader(title: context.l10n.appSettings_unitsTitle),
-          _sheetOption<UnitSystem>(
-            ctx,
-            label: context.l10n.appSettings_unitsMetric,
-            value: UnitSystem.metric,
-            selected: settingsService.settings.unitSystem == UnitSystem.metric,
-            onTap: () {
-              settingsService.setUnitSystem(UnitSystem.metric);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<UnitSystem>(
-            ctx,
-            label: context.l10n.appSettings_unitsImperial,
-            value: UnitSystem.imperial,
-            selected:
-                settingsService.settings.unitSystem == UnitSystem.imperial,
-            onTap: () {
-              settingsService.setUnitSystem(UnitSystem.imperial);
-              Navigator.pop(ctx);
-            },
-          ),
-          SizedBox(
-            height:
-                MediaQuery.paddingOf(ctx).bottom + MeshTokens.of(ctx).spacingXs,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _sheetOption<T>(
-    BuildContext context, {
-    required String label,
-    required T value,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
-    final scheme = Theme.of(context).colorScheme;
-    return ListTile(
-      leading: Icon(
-        selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-        color: selected ? scheme.primary : scheme.onSurfaceVariant,
-      ),
-      title: Text(label),
-      onTap: onTap,
-    );
   }
 
   void _showTranslationLanguageDialog(
@@ -2660,6 +2322,13 @@ class _TranslationUrlFieldState extends State<_TranslationUrlField> {
           children: [
             Expanded(
               child: FilledButton.icon(
+                // Plain action button, not a switch-style control — never
+                // renders the app-wide buttonBorder style (user spec
+                // 2026-08-23). The local `side` wins over the themed
+                // shape's embedded side at render time.
+                style: const ButtonStyle(
+                  side: WidgetStatePropertyAll(BorderSide.none),
+                ),
                 onPressed: widget.onDownload == null
                     ? null
                     : () => widget.onDownload!(_controller.text.trim()),

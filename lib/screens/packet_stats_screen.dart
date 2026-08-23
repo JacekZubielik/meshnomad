@@ -1,12 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:meshnomad/l10n/l10n.dart';
+import 'package:meshnomad/services/app_settings_service.dart';
 import 'package:meshnomad/services/packet_observation_service.dart';
 import 'package:meshnomad/services/packet_stats_snapshot.dart';
 import 'package:meshnomad/theme/mesh_theme.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
 import 'package:meshnomad/widgets/app_bar.dart';
 import 'package:meshnomad/widgets/mesh_ui.dart';
+import 'package:meshnomad/widgets/settings_value_stepper.dart';
 import 'package:provider/provider.dart';
 
 // One entry per payloadTypeLabels entry (10) — previously only 5 colors for
@@ -127,14 +129,18 @@ String _hopWidthDisplayLabel(BuildContext context, String label) {
 
 String _windowLabel(BuildContext context, StatsWindow window) {
   switch (window) {
-    case StatsWindow.oneMinute:
-      return context.l10n.packetStats_windowOneMinute;
-    case StatsWindow.fiveMinutes:
-      return context.l10n.packetStats_windowFiveMinutes;
-    case StatsWindow.tenMinutes:
-      return context.l10n.packetStats_windowTenMinutes;
+    case StatsWindow.fifteenMinutes:
+      return context.l10n.packetStats_windowFifteenMinutes;
     case StatsWindow.thirtyMinutes:
       return context.l10n.packetStats_windowThirtyMinutes;
+    case StatsWindow.sixtyMinutes:
+      return context.l10n.packetStats_windowSixtyMinutes;
+    case StatsWindow.oneDay:
+      return context.l10n.packetStats_windowOneDay;
+    case StatsWindow.sevenDays:
+      return context.l10n.packetStats_windowSevenDays;
+    case StatsWindow.twoWeeks:
+      return context.l10n.packetStats_windowTwoWeeks;
     case StatsWindow.session:
       return context.l10n.packetStats_windowSession;
   }
@@ -194,55 +200,75 @@ class _PacketStatsScreenState extends State<PacketStatsScreen> {
         ],
       ),
       body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.all(tokens.spacingMd),
+        child: Stack(
           children: [
-            _CoverageCard(
-              service: service,
-              snapshot: snapshot,
-              window: _window,
-              onWindowChanged: (w) => setState(() => _window = w),
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _StatsSummaryCard(
-              snapshot: snapshot,
-              maxObservations: service.maxObservations,
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _TrafficTimelineCard(snapshot: snapshot),
-            SizedBox(height: tokens.spacingSm),
-            _RankedCard(
-              title: context.l10n.packetStats_sectionPacketTypes,
-              stats: snapshot.payloadBreakdown,
-              colorFor: _colorForPayloadType,
-              labelFor: _payloadDisplayLabel,
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _RankedCard(
-              title: context.l10n.packetStats_sectionRouteMix,
-              stats: snapshot.routeBreakdown,
-              labelFor: _routeDisplayLabel,
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _RankedCard(
-              title: context.l10n.packetStats_sectionHopProfile,
-              stats: snapshot.hopProfile,
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _RankedCard(
-              title: context.l10n.packetStats_sectionHopByteWidth,
-              stats: snapshot.hopByteWidth,
-              labelFor: _hopWidthDisplayLabel,
-            ),
-            SizedBox(height: tokens.spacingSm),
-            _RankedCard(
-              title: context.l10n.packetStats_sectionSignalDistribution,
-              stats: snapshot.rssiBuckets,
-              labelFor: _signalDisplayLabel,
+            // Window stepper floats over the top-right of the BODY (user
+            // corrections 2026-08-23: not in the coverage card, not in a
+            // FAB slot that straddles the app bar) — visually resting on
+            // the coverage card corner, where the old picker chip lived.
+            _buildStatsList(context, service, snapshot, tokens),
+            Positioned(
+              top: tokens.spacingMd + tokens.spacingXxs,
+              right: tokens.spacingMd + tokens.spacingSm,
+              child: _WindowPill(
+                window: _window,
+                onChanged: (w) => setState(() => _window = w),
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatsList(
+    BuildContext context,
+    PacketObservationService service,
+    PacketStatsSnapshot snapshot,
+    MeshTokens tokens,
+  ) {
+    return ListView(
+      padding: EdgeInsets.all(tokens.spacingMd),
+      children: [
+        _CoverageCard(service: service, snapshot: snapshot, window: _window),
+        SizedBox(height: tokens.spacingSm),
+        _StatsSummaryCard(
+          snapshot: snapshot,
+          maxObservations: service.maxObservations,
+        ),
+        SizedBox(height: tokens.spacingSm),
+        _TrafficTimelineCard(snapshot: snapshot),
+        SizedBox(height: tokens.spacingSm),
+        _RankedCard(
+          title: context.l10n.packetStats_sectionPacketTypes,
+          stats: snapshot.payloadBreakdown,
+          colorFor: _colorForPayloadType,
+          labelFor: _payloadDisplayLabel,
+        ),
+        SizedBox(height: tokens.spacingSm),
+        _RankedCard(
+          title: context.l10n.packetStats_sectionRouteMix,
+          stats: snapshot.routeBreakdown,
+          labelFor: _routeDisplayLabel,
+        ),
+        SizedBox(height: tokens.spacingSm),
+        _RankedCard(
+          title: context.l10n.packetStats_sectionHopProfile,
+          stats: snapshot.hopProfile,
+        ),
+        SizedBox(height: tokens.spacingSm),
+        _RankedCard(
+          title: context.l10n.packetStats_sectionHopByteWidth,
+          stats: snapshot.hopByteWidth,
+          labelFor: _hopWidthDisplayLabel,
+        ),
+        SizedBox(height: tokens.spacingSm),
+        _RankedCard(
+          title: context.l10n.packetStats_sectionSignalDistribution,
+          stats: snapshot.rssiBuckets,
+          labelFor: _signalDisplayLabel,
+        ),
+      ],
     );
   }
 }
@@ -252,13 +278,11 @@ class _CoverageCard extends StatelessWidget {
     required this.service,
     required this.snapshot,
     required this.window,
-    required this.onWindowChanged,
   });
 
   final PacketObservationService service;
   final PacketStatsSnapshot snapshot;
   final StatsWindow window;
-  final ValueChanged<StatsWindow> onWindowChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -313,23 +337,12 @@ class _CoverageCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                // Same vertical inset as _WindowPill's Container padding, so
-                // the label and the pill share one padding value and their
-                // text sits on a matched line (operator alignment request
-                // 2026-08-17).
-                padding: EdgeInsets.symmetric(vertical: tokens.spacingXxs),
-                child: Text(
-                  context.l10n.packetStats_coverageLabel,
-                  style: tokens.accentLabel(color: scheme.onSurfaceVariant),
-                ),
-              ),
-              _WindowPill(window: window, onChanged: onWindowChanged),
-            ],
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: tokens.spacingXxs),
+            child: Text(
+              context.l10n.packetStats_coverageLabel,
+              style: tokens.accentLabel(color: scheme.onSurfaceVariant),
+            ),
           ),
           SizedBox(height: tokens.spacingXs),
           ...messageLines,
@@ -367,39 +380,19 @@ class _WindowPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = MeshTokens.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    return PopupMenuButton<StatsWindow>(
-      initialValue: window,
-      onSelected: onChanged,
-      itemBuilder: (context) => StatsWindow.values
-          .map(
-            (w) =>
-                PopupMenuItem(value: w, child: Text(_windowLabel(context, w))),
-          )
-          .toList(),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: tokens.spacingSm,
-          vertical: tokens.spacingXxs,
-        ),
-        decoration: BoxDecoration(
-          border: Border.all(color: scheme.outline),
-          borderRadius: BorderRadius.circular(tokens.pill),
-        ),
-        // Plain text glyph (matches the mockup's literal "Session ▾" chip
-        // content) instead of an Icon: Icon reserves a full square bounding
-        // box that isn't flush with the visible glyph ink, which made the
-        // padding after the chevron look wider than the padding before the
-        // label even though the Container's own EdgeInsets were symmetric
-        // (operator-flagged left/right padding mismatch, second pass).
-        child: Text(
-          '${_windowLabel(context, window)} ▾',
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: scheme.onSurface),
-        ),
-      ),
+    // The shared -/+ value stepper (user spec 2026-08-23) — replaces the
+    // former "Session ▾" popup-menu chip.
+    final buttonBorder = context
+        .watch<AppSettingsService>()
+        .activeProfileOverrides
+        .buttonBorder;
+    return SettingsValueStepper<StatsWindow>(
+      key: const ValueKey('packetStatsWindowStepper'),
+      values: StatsWindow.values,
+      value: window,
+      labelOf: (ctx, w) => _windowLabel(ctx, w),
+      buttonBorder: buttonBorder,
+      onChanged: onChanged,
     );
   }
 }

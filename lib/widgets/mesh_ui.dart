@@ -1219,12 +1219,14 @@ class SettingsTappableTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
+                  // Subtitle keeps the default style color even when the
+                  // title is accent-colored (user spec 2026-08-23: only the
+                  // TITLE signals warn/alert; supplementary text stays
+                  // small and un-forced like every other tile).
                   Text(
                     subtitle,
                     style: textTheme.bodySmall?.copyWith(
-                      color: effectiveTitleColor != null
-                          ? effectiveTitleColor.withValues(alpha: 0.7)
-                          : scheme.onSurfaceVariant,
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
                 ],

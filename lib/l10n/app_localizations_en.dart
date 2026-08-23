@@ -505,19 +505,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_denyAll => 'Deny all';
 
   @override
-  String get settings_allowByContact => 'Allow by contact flags';
+  String get settings_allowByContact => 'Per-contact';
 
   @override
   String get settings_allowAll => 'Allow all';
 
   @override
-  String get settings_telemetryBaseMode => 'Telemetry Base Mode';
+  String get settings_telemetrySection => 'Telemetry';
 
   @override
-  String get settings_telemetryLocationMode => 'Telemetry Location Mode';
+  String get settings_telemetryBaseMode => 'Base mode';
 
   @override
-  String get settings_telemetryEnvironmentMode => 'Telemetry Environment Mode';
+  String get settings_telemetryLocationMode => 'Location mode';
+
+  @override
+  String get settings_telemetryEnvironmentMode => 'Env. mode';
 
   @override
   String get settings_advertLocation => 'Advert Location';
@@ -644,6 +647,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_presets => 'Presets';
 
   @override
+  String get settings_presetCustom => 'Custom';
+
+  @override
   String get settings_frequency => 'Frequency (MHz)';
 
   @override
@@ -765,16 +771,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appSettings_languageUk => 'Українська';
 
   @override
-  String get repeater_pathHashModeOption0 => '0 - 1 byte';
+  String get repeater_pathHashModeOption0 => '1 byte';
 
   @override
-  String get repeater_pathHashModeOption1 => '1 - 2 bytes';
+  String get repeater_pathHashModeOption1 => '2 bytes';
 
   @override
-  String get repeater_pathHashModeOption2 => '2 - 3 bytes';
-
-  @override
-  String get repeater_pathHashModeOption3 => '3 - 4 bytes';
+  String get repeater_pathHashModeOption2 => '3 bytes';
 
   @override
   String get appSettings_enableMessageTracing => 'Enable Message Tracing';
@@ -906,7 +909,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appSettings_battery => 'Battery';
 
   @override
-  String get appSettings_batteryChemistry => 'Battery Chemistry';
+  String get appSettings_batteryChemistry => 'Battery type';
 
   @override
   String appSettings_batteryChemistryPerDevice(String deviceName) {
@@ -918,13 +921,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Connect to a device to choose';
 
   @override
-  String get appSettings_batteryNmc => '18650 NMC (3.0-4.2V)';
+  String get appSettings_batteryNmc => 'NMC';
 
   @override
-  String get appSettings_batteryLifepo4 => 'LiFePO4 (2.6-3.65V)';
+  String get appSettings_batteryLifepo4 => 'LiFePO4';
 
   @override
-  String get appSettings_batteryLipo => 'LiPo (3.0-4.2V)';
+  String get appSettings_batteryLipo => 'LiPo';
 
   @override
   String get appSettings_mapDisplay => 'Map Display';
@@ -972,16 +975,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appSettings_allTime => 'All time';
 
   @override
-  String get appSettings_lastHour => 'Last hour';
+  String get appSettings_lastHour => 'Hour';
 
   @override
-  String get appSettings_last6Hours => 'Last 6 hours';
+  String get appSettings_last6Hours => '6 hours';
 
   @override
-  String get appSettings_last24Hours => 'Last 24 hours';
+  String get appSettings_last24Hours => '24 hours';
 
   @override
-  String get appSettings_lastWeek => 'Last week';
+  String get appSettings_lastWeek => 'Week';
 
   @override
   String get appSettings_rasterTileSource => 'Raster Tile Source';
@@ -1012,10 +1015,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appSettings_unitsTitle => 'Units';
 
   @override
-  String get appSettings_unitsMetric => 'Metric (m / km)';
+  String get appSettings_unitsMetric => 'm/km';
 
   @override
-  String get appSettings_unitsImperial => 'Imperial (ft / mi)';
+  String get appSettings_unitsImperial => 'ft/mi';
 
   @override
   String get appSettings_noAreaSelected => 'No area selected';
@@ -1342,6 +1345,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get channels_cyr2latSettingsSubheading => 'List of replacements';
+
+  @override
+  String get channels_cyr2latSettingsDescription =>
+      'Swaps Cyrillic letters for identical-looking Latin ones in outgoing messages — text compresses better and more fits in a packet.';
 
   @override
   String get channels_cyr2latSettingsDscr =>
@@ -2763,6 +2770,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get repeater_pathHashMode => 'Path hash mode';
+
+  @override
+  String get repeater_pathHashMode_subtitle => 'ID bytes in flood path tags';
 
   @override
   String get repeater_pathHashModeHelper =>
@@ -4709,16 +4719,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get packetStats_coverageLabel => 'COVERAGE';
 
   @override
-  String get packetStats_windowOneMinute => '1 min';
+  String get packetStats_windowFifteenMinutes => '15 min';
 
   @override
-  String get packetStats_windowFiveMinutes => '5 min';
+  String get packetStats_windowSixtyMinutes => '60 min';
 
   @override
-  String get packetStats_windowTenMinutes => '10 min';
+  String get packetStats_windowOneDay => '24 h';
 
   @override
   String get packetStats_windowThirtyMinutes => '30 min';
+
+  @override
+  String get packetStats_windowSevenDays => '7 days';
+
+  @override
+  String get packetStats_windowTwoWeeks => '2 weeks';
 
   @override
   String get packetStats_windowSession => 'Session';
@@ -5698,4 +5714,62 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get appSettings_borderOverride_subtitle =>
       'Off, solid, or dotted line';
+
+  @override
+  String get appSettings_messageHistoryLimit_subtitle =>
+      'Messages kept per conversation';
+
+  @override
+  String get appSettings_language_subtitle => 'Interface language';
+
+  @override
+  String get appSettings_units_subtitle => 'Distance units';
+
+  @override
+  String get about_copyVersionTooltip => 'Copy version info';
+
+  @override
+  String get about_versionCopied => 'Version info copied';
+
+  @override
+  String get about_buildDetails => 'Build details';
+
+  @override
+  String get about_buildCommit => 'Commit';
+
+  @override
+  String get about_buildBranch => 'Branch';
+
+  @override
+  String get about_buildDate => 'Built';
+
+  @override
+  String get about_buildSource => 'Source';
+
+  @override
+  String get about_buildModified => 'modified';
+
+  @override
+  String get about_buildSourceLocal => 'Local build';
+
+  @override
+  String get about_buildSourceCi => 'CI release';
+
+  @override
+  String get about_website => 'Website';
+
+  @override
+  String get about_documentation => 'Documentation';
+
+  @override
+  String get about_releaseNotes => 'Release notes';
+
+  @override
+  String get about_sourceCode => 'Source code';
+
+  @override
+  String get about_reportIssue => 'Report an issue';
+
+  @override
+  String get about_openSourceLicenses => 'Open source licenses';
 }

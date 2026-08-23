@@ -4,24 +4,32 @@ import '../models/packet_observation.dart';
 
 /// Time window a [PacketStatsSnapshot] is computed over.
 enum StatsWindow {
-  oneMinute,
-  fiveMinutes,
-  tenMinutes,
+  fifteenMinutes,
   thirtyMinutes,
+  sixtyMinutes,
+  oneDay,
+  sevenDays,
+  twoWeeks,
   session;
 
   /// The window's fixed duration, or `null` for [session] (unbounded, spans
-  /// the whole app session).
+  /// the whole app session). Observations are session-only and capped (see
+  /// PacketObservationService), so the long fixed windows show at most what
+  /// this app launch has collected — the coverage warning surfaces that.
   Duration? get span {
     switch (this) {
-      case StatsWindow.oneMinute:
-        return const Duration(seconds: 60);
-      case StatsWindow.fiveMinutes:
-        return const Duration(seconds: 300);
-      case StatsWindow.tenMinutes:
-        return const Duration(seconds: 600);
+      case StatsWindow.fifteenMinutes:
+        return const Duration(minutes: 15);
       case StatsWindow.thirtyMinutes:
-        return const Duration(seconds: 1800);
+        return const Duration(minutes: 30);
+      case StatsWindow.sixtyMinutes:
+        return const Duration(minutes: 60);
+      case StatsWindow.oneDay:
+        return const Duration(hours: 24);
+      case StatsWindow.sevenDays:
+        return const Duration(days: 7);
+      case StatsWindow.twoWeeks:
+        return const Duration(days: 14);
       case StatsWindow.session:
         return null;
     }

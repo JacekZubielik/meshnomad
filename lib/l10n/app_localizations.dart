@@ -1007,7 +1007,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_allowByContact.
   ///
   /// In en, this message translates to:
-  /// **'Allow by contact flags'**
+  /// **'Per-contact'**
   String get settings_allowByContact;
 
   /// No description provided for @settings_allowAll.
@@ -1016,22 +1016,28 @@ abstract class AppLocalizations {
   /// **'Allow all'**
   String get settings_allowAll;
 
+  /// No description provided for @settings_telemetrySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Telemetry'**
+  String get settings_telemetrySection;
+
   /// No description provided for @settings_telemetryBaseMode.
   ///
   /// In en, this message translates to:
-  /// **'Telemetry Base Mode'**
+  /// **'Base mode'**
   String get settings_telemetryBaseMode;
 
   /// No description provided for @settings_telemetryLocationMode.
   ///
   /// In en, this message translates to:
-  /// **'Telemetry Location Mode'**
+  /// **'Location mode'**
   String get settings_telemetryLocationMode;
 
   /// No description provided for @settings_telemetryEnvironmentMode.
   ///
   /// In en, this message translates to:
-  /// **'Telemetry Environment Mode'**
+  /// **'Env. mode'**
   String get settings_telemetryEnvironmentMode;
 
   /// No description provided for @settings_advertLocation.
@@ -1261,6 +1267,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Presets'**
   String get settings_presets;
+
+  /// No description provided for @settings_presetCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get settings_presetCustom;
 
   /// No description provided for @settings_frequency.
   ///
@@ -1499,26 +1511,20 @@ abstract class AppLocalizations {
   /// No description provided for @repeater_pathHashModeOption0.
   ///
   /// In en, this message translates to:
-  /// **'0 - 1 byte'**
+  /// **'1 byte'**
   String get repeater_pathHashModeOption0;
 
   /// No description provided for @repeater_pathHashModeOption1.
   ///
   /// In en, this message translates to:
-  /// **'1 - 2 bytes'**
+  /// **'2 bytes'**
   String get repeater_pathHashModeOption1;
 
   /// No description provided for @repeater_pathHashModeOption2.
   ///
   /// In en, this message translates to:
-  /// **'2 - 3 bytes'**
+  /// **'3 bytes'**
   String get repeater_pathHashModeOption2;
-
-  /// No description provided for @repeater_pathHashModeOption3.
-  ///
-  /// In en, this message translates to:
-  /// **'3 - 4 bytes'**
-  String get repeater_pathHashModeOption3;
 
   /// No description provided for @appSettings_enableMessageTracing.
   ///
@@ -1739,7 +1745,7 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings_batteryChemistry.
   ///
   /// In en, this message translates to:
-  /// **'Battery Chemistry'**
+  /// **'Battery type'**
   String get appSettings_batteryChemistry;
 
   /// No description provided for @appSettings_batteryChemistryPerDevice.
@@ -1757,19 +1763,19 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings_batteryNmc.
   ///
   /// In en, this message translates to:
-  /// **'18650 NMC (3.0-4.2V)'**
+  /// **'NMC'**
   String get appSettings_batteryNmc;
 
   /// No description provided for @appSettings_batteryLifepo4.
   ///
   /// In en, this message translates to:
-  /// **'LiFePO4 (2.6-3.65V)'**
+  /// **'LiFePO4'**
   String get appSettings_batteryLifepo4;
 
   /// No description provided for @appSettings_batteryLipo.
   ///
   /// In en, this message translates to:
-  /// **'LiPo (3.0-4.2V)'**
+  /// **'LiPo'**
   String get appSettings_batteryLipo;
 
   /// No description provided for @appSettings_mapDisplay.
@@ -1853,25 +1859,25 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings_lastHour.
   ///
   /// In en, this message translates to:
-  /// **'Last hour'**
+  /// **'Hour'**
   String get appSettings_lastHour;
 
   /// No description provided for @appSettings_last6Hours.
   ///
   /// In en, this message translates to:
-  /// **'Last 6 hours'**
+  /// **'6 hours'**
   String get appSettings_last6Hours;
 
   /// No description provided for @appSettings_last24Hours.
   ///
   /// In en, this message translates to:
-  /// **'Last 24 hours'**
+  /// **'24 hours'**
   String get appSettings_last24Hours;
 
   /// No description provided for @appSettings_lastWeek.
   ///
   /// In en, this message translates to:
-  /// **'Last week'**
+  /// **'Week'**
   String get appSettings_lastWeek;
 
   /// No description provided for @appSettings_rasterTileSource.
@@ -1925,13 +1931,13 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings_unitsMetric.
   ///
   /// In en, this message translates to:
-  /// **'Metric (m / km)'**
+  /// **'m/km'**
   String get appSettings_unitsMetric;
 
   /// No description provided for @appSettings_unitsImperial.
   ///
   /// In en, this message translates to:
-  /// **'Imperial (ft / mi)'**
+  /// **'ft/mi'**
   String get appSettings_unitsImperial;
 
   /// No description provided for @appSettings_noAreaSelected.
@@ -2497,6 +2503,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'List of replacements'**
   String get channels_cyr2latSettingsSubheading;
+
+  /// No description provided for @channels_cyr2latSettingsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Swaps Cyrillic letters for identical-looking Latin ones in outgoing messages — text compresses better and more fits in a packet.'**
+  String get channels_cyr2latSettingsDescription;
 
   /// No description provided for @channels_cyr2latSettingsDscr.
   ///
@@ -5003,6 +5015,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Path hash mode'**
   String get repeater_pathHashMode;
+
+  /// No description provided for @repeater_pathHashMode_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'ID bytes in flood path tags'**
+  String get repeater_pathHashMode_subtitle;
 
   /// No description provided for @repeater_pathHashModeHelper.
   ///
@@ -8180,29 +8198,41 @@ abstract class AppLocalizations {
   /// **'COVERAGE'**
   String get packetStats_coverageLabel;
 
-  /// No description provided for @packetStats_windowOneMinute.
+  /// No description provided for @packetStats_windowFifteenMinutes.
   ///
   /// In en, this message translates to:
-  /// **'1 min'**
-  String get packetStats_windowOneMinute;
+  /// **'15 min'**
+  String get packetStats_windowFifteenMinutes;
 
-  /// No description provided for @packetStats_windowFiveMinutes.
+  /// No description provided for @packetStats_windowSixtyMinutes.
   ///
   /// In en, this message translates to:
-  /// **'5 min'**
-  String get packetStats_windowFiveMinutes;
+  /// **'60 min'**
+  String get packetStats_windowSixtyMinutes;
 
-  /// No description provided for @packetStats_windowTenMinutes.
+  /// No description provided for @packetStats_windowOneDay.
   ///
   /// In en, this message translates to:
-  /// **'10 min'**
-  String get packetStats_windowTenMinutes;
+  /// **'24 h'**
+  String get packetStats_windowOneDay;
 
   /// No description provided for @packetStats_windowThirtyMinutes.
   ///
   /// In en, this message translates to:
   /// **'30 min'**
   String get packetStats_windowThirtyMinutes;
+
+  /// No description provided for @packetStats_windowSevenDays.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get packetStats_windowSevenDays;
+
+  /// No description provided for @packetStats_windowTwoWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'2 weeks'**
+  String get packetStats_windowTwoWeeks;
 
   /// No description provided for @packetStats_windowSession.
   ///
@@ -9949,6 +9979,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Off, solid, or dotted line'**
   String get appSettings_borderOverride_subtitle;
+
+  /// No description provided for @appSettings_messageHistoryLimit_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages kept per conversation'**
+  String get appSettings_messageHistoryLimit_subtitle;
+
+  /// No description provided for @appSettings_language_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Interface language'**
+  String get appSettings_language_subtitle;
+
+  /// No description provided for @appSettings_units_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance units'**
+  String get appSettings_units_subtitle;
+
+  /// No description provided for @about_copyVersionTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy version info'**
+  String get about_copyVersionTooltip;
+
+  /// No description provided for @about_versionCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Version info copied'**
+  String get about_versionCopied;
+
+  /// No description provided for @about_buildDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Build details'**
+  String get about_buildDetails;
+
+  /// No description provided for @about_buildCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Commit'**
+  String get about_buildCommit;
+
+  /// No description provided for @about_buildBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch'**
+  String get about_buildBranch;
+
+  /// No description provided for @about_buildDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Built'**
+  String get about_buildDate;
+
+  /// No description provided for @about_buildSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get about_buildSource;
+
+  /// No description provided for @about_buildModified.
+  ///
+  /// In en, this message translates to:
+  /// **'modified'**
+  String get about_buildModified;
+
+  /// No description provided for @about_buildSourceLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Local build'**
+  String get about_buildSourceLocal;
+
+  /// No description provided for @about_buildSourceCi.
+  ///
+  /// In en, this message translates to:
+  /// **'CI release'**
+  String get about_buildSourceCi;
+
+  /// No description provided for @about_website.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get about_website;
+
+  /// No description provided for @about_documentation.
+  ///
+  /// In en, this message translates to:
+  /// **'Documentation'**
+  String get about_documentation;
+
+  /// No description provided for @about_releaseNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Release notes'**
+  String get about_releaseNotes;
+
+  /// No description provided for @about_sourceCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code'**
+  String get about_sourceCode;
+
+  /// No description provided for @about_reportIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Report an issue'**
+  String get about_reportIssue;
+
+  /// No description provided for @about_openSourceLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source licenses'**
+  String get about_openSourceLicenses;
 }
 
 class _AppLocalizationsDelegate

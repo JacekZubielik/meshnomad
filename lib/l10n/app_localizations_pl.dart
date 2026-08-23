@@ -376,68 +376,70 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ustawienia radia zostały zaktualizowane';
 
   @override
-  String get settings_regionSettings => 'Regions';
+  String get settings_regionSettings => 'Regiony';
 
   @override
-  String get settings_regionSettingsSubtitle => 'Manage stored regions';
+  String get settings_regionSettingsSubtitle =>
+      'Zarządzaj zapisanymi regionami';
 
   @override
-  String get settings_regionManagement_screenTitle => 'Region Management';
+  String get settings_regionManagement_screenTitle => 'Zarządzanie regionami';
 
   @override
-  String get settings_regionNameHint => 'Enter region name';
+  String get settings_regionNameHint => 'Podaj nazwę regionu';
 
   @override
-  String get settings_regionAddRegion => 'Add region';
+  String get settings_regionAddRegion => 'Dodaj region';
 
   @override
-  String get settings_regionFetchRegions => 'Fetch regions from repeaters';
+  String get settings_regionFetchRegions => 'Pobierz regiony z repeaterów';
 
   @override
-  String get settings_regionFetchRegionsFail => 'No regions were found';
+  String get settings_regionFetchRegionsFail =>
+      'Nie znaleziono żadnych regionów';
 
   @override
   String get settings_regionFetchRegionsAlreadyExists =>
-      'This region has already been added';
+      'Ten region został już dodany';
 
   @override
-  String get settings_regionName => 'Region Name';
+  String get settings_regionName => 'Nazwa regionu';
 
   @override
-  String get settings_regionDeleted => 'Region deleted';
+  String get settings_regionDeleted => 'Region usunięty';
 
   @override
-  String get settings_deleteRegion => 'Delete Region';
+  String get settings_deleteRegion => 'Usuń region';
 
   @override
   String settings_deleteRegionConfirm(String region) {
-    return 'Remove \"$region\" from region list?';
+    return 'Usunąć \"$region\" z listy regionów?';
   }
 
   @override
-  String get settings_regionForceUnscoped => 'Force global flood';
+  String get settings_regionForceUnscoped => 'Wymuś globalny flood';
 
   @override
   String get settings_regionForceUnscopedSubtitle =>
-      'Ignores every flood scope — messages are sent as a global flood. Stays on across reconnects.';
+      'Ignoruje wszystkie zakresy flood — wiadomości są wysyłane jako globalny flood. Pozostaje włączone po ponownym połączeniu.';
 
   @override
-  String get settings_regionDefaultSection => 'Default Region';
+  String get settings_regionDefaultSection => 'Region domyślny';
 
   @override
   String settings_regionCurrentDefault(String name) {
-    return 'Current default: $name';
+    return 'Obecny domyślny: $name';
   }
 
   @override
-  String get settings_regionNoDefault => 'No default region set';
+  String get settings_regionNoDefault => 'Nie ustawiono domyślnego regionu';
 
   @override
   String get settings_regionNoneOption =>
-      'None (unscoped when nothing else is scoped)';
+      'Brak (bez zakresu, gdy nic innego go nie nadaje)';
 
   @override
-  String get settings_regionDefaultTag => 'DEFAULT';
+  String get settings_regionDefaultTag => 'DOMYŚLNY';
 
   @override
   String get settings_location => 'Lokalizacja';
@@ -515,20 +517,22 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settings_denyAll => 'Odmów wszystkim';
 
   @override
-  String get settings_allowByContact => 'Zezwalaj według flag kontaktowych';
+  String get settings_allowByContact => 'Wg kontaktu';
 
   @override
   String get settings_allowAll => 'Zezwalaj na wszystko';
 
   @override
-  String get settings_telemetryBaseMode => 'Tryb podstawowy telemetrii';
+  String get settings_telemetrySection => 'Telemetria';
 
   @override
-  String get settings_telemetryLocationMode => 'Tryb położenia telemetrycznego';
+  String get settings_telemetryBaseMode => 'Tryb bazowy';
 
   @override
-  String get settings_telemetryEnvironmentMode =>
-      'Tryb środowiska telemetrycznego';
+  String get settings_telemetryLocationMode => 'Tryb położenia';
+
+  @override
+  String get settings_telemetryEnvironmentMode => 'Tryb środowiska';
 
   @override
   String get settings_advertLocation => 'Lokalizacja reklamowa';
@@ -659,6 +663,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settings_presets => 'Presety';
 
   @override
+  String get settings_presetCustom => 'Własny';
+
+  @override
   String get settings_frequency => 'Częstotliwość (MHz)';
 
   @override
@@ -733,7 +740,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_language => 'Język';
 
   @override
-  String get appSettings_languageSystem => 'Domyślny systemowy';
+  String get appSettings_languageSystem => 'Systemowy';
 
   @override
   String get appSettings_languageEn => 'Angielski';
@@ -781,16 +788,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_languageUk => 'Ukraińska';
 
   @override
-  String get repeater_pathHashModeOption0 => '0 - 1 byte';
+  String get repeater_pathHashModeOption0 => '1 bajt';
 
   @override
-  String get repeater_pathHashModeOption1 => '1 - 2 bytes';
+  String get repeater_pathHashModeOption1 => '2 bajty';
 
   @override
-  String get repeater_pathHashModeOption2 => '2 - 3 bytes';
-
-  @override
-  String get repeater_pathHashModeOption3 => '3 - 4 bytes';
+  String get repeater_pathHashModeOption2 => '3 bajty';
 
   @override
   String get appSettings_enableMessageTracing => 'Włącz śledzenie wiadomości';
@@ -925,7 +929,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_battery => 'Bateria';
 
   @override
-  String get appSettings_batteryChemistry => 'Chemia Baterii';
+  String get appSettings_batteryChemistry => 'Typ baterii';
 
   @override
   String appSettings_batteryChemistryPerDevice(String deviceName) {
@@ -937,13 +941,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'Połącz się z urządzeniem, aby wybrać';
 
   @override
-  String get appSettings_batteryNmc => '18650 NMC (3,0-4,2V)';
+  String get appSettings_batteryNmc => 'NMC';
 
   @override
-  String get appSettings_batteryLifepo4 => 'LiFePO4 (2,6-3,65 V)';
+  String get appSettings_batteryLifepo4 => 'LiFePO4';
 
   @override
-  String get appSettings_batteryLipo => 'LiPo (3,0-4,2V)';
+  String get appSettings_batteryLipo => 'LiPo';
 
   @override
   String get appSettings_mapDisplay => 'Wyświetlanie mapy';
@@ -990,16 +994,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_allTime => 'Cały czas';
 
   @override
-  String get appSettings_lastHour => 'Ostatnia godzina';
+  String get appSettings_lastHour => 'Godzina';
 
   @override
-  String get appSettings_last6Hours => 'Ostatnie 6 godzin';
+  String get appSettings_last6Hours => '6 godzin';
 
   @override
-  String get appSettings_last24Hours => 'Ostatnie 24 godziny';
+  String get appSettings_last24Hours => '24 godziny';
 
   @override
-  String get appSettings_lastWeek => 'Ostatni tydzień';
+  String get appSettings_lastWeek => 'Tydzień';
 
   @override
   String get appSettings_rasterTileSource => 'Źródło kafelków rastrowych';
@@ -1030,10 +1034,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_unitsTitle => 'Jednostki';
 
   @override
-  String get appSettings_unitsMetric => 'Metryczne (m / km)';
+  String get appSettings_unitsMetric => 'm/km';
 
   @override
-  String get appSettings_unitsImperial => 'Imperialne (ft / mi)';
+  String get appSettings_unitsImperial => 'ft/mi';
 
   @override
   String get appSettings_noAreaSelected => 'Nie wybrano żadnego obszaru.';
@@ -1376,6 +1380,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get channels_cyr2latSettingsSubheading => 'Lista zamian';
 
   @override
+  String get channels_cyr2latSettingsDescription =>
+      'Zamienia cyrylicę na identyczne z wyglądu litery łacińskie w wysyłanych wiadomościach — tekst lepiej się kompresuje i więcej mieści w pakiecie.';
+
+  @override
   String get channels_cyr2latSettingsDscr =>
       'Edytuj konfigurację JSON zamiany znaków';
 
@@ -1488,13 +1496,13 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get channels_regionNotSet => 'Region: none';
+  String get channels_regionNotSet => 'Region: brak';
 
   @override
-  String get channels_regionSelect_Title => 'Select a region';
+  String get channels_regionSelect_Title => 'Wybierz region';
 
   @override
-  String get channels_clearRegion => 'Clear region';
+  String get channels_clearRegion => 'Wyczyść region';
 
   @override
   String get chat_noMessages => 'Brak jeszcze wiadomości';
@@ -1553,7 +1561,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chat_sendGif => 'Wyślij GIF';
 
   @override
-  String get chat_receivedGif => 'Received a GIF';
+  String get chat_receivedGif => 'Otrzymano GIF';
 
   @override
   String get chat_reply => 'Odpowiedz';
@@ -2828,42 +2836,46 @@ class AppLocalizationsPl extends AppLocalizations {
   String get repeater_pathHashMode => 'Tryb haszujący ścieżkę';
 
   @override
+  String get repeater_pathHashMode_subtitle =>
+      'Bajty ID w znacznikach ścieżek flood';
+
+  @override
   String get repeater_pathHashModeHelper =>
       'Bajty używane do kodowania identyfikatora tego repeatera w tagach ścieżki flood/wykrywania pętli. 0=1 bajt (256 identyfikatorów, do 64 skoków), 1=2 bajty (65 000 identyfikatorów, do 32 skoków), 2=3 bajty (16 milionów identyfikatorów, do 21 skoków). Firmware sprzed v1.14 zawsze używał ścieżek 1-bajtowych; v1.14 i nowsze można skonfigurować na ścieżki 2- lub 3-bajtowe.';
 
   @override
-  String get repeater_keySettings => 'Change Identity Keys';
+  String get repeater_keySettings => 'Zmień klucze tożsamości';
 
   @override
   String get repeater_keySettingsSubtitle =>
-      'Change the public/private keypair';
+      'Zmień parę kluczy publiczny/prywatny';
 
   @override
-  String get repeater_prvKey => 'Private key';
+  String get repeater_prvKey => 'Klucz prywatny';
 
   @override
   String get repeater_prvKeyHelper =>
-      'A new private key for the repeater, a 128-character hex string.';
+      'Nowy klucz prywatny repeatera, 128-znakowy ciąg hex.';
 
   @override
-  String get repeater_generatePrvKey => 'Generate a random keypair';
+  String get repeater_generatePrvKey => 'Wygeneruj losową parę kluczy';
 
   @override
-  String get repeater_stopGeneratingPrvKey => 'Interrupt search for keypair';
+  String get repeater_stopGeneratingPrvKey => 'Przerwij szukanie pary kluczy';
 
   @override
-  String get repeater_pubKey => 'Public key';
+  String get repeater_pubKey => 'Klucz publiczny';
 
   @override
   String get repeater_pubKeyHelper =>
-      'This is the public key that goes with the generated private key. You can\'t set this directly.';
+      'To jest klucz publiczny pasujący do wygenerowanego klucza prywatnego. Nie można go ustawić bezpośrednio.';
 
   @override
-  String get repeater_pubKeyPrefix => 'Desired prefix';
+  String get repeater_pubKeyPrefix => 'Oczekiwany prefiks';
 
   @override
   String repeater_pubKeyPrefixHelper(int tries) {
-    return 'Find a public key that starts with these hex digits. Expected tries needed: $tries.';
+    return 'Znajdź klucz publiczny zaczynający się od tych cyfr hex. Oczekiwana liczba prób: $tries.';
   }
 
   @override
@@ -4805,16 +4817,22 @@ class AppLocalizationsPl extends AppLocalizations {
   String get packetStats_coverageLabel => 'ZASIĘG DANYCH';
 
   @override
-  String get packetStats_windowOneMinute => '1 min';
+  String get packetStats_windowFifteenMinutes => '15 min';
 
   @override
-  String get packetStats_windowFiveMinutes => '5 min';
+  String get packetStats_windowSixtyMinutes => '60 min';
 
   @override
-  String get packetStats_windowTenMinutes => '10 min';
+  String get packetStats_windowOneDay => '24 h';
 
   @override
   String get packetStats_windowThirtyMinutes => '30 min';
+
+  @override
+  String get packetStats_windowSevenDays => '7 dni';
+
+  @override
+  String get packetStats_windowTwoWeeks => '2 tygodnie';
 
   @override
   String get packetStats_windowSession => 'Sesja';
@@ -5805,4 +5823,62 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get appSettings_borderOverride_subtitle =>
       'Brak, linia ciągła albo kropkowana';
+
+  @override
+  String get appSettings_messageHistoryLimit_subtitle =>
+      'Liczba wiadomości przechowywanych na rozmowę';
+
+  @override
+  String get appSettings_language_subtitle => 'Język interfejsu';
+
+  @override
+  String get appSettings_units_subtitle => 'Jednostki odległości';
+
+  @override
+  String get about_copyVersionTooltip => 'Skopiuj informacje o wersji';
+
+  @override
+  String get about_versionCopied => 'Skopiowano informacje o wersji';
+
+  @override
+  String get about_buildDetails => 'Szczegóły buildu';
+
+  @override
+  String get about_buildCommit => 'Commit';
+
+  @override
+  String get about_buildBranch => 'Gałąź';
+
+  @override
+  String get about_buildDate => 'Zbudowano';
+
+  @override
+  String get about_buildSource => 'Źródło';
+
+  @override
+  String get about_buildModified => 'zmodyfikowany';
+
+  @override
+  String get about_buildSourceLocal => 'Build lokalny';
+
+  @override
+  String get about_buildSourceCi => 'Wydanie CI';
+
+  @override
+  String get about_website => 'Strona WWW';
+
+  @override
+  String get about_documentation => 'Dokumentacja';
+
+  @override
+  String get about_releaseNotes => 'Informacje o wydaniach';
+
+  @override
+  String get about_sourceCode => 'Kod źródłowy';
+
+  @override
+  String get about_reportIssue => 'Zgłoś problem';
+
+  @override
+  String get about_openSourceLicenses => 'Licencje open source';
 }

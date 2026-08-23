@@ -34,8 +34,8 @@ void main() {
     test(
       'includes a packet exactly at windowStart, excludes one before it',
       () {
-        final now = sessionStart.add(const Duration(seconds: 60));
-        final windowStart = now.subtract(const Duration(seconds: 60));
+        final now = sessionStart.add(const Duration(minutes: 15));
+        final windowStart = now.subtract(const Duration(minutes: 15));
         final observations = [
           _obs(at: windowStart.subtract(const Duration(seconds: 1))),
           _obs(at: windowStart),
@@ -45,7 +45,7 @@ void main() {
           observations: observations,
           now: now,
           sessionStartedAt: sessionStart,
-          window: StatsWindow.oneMinute,
+          window: StatsWindow.fifteenMinutes,
           trimmedCount: 0,
           totalObserved: observations.length,
         );
@@ -57,7 +57,7 @@ void main() {
 
   group('packetsPerMinute', () {
     test('computes for a known count over a known window', () {
-      final now = sessionStart.add(const Duration(minutes: 5));
+      final now = sessionStart.add(const Duration(minutes: 20));
       final observations = List.generate(
         30,
         (i) => _obs(at: now.subtract(Duration(seconds: i * 2))),
@@ -67,14 +67,14 @@ void main() {
         observations: observations,
         now: now,
         sessionStartedAt: sessionStart,
-        window: StatsWindow.oneMinute,
+        window: StatsWindow.fifteenMinutes,
         trimmedCount: 0,
         totalObserved: observations.length,
       );
 
-      // 30 packets over 60s = 30 packets/min.
+      // 30 packets over the 15-minute window = 2 packets/min.
       expect(snapshot.packetCount, 30);
-      expect(snapshot.packetsPerMinute, closeTo(30.0, 0.001));
+      expect(snapshot.packetsPerMinute, closeTo(2.0, 0.001));
     });
   });
 
@@ -91,7 +91,7 @@ void main() {
         observations: observations,
         now: now,
         sessionStartedAt: sessionStart,
-        window: StatsWindow.session,
+        window: StatsWindow.twoWeeks,
         trimmedCount: 0,
         totalObserved: observations.length,
       );
@@ -112,7 +112,7 @@ void main() {
         observations: observations,
         now: now,
         sessionStartedAt: sessionStart,
-        window: StatsWindow.session,
+        window: StatsWindow.twoWeeks,
         trimmedCount: 0,
         totalObserved: observations.length,
       );
@@ -129,7 +129,7 @@ void main() {
         observations: const [],
         now: now,
         sessionStartedAt: sessionStart,
-        window: StatsWindow.oneMinute,
+        window: StatsWindow.fifteenMinutes,
         trimmedCount: 0,
         totalObserved: 0,
       );
@@ -138,19 +138,19 @@ void main() {
     });
 
     test('a packet at the far edge of the window lands in bin 9', () {
-      final now = sessionStart.add(const Duration(seconds: 60));
-      final windowStart = now.subtract(const Duration(seconds: 60));
-      // binWidth = 60/10 = 6s. Last bin covers [54, 60). Put the packet at
-      // the very last representable instant before `now`.
+      final now = sessionStart.add(const Duration(minutes: 15));
+      final windowStart = now.subtract(const Duration(minutes: 15));
+      // binWidth = 900/10 = 90s. Last bin covers [810, 900). Put the packet
+      // at the very last representable instant before `now`.
       final observations = [
-        _obs(at: windowStart.add(const Duration(seconds: 59))),
+        _obs(at: windowStart.add(const Duration(seconds: 899))),
       ];
 
       final snapshot = PacketStatsSnapshot.build(
         observations: observations,
         now: now,
         sessionStartedAt: sessionStart,
-        window: StatsWindow.oneMinute,
+        window: StatsWindow.fifteenMinutes,
         trimmedCount: 0,
         totalObserved: observations.length,
       );
@@ -178,7 +178,7 @@ void main() {
         observations: observations,
         now: now,
         sessionStartedAt: sessionStart,
-        window: StatsWindow.session,
+        window: StatsWindow.twoWeeks,
         trimmedCount: 0,
         totalObserved: observations.length,
       );
@@ -215,7 +215,7 @@ void main() {
         observations: observations,
         now: now,
         sessionStartedAt: sessionStart,
-        window: StatsWindow.session,
+        window: StatsWindow.twoWeeks,
         trimmedCount: 0,
         totalObserved: observations.length,
       );
@@ -257,7 +257,7 @@ void main() {
         observations: observations,
         now: now,
         sessionStartedAt: sessionStart,
-        window: StatsWindow.session,
+        window: StatsWindow.twoWeeks,
         trimmedCount: 0,
         totalObserved: observations.length,
       );
@@ -294,7 +294,7 @@ void main() {
           observations: observations,
           now: now,
           sessionStartedAt: sessionStart,
-          window: StatsWindow.session,
+          window: StatsWindow.twoWeeks,
           trimmedCount: 0,
           totalObserved: observations.length,
         );
@@ -310,12 +310,44 @@ void main() {
   });
 
   group('windowFullyCovered', () {
-    test('is false when trimmedCount > 0 and window is session', () {
+    test('is false when the oldest retained observation is younger than '
+        'the window (session-only log cannot cover it)', () {
       final now = sessionStart.add(const Duration(seconds: 10));
       final observations = [_obs(at: now)];
 
       final snapshot = PacketStatsSnapshot.build(
         observations: observations,
+        now: now,
+        sessionStartedAt: sessionStart,
+        window: StatsWindow.twoWeeks,
+        trimmedCount: 5,
+        totalObserved: 25,
+      );
+
+      expect(snapshot.windowFullyCovered, isFalse);
+    });
+
+    test('is true when the oldest retained observation predates the '
+        'window start', () {
+      final now = sessionStart.add(const Duration(days: 15));
+      final observations = [_obs(at: sessionStart), _obs(at: now)];
+
+      final snapshot = PacketStatsSnapshot.build(
+        observations: observations,
+        now: now,
+        sessionStartedAt: sessionStart,
+        window: StatsWindow.twoWeeks,
+        trimmedCount: 0,
+        totalObserved: 2,
+      );
+
+      expect(snapshot.windowFullyCovered, isTrue);
+    });
+
+    test('session window: false when trimmedCount > 0', () {
+      final now = sessionStart.add(const Duration(seconds: 10));
+      final snapshot = PacketStatsSnapshot.build(
+        observations: [_obs(at: now)],
         now: now,
         sessionStartedAt: sessionStart,
         window: StatsWindow.session,
@@ -326,12 +358,10 @@ void main() {
       expect(snapshot.windowFullyCovered, isFalse);
     });
 
-    test('is true when trimmedCount is 0 and window is session', () {
+    test('session window: true when trimmedCount is 0', () {
       final now = sessionStart.add(const Duration(seconds: 10));
-      final observations = [_obs(at: now)];
-
       final snapshot = PacketStatsSnapshot.build(
-        observations: observations,
+        observations: [_obs(at: now)],
         now: now,
         sessionStartedAt: sessionStart,
         window: StatsWindow.session,
