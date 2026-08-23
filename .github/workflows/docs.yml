@@ -1,13 +1,17 @@
 name: docs
 
 on:
+  # No paths filter (2026-08-23, was scoped to mkdocs.yml/docs/**): a
+  # version bump with no docs edits (v0.11.0) never registered a new entry
+  # in the mike version switcher under the old filter, since it only
+  # fired on doc-content changes — the deployed docs stayed pinned to
+  # whichever version last touched docs/**. Every push to main AND every
+  # release tag now redeploys (mike deploy is ~20s, cheap), so the
+  # switcher stays in step with build.yml's release trigger.
   push:
     branches: [main]
-    paths:
-      - 'mkdocs.yml'
-      - 'docs/**'
-      - 'requirements-docs.txt'
-      - '.github/workflows/docs.yml'
+    tags:
+      - 'v*'
   workflow_dispatch: {}
 
 permissions:
