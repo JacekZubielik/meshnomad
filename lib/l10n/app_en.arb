@@ -350,7 +350,7 @@
   "appSettings_maxMessageRetries": "Max Message Retries",
   "appSettings_maxMessageRetriesSubtitle": "Number of retry attempts before marking a message as failed",
   "appSettings_battery": "Battery",
-  "appSettings_batteryChemistry": "Battery Chemistry",
+  "appSettings_batteryChemistry": "Battery type",
   "appSettings_batteryChemistryPerDevice": "Set per device ({deviceName})",
   "@appSettings_batteryChemistryPerDevice": {
     "placeholders": {
@@ -3156,5 +3156,8 @@
   "appSettings_editCustomStyleTooltip": "Edit custom style",
   "protocol_contactsFullWarning": "Device contact table is full — oldest contacts may be overwritten",
   "appSettings_borderOverride_label": "Button border",
-  "appSettings_borderOverride_subtitle": "Off, solid, or dotted line"
+  "appSettings_borderOverride_subtitle": "Off, solid, or dotted line",
+  "appSettings_messageHistoryLimit_subtitle": "Messages kept per conversation",
+  "appSettings_language_subtitle": "App display language",
+  "appSettings_units_subtitle": "Distance units"
 }

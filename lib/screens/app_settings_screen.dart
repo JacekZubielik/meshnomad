@@ -195,51 +195,52 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ),
         const MeshDashedDivider(indent: 16),
-        InkWell(
-          onTap: () => _showLanguageSheet(context, settingsService),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: t.spacingMd,
-              vertical: t.spacingSm,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.language_outlined,
-                  size: 20,
-                  color: scheme.onSurfaceVariant,
-                ),
-                SizedBox(width: t.spacingSm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.l10n.appSettings_language,
-                        style: textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+        // Inline value stepper instead of the former picker sheet (user
+        // spec 2026-08-23: same control as Appearance -> Button border).
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingSm,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.language_outlined,
+                size: 20,
+                color: scheme.onSurfaceVariant,
+              ),
+              SizedBox(width: t.spacingSm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.l10n.appSettings_language,
+                      style: textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _languageLabel(
-                          context,
-                          settingsService.settings.languageOverride,
-                        ),
-                        style: textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      context.l10n.appSettings_language_subtitle,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Icon(
-                  Icons.chevron_right,
-                  color: scheme.onSurfaceVariant,
-                  size: 16,
-                ),
-              ],
-            ),
+              ),
+              SizedBox(width: t.spacingSm),
+              _SettingsValueStepper<String?>(
+                key: const ValueKey('languageStepper'),
+                values: const [null, 'en', 'pl'],
+                value: settingsService.settings.languageOverride,
+                labelOf: _languageLabel,
+                buttonBorder:
+                    settingsService.activeProfileOverrides.buttonBorder,
+                onChanged: (v) => settingsService.setLanguageOverride(v),
+              ),
+            ],
           ),
         ),
         const MeshDashedDivider(indent: 16),
@@ -671,89 +672,49 @@ class AppSettingsScreen extends StatelessWidget {
           },
         ),
         const MeshDashedDivider(indent: 16),
-        ListTile(
-          contentPadding: EdgeInsets.symmetric(
+        // Same row layout and stepper control as Appearance -> Button border
+        // (user spec 2026-08-23): the picker sheet is gone, the value cycles
+        // inline through 200/500/1000/Unlimited.
+        Padding(
+          padding: EdgeInsets.symmetric(
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          leading: const Icon(Icons.history, size: 20),
-          title: Text(context.l10n.settings_messageHistoryLimit),
-          subtitle: Text(
-            _messageHistoryLimitLabel(
-              context,
-              settingsService.settings.messageHistoryLimit,
-            ),
+          child: Row(
+            children: [
+              const Icon(Icons.history, size: 20),
+              SizedBox(width: t.spacingMd),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(context.l10n.settings_messageHistoryLimit),
+                    Text(
+                      context.l10n.appSettings_messageHistoryLimit_subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: t.spacingMd),
+              _SettingsValueStepper<int>(
+                key: const ValueKey('messageHistoryLimitStepper'),
+                values: const [200, 500, 1000, 0],
+                value: settingsService.settings.messageHistoryLimit,
+                labelOf: (ctx, v) => v == 0
+                    ? ctx.l10n.settings_messageHistoryLimitUnlimited
+                    : '$v',
+                buttonBorder:
+                    settingsService.activeProfileOverrides.buttonBorder,
+                onChanged: (v) => settingsService.setMessageHistoryLimit(v),
+              ),
+            ],
           ),
-          onTap: () => _showMessageHistoryLimitSheet(context, settingsService),
         ),
       ],
     );
-  }
-
-  void _showMessageHistoryLimitSheet(
-    BuildContext context,
-    AppSettingsService settingsService,
-  ) {
-    showMeshSheet(
-      context,
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          BottomSheetHeader(title: context.l10n.settings_messageHistoryLimit),
-          _sheetOption<int>(
-            ctx,
-            label: '200',
-            value: 200,
-            selected: settingsService.settings.messageHistoryLimit == 200,
-            onTap: () {
-              settingsService.setMessageHistoryLimit(200);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<int>(
-            ctx,
-            label: '500',
-            value: 500,
-            selected: settingsService.settings.messageHistoryLimit == 500,
-            onTap: () {
-              settingsService.setMessageHistoryLimit(500);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<int>(
-            ctx,
-            label: '1000',
-            value: 1000,
-            selected: settingsService.settings.messageHistoryLimit == 1000,
-            onTap: () {
-              settingsService.setMessageHistoryLimit(1000);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<int>(
-            ctx,
-            label: context.l10n.settings_messageHistoryLimitUnlimited,
-            value: 0,
-            selected: settingsService.settings.messageHistoryLimit == 0,
-            onTap: () {
-              settingsService.setMessageHistoryLimit(0);
-              Navigator.pop(ctx);
-            },
-          ),
-          SizedBox(
-            height:
-                MediaQuery.paddingOf(ctx).bottom + MeshTokens.of(ctx).spacingXs,
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _messageHistoryLimitLabel(BuildContext context, int limit) {
-    if (limit == 0) {
-      return context.l10n.settings_messageHistoryLimitUnlimited;
-    }
-    return limit.toString();
   }
 
   Widget _buildBatteryContent(
@@ -773,6 +734,9 @@ class AppSettingsScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Inline value stepper instead of the former dropdown (user spec
+        // 2026-08-23: same control as Appearance -> Button border). Stays
+        // disabled until a device is connected, like the dropdown did.
         Padding(
           padding: EdgeInsets.only(top: t.spacingSm, bottom: t.spacingXxs),
           child: Row(
@@ -809,41 +773,27 @@ class AppSettingsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              SizedBox(width: t.spacingSm),
+              _SettingsValueStepper<String>(
+                key: const ValueKey('batteryChemistryStepper'),
+                values: const ['nmc', 'lifepo4', 'lipo'],
+                value: selection,
+                labelOf: (ctx, v) => switch (v) {
+                  'lifepo4' => ctx.l10n.appSettings_batteryLifepo4,
+                  'lipo' => ctx.l10n.appSettings_batteryLipo,
+                  _ => ctx.l10n.appSettings_batteryNmc,
+                },
+                buttonBorder:
+                    settingsService.activeProfileOverrides.buttonBorder,
+                enabled: isConnected,
+                onChanged: (v) {
+                  if (deviceId != null) {
+                    settingsService.setBatteryChemistryForDevice(deviceId, v);
+                  }
+                },
+              ),
             ],
           ),
-        ),
-        SizedBox(height: t.spacingXs),
-        DropdownButtonFormField<String>(
-          initialValue: selection,
-          isExpanded: true,
-          decoration: const InputDecoration(
-            border: UnderlineInputBorder(),
-            isDense: true,
-          ),
-          onChanged: isConnected
-              ? (value) {
-                  if (value != null) {
-                    settingsService.setBatteryChemistryForDevice(
-                      deviceId,
-                      value,
-                    );
-                  }
-                }
-              : null,
-          items: [
-            DropdownMenuItem(
-              value: 'nmc',
-              child: Text(context.l10n.appSettings_batteryNmc),
-            ),
-            DropdownMenuItem(
-              value: 'lifepo4',
-              child: Text(context.l10n.appSettings_batteryLifepo4),
-            ),
-            DropdownMenuItem(
-              value: 'lipo',
-              child: Text(context.l10n.appSettings_batteryLipo),
-            ),
-          ],
         ),
       ],
     );
@@ -893,96 +843,103 @@ class AppSettingsScreen extends StatelessWidget {
         onChanged: (value) => settingsService.setMapShowOtherNodes(value),
       ),
       const MeshDashedDivider(indent: 16),
-      InkWell(
-        onTap: () => _showTimeFilterSheet(context, settingsService),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: t.spacingMd,
-            vertical: t.spacingSm,
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.timer_outlined,
-                size: 20,
-                color: scheme.onSurfaceVariant,
-              ),
-              SizedBox(width: t.spacingSm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.l10n.appSettings_timeFilter,
-                      style: textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+      // Inline value stepper instead of the former picker sheet (user spec
+      // 2026-08-23: same control as Appearance -> Button border).
+      Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: t.spacingMd,
+          vertical: t.spacingSm,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.timer_outlined,
+              size: 20,
+              color: scheme.onSurfaceVariant,
+            ),
+            SizedBox(width: t.spacingSm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.appSettings_timeFilter,
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      settingsService.settings.mapTimeFilterHours == 0
-                          ? context.l10n.appSettings_timeFilterShowAll
-                          : context.l10n.appSettings_timeFilterShowLast(
-                              settingsService.settings.mapTimeFilterHours
-                                  .toInt(),
-                            ),
-                      style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    context.l10n.appSettings_showNodesDiscoveredWithin,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Icon(
-                Icons.chevron_right,
-                color: scheme.onSurfaceVariant,
-                size: 16,
-              ),
-            ],
-          ),
+            ),
+            SizedBox(width: t.spacingSm),
+            _SettingsValueStepper<double>(
+              key: const ValueKey('mapTimeFilterStepper'),
+              values: const [0, 1, 6, 24, 168],
+              value: settingsService.settings.mapTimeFilterHours,
+              labelOf: (ctx, v) => switch (v) {
+                1 => ctx.l10n.appSettings_lastHour,
+                6 => ctx.l10n.appSettings_last6Hours,
+                24 => ctx.l10n.appSettings_last24Hours,
+                168 => ctx.l10n.appSettings_lastWeek,
+                _ => ctx.l10n.appSettings_allTime,
+              },
+              buttonBorder: settingsService.activeProfileOverrides.buttonBorder,
+              onChanged: (v) => settingsService.setMapTimeFilterHours(v),
+            ),
+          ],
         ),
       ),
       const MeshDashedDivider(indent: 16),
-      InkWell(
-        onTap: () => _showUnitsSheet(context, settingsService),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: t.spacingMd,
-            vertical: t.spacingSm,
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.straighten, size: 20, color: scheme.onSurfaceVariant),
-              SizedBox(width: t.spacingSm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.l10n.appSettings_unitsTitle,
-                      style: textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+      // Inline value stepper instead of the former picker sheet (user spec
+      // 2026-08-23: same control as Appearance -> Button border).
+      Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: t.spacingMd,
+          vertical: t.spacingSm,
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.straighten, size: 20, color: scheme.onSurfaceVariant),
+            SizedBox(width: t.spacingSm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.appSettings_unitsTitle,
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      settingsService.settings.unitSystem == UnitSystem.imperial
-                          ? context.l10n.appSettings_unitsImperial
-                          : context.l10n.appSettings_unitsMetric,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    context.l10n.appSettings_units_subtitle,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Icon(
-                Icons.chevron_right,
-                color: scheme.onSurfaceVariant,
-                size: 16,
-              ),
-            ],
-          ),
+            ),
+            SizedBox(width: t.spacingSm),
+            _SettingsValueStepper<UnitSystem>(
+              key: const ValueKey('unitsStepper'),
+              values: const [UnitSystem.metric, UnitSystem.imperial],
+              value: settingsService.settings.unitSystem,
+              labelOf: (ctx, v) => v == UnitSystem.imperial
+                  ? ctx.l10n.appSettings_unitsImperial
+                  : ctx.l10n.appSettings_unitsMetric,
+              buttonBorder: settingsService.activeProfileOverrides.buttonBorder,
+              onChanged: (v) => settingsService.setUnitSystem(v),
+            ),
+          ],
         ),
       ),
       const MeshDashedDivider(indent: 16),
@@ -1863,199 +1820,6 @@ class AppSettingsScreen extends StatelessWidget {
     }
   }
 
-  void _showLanguageSheet(
-    BuildContext context,
-    AppSettingsService settingsService,
-  ) {
-    showMeshSheet(
-      context,
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          BottomSheetHeader(title: context.l10n.appSettings_language),
-          SizedBox(
-            height: 400,
-            child: ListView(
-              children: [
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageSystem,
-                  value: null,
-                  selected: settingsService.settings.languageOverride == null,
-                  onTap: () {
-                    settingsService.setLanguageOverride(null);
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languageEn,
-                  value: 'en',
-                  selected: settingsService.settings.languageOverride == 'en',
-                  onTap: () {
-                    settingsService.setLanguageOverride('en');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                _sheetOption<String?>(
-                  ctx,
-                  label: context.l10n.appSettings_languagePl,
-                  value: 'pl',
-                  selected: settingsService.settings.languageOverride == 'pl',
-                  onTap: () {
-                    settingsService.setLanguageOverride('pl');
-                    Navigator.pop(ctx);
-                  },
-                ),
-                SizedBox(
-                  height:
-                      MediaQuery.paddingOf(ctx).bottom +
-                      MeshTokens.of(ctx).spacingXs,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showTimeFilterSheet(
-    BuildContext context,
-    AppSettingsService settingsService,
-  ) {
-    showMeshSheet(
-      context,
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          BottomSheetHeader(title: context.l10n.appSettings_mapTimeFilter),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              MeshTokens.of(ctx).spacingMd,
-              MeshTokens.of(ctx).spacingXxs,
-              MeshTokens.of(ctx).spacingMd,
-              MeshTokens.of(ctx).spacingXs,
-            ),
-            child: Text(context.l10n.appSettings_showNodesDiscoveredWithin),
-          ),
-          _sheetOption<double>(
-            ctx,
-            label: context.l10n.appSettings_allTime,
-            value: 0,
-            selected: settingsService.settings.mapTimeFilterHours == 0,
-            onTap: () {
-              settingsService.setMapTimeFilterHours(0);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<double>(
-            ctx,
-            label: context.l10n.appSettings_lastHour,
-            value: 1,
-            selected: settingsService.settings.mapTimeFilterHours == 1,
-            onTap: () {
-              settingsService.setMapTimeFilterHours(1);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<double>(
-            ctx,
-            label: context.l10n.appSettings_last6Hours,
-            value: 6,
-            selected: settingsService.settings.mapTimeFilterHours == 6,
-            onTap: () {
-              settingsService.setMapTimeFilterHours(6);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<double>(
-            ctx,
-            label: context.l10n.appSettings_last24Hours,
-            value: 24,
-            selected: settingsService.settings.mapTimeFilterHours == 24,
-            onTap: () {
-              settingsService.setMapTimeFilterHours(24);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<double>(
-            ctx,
-            label: context.l10n.appSettings_lastWeek,
-            value: 168,
-            selected: settingsService.settings.mapTimeFilterHours == 168,
-            onTap: () {
-              settingsService.setMapTimeFilterHours(168);
-              Navigator.pop(ctx);
-            },
-          ),
-          SizedBox(
-            height:
-                MediaQuery.paddingOf(ctx).bottom + MeshTokens.of(ctx).spacingXs,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showUnitsSheet(
-    BuildContext context,
-    AppSettingsService settingsService,
-  ) {
-    showMeshSheet(
-      context,
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          BottomSheetHeader(title: context.l10n.appSettings_unitsTitle),
-          _sheetOption<UnitSystem>(
-            ctx,
-            label: context.l10n.appSettings_unitsMetric,
-            value: UnitSystem.metric,
-            selected: settingsService.settings.unitSystem == UnitSystem.metric,
-            onTap: () {
-              settingsService.setUnitSystem(UnitSystem.metric);
-              Navigator.pop(ctx);
-            },
-          ),
-          _sheetOption<UnitSystem>(
-            ctx,
-            label: context.l10n.appSettings_unitsImperial,
-            value: UnitSystem.imperial,
-            selected:
-                settingsService.settings.unitSystem == UnitSystem.imperial,
-            onTap: () {
-              settingsService.setUnitSystem(UnitSystem.imperial);
-              Navigator.pop(ctx);
-            },
-          ),
-          SizedBox(
-            height:
-                MediaQuery.paddingOf(ctx).bottom + MeshTokens.of(ctx).spacingXs,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _sheetOption<T>(
-    BuildContext context, {
-    required String label,
-    required T value,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
-    final scheme = Theme.of(context).colorScheme;
-    return ListTile(
-      leading: Icon(
-        selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-        color: selected ? scheme.primary : scheme.onSurfaceVariant,
-      ),
-      title: Text(label),
-      onTap: onTap,
-    );
-  }
-
   void _showTranslationLanguageDialog(
     BuildContext context,
     AppSettingsService settingsService,
@@ -2496,6 +2260,123 @@ class _BorderOverrideStepper extends StatelessWidget {
                   _label(context, v),
                   textAlign: TextAlign.center,
                   style: t.monoBody(color: scheme.onSurface),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        circleButton(Icons.remove, () => _step(-1)),
+        SizedBox(width: t.spacingXxs),
+        valuePill,
+        SizedBox(width: t.spacingXxs),
+        circleButton(Icons.add, () => _step(1)),
+      ],
+    );
+  }
+}
+
+/// Generic settings value stepper — same pattern as [_BorderOverrideStepper]
+/// (circular tinted +/- buttons flanking a stable-width mono value pill),
+/// cycling through a fixed list of choices that previously lived in bottom
+/// sheets / dropdowns (user spec 2026-08-23: every such picker in App
+/// Settings looks identical to the Button border control). Unlike
+/// [_BorderOverrideStepper] — whose circles preview the border value being
+/// edited — these circles follow the app-wide `buttonBorder` setting, like
+/// every other member of the button family (they are hand-drawn, not theme
+/// buttons, so the side/shape is derived here the same way).
+class _SettingsValueStepper<T> extends StatelessWidget {
+  const _SettingsValueStepper({
+    super.key,
+    required this.values,
+    required this.value,
+    required this.labelOf,
+    required this.buttonBorder,
+    required this.onChanged,
+    this.enabled = true,
+  });
+
+  final List<T> values;
+  final T value;
+  final String Function(BuildContext, T) labelOf;
+
+  /// Current app-wide buttonBorder ('none'/'solid'/'dotted', null == 'none').
+  final String? buttonBorder;
+  final ValueChanged<T> onChanged;
+  final bool enabled;
+
+  void _step(int direction) {
+    final index = values.indexOf(value);
+    // A stored value outside the fixed cycle (possible only for prefs
+    // predating the choice list) lands on the first choice with one tap.
+    final next = index == -1
+        ? values.first
+        : values[(index + direction + values.length) % values.length];
+    onChanged(next);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
+
+    final borderStyle = buttonBorder ?? 'none';
+    final circleBorderSide = borderStyle == 'none'
+        ? BorderSide.none
+        : BorderSide(color: scheme.primary);
+    final circleShape = borderStyle == 'dotted'
+        ? DashedCircleBorder(side: circleBorderSide)
+        : CircleBorder(side: circleBorderSide);
+
+    Widget circleButton(IconData icon, VoidCallback onPressed) {
+      return SizedBox(
+        width: 36,
+        height: 36,
+        child: DecoratedBox(
+          decoration: ShapeDecoration(
+            shape: circleShape,
+            color: scheme.primary.withValues(alpha: 0.2),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            iconSize: 18,
+            color: scheme.primary,
+            icon: Icon(icon),
+            onPressed: enabled ? onPressed : null,
+          ),
+        ),
+      );
+    }
+
+    final valuePill = Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: t.spacingSm,
+        vertical: t.spacingSm,
+      ),
+      decoration: BoxDecoration(
+        color: scheme.primary.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(t.sm),
+      ),
+      child: IntrinsicWidth(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            for (final v in values)
+              Visibility(
+                visible: v == value,
+                maintainState: true,
+                maintainAnimation: true,
+                maintainSize: true,
+                child: Text(
+                  labelOf(context, v),
+                  textAlign: TextAlign.center,
+                  style: t.monoBody(
+                    color: enabled ? scheme.onSurface : scheme.onSurfaceVariant,
+                  ),
                 ),
               ),
           ],

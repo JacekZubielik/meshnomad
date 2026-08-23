@@ -925,7 +925,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_battery => 'Bateria';
 
   @override
-  String get appSettings_batteryChemistry => 'Chemia Baterii';
+  String get appSettings_batteryChemistry => 'Typ baterii';
 
   @override
   String appSettings_batteryChemistryPerDevice(String deviceName) {
@@ -5805,4 +5805,14 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get appSettings_borderOverride_subtitle =>
       'Brak, linia ciągła albo kropkowana';
+
+  @override
+  String get appSettings_messageHistoryLimit_subtitle =>
+      'Liczba wiadomości przechowywanych na rozmowę';
+
+  @override
+  String get appSettings_language_subtitle => 'Język interfejsu aplikacji';
+
+  @override
+  String get appSettings_units_subtitle => 'Jednostki odległości';
 }

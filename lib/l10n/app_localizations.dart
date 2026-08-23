@@ -1739,7 +1739,7 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings_batteryChemistry.
   ///
   /// In en, this message translates to:
-  /// **'Battery Chemistry'**
+  /// **'Battery type'**
   String get appSettings_batteryChemistry;
 
   /// No description provided for @appSettings_batteryChemistryPerDevice.
@@ -9949,6 +9949,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Off, solid, or dotted line'**
   String get appSettings_borderOverride_subtitle;
+
+  /// No description provided for @appSettings_messageHistoryLimit_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages kept per conversation'**
+  String get appSettings_messageHistoryLimit_subtitle;
+
+  /// No description provided for @appSettings_language_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App display language'**
+  String get appSettings_language_subtitle;
+
+  /// No description provided for @appSettings_units_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance units'**
+  String get appSettings_units_subtitle;
 }
 
 class _AppLocalizationsDelegate

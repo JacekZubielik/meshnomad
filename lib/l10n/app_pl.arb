@@ -209,7 +209,7 @@
   "appSettings_autoRouteRotationEnabled": "Automatyczne obracanie tras włączone",
   "appSettings_autoRouteRotationDisabled": "Automatyczne obracanie tras wyłączone",
   "appSettings_battery": "Bateria",
-  "appSettings_batteryChemistry": "Chemia Baterii",
+  "appSettings_batteryChemistry": "Typ baterii",
   "appSettings_batteryChemistryPerDevice": "Ustaw dla urządzenia ({deviceName})",
   "@appSettings_batteryChemistryPerDevice": {
     "placeholders": {
@@ -2986,5 +2986,8 @@
   "appSettings_editCustomStyleTooltip": "Edytuj styl Custom",
   "protocol_contactsFullWarning": "Tabela kontaktów urządzenia pełna — najstarsze kontakty mogą być nadpisywane",
   "appSettings_borderOverride_label": "Border przycisków",
-  "appSettings_borderOverride_subtitle": "Brak, linia ciągła albo kropkowana"
+  "appSettings_borderOverride_subtitle": "Brak, linia ciągła albo kropkowana",
+  "appSettings_messageHistoryLimit_subtitle": "Liczba wiadomości przechowywanych na rozmowę",
+  "appSettings_language_subtitle": "Język interfejsu aplikacji",
+  "appSettings_units_subtitle": "Jednostki odległości"
 }
