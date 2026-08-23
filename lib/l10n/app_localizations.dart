@@ -9854,18 +9854,6 @@ abstract class AppLocalizations {
   /// **'Large section breaks'**
   String get styleEditor_spacingXlg_subtitle;
 
-  /// No description provided for @styleEditor_spacingXxlg_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Huge (xxlg)'**
-  String get styleEditor_spacingXxlg_label;
-
-  /// No description provided for @styleEditor_spacingXxlg_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Largest layout gaps'**
-  String get styleEditor_spacingXxlg_subtitle;
-
   /// No description provided for @styleEditor_radiusSection.
   ///
   /// In en, this message translates to:

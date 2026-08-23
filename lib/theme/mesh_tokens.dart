@@ -87,7 +87,6 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.spacingMd,
     required this.spacingLg,
     required this.spacingXlg,
-    required this.spacingXxlg,
     required this.spacingHairline,
     required this.monoCaptionSize,
     required this.monoBodySize,
@@ -209,7 +208,6 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   final double spacingMd;
   final double spacingLg;
   final double spacingXlg;
-  final double spacingXxlg;
 
   /// Sub-[spacingXxs] gap (~1-2dp) used for hairline visual separation
   /// (map/LOS legend rows, status-dot alignment) — raising these to
@@ -365,7 +363,6 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     spacingMd: 14,
     spacingLg: 24,
     spacingXlg: 32,
-    spacingXxlg: 48,
     spacingHairline: 2,
     monoCaptionSize: 11,
     monoBodySize: 11,
@@ -468,7 +465,6 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     spacingMd: 14,
     spacingLg: 24,
     spacingXlg: 32,
-    spacingXxlg: 48,
     spacingHairline: 2,
     monoCaptionSize: 11,
     monoBodySize: 11,
@@ -666,7 +662,6 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     double? spacingMd,
     double? spacingLg,
     double? spacingXlg,
-    double? spacingXxlg,
     double? spacingHairline,
     double? monoCaptionSize,
     double? monoBodySize,
@@ -761,7 +756,6 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       spacingMd: spacingMd ?? this.spacingMd,
       spacingLg: spacingLg ?? this.spacingLg,
       spacingXlg: spacingXlg ?? this.spacingXlg,
-      spacingXxlg: spacingXxlg ?? this.spacingXxlg,
       spacingHairline: spacingHairline ?? this.spacingHairline,
       monoCaptionSize: monoCaptionSize ?? this.monoCaptionSize,
       monoBodySize: monoBodySize ?? this.monoBodySize,

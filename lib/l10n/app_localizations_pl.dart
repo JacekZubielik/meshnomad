@@ -5760,12 +5760,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_spacingXlg_subtitle => 'Duże przerwy między sekcjami';
 
   @override
-  String get styleEditor_spacingXxlg_label => 'Ogromny (xxlg)';
-
-  @override
-  String get styleEditor_spacingXxlg_subtitle => 'Największe odstępy układu';
-
-  @override
   String get styleEditor_radiusSection => 'Zaokrąglenia';
 
   @override

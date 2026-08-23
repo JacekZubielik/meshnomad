@@ -85,7 +85,6 @@ class CustomStyleOverrides {
     'spacingMd',
     'spacingLg',
     'spacingXlg',
-    'spacingXxlg',
   ];
 
   /// Editable `MeshTokens` corner-radius fields. `pill` is exposed on the

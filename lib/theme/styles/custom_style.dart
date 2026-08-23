@@ -806,7 +806,6 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     spacingMd: spacingFor('spacingMd', baseTokens.spacingMd),
     spacingLg: spacingFor('spacingLg', baseTokens.spacingLg),
     spacingXlg: spacingFor('spacingXlg', baseTokens.spacingXlg),
-    spacingXxlg: spacingFor('spacingXxlg', baseTokens.spacingXxlg),
     xs: radiusFor('xs', baseTokens.xs),
     sm: radiusFor('sm', baseTokens.sm),
     md: radiusFor('md', baseTokens.md),

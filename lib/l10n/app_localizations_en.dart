@@ -5651,12 +5651,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get styleEditor_spacingXlg_subtitle => 'Large section breaks';
 
   @override
-  String get styleEditor_spacingXxlg_label => 'Huge (xxlg)';
-
-  @override
-  String get styleEditor_spacingXxlg_subtitle => 'Largest layout gaps';
-
-  @override
   String get styleEditor_radiusSection => 'Corner radius';
 
   @override

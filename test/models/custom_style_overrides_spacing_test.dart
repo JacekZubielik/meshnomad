@@ -26,7 +26,9 @@ void main() {
     expect(next.fontSizeOverrides, {'bodyMedium': 13.0});
   });
 
-  test('editableSpacingKeys lists all 7 steps in scale order', () {
+  test('editableSpacingKeys lists all 6 steps in scale order — spacingXxlg '
+      'removed 2026-08-24, confirmed near-unused (1 site) by '
+      'spacing-audit.md and folded into spacingXlg at that site', () {
     expect(CustomStyleOverrides.editableSpacingKeys, [
       'spacingXxs',
       'spacingXs',
@@ -34,7 +36,6 @@ void main() {
       'spacingMd',
       'spacingLg',
       'spacingXlg',
-      'spacingXxlg',
     ]);
   });
 
