@@ -735,7 +735,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get appSettings_language => 'Język';
 
   @override
-  String get appSettings_languageSystem => 'Domyślny systemowy';
+  String get appSettings_languageSystem => 'Systemowy';
 
   @override
   String get appSettings_languageEn => 'Angielski';
@@ -936,7 +936,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Połącz się z urządzeniem, aby wybrać';
 
   @override
-  String get appSettings_batteryNmc => '18650 NMC (3,0-4,2V)';
+  String get appSettings_batteryNmc => 'NMC (3,0-4,2V)';
 
   @override
   String get appSettings_batteryLifepo4 => 'LiFePO4 (2,6-3,65 V)';

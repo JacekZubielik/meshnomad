@@ -1751,7 +1751,7 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings_batteryNmc.
   ///
   /// In en, this message translates to:
-  /// **'18650 NMC (3.0-4.2V)'**
+  /// **'NMC (3.0-4.2V)'**
   String get appSettings_batteryNmc;
 
   /// No description provided for @appSettings_batteryLifepo4.

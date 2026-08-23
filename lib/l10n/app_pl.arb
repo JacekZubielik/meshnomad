@@ -173,7 +173,7 @@
   "appSettings_themeLight": "Jasny",
   "appSettings_themeDark": "Ciemny",
   "appSettings_language": "Język",
-  "appSettings_languageSystem": "Domyślny systemowy",
+  "appSettings_languageSystem": "Systemowy",
   "appSettings_languageEn": "Angielski",
   "appSettings_languageFr": "Francuski",
   "appSettings_languageEs": "Hiszpański",
@@ -219,7 +219,7 @@
     }
   },
   "appSettings_batteryChemistryConnectFirst": "Połącz się z urządzeniem, aby wybrać",
-  "appSettings_batteryNmc": "18650 NMC (3,0-4,2V)",
+  "appSettings_batteryNmc": "NMC (3,0-4,2V)",
   "appSettings_batteryLifepo4": "LiFePO4 (2,6-3,65 V)",
   "appSettings_batteryLipo": "LiPo (3,0-4,2V)",
   "appSettings_mapDisplay": "Wyświetlanie mapy",

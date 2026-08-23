@@ -702,7 +702,7 @@ class AppSettingsScreen extends StatelessWidget {
               SizedBox(width: t.spacingMd),
               SettingsValueStepper<int>(
                 key: const ValueKey('messageHistoryLimitStepper'),
-                values: const [200, 500, 1000, 0],
+                values: const [200, 500, 1000, 2000, 0],
                 value: settingsService.settings.messageHistoryLimit,
                 labelOf: (ctx, v) => v == 0
                     ? ctx.l10n.settings_messageHistoryLimitUnlimited
