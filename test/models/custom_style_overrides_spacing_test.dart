@@ -44,14 +44,14 @@ void main() {
     expect(decoded.radiusOverrides, {'md': 20.0});
   });
 
-  test('editableRadiusKeys lists 7 editable steps, including pill and the '
-      'buttons-only radius (2026-08-21)', () {
+  test('editableRadiusKeys lists 6 editable steps, including pill and the '
+      'buttons-only radius (2026-08-21) — xl removed 2026-08-23, confirmed '
+      'unused anywhere in lib/ by corner-radius-audit.md', () {
     expect(CustomStyleOverrides.editableRadiusKeys, [
       'xs',
       'sm',
       'md',
       'lg',
-      'xl',
       'pill',
       'buttonRadius',
     ]);

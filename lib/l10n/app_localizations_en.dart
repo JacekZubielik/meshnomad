@@ -1026,7 +1026,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get appSettings_debugCard => 'Debug';
+  String get appSettings_debugCard => 'DEBUG/DEV';
 
   @override
   String get appSettings_appDebugLogging => 'App Debug Logging';
@@ -1126,6 +1126,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contacts_newGroup => 'New Group';
+
+  @override
+  String get contacts_groupsSheetTitle => 'Groups';
 
   @override
   String get contacts_moreOptions => 'More options';
@@ -5665,12 +5668,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get styleEditor_radiusLg_subtitle => 'Chat bubbles, sheets';
 
   @override
-  String get styleEditor_radiusXl_label => 'Extra large (xl)';
-
-  @override
-  String get styleEditor_radiusXl_subtitle => 'Large panels';
-
-  @override
   String get styleEditor_radiusPill_label => 'Pill';
 
   @override
@@ -5694,4 +5691,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get protocol_contactsFullWarning =>
       'Device contact table is full — oldest contacts may be overwritten';
+
+  @override
+  String get appSettings_borderOverride_label => 'Button border';
+
+  @override
+  String get appSettings_borderOverride_subtitle =>
+      'Off, solid, or dotted line';
 }

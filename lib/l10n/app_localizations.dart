@@ -1949,7 +1949,7 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings_debugCard.
   ///
   /// In en, this message translates to:
-  /// **'Debug'**
+  /// **'DEBUG/DEV'**
   String get appSettings_debugCard;
 
   /// No description provided for @appSettings_appDebugLogging.
@@ -2113,6 +2113,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New Group'**
   String get contacts_newGroup;
+
+  /// No description provided for @contacts_groupsSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get contacts_groupsSheetTitle;
 
   /// No description provided for @contacts_moreOptions.
   ///
@@ -9884,18 +9890,6 @@ abstract class AppLocalizations {
   /// **'Chat bubbles, sheets'**
   String get styleEditor_radiusLg_subtitle;
 
-  /// No description provided for @styleEditor_radiusXl_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Extra large (xl)'**
-  String get styleEditor_radiusXl_label;
-
-  /// No description provided for @styleEditor_radiusXl_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Large panels'**
-  String get styleEditor_radiusXl_subtitle;
-
   /// No description provided for @styleEditor_radiusPill_label.
   ///
   /// In en, this message translates to:
@@ -9943,6 +9937,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Device contact table is full — oldest contacts may be overwritten'**
   String get protocol_contactsFullWarning;
+
+  /// No description provided for @appSettings_borderOverride_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Button border'**
+  String get appSettings_borderOverride_label;
+
+  /// No description provided for @appSettings_borderOverride_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Off, solid, or dotted line'**
+  String get appSettings_borderOverride_subtitle;
 }
 
 class _AppLocalizationsDelegate

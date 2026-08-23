@@ -12,6 +12,7 @@ import '../services/app_settings_service.dart';
 import '../services/map_tile_cache_service.dart';
 import '../services/notification_service.dart';
 import '../services/translation_service.dart';
+import '../theme/dashed_rounded_border.dart';
 import '../theme/mesh_tokens.dart';
 import '../theme/styles/style_registry.dart';
 import '../widgets/adaptive_app_bar_title.dart';
@@ -256,6 +257,49 @@ class AppSettingsScreen extends StatelessWidget {
           subtitle: Text(context.l10n.styleEditor_cardShadow_subtitle),
           value: settingsService.activeProfileOverrides.cardElevated ?? true,
           onChanged: (v) => settingsService.setCustomCardElevated(v),
+        ),
+        const MeshDashedDivider(indent: 16),
+        // Same control, same field as Custom Style editor's Buttons section
+        // (2026-08-23 correction: this is `buttonBorder` — none/solid/
+        // dotted — NOT the separate `borderOverride` field. Both this and
+        // the editor's stepper read/write
+        // `settingsService.activeProfileOverrides.buttonBorder` /
+        // `setCustomButtonBorder`, so they always show the same value and
+        // stay in sync — this is a second, more-discoverable entry point to
+        // the identical setting, not a different one).
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.border_style, size: 20),
+              SizedBox(width: t.spacingMd),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(context.l10n.appSettings_borderOverride_label),
+                    Text(
+                      context.l10n.appSettings_borderOverride_subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: t.spacingMd),
+              _BorderOverrideStepper(
+                key: const ValueKey('borderOverrideStepper'),
+                value: settingsService.activeProfileOverrides.buttonBorder,
+                onChanged: (v) => settingsService.setCustomButtonBorder(
+                  v == 'none' ? null : v,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -2342,6 +2386,132 @@ class AppSettingsScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// +/- stepper cycling through none/solid/dotted for `buttonBorder` — the
+/// exact same field, values and labels as the Custom Style editor's
+/// Buttons-section stepper (.mockups/repeater-cli-drawer-fixes.html
+/// Variant B: circular tinted +/- buttons flanking a centered mono value
+/// pill, stable-width via IntrinsicWidth over all possible labels). This is
+/// a second entry point to that identical setting (2026-08-23 correction —
+/// an earlier version wrongly wired this to the separate `borderOverride`
+/// field with its own Auto/On/Off domain), kept as a separate widget here
+/// rather than reaching into the editor screen's private one.
+class _BorderOverrideStepper extends StatelessWidget {
+  const _BorderOverrideStepper({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
+
+  /// null behaves like 'none' — matches CustomStyleOverrides.buttonBorder.
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  static const _values = ['none', 'solid', 'dotted'];
+
+  String _label(BuildContext context, String? v) {
+    final l10n = context.l10n;
+    return switch (v) {
+      'solid' => l10n.styleEditor_buttonBorder_solid,
+      'dotted' => l10n.styleEditor_buttonBorder_dotted,
+      _ => l10n.styleEditor_buttonBorder_none,
+    };
+  }
+
+  void _step(int direction) {
+    final index = _values.indexOf(value ?? 'none');
+    final next = _values[(index + direction + _values.length) % _values.length];
+    onChanged(next);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
+
+    // Same buttonSide/buttonShape logic as applyChromeRadii in
+    // custom_style.dart (the "real" button family) — these circular +/-
+    // controls are visually part of that family and must show/hide/style
+    // their own border exactly the same way 'new buttons' currently do,
+    // live, as the value being edited changes (2026-08-23: first fixed
+    // show/hide, then found the line STYLE was still always solid even for
+    // 'dotted' — CircleBorder has no built-in dashed variant, hence
+    // DashedCircleBorder).
+    final effective = value ?? 'none';
+    final circleBorderSide = effective == 'none'
+        ? BorderSide.none
+        : BorderSide(color: scheme.primary);
+    final circleShape = effective == 'dotted'
+        ? DashedCircleBorder(side: circleBorderSide)
+        : CircleBorder(side: circleBorderSide);
+
+    Widget circleButton(IconData icon, VoidCallback onPressed) {
+      return SizedBox(
+        width: 36,
+        height: 36,
+        child: DecoratedBox(
+          decoration: ShapeDecoration(
+            shape: circleShape,
+            color: scheme.primary.withValues(alpha: 0.2),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            iconSize: 18,
+            color: scheme.primary,
+            icon: Icon(icon),
+            onPressed: onPressed,
+          ),
+        ),
+      );
+    }
+
+    final valuePill = Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: t.spacingSm,
+        vertical: t.spacingSm,
+      ),
+      decoration: BoxDecoration(
+        color: scheme.primary.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(t.sm),
+      ),
+      child: IntrinsicWidth(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            for (final v in _values)
+              // Compare against `effective`, not raw `value` — `value` is
+              // null by default (== 'none'), which never equals any string
+              // in `_values`, so every label stayed invisible and the pill
+              // rendered blank until a non-null value was picked at least
+              // once (2026-08-23 bug: "none" never showing at all).
+              Visibility(
+                visible: v == effective,
+                maintainState: true,
+                maintainAnimation: true,
+                maintainSize: true,
+                child: Text(
+                  _label(context, v),
+                  textAlign: TextAlign.center,
+                  style: t.monoBody(color: scheme.onSurface),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        circleButton(Icons.remove, () => _step(-1)),
+        SizedBox(width: t.spacingXxs),
+        valuePill,
+        SizedBox(width: t.spacingXxs),
+        circleButton(Icons.add, () => _step(1)),
+      ],
     );
   }
 }

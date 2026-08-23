@@ -268,8 +268,9 @@ void main() {
       },
     );
 
-    test('buttons follow the buttons-only radius and border mode '
-        '(2026-08-21 Buttons section)', () {
+    test('buttons follow their own self-contained radius/border control, '
+        'independent of the app-wide bordersVisible toggle (2026-08-21 '
+        'Buttons section, reverted to independent 2026-08-23)', () {
       final style = buildCustomStyle(
         const CustomStyleOverrides(
           radiusOverrides: {'buttonRadius': 6.0},
@@ -282,6 +283,31 @@ void main() {
       expect((rrb.borderRadius as BorderRadius).topLeft.x, 6.0);
       expect(rrb.side.style, BorderStyle.solid);
       expect(rrb.side.color, style.theme.colorScheme.primary);
+
+      // buttonBorder: 'solid' shows a border even when the app-wide switch
+      // would hide borders everywhere else (borderOverride: false here).
+      final solidDespiteGlobalOff = buildCustomStyle(
+        const CustomStyleOverrides(
+          buttonBorder: 'solid',
+          borderOverride: false,
+        ),
+      );
+      final solidShape =
+          solidDespiteGlobalOff.theme.filledButtonTheme.style?.shape?.resolve(
+                {},
+              )!
+              as RoundedRectangleBorder;
+      expect(solidShape.side, isNot(BorderSide.none));
+
+      // buttonBorder: 'none' hides the border even when the app-wide switch
+      // would show borders everywhere else (borderOverride: true here).
+      final noneDespiteGlobalOn = buildCustomStyle(
+        const CustomStyleOverrides(buttonBorder: 'none', borderOverride: true),
+      );
+      final noneDespiteGlobalOnShape =
+          noneDespiteGlobalOn.theme.filledButtonTheme.style?.shape?.resolve({})!
+              as RoundedRectangleBorder;
+      expect(noneDespiteGlobalOnShape.side, BorderSide.none);
 
       final none = buildCustomStyle(const CustomStyleOverrides());
       final noneShape =
@@ -302,6 +328,47 @@ void main() {
       expect(off.theme.extension<MeshTokens>()!.cardElevated, false);
       final inherit = buildCustomStyle(const CustomStyleOverrides());
       expect(inherit.theme.extension<MeshTokens>()!.cardElevated, true);
+    });
+
+    test('bordersVisible follows !cardElevated by default, and '
+        'borderOverride wins independently either direction '
+        '(2026-08-23 border/shadow unification)', () {
+      bool visible(CustomStyleOverrides o) =>
+          buildCustomStyle(o).theme.extension<MeshTokens>()!.bordersVisible;
+
+      // Shadow on (default) -> borders hidden; shadow off -> borders shown.
+      expect(visible(const CustomStyleOverrides()), false);
+      expect(visible(const CustomStyleOverrides(cardElevated: false)), true);
+
+      // Explicit override wins over the shadow-derived default either way.
+      expect(visible(const CustomStyleOverrides(borderOverride: true)), true);
+      expect(
+        visible(
+          const CustomStyleOverrides(
+            cardElevated: false,
+            borderOverride: false,
+          ),
+        ),
+        false,
+      );
+
+      // Spot-check a couple of the widget sites actually gated by it.
+      final shown = buildCustomStyle(
+        const CustomStyleOverrides(borderOverride: true),
+      ).theme;
+      final hidden = buildCustomStyle(const CustomStyleOverrides()).theme;
+      expect(
+        (shown.inputDecorationTheme.enabledBorder! as OutlineInputBorder)
+            .borderSide,
+        isNot(BorderSide.none),
+      );
+      expect(
+        (hidden.inputDecorationTheme.enabledBorder! as OutlineInputBorder)
+            .borderSide,
+        BorderSide.none,
+      );
+      expect(shown.dividerTheme.color, isNot(Colors.transparent));
+      expect(hidden.dividerTheme.color, Colors.transparent);
     });
 
     test('a bg override re-derives popup chrome backgrounds '
@@ -351,7 +418,12 @@ void main() {
       final theme = style.theme;
       final scheme = theme.colorScheme;
       expect(scheme.primary, const Color(0xFFFF8800));
-      expect(theme.floatingActionButtonTheme.backgroundColor, scheme.primary);
+      // FAB now follows the tinted-primary button language too (2026-08-23).
+      expect(
+        theme.floatingActionButtonTheme.backgroundColor,
+        scheme.primary.withValues(alpha: 0.2),
+      );
+      expect(theme.floatingActionButtonTheme.foregroundColor, scheme.primary);
       // Buttons render the tinted-primary language (2026-08-21): 20% tint
       // fill with the accent itself as ink.
       expect(
