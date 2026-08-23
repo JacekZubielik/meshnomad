@@ -71,7 +71,11 @@ class AutoRouteRotationScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.alt_route, size: 20),
+          secondary: Icon(
+            Icons.alt_route,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.appSettings_autoRouteRotation),
           subtitle: Text(context.l10n.appSettings_autoRouteRotationSubtitle),
           value: autoRouteEnabled,

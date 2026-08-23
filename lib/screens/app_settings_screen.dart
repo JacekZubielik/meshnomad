@@ -209,7 +209,7 @@ class AppSettingsScreen extends StatelessWidget {
               Icon(
                 Icons.language_outlined,
                 size: 20,
-                color: scheme.onSurfaceVariant,
+                color: MeshTokens.of(context).primary,
               ),
               SizedBox(width: t.spacingSm),
               Expanded(
@@ -255,7 +255,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.layers_outlined, size: 20),
+          secondary: Icon(
+            Icons.layers_outlined,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.styleEditor_cardShadow_label),
           subtitle: Text(context.l10n.styleEditor_cardShadow_subtitle),
           value: settingsService.activeProfileOverrides.cardElevated ?? true,
@@ -277,7 +281,11 @@ class AppSettingsScreen extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.border_style, size: 20),
+              Icon(
+                Icons.border_style,
+                size: 20,
+                color: MeshTokens.of(context).primary,
+              ),
               SizedBox(width: t.spacingMd),
               Expanded(
                 child: Column(
@@ -321,7 +329,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.notifications_outlined, size: 20),
+          secondary: Icon(
+            Icons.notifications_outlined,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.appSettings_enableNotifications),
           subtitle: Text(context.l10n.appSettings_enableNotificationsSubtitle),
           value: settingsService.settings.notificationsEnabled,
@@ -364,18 +376,24 @@ class AppSettingsScreen extends StatelessWidget {
           secondary: Icon(
             Icons.message_outlined,
             size: 20,
-            color: notifEnabled ? null : Theme.of(context).disabledColor,
+            color: notifEnabled
+                ? MeshTokens.of(context).primary
+                : Theme.of(context).disabledColor,
           ),
           title: Text(
             context.l10n.appSettings_messageNotifications,
             style: TextStyle(
-              color: notifEnabled ? null : Theme.of(context).disabledColor,
+              color: notifEnabled
+                  ? MeshTokens.of(context).primary
+                  : Theme.of(context).disabledColor,
             ),
           ),
           subtitle: Text(
             context.l10n.appSettings_messageNotificationsSubtitle,
             style: TextStyle(
-              color: notifEnabled ? null : Theme.of(context).disabledColor,
+              color: notifEnabled
+                  ? MeshTokens.of(context).primary
+                  : Theme.of(context).disabledColor,
             ),
           ),
           value: settingsService.settings.notifyOnNewMessage,
@@ -392,18 +410,24 @@ class AppSettingsScreen extends StatelessWidget {
           secondary: Icon(
             Icons.forum_outlined,
             size: 20,
-            color: notifEnabled ? null : Theme.of(context).disabledColor,
+            color: notifEnabled
+                ? MeshTokens.of(context).primary
+                : Theme.of(context).disabledColor,
           ),
           title: Text(
             context.l10n.appSettings_channelMessageNotifications,
             style: TextStyle(
-              color: notifEnabled ? null : Theme.of(context).disabledColor,
+              color: notifEnabled
+                  ? MeshTokens.of(context).primary
+                  : Theme.of(context).disabledColor,
             ),
           ),
           subtitle: Text(
             context.l10n.appSettings_channelMessageNotificationsSubtitle,
             style: TextStyle(
-              color: notifEnabled ? null : Theme.of(context).disabledColor,
+              color: notifEnabled
+                  ? MeshTokens.of(context).primary
+                  : Theme.of(context).disabledColor,
             ),
           ),
           value: settingsService.settings.notifyOnNewChannelMessage,
@@ -420,18 +444,24 @@ class AppSettingsScreen extends StatelessWidget {
           secondary: Icon(
             Icons.cell_tower,
             size: 20,
-            color: notifEnabled ? null : Theme.of(context).disabledColor,
+            color: notifEnabled
+                ? MeshTokens.of(context).primary
+                : Theme.of(context).disabledColor,
           ),
           title: Text(
             context.l10n.appSettings_advertisementNotifications,
             style: TextStyle(
-              color: notifEnabled ? null : Theme.of(context).disabledColor,
+              color: notifEnabled
+                  ? MeshTokens.of(context).primary
+                  : Theme.of(context).disabledColor,
             ),
           ),
           subtitle: Text(
             context.l10n.appSettings_advertisementNotificationsSubtitle,
             style: TextStyle(
-              color: notifEnabled ? null : Theme.of(context).disabledColor,
+              color: notifEnabled
+                  ? MeshTokens.of(context).primary
+                  : Theme.of(context).disabledColor,
             ),
           ),
           value: settingsService.settings.notifyOnNewAdvert,
@@ -455,7 +485,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.refresh_outlined, size: 20),
+          secondary: Icon(
+            Icons.refresh_outlined,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.appSettings_clearPathOnMaxRetry),
           subtitle: Text(context.l10n.appSettings_clearPathOnMaxRetrySubtitle),
           value: settingsService.settings.clearPathOnMaxRetry,
@@ -478,7 +512,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.vertical_align_top, size: 20),
+          secondary: Icon(
+            Icons.vertical_align_top,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.appSettings_jumpToOldestUnread),
           subtitle: Text(context.l10n.appSettings_jumpToOldestUnreadSubtitle),
           value: settingsService.settings.jumpToOldestUnread,
@@ -499,7 +537,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.location_searching, size: 20),
+          secondary: Icon(
+            Icons.location_searching,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.appSettings_enableMessageTracing),
           subtitle: Text(context.l10n.appSettings_enableMessageTracingSubtitle),
           value: settingsService.settings.enableMessageTracing,
@@ -518,7 +560,11 @@ class AppSettingsScreen extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.history, size: 20),
+              Icon(
+                Icons.history,
+                size: 20,
+                color: MeshTokens.of(context).primary,
+              ),
               SizedBox(width: t.spacingMd),
               Expanded(
                 child: Column(
@@ -580,7 +626,7 @@ class AppSettingsScreen extends StatelessWidget {
               Icon(
                 Icons.battery_full,
                 size: 20,
-                color: scheme.onSurfaceVariant,
+                color: MeshTokens.of(context).primary,
               ),
               SizedBox(width: t.spacingSm),
               Expanded(
@@ -648,7 +694,11 @@ class AppSettingsScreen extends StatelessWidget {
           horizontal: t.spacingMd,
           vertical: t.spacingXxs,
         ),
-        secondary: const Icon(Icons.router_outlined, size: 20),
+        secondary: Icon(
+          Icons.router_outlined,
+          size: 20,
+          color: MeshTokens.of(context).primary,
+        ),
         title: Text(context.l10n.appSettings_showRepeaters),
         subtitle: Text(context.l10n.appSettings_showRepeatersSubtitle),
         value: settingsService.settings.mapShowRepeaters,
@@ -660,7 +710,11 @@ class AppSettingsScreen extends StatelessWidget {
           horizontal: t.spacingMd,
           vertical: t.spacingXxs,
         ),
-        secondary: const Icon(Icons.chat_outlined, size: 20),
+        secondary: Icon(
+          Icons.chat_outlined,
+          size: 20,
+          color: MeshTokens.of(context).primary,
+        ),
         title: Text(context.l10n.appSettings_showChatNodes),
         subtitle: Text(context.l10n.appSettings_showChatNodesSubtitle),
         value: settingsService.settings.mapShowChatNodes,
@@ -672,7 +726,11 @@ class AppSettingsScreen extends StatelessWidget {
           horizontal: t.spacingMd,
           vertical: t.spacingXxs,
         ),
-        secondary: const Icon(Icons.people_outline, size: 20),
+        secondary: Icon(
+          Icons.people_outline,
+          size: 20,
+          color: MeshTokens.of(context).primary,
+        ),
         title: Text(context.l10n.appSettings_showOtherNodes),
         subtitle: Text(context.l10n.appSettings_showOtherNodesSubtitle),
         value: settingsService.settings.mapShowOtherNodes,
@@ -691,7 +749,7 @@ class AppSettingsScreen extends StatelessWidget {
             Icon(
               Icons.timer_outlined,
               size: 20,
-              color: scheme.onSurfaceVariant,
+              color: MeshTokens.of(context).primary,
             ),
             SizedBox(width: t.spacingSm),
             Expanded(
@@ -742,7 +800,11 @@ class AppSettingsScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.straighten, size: 20, color: scheme.onSurfaceVariant),
+            Icon(
+              Icons.straighten,
+              size: 20,
+              color: MeshTokens.of(context).primary,
+            ),
             SizedBox(width: t.spacingSm),
             Expanded(
               child: Column(
@@ -796,7 +858,7 @@ class AppSettingsScreen extends StatelessWidget {
               Icon(
                 Icons.download_outlined,
                 size: 20,
-                color: scheme.onSurfaceVariant,
+                color: MeshTokens.of(context).primary,
               ),
               SizedBox(width: t.spacingSm),
               Expanded(
@@ -846,7 +908,7 @@ class AppSettingsScreen extends StatelessWidget {
               Icon(
                 Icons.layers_outlined,
                 size: 20,
-                color: scheme.onSurfaceVariant,
+                color: MeshTokens.of(context).primary,
               ),
               SizedBox(width: t.spacingSm),
               Expanded(
@@ -897,7 +959,7 @@ class AppSettingsScreen extends StatelessWidget {
                 Icon(
                   Icons.public_outlined,
                   size: 20,
-                  color: scheme.onSurfaceVariant,
+                  color: MeshTokens.of(context).primary,
                 ),
                 SizedBox(width: t.spacingSm),
                 Expanded(
@@ -942,7 +1004,7 @@ class AppSettingsScreen extends StatelessWidget {
                 Icon(
                   Icons.key_outlined,
                   size: 20,
-                  color: scheme.onSurfaceVariant,
+                  color: MeshTokens.of(context).primary,
                 ),
                 SizedBox(width: t.spacingSm),
                 Expanded(
@@ -1199,7 +1261,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.translate, size: 20),
+          secondary: Icon(
+            Icons.translate,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.translation_enableTitle),
           subtitle: Text(context.l10n.translation_enableSubtitle),
           value: settings.translationEnabled,
@@ -1214,7 +1280,9 @@ class AppSettingsScreen extends StatelessWidget {
           secondary: Icon(
             Icons.auto_awesome_outlined,
             size: 20,
-            color: translationEnabled ? null : Theme.of(context).disabledColor,
+            color: translationEnabled
+                ? MeshTokens.of(context).primary
+                : Theme.of(context).disabledColor,
           ),
           title: Text(
             context.l10n.translation_autoIncomingTitle,
@@ -1246,7 +1314,9 @@ class AppSettingsScreen extends StatelessWidget {
           secondary: Icon(
             Icons.outgoing_mail,
             size: 20,
-            color: translationEnabled ? null : Theme.of(context).disabledColor,
+            color: translationEnabled
+                ? MeshTokens.of(context).primary
+                : Theme.of(context).disabledColor,
           ),
           title: Text(
             context.l10n.translation_composerTitle,
@@ -1279,7 +1349,11 @@ class AppSettingsScreen extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.language, size: 20, color: scheme.onSurfaceVariant),
+                Icon(
+                  Icons.language,
+                  size: 20,
+                  color: MeshTokens.of(context).primary,
+                ),
                 SizedBox(width: t.spacingSm),
                 Expanded(
                   child: Column(
@@ -1619,7 +1693,11 @@ class AppSettingsScreen extends StatelessWidget {
             horizontal: t.spacingMd,
             vertical: t.spacingXxs,
           ),
-          secondary: const Icon(Icons.bug_report_outlined, size: 20),
+          secondary: Icon(
+            Icons.bug_report_outlined,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
           title: Text(context.l10n.appSettings_appDebugLogging),
           subtitle: Text(context.l10n.appSettings_appDebugLoggingSubtitle),
           value: settingsService.settings.appDebugLogEnabled,
