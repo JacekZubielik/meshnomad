@@ -1690,23 +1690,33 @@ class AppSettingsScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: t.spacingXs),
-        DropdownButtonFormField<String>(
-          initialValue: settingsService.settings.selectedCyr2latProfileId,
-          decoration: InputDecoration(
-            labelText: context.l10n.channels_cyr2latSettingsSubheading,
-            border: const OutlineInputBorder(),
-          ),
-          items: settingsService.settings.cyr2latProfiles.map((profile) {
-            return DropdownMenuItem(
-              value: profile.id,
-              child: Text(profile.name),
-            );
-          }).toList(),
-          onChanged: (value) {
-            if (value != null) {
-              settingsService.setSelectedCyr2LatProfile(value);
-            }
-          },
+        // Inline value stepper instead of the former dropdown (user spec
+        // 2026-08-23: same control as the Battery type row). Values are the
+        // user-defined profiles, so the list is dynamic, not const.
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                context.l10n.channels_cyr2latSettingsSubheading,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+            SizedBox(width: t.spacingSm),
+            SettingsValueStepper<String>(
+              key: const ValueKey('cyr2latProfileStepper'),
+              values: [
+                for (final profile in settingsService.settings.cyr2latProfiles)
+                  profile.id,
+              ],
+              value: settingsService.settings.selectedCyr2latProfileId,
+              labelOf: (ctx, id) =>
+                  settingsService.getCyr2LatProfileById(id)?.name ?? id,
+              buttonBorder: settingsService.activeProfileOverrides.buttonBorder,
+              onChanged: (id) => settingsService.setSelectedCyr2LatProfile(id),
+            ),
+          ],
         ),
         SizedBox(height: t.spacingSm),
         Row(
@@ -2425,6 +2435,13 @@ class _TranslationUrlFieldState extends State<_TranslationUrlField> {
           children: [
             Expanded(
               child: FilledButton.icon(
+                // Plain action button, not a switch-style control — never
+                // renders the app-wide buttonBorder style (user spec
+                // 2026-08-23). The local `side` wins over the themed
+                // shape's embedded side at render time.
+                style: const ButtonStyle(
+                  side: WidgetStatePropertyAll(BorderSide.none),
+                ),
                 onPressed: widget.onDownload == null
                     ? null
                     : () => widget.onDownload!(_controller.text.trim()),
