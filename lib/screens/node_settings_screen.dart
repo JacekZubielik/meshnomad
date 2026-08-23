@@ -14,7 +14,7 @@ import '../widgets/mesh_dashed_divider.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/settings_value_stepper.dart';
 import 'packet_stats_screen.dart';
-import '../widgets/radio_stats_entry.dart';
+import 'companion_radio_stats_screen.dart';
 import 'region_management_screen.dart';
 
 Future<void> pushNodeSettingsScreen(BuildContext context) {
@@ -99,8 +99,14 @@ class NodeSettingsScreen extends StatelessWidget {
           icon: Icons.sensors_outlined,
           title: l10n.radioStats_settingsTile,
           subtitle: l10n.radioStats_settingsSubtitle,
+          // Full screen like Packet stats below (user spec 2026-08-23) —
+          // NOT the MeshInfoDialog popup the RF indicator cluster uses.
           onTap: connector.isConnected && connector.supportsCompanionRadioStats
-              ? () => pushCompanionRadioStatsScreen(context)
+              ? () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const CompanionRadioStatsScreen(),
+                  ),
+                )
               : null,
         ),
         const MeshDashedDivider(indent: 16),

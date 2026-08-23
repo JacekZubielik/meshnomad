@@ -28,7 +28,12 @@ class CompanionRadioStatsScreen extends StatelessWidget {
           centerTitle: true,
           actions: const [QuickAccessMenuButton()],
         ),
-        body: const SingleChildScrollView(child: RadioStatsPanel()),
+        // top:false — the AppBar already absorbs the status bar; the bottom
+        // inset keeps the last chart above the Android system nav bar.
+        body: const SafeArea(
+          top: false,
+          child: SingleChildScrollView(child: RadioStatsPanel()),
+        ),
       ),
     );
   }
