@@ -11,6 +11,7 @@ import '../widgets/mesh_ui.dart';
 import '../widgets/settings_value_stepper.dart';
 import 'packet_stats_screen.dart';
 import 'companion_radio_stats_screen.dart';
+import 'node_name_screen.dart';
 import 'radio_settings_screen.dart';
 import 'region_management_screen.dart';
 
@@ -75,7 +76,8 @@ class NodeSettingsScreen extends StatelessWidget {
           icon: Icons.person_outline,
           title: l10n.settings_nodeName,
           subtitle: connector.selfName ?? l10n.settings_nodeNameNotSet,
-          onTap: () => _editNodeName(context, connector),
+          // Card screen instead of the former popup (2026-08-23).
+          onTap: () => pushNodeNameScreen(context),
         ),
         const MeshDashedDivider(indent: 16),
         SettingsTappableTile(
@@ -288,51 +290,5 @@ class NodeSettingsScreen extends StatelessWidget {
         content: Text(l10n.settings_error(e.toString())),
       );
     }
-  }
-
-  void _editNodeName(BuildContext context, MeshCoreConnector connector) {
-    final l10n = context.l10n;
-    final controller = TextEditingController(text: connector.selfName ?? '');
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.settings_nodeName),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            hintText: l10n.settings_nodeNameHint,
-            border: const OutlineInputBorder(),
-          ),
-          maxLength: 31,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.common_cancel),
-          ),
-          ListenableBuilder(
-            listenable: controller,
-            builder: (context, _) {
-              final name = controller.text.trim();
-              return TextButton(
-                onPressed: name.isEmpty
-                    ? null
-                    : () async {
-                        Navigator.pop(context);
-                        await connector.setNodeName(name);
-                        await connector.refreshDeviceInfo();
-                        if (!context.mounted) return;
-                        showDismissibleSnackBar(
-                          context,
-                          content: Text(l10n.settings_nodeNameUpdated),
-                        );
-                      },
-                child: Text(l10n.common_save),
-              );
-            },
-          ),
-        ],
-      ),
-    );
   }
 }
