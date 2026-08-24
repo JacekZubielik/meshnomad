@@ -3046,5 +3046,11 @@
   "about_releaseNotes": "Informacje o wydaniach",
   "about_sourceCode": "Kod źródłowy",
   "about_reportIssue": "Zgłoś problem",
-  "about_openSourceLicenses": "Licencje open source"
+  "about_openSourceLicenses": "Licencje open source",
+  "hubCompanionTile": "Companion",
+  "hubCompanionSubtitle": "Połącz przez BLE, TCP lub USB",
+  "hubFlasherTile": "Flasher",
+  "hubFlasherSubtitle": "Wgraj firmware na urządzenie",
+  "hubSetupTile": "Setup USB",
+  "hubSetupSubtitle": "Skonfiguruj repeater lub room server"
 }

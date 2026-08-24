@@ -3178,5 +3178,17 @@
   "about_releaseNotes": "Release notes",
   "about_sourceCode": "Source code",
   "about_reportIssue": "Report an issue",
-  "about_openSourceLicenses": "Open source licenses"
+  "about_openSourceLicenses": "Open source licenses",
+  "hubCompanionTile": "Companion",
+  "@hubCompanionTile": {"description": "Hub screen tile: connect to a MeshCore companion device"},
+  "hubCompanionSubtitle": "Connect via BLE, TCP, or USB",
+  "@hubCompanionSubtitle": {"description": "Hub screen subtitle under the Companion tile"},
+  "hubFlasherTile": "Flasher",
+  "@hubFlasherTile": {"description": "Hub screen tile: flash firmware onto a bare device"},
+  "hubFlasherSubtitle": "Flash firmware onto a device",
+  "@hubFlasherSubtitle": {"description": "Hub screen subtitle under the Flasher tile"},
+  "hubSetupTile": "Setup USB",
+  "@hubSetupTile": {"description": "Hub screen tile: configure a repeater/room server over USB"},
+  "hubSetupSubtitle": "Configure a repeater or room server",
+  "@hubSetupSubtitle": {"description": "Hub screen subtitle under the Setup USB tile"}
 }

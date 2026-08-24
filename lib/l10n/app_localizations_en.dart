@@ -5766,4 +5766,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get about_openSourceLicenses => 'Open source licenses';
+
+  @override
+  String get hubCompanionTile => 'Companion';
+
+  @override
+  String get hubCompanionSubtitle => 'Connect via BLE, TCP, or USB';
+
+  @override
+  String get hubFlasherTile => 'Flasher';
+
+  @override
+  String get hubFlasherSubtitle => 'Flash firmware onto a device';
+
+  @override
+  String get hubSetupTile => 'Setup USB';
+
+  @override
+  String get hubSetupSubtitle => 'Configure a repeater or room server';
 }

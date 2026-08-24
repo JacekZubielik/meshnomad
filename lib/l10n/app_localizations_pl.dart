@@ -5875,4 +5875,22 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get about_openSourceLicenses => 'Licencje open source';
+
+  @override
+  String get hubCompanionTile => 'Companion';
+
+  @override
+  String get hubCompanionSubtitle => 'Połącz przez BLE, TCP lub USB';
+
+  @override
+  String get hubFlasherTile => 'Flasher';
+
+  @override
+  String get hubFlasherSubtitle => 'Wgraj firmware na urządzenie';
+
+  @override
+  String get hubSetupTile => 'Setup USB';
+
+  @override
+  String get hubSetupSubtitle => 'Skonfiguruj repeater lub room server';
 }

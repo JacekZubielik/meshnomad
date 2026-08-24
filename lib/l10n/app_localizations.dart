@@ -10081,6 +10081,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open source licenses'**
   String get about_openSourceLicenses;
+
+  /// Hub screen tile: connect to a MeshCore companion device
+  ///
+  /// In en, this message translates to:
+  /// **'Companion'**
+  String get hubCompanionTile;
+
+  /// Hub screen subtitle under the Companion tile
+  ///
+  /// In en, this message translates to:
+  /// **'Connect via BLE, TCP, or USB'**
+  String get hubCompanionSubtitle;
+
+  /// Hub screen tile: flash firmware onto a bare device
+  ///
+  /// In en, this message translates to:
+  /// **'Flasher'**
+  String get hubFlasherTile;
+
+  /// Hub screen subtitle under the Flasher tile
+  ///
+  /// In en, this message translates to:
+  /// **'Flash firmware onto a device'**
+  String get hubFlasherSubtitle;
+
+  /// Hub screen tile: configure a repeater/room server over USB
+  ///
+  /// In en, this message translates to:
+  /// **'Setup USB'**
+  String get hubSetupTile;
+
+  /// Hub screen subtitle under the Setup USB tile
+  ///
+  /// In en, this message translates to:
+  /// **'Configure a repeater or room server'**
+  String get hubSetupSubtitle;
 }
 
 class _AppLocalizationsDelegate
