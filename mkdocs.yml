@@ -15,18 +15,23 @@ exclude_docs: |
 
 theme:
   name: material
+  custom_dir: overrides
+  logo: assets/icons/app_icon.svg
+  favicon: assets/icons/app_icon.svg
+  font:
+    text: Inter
   palette:
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: indigo
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
@@ -48,6 +53,10 @@ plugins:
         - locale: pl
           name: Polski
           build: true
+
+extra_css:
+  - assets/stylesheets/brand.css
+  - assets/stylesheets/hero.css
 
 extra:
   version:
