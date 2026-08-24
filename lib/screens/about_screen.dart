@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -123,29 +124,67 @@ class _AboutScreenState extends State<AboutScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Stack(
             children: [
-              Expanded(
-                child: Text(
-                  l10n.appTitle,
-                  style: Theme.of(context).textTheme.titleMedium,
+              // Lockup: mark + "meshnomad" wordmark — same identity as on
+              // meshnomad.org (assets/icons/lockup.svg).
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: t.spacingSm),
+                  child: Column(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/app_mark.svg',
+                        height: 64,
+                        colorFilter: ColorFilter.mode(
+                          scheme.onSurface,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      SizedBox(height: t.spacingSm),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'mesh',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                color: scheme.onSurface.withValues(alpha: .8),
+                              ),
+                            ),
+                            const TextSpan(
+                              text: 'nomad',
+                              style: TextStyle(fontWeight: FontWeight.w800),
+                            ),
+                          ],
+                        ),
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              IconButton(
-                tooltip: l10n.about_copyVersionTooltip,
-                icon: const Icon(Icons.copy_outlined, size: 20),
-                color: t.primary,
-                onPressed: () => _copyVersionInfo(context),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: IconButton(
+                  tooltip: l10n.about_copyVersionTooltip,
+                  icon: const Icon(Icons.copy_outlined, size: 20),
+                  color: t.primary,
+                  onPressed: () => _copyVersionInfo(context),
+                ),
               ),
             ],
           ),
-          Text(
-            l10n.settings_aboutVersion(
-              _versionLabel.isEmpty ? l10n.common_loading : _versionLabel,
+          Center(
+            child: Text(
+              l10n.settings_aboutVersion(
+                _versionLabel.isEmpty ? l10n.common_loading : _versionLabel,
+              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
             ),
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
           SizedBox(height: t.spacingMd),
           Text(l10n.settings_aboutDescription),
