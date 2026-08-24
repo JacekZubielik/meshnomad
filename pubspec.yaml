@@ -65,6 +65,7 @@ dependencies:
   package_info_plus: ^10.1.0
   mobile_scanner: ^7.1.4  # QR/barcode scanning
   qr_flutter: ^4.1.0      # QR code generation
+  file_picker: ^12.0.0    # Local .bin firmware file selection (Flasher)
   url_launcher: ^6.3.0    # Launch URLs in system browser
   flutter_linkify: ^6.0.0 # Auto-detect and linkify URLs in text
   gpx: ^2.3.0
@@ -142,10 +143,17 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "mesh-icon.png"
+  web:
+    generate: true
+  windows:
+    generate: true
+  macos:
+    generate: true
+  image_path: "assets/icons/app_icon_1024.png"
   remove_alpha_ios: true
-  adaptive_icon_background: "#9F9D95"
-  adaptive_icon_foreground: "assets/icons/ic_foreground.png"
+  adaptive_icon_background: "#3F6212"
+  adaptive_icon_foreground: "assets/icons/app_icon_foreground_1024.png"
+  adaptive_icon_monochrome: "assets/icons/app_icon_foreground_1024.png"
 
   # To add assets to your application, add an assets section, like this:
   # assets:
