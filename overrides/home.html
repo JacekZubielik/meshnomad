@@ -1,0 +1,87 @@
+<!--
+  Adapted from squidfunk/mkdocs-material's free/OSS src/overrides/home.html
+  (MIT licensed) — https://github.com/squidfunk/mkdocs-material/blob/master/src/overrides/home.html
+  Not the Insiders-only parallax/spotlight homepage visible live on their
+  site — this is the simpler, freely-licensed wave-hero variant.
+
+  Text is language-agnostic: pulled from each index.md's own frontmatter
+  (hero_title/hero_description/hero_cta_*), so this one template serves both
+  docs/en/index.md and docs/pl/index.md without duplication.
+-->
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+
+  <style>
+    .md-header {
+      position: initial;
+    }
+    .md-main__inner {
+      margin: 0;
+    }
+    .md-content {
+      display: none;
+    }
+    @media screen and (min-width: 60em) {
+      .md-sidebar--secondary {
+        display: none;
+      }
+    }
+    @media screen and (min-width: 76.25em) {
+      .md-sidebar--primary {
+        display: none;
+      }
+    }
+  </style>
+
+  <section class="mdx-container">
+    <div class="md-grid md-typeset">
+      <div class="mdx-hero">
+        <div class="mdx-hero__image">
+          <!-- Lockup F5 (icon-identity handoff, 2026-08-24) — inlined, not <img>,
+               because the <text> wordmark needs the page's own Inter font. -->
+          <svg class="mdx-hero__logo" viewBox="0 0 96 96" aria-hidden="true">
+            <g transform="translate(48 40) scale(.66) translate(-48 -48)">
+              <mask id="mdx-lockup-mask">
+                <circle cx="48" cy="48" r="40" fill="#fff"/>
+                <path fill="#000" transform="translate(48 48) scale(.6) translate(-48 -48)"
+                  d="M16 74 V22 H33 L48 43 L63 22 H80 V74 H66 V44 L48 68 L30 44 V74 Z"/>
+              </mask>
+              <rect width="96" height="96" fill="#FFFFFF" mask="url(#mdx-lockup-mask)"/>
+            </g>
+            <text class="mdx-hero__wordmark" x="48" y="80" text-anchor="middle" fill="#FFFFFF"
+              font-family="Inter,system-ui,sans-serif" font-size="12.5" letter-spacing="-.2"
+              ><tspan font-weight="400" opacity=".8">mesh</tspan><tspan font-weight="800">nomad</tspan></text>
+          </svg>
+        </div>
+
+        <div class="mdx-hero__content">
+          <h1 class="mdx-brand"><span class="mdx-brand__thin">mesh</span><span class="mdx-brand__bold">nomad</span></h1>
+          <p>{{ page.meta.hero_description | default(config.site_description) }}</p>
+          {% if page.meta.hero_cta_primary_text %}
+            <a
+              href="{{ page.meta.hero_cta_primary_url | url }}"
+              title="{{ page.meta.hero_cta_primary_text }}"
+              class="md-button md-button--primary"
+            >
+              {{ page.meta.hero_cta_primary_text }}
+            </a>
+          {% endif %}
+          {% if page.meta.hero_cta_secondary_text %}
+            <a
+              href="{{ page.meta.hero_cta_secondary_url | url }}"
+              title="{{ page.meta.hero_cta_secondary_text }}"
+              class="md-button"
+            >
+              {{ page.meta.hero_cta_secondary_text }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}{% endblock %}
+{% block footer %}{% endblock %}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <!-- Lockup F5: negative-space M + "meshnomad" wordmark — for dark backgrounds
+       (site/docs/README). White mark, transparent cutout. NOTE: <text> needs the
+       Inter font on the viewer's side; docs should inline this SVG in HTML
+       (font comes from page CSS), not load it via <img>. -->
+  <g transform="translate(48 40) scale(.66) translate(-48 -48)">
+    <mask id="m">
+      <circle cx="48" cy="48" r="40" fill="#fff"/>
+      <path fill="#000" transform="translate(48 48) scale(.6) translate(-48 -48)"
+        d="M16 74 V22 H33 L48 43 L63 22 H80 V74 H66 V44 L48 68 L30 44 V74 Z"/>
+    </mask>
+    <rect width="96" height="96" fill="#FFFFFF" mask="url(#m)"/>
+  </g>
+  <text x="48" y="80" text-anchor="middle" fill="#FFFFFF"
+    font-family="Inter,system-ui,sans-serif" font-size="12.5" letter-spacing="-.2"
+    ><tspan font-weight="400" opacity=".8">mesh</tspan><tspan font-weight="800">nomad</tspan></text>
+</svg>
