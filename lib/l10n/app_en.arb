@@ -246,7 +246,7 @@
   "settings_appDebugLog": "App Debug Log",
   "settings_appDebugLogSubtitle": "Application debug messages",
   "settings_about": "About",
-  "settings_aboutVersion": "MeshNomad v{version}",
+  "settings_aboutVersion": "v{version}",
   "@settings_aboutVersion": {
     "placeholders": {
       "version": {

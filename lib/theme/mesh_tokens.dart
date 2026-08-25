@@ -271,6 +271,19 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
         ]
       : null;
 
+  /// Shared drop shadow for larger standalone marks (About screen's app
+  /// lockup icon+wordmark). Same [cardElevated] switch as [labelShadow],
+  /// scaled up for a ~64dp element instead of a 16dp chip.
+  List<BoxShadow>? get logoShadow => cardElevated
+      ? [
+          BoxShadow(
+            color: cardShadow.withValues(alpha: 0.22),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ]
+      : null;
+
   /// 5th/6th hues in the deterministic avatar-tint palette (see
   /// `avatarTintPalette` in mesh_ui.dart) — the first four reuse
   /// [primary]/[secondary]/[signal]/[warn].
