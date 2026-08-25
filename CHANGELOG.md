@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.12.0 (2026-08-25)
+
+### Highlights
+
+- New app icon and brand identity: a forest-green MeshNomad lockup replaces the placeholder icon across every platform (#105)
+- meshnomad.org gets a branded landing page: hero section, wordmark and Material theme matched to the app's identity (#104)
+
+### Features
+
+- App icon: hand-built SVG masters (mark, adaptive foreground, brand lockup) with a one-command regeneration pipeline covering Android (adaptive + monochrome), iOS, macOS, Windows and web (#105)
+- About screen shows the brand lockup: mark tinted with the active theme, dual-weight "meshnomad" wordmark (#105)
+- meshnomad.org: branded hero section, dual-weight wordmark in the site header and navigation drawer, forest color palette (#104)
+
+### Fixes
+
+- About screen: version line no longer shows the raw platform build number, which Android's per-architecture packaging can mangle into a value that reads like a year (#107)
+- About screen: app description and license footer text are centered; the lockup and wordmark pick up a drop shadow when the active style has card shadows enabled (#107)
+
 ## v0.11.0 (2026-08-23)
 
 ### Highlights
