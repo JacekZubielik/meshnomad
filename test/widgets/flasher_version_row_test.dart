@@ -129,4 +129,30 @@ void main() {
     await tester.tap(find.byIcon(Icons.download));
     expect(tapped, isTrue);
   });
+
+  testWidgets('when both states are busy, update panel takes precedence', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        FlasherVersionRow(
+          tag: 'v1.6.9',
+          subLabel: 'sub',
+          resetState: const FlasherActionState(
+            phase: FlasherRowPhase.downloading,
+            progress: 0.3,
+          ),
+          updateState: const FlasherActionState(
+            phase: FlasherRowPhase.flashing,
+            progress: 0.6,
+          ),
+          onTapReset: () {},
+          onTapUpdate: () {},
+        ),
+      ),
+    );
+
+    expect(find.text('60%'), findsOneWidget);
+    expect(find.text('30%'), findsNothing);
+  });
 }
