@@ -128,7 +128,7 @@
   "settings_appDebugLog": "Dziennik debugowania aplikacji",
   "settings_appDebugLogSubtitle": "Komunikaty debugowania aplikacji",
   "settings_about": "O aplikacji",
-  "settings_aboutVersion": "MeshNomad w wersji {version}",
+  "settings_aboutVersion": "w wersji {version}",
   "@settings_aboutVersion": {
     "placeholders": {
       "version": {

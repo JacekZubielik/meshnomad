@@ -624,7 +624,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String settings_aboutVersion(String version) {
-    return 'MeshNomad w wersji $version';
+    return 'w wersji $version';
   }
 
   @override
