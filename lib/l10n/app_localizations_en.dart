@@ -5831,6 +5831,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get flasherSearchBoardHint => 'Search boards';
 
   @override
+  String flasherCatalogUpdated(String date) {
+    return 'Catalog from $date';
+  }
+
+  @override
+  String get flasherRefreshTooltip => 'Refresh catalog';
+
+  @override
   String get flasherNoBoardsFound => 'No boards found';
 
   @override

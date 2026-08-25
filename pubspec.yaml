@@ -129,7 +129,6 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/fonts/
-    - assets/flasher/boards.json
     - assets/flasher/catalog.json
 
   fonts:

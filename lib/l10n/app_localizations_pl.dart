@@ -5940,6 +5940,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String get flasherSearchBoardHint => 'Szukaj płytki';
 
   @override
+  String flasherCatalogUpdated(String date) {
+    return 'Katalog z $date';
+  }
+
+  @override
+  String get flasherRefreshTooltip => 'Odśwież katalog';
+
+  @override
   String get flasherNoBoardsFound => 'Nie znaleziono płytek';
 
   @override

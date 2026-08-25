@@ -10202,6 +10202,18 @@ abstract class AppLocalizations {
   /// **'Search boards'**
   String get flasherSearchBoardHint;
 
+  /// Flasher: caption showing when the firmware catalog was generated
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog from {date}'**
+  String flasherCatalogUpdated(String date);
+
+  /// Flasher: refresh button tooltip — the only action that downloads a fresh catalog from the internet
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh catalog'**
+  String get flasherRefreshTooltip;
+
   /// Flasher: shown when board discovery from the repo's releases came back empty
   ///
   /// In en, this message translates to:

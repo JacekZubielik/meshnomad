@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,16 +7,110 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:meshnomad/l10n/app_localizations.dart';
 import 'package:meshnomad/screens/flasher_screen.dart';
-import 'package:meshnomad/services/firmware_source.dart';
+import 'package:meshnomad/services/firmware_catalog.dart';
 import 'package:meshnomad/theme/mesh_theme.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
 
+String _fixtureCatalog() => jsonEncode({
+  'schema': 1,
+  'generated': '2026-08-25T10:00:00Z',
+  'sources': [
+    {
+      'id': 'meshcore',
+      'displayName': 'MeshCore',
+      'boards': [
+        {
+          'name': 'Heltec_v3',
+          'romTypes': [
+            {
+              'id': 'companion',
+              'displayName': 'Companion',
+              'versions': [
+                {
+                  'tag': 'companion-v1.17.1',
+                  'files': [
+                    {
+                      'name':
+                          'Heltec_v3_companion_radio_ble-v1.17.1-merged.bin',
+                      'url': 'https://example.test/merged.bin',
+                      'offset': 0,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              'id': 'repeater',
+              'displayName': 'Repeater',
+              'versions': [
+                {
+                  'tag': 'repeater-v1.17.1',
+                  'files': [
+                    {
+                      'name': 'Heltec_v3-v1.17.1.bin',
+                      'url': 'https://example.test/rpt.bin',
+                      'offset': 65536,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          'name': 'Xiao_S3',
+          'romTypes': [
+            {
+              'id': 'companion',
+              'displayName': 'Companion',
+              'versions': [
+                {
+                  'tag': 'companion-v1.17.1',
+                  'files': [
+                    {
+                      'name': 'Xiao_S3_companion_radio_ble-v1.17.1.bin',
+                      'url': 'https://example.test/xiao.bin',
+                      'offset': 65536,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {'id': 'meshcore_solo', 'displayName': 'MeshCore-Solo', 'boards': []},
+  ],
+});
+
 void main() {
-  // FlasherScreen's build() reads MeshTokens.of(context) (source-picker
-  // chips, board picker, success banner) — a plain MaterialApp has no
-  // MeshTokens ThemeExtension, so every test needs the same themed
-  // MaterialApp used across the rest of this repo's screen tests
-  // (see e.g. test/screens/hub_screen_test.dart).
+  late Directory tempDir;
+
+  setUp(() {
+    tempDir = Directory.systemTemp.createTempSync('flasher_screen_test');
+    File('${tempDir.path}/flasher/catalog.json')
+      ..createSync(recursive: true)
+      ..writeAsStringSync(_fixtureCatalog());
+  });
+
+  tearDown(() {
+    tempDir.deleteSync(recursive: true);
+  });
+
+  FirmwareCatalogService service({http.Client? client}) =>
+      FirmwareCatalogService(
+        httpClient:
+            client ??
+            MockClient((request) async {
+              if (request.url.toString() == 'https://example.test/merged.bin') {
+                return http.Response.bytes([1, 2, 3, 4], 200);
+              }
+              throw StateError('Unexpected request: ${request.url}');
+            }),
+        storageDirectory: tempDir,
+      );
+
   Widget wrap(Widget child) => MaterialApp(
     theme: MeshTheme.light().copyWith(
       extensions: const [MeshTokens.defaultTokens],
@@ -25,105 +120,72 @@ void main() {
     home: child,
   );
 
-  // FlasherScreen now fetches release assets from initState() for the
-  // default-selected MeshCore chip. That async chain (rootBundle catalog
-  // load + a release fetch) must be allowed to fully settle
-  // (pumpAndSettle, not just pump) before a test body returns — otherwise
-  // its still-pending Future bleeds into the next test in this same file
-  // and can starve that test's own asset loading. A shared, always-empty
-  // MockClient also keeps every test from opening a real http.Client().
-  final emptyReleasesClient = MockClient((_) async => http.Response('[]', 200));
-
-  testWidgets('FlasherScreen starts on the file-pick step', (tester) async {
-    await tester.pumpWidget(
-      wrap(
-        FlasherScreen(
-          firmwareSource: FirmwareSource(httpClient: emptyReleasesClient),
-        ),
-      ),
-    );
+  // FlasherScreen's initState kicks off a real dart:io file read
+  // (FirmwareCatalogService.loadCatalog) that flutter test's fake-async
+  // pump/pumpAndSettle never drives to completion on their own — the
+  // pumpWidget call itself must run inside tester.runAsync() so the
+  // fire-and-forget Future it starts is scheduled on the real zone, with a
+  // short real delay to let the read actually finish before handing control
+  // back to the normal (fake-async) pump machinery.
+  Future<void> pumpFlasherScreen(WidgetTester tester, Widget child) async {
+    await tester.runAsync(() async {
+      await tester.pumpWidget(child);
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
     await tester.pumpAndSettle();
+  }
 
-    // MeshCore is now the default-selected source chip (task 09) — select
-    // "Local file" to reach the same file-pick UI this test originally
-    // exercised in task 07, when local file was the only source.
-    await tester.tap(find.text('Local file'));
-    await tester.pump();
-
-    expect(find.text('Choose firmware file'), findsOneWidget);
-    // Start button is disabled until a file is chosen. Disambiguate from
-    // the selected source chip (also a FilledButton) by its label.
-    final startButton = tester.widget<FilledButton>(
-      find.widgetWithText(FilledButton, 'Start'),
-    );
-    expect(startButton.onPressed, isNull);
-  });
-
-  testWidgets('FlasherScreen offers four firmware source chips', (
+  testWidgets('screen loads the local catalog without any network call', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      wrap(
-        FlasherScreen(
-          firmwareSource: FirmwareSource(httpClient: emptyReleasesClient),
-        ),
-      ),
+    final neverCalled = MockClient((request) async {
+      throw StateError('Network must not be touched: ${request.url}');
+    });
+    await pumpFlasherScreen(
+      tester,
+      wrap(FlasherScreen(catalogService: service(client: neverCalled))),
     );
+
+    expect(find.text('Heltec_v3'), findsOneWidget); // default-selected board
+    expect(find.text('Catalog from Aug 25, 2026'), findsOneWidget);
+  });
+
+  testWidgets('ROM-type chips show only for multi-type boards', (tester) async {
+    await pumpFlasherScreen(
+      tester,
+      wrap(FlasherScreen(catalogService: service())),
+    );
+
+    // Heltec_v3 (default) has 2 ROM types → chips visible.
+    expect(find.text('Companion'), findsOneWidget);
+    expect(find.text('Repeater'), findsOneWidget);
+  });
+
+  testWidgets('full-reset file + Start shows the confirm dialog', (
+    tester,
+  ) async {
+    await pumpFlasherScreen(
+      tester,
+      wrap(FlasherScreen(catalogService: service())),
+    );
+
+    await tester.tap(find.text('Full reset (erases everything)'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Start'));
+    await tester.pump();
+
+    expect(find.text('Erase everything?'), findsOneWidget);
+  });
+
+  testWidgets('four source chips still offered', (tester) async {
+    await pumpFlasherScreen(
+      tester,
+      wrap(FlasherScreen(catalogService: service())),
+    );
 
     expect(find.text('MeshCore'), findsOneWidget);
     expect(find.text('MeshCore-Solo'), findsOneWidget);
     expect(find.text('Local file'), findsOneWidget);
     expect(find.text('Custom URL'), findsOneWidget);
   });
-
-  testWidgets(
-    'Selecting a full-reset MeshCore asset and starting shows a confirm dialog first',
-    (tester) async {
-      final client = MockClient((request) async {
-        if (request.url.path.endsWith('/releases')) {
-          return http.Response(
-            jsonEncode([
-              {
-                'tag_name': 'companion-v1.17.1',
-                'assets': [
-                  {
-                    'name':
-                        'Heltec_v3_companion_radio_ble-v1.17.1-abcdef-merged.bin',
-                    'browser_download_url': 'https://example.test/merged.bin',
-                  },
-                ],
-              },
-            ]),
-            200,
-          );
-        }
-        if (request.url.toString() == 'https://example.test/merged.bin') {
-          // Tapping the RadioListTile fetches the asset's bytes immediately
-          // (FirmwareAsset.fetch), before Start is even pressed.
-          return http.Response.bytes([1, 2, 3, 4], 200);
-        }
-        throw StateError('Unexpected request: ${request.url}');
-      });
-      await tester.pumpWidget(
-        wrap(FlasherScreen(firmwareSource: FirmwareSource(httpClient: client))),
-      );
-      // Catalog loads, the only board this mock's companion release exposes
-      // (Heltec_v3) is auto-discovered and auto-selected, its default ROM
-      // type (Companion) is auto-selected, and the newest matching release
-      // (companion-v1.17.1, the only one the mock returns) is auto-selected
-      // — the release's real asset list is shown directly.
-      await tester.pumpAndSettle();
-
-      // The release's asset isn't auto-selected — the user picks it via its
-      // RadioListTile row, same as the real UI flow.
-      await tester.tap(find.text('Full reset (erases everything)'));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Start'));
-      await tester.pump();
-
-      expect(find.text('Erase everything?'), findsOneWidget);
-    },
-  );
 }

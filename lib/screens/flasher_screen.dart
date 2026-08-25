@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../services/esp_flash/esp_flash_protocol.dart';
 import '../services/esp_flash/esp_serial_transport.dart';
-import '../services/firmware_source.dart';
+import '../services/firmware_catalog.dart';
 import '../services/usb_serial_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_dashed_divider.dart';
@@ -21,10 +21,10 @@ enum _FirmwareSourceKind { meshcore, meshcoreSolo, localFile, customUrl }
 /// local file, custom URL) via [FirmwareSource] (task 08), with the flash
 /// offset selected per-asset instead of hardcoded (task 09).
 class FlasherScreen extends StatefulWidget {
-  const FlasherScreen({super.key, FirmwareSource? firmwareSource})
-    : _firmwareSource = firmwareSource;
+  const FlasherScreen({super.key, FirmwareCatalogService? catalogService})
+    : _catalogService = catalogService;
 
-  final FirmwareSource? _firmwareSource;
+  final FirmwareCatalogService? _catalogService;
 
   @override
   State<FlasherScreen> createState() => _FlasherScreenState();
@@ -37,29 +37,25 @@ class _FlasherScreenState extends State<FlasherScreen> {
   double _progress = 0;
   String? _errorMessage;
   _FirmwareSourceKind _sourceKind = _FirmwareSourceKind.meshcore;
-  int _selectedOffset = flashOffsetUpdate;
-  late final FirmwareSource _firmwareSource;
-  List<FirmwareGithubSource>? _catalog;
-  List<String>? _boards;
-  String? _boardsError;
+  int _selectedOffset = catalogOffsetUpdate;
+  late final FirmwareCatalogService _catalogService;
+  FirmwareCatalog? _catalog;
+  String? _catalogError;
+  bool _refreshingCatalog = false;
   String? _selectedBoard;
   bool _boardListOpen = false;
-  FirmwareRomType? _selectedRomType;
-  List<FirmwareRelease>? _releases;
-  String? _releasesError;
-  FirmwareRelease? _selectedRelease;
+  CatalogRomType? _selectedRomType;
+  CatalogVersion? _selectedVersion;
   final TextEditingController _customUrlController = TextEditingController();
   Timer? _successBannerTimer;
 
   @override
   void initState() {
     super.initState();
-    _firmwareSource = widget._firmwareSource ?? FirmwareSource();
-    // MeshCore is the default-selected chip (see `_sourceKind`'s initializer)
-    // — without this, the catalog never loads until the user taps a chip,
-    // leaving the board picker's CircularProgressIndicator spinning forever
-    // on first open.
-    _loadCatalogIfNeeded();
+    _catalogService = widget._catalogService ?? FirmwareCatalogService();
+    // Local-first: reads the on-device copy (or the bundled snapshot on
+    // first ever run). Never the network — that is the Refresh button.
+    _loadCatalog();
   }
 
   @override
@@ -69,19 +65,132 @@ class _FlasherScreenState extends State<FlasherScreen> {
     super.dispose();
   }
 
-  /// The catalog entry for whichever built-in GitHub source is currently
-  /// selected — null while `_sourceKind` is localFile/customUrl, or before
-  /// `_catalog` has loaded.
-  FirmwareGithubSource? get _activeSource {
-    final catalog = _catalog;
-    if (catalog == null) return null;
+  CatalogSource? get _activeSource {
     final id = switch (_sourceKind) {
       _FirmwareSourceKind.meshcore => 'meshcore',
       _FirmwareSourceKind.meshcoreSolo => 'meshcore_solo',
       _ => null,
     };
     if (id == null) return null;
-    return catalog.firstWhere((s) => s.id == id);
+    for (final source in _catalog?.sources ?? const <CatalogSource>[]) {
+      if (source.id == id) return source;
+    }
+    return null;
+  }
+
+  CatalogBoard? get _activeBoard {
+    final name = _selectedBoard;
+    if (name == null) return null;
+    for (final board in _activeSource?.boards ?? const <CatalogBoard>[]) {
+      if (board.name == name) return board;
+    }
+    return null;
+  }
+
+  Future<void> _loadCatalog() async {
+    try {
+      final catalog = await _catalogService.loadCatalog();
+      if (!mounted) return;
+      setState(() {
+        _catalog = catalog;
+        _catalogError = null;
+      });
+      _resetSelection();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _catalogError = e.toString());
+    }
+  }
+
+  Future<void> _refreshCatalog() async {
+    setState(() {
+      _refreshingCatalog = true;
+      _catalogError = null;
+    });
+    try {
+      final catalog = await _catalogService.refreshCatalog();
+      if (!mounted) return;
+      setState(() => _catalog = catalog);
+      _resetSelection();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _catalogError = e.toString());
+    } finally {
+      if (mounted) setState(() => _refreshingCatalog = false);
+    }
+  }
+
+  /// Re-derives the default selection chain (first board → its first ROM
+  /// type → its newest version) for the active source; clears any fetched
+  /// firmware since the underlying choice changed.
+  void _resetSelection() {
+    final source = _activeSource;
+    final board = source?.boards.firstOrNull;
+    final romType = board?.romTypes.firstOrNull;
+    setState(() {
+      _selectedBoard = board?.name;
+      _boardListOpen = false;
+      _selectedRomType = romType;
+      _selectedVersion = romType?.versions.firstOrNull;
+      _firmwareBytes = null;
+      _fileName = null;
+    });
+  }
+
+  void _selectBoard(String name) {
+    CatalogBoard? board;
+    for (final b in _activeSource?.boards ?? const <CatalogBoard>[]) {
+      if (b.name == name) board = b;
+    }
+    final romType = board?.romTypes.firstOrNull;
+    setState(() {
+      _selectedBoard = name;
+      _boardListOpen = false;
+      _selectedRomType = romType;
+      _selectedVersion = romType?.versions.firstOrNull;
+      _firmwareBytes = null;
+      _fileName = null;
+    });
+  }
+
+  void _stepBoard(int direction) {
+    final boards = (_activeSource?.boards ?? const <CatalogBoard>[])
+        .map((b) => b.name)
+        .toList();
+    if (boards.isEmpty) return;
+    final selected = _selectedBoard;
+    final index = selected == null ? -1 : boards.indexOf(selected);
+    final next = index == -1
+        ? boards.first
+        : boards[(index + direction + boards.length) % boards.length];
+    _selectBoard(next);
+  }
+
+  void _selectRomType(CatalogRomType romType) {
+    setState(() {
+      _selectedRomType = romType;
+      _selectedVersion = romType.versions.firstOrNull;
+      _firmwareBytes = null;
+      _fileName = null;
+    });
+  }
+
+  void _selectVersion(CatalogVersion version) {
+    setState(() {
+      _selectedVersion = version;
+      _firmwareBytes = null;
+      _fileName = null;
+    });
+  }
+
+  Future<void> _selectFile(CatalogFile file) async {
+    final bytes = await _catalogService.assetFor(file).fetch();
+    if (!mounted) return;
+    setState(() {
+      _firmwareBytes = bytes;
+      _fileName = file.name;
+      _selectedOffset = file.offset;
+    });
   }
 
   Future<void> _pickFile() async {
@@ -102,141 +211,10 @@ class _FlasherScreenState extends State<FlasherScreen> {
     });
   }
 
-  Future<void> _loadCatalogIfNeeded() async {
-    if (_catalog != null) return;
-    final catalog = await _firmwareSource.loadCatalog();
-    if (!mounted) return;
-    setState(() => _catalog = catalog);
-    await _loadBoards();
-  }
-
-  /// Board choice comes first (per operator decision — the board picker
-  /// must not depend on a ROM type or version being chosen yet), so this
-  /// discovers the live board list before anything else loads. Called on
-  /// initial catalog load and every time the active source chip changes.
-  Future<void> _loadBoards() async {
-    final source = _activeSource;
-    if (source == null) return;
-    setState(() {
-      _boards = null;
-      _boardsError = null;
-      _selectedBoard = null;
-      _boardListOpen = false;
-    });
-    List<String> boards;
-    String? error;
-    try {
-      boards = await _firmwareSource.discoverBoards(source: source);
-    } catch (e) {
-      boards = const [];
-      error = e.toString();
-    }
-    if (!mounted) return;
-    setState(() {
-      _boards = boards;
-      _boardsError = error;
-      _selectedBoard = boards.firstOrNull;
-      // Default to the first ROM type of whichever source is active (if it
-      // has any — MeshCore-Solo has none) so releases load immediately
-      // instead of waiting for a chip tap.
-      _selectedRomType = source.romTypes.firstOrNull;
-    });
-    await _loadReleases();
-  }
-
-  Future<void> _selectBoard(String board) async {
-    setState(() {
-      _selectedBoard = board;
-      _boardListOpen = false;
-    });
-    await _loadReleases();
-  }
-
-  /// Cycles to the previous/next board in the active source's discovered
-  /// list — the `SettingsValueStepper`-style +/- circles next to the
-  /// tap-to-expand pill.
-  void _stepBoard(int direction) {
-    final boards = _boards;
-    if (boards == null || boards.isEmpty) return;
-    final selected = _selectedBoard;
-    final index = selected == null ? -1 : boards.indexOf(selected);
-    final next = index == -1
-        ? boards.first
-        : boards[(index + direction + boards.length) % boards.length];
-    _selectBoard(next);
-  }
-
-  Future<void> _loadReleases() async {
-    final source = _activeSource;
-    final board = _selectedBoard;
-    if (source == null || board == null) {
-      setState(() {
-        _releases = null;
-        _releasesError = null;
-        _selectedRelease = null;
-      });
-      return;
-    }
-    setState(() {
-      _releases = null;
-      _releasesError = null;
-      _selectedRelease = null;
-    });
-    List<FirmwareRelease> releases;
-    String? error;
-    try {
-      releases = await _firmwareSource.fetchReleases(
-        source: source,
-        romType: _selectedRomType,
-        boardToken: board,
-      );
-    } catch (e) {
-      // A failed release fetch (offline, rate-limited, GitHub down) should
-      // leave the picker on an empty release list rather than crash the
-      // screen — the user can still fall back to Local file/Custom URL —
-      // but the failure reason must stay visible; silently mapping every
-      // exception to a bare "no releases found" hid real API errors (a
-      // real-world 403 rate-limit response looked identical to an
-      // honestly-empty catalog, which cost real debugging time).
-      releases = const [];
-      error = e.toString();
-    }
-    if (!mounted) return;
-    setState(() {
-      _releases = releases;
-      _releasesError = error;
-      _selectedRelease = releases.firstOrNull;
-      _firmwareBytes = null;
-      _fileName = null;
-    });
-  }
-
-  Future<void> _selectRomType(FirmwareRomType romType) async {
-    setState(() => _selectedRomType = romType);
-    await _loadReleases();
-  }
-
-  Future<void> _selectRelease(FirmwareRelease release) async {
-    setState(() {
-      _selectedRelease = release;
-      _firmwareBytes = null;
-      _fileName = null;
-    });
-  }
-
-  Future<void> _selectGithubAsset(FirmwareAsset asset) async {
-    final bytes = await asset.fetch();
-    setState(() {
-      _firmwareBytes = bytes;
-      _fileName = asset.label;
-      _selectedOffset = asset.flashOffset;
-    });
-  }
-
   Future<void> _useCustomUrl() async {
     final url = _customUrlController.text.trim();
     if (url.isEmpty) return;
-    final asset = _firmwareSource.fromCustomUrl(
+    final asset = _catalogService.fromCustomUrl(
       url,
       flashOffset: _selectedOffset,
     );
@@ -248,7 +226,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
   }
 
   Future<void> _confirmAndStartFlashing() async {
-    if (_selectedOffset == flashOffsetFullReset) {
+    if (_selectedOffset == catalogOffsetFullReset) {
       final l10n = context.l10n;
       final confirmed = await showDialog<bool>(
         context: context,
@@ -371,7 +349,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
                           setState(
                             () => _sourceKind = _FirmwareSourceKind.meshcore,
                           );
-                          _loadBoards();
+                          _resetSelection();
                         },
                       ),
                       SelectableChipButton(
@@ -383,7 +361,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
                             () =>
                                 _sourceKind = _FirmwareSourceKind.meshcoreSolo,
                           );
-                          _loadBoards();
+                          _resetSelection();
                         },
                       ),
                       SelectableChipButton(
@@ -405,21 +383,47 @@ class _FlasherScreenState extends State<FlasherScreen> {
                   const SizedBox(height: 16),
                   if (_sourceKind == _FirmwareSourceKind.meshcore ||
                       _sourceKind == _FirmwareSourceKind.meshcoreSolo) ...[
-                    if (_catalog == null)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _catalog?.generated != null
+                                ? l10n.flasherCatalogUpdated(
+                                    MaterialLocalizations.of(
+                                      context,
+                                    ).formatShortDate(_catalog!.generated!),
+                                  )
+                                : '',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                        if (_refreshingCatalog)
+                          const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        else
+                          IconButton(
+                            tooltip: l10n.flasherRefreshTooltip,
+                            icon: const Icon(Icons.refresh, size: 20),
+                            onPressed: _refreshCatalog,
+                          ),
+                      ],
+                    ),
+                    if (_catalogError != null)
+                      Text(l10n.flasherError(_catalogError!)),
+                    if (_catalog == null && _catalogError == null)
                       const Center(child: CircularProgressIndicator())
-                    else ...[
+                    else if (_catalog != null) ...[
                       _sectionLabel(context, l10n.flasherBoardLabel),
-                      if (_boards == null)
-                        const Center(child: CircularProgressIndicator())
-                      else if (_boards!.isEmpty)
-                        Text(
-                          _boardsError != null
-                              ? l10n.flasherError(_boardsError!)
-                              : l10n.flasherNoBoardsFound,
-                        )
+                      if ((_activeSource?.boards ?? const []).isEmpty)
+                        Text(l10n.flasherNoBoardsFound)
                       else
                         _BoardPickerField(
-                          boards: _boards!,
+                          boards: _activeSource!.boards
+                              .map((b) => b.name)
+                              .toList(),
                           selected: _selectedBoard,
                           isOpen: _boardListOpen,
                           onToggle: () =>
@@ -429,14 +433,13 @@ class _FlasherScreenState extends State<FlasherScreen> {
                           placeholder: l10n.flasherSelectBoard,
                           searchHint: l10n.flasherSearchBoardHint,
                         ),
-                      if (_selectedBoard != null) ...[
-                        if ((_activeSource?.romTypes ?? const [])
-                            .isNotEmpty) ...[
+                      if (_activeBoard != null) ...[
+                        if (_activeBoard!.romTypes.length > 1) ...[
                           _sectionLabel(context, l10n.flasherRomTypeLabel),
                           Wrap(
                             spacing: MeshTokens.of(context).spacingXs,
                             runSpacing: MeshTokens.of(context).spacingXs,
-                            children: _activeSource!.romTypes
+                            children: _activeBoard!.romTypes
                                 .map(
                                   (romType) => SelectableChipButton(
                                     label: romType.displayName,
@@ -447,55 +450,38 @@ class _FlasherScreenState extends State<FlasherScreen> {
                                 )
                                 .toList(),
                           ),
-                          // The dropdown's floating label renders above the
-                          // field's own bounds — without this gap it lands
-                          // on top of the ROM-type chips.
                           const SizedBox(height: 16),
                         ],
-                        if (_releases == null)
-                          const Center(child: CircularProgressIndicator())
-                        else if (_releases!.isEmpty)
-                          Text(
-                            _releasesError != null
-                                ? l10n.flasherError(_releasesError!)
-                                : l10n.flasherNoReleasesFound,
-                          )
-                        else ...[
-                          DropdownButtonFormField<FirmwareRelease>(
-                            initialValue: _selectedRelease,
+                        if (_selectedRomType != null) ...[
+                          DropdownButtonFormField<CatalogVersion>(
+                            initialValue: _selectedVersion,
                             decoration: InputDecoration(
                               labelText: l10n.flasherSelectVersion,
                             ),
-                            items: _releases!
+                            items: _selectedRomType!.versions
                                 .map(
-                                  (release) => DropdownMenuItem(
-                                    value: release,
-                                    child: Text(release.tagName),
+                                  (version) => DropdownMenuItem(
+                                    value: version,
+                                    child: Text(version.tag),
                                   ),
                                 )
                                 .toList(),
-                            onChanged: (release) {
-                              if (release != null) _selectRelease(release);
+                            onChanged: (version) {
+                              if (version != null) _selectVersion(version);
                             },
                           ),
                           _sectionLabel(context, l10n.flasherFileLabel),
-                          // Radio identity is the asset's unique filename —
-                          // NOT its flash offset: a release routinely ships
-                          // several assets sharing one offset (BLE + USB
-                          // role variants are both plain-update images), and
-                          // keying the group on offset rendered them all as
-                          // simultaneously selected.
-                          ...(_selectedRelease?.assets ?? const []).map(
-                            (asset) => RadioListTile<String>(
+                          ...(_selectedVersion?.files ?? const []).map(
+                            (file) => RadioListTile<String>(
                               title: Text(
-                                asset.flashOffset == flashOffsetFullReset
+                                file.offset == catalogOffsetFullReset
                                     ? l10n.flasherFullResetOption
                                     : l10n.flasherUpdateOption,
                               ),
-                              subtitle: Text(asset.label),
-                              value: asset.label,
+                              subtitle: Text(file.name),
+                              value: file.name,
                               groupValue: _fileName,
-                              onChanged: (_) => _selectGithubAsset(asset),
+                              onChanged: (_) => _selectFile(file),
                             ),
                           ),
                         ],

@@ -3067,6 +3067,8 @@
   "flasherBoardLabel": "Płytka",
   "flasherSelectBoard": "Wybierz płytkę",
   "flasherSearchBoardHint": "Szukaj płytki",
+  "flasherCatalogUpdated": "Katalog z {date}",
+  "flasherRefreshTooltip": "Odśwież katalog",
   "flasherNoBoardsFound": "Nie znaleziono płytek",
   "flasherRomTypeLabel": "Typ ROM-u",
   "flasherFileLabel": "Plik",
