@@ -41,9 +41,14 @@ class EspFlashCommand {
   }
 }
 
-/// A parsed esptool ROM-loader response packet. The ROM bootloader (as
-/// opposed to an uploaded stub) always trails the response `value` with a
-/// 2-byte status: `[status, error]`, `status == 0` meaning success.
+/// A parsed esptool ROM-loader response packet. ESP32-family ROM
+/// bootloaders trail the response data with a 4-byte status
+/// `[status, error, reserved, reserved]`; the ESP8266 ROM and the esptool
+/// flasher stub use a 2-byte `[status, error]`. `status == 0` means
+/// success. Reading the wrong trailer width is not cosmetic: an ESP32-S3
+/// ROM failure `[1, 5, 0, 0]` decodes as status=0/error=0 (success!) under
+/// the 2-byte rule — exactly the bug that made a rejected flash look like
+/// a completed one (2026-08-25, live-debugged on a Heltec V4).
 class EspFlashResponse {
   EspFlashResponse({
     required this.opcode,
@@ -77,12 +82,16 @@ class EspFlashResponse {
     final data = body.sublist(dataStart, dataEnd);
     if (data.length < 2) {
       throw const FormatException(
-        'esptool response data missing 2-byte status trailer',
+        'esptool response data missing status trailer',
       );
     }
-    final status = data[data.length - 2];
-    final error = data[data.length - 1];
-    final value = data.sublist(0, data.length - 2);
+    // 4-byte trailer whenever the data can carry one (ESP32-family ROM,
+    // this app's only real peer); 2-byte only for short legacy replies.
+    final trailerLength = data.length >= 4 ? 4 : 2;
+    final trailerStart = data.length - trailerLength;
+    final status = data[trailerStart];
+    final error = data[trailerStart + 1];
+    final value = data.sublist(0, trailerStart);
     return EspFlashResponse(
       opcode: opcode,
       value: value,

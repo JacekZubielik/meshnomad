@@ -4,10 +4,14 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:meshnomad/services/esp_flash/esp_flash_protocol.dart';
 
+/// Each write pops one BATCH of response frames — the real ROM answers a
+/// single SYNC command with a burst of identical responses, so a
+/// one-frame-per-write fake would hide the exact desync bug this suite
+/// regression-tests.
 class _FakePort implements EspFlashPort {
-  _FakePort(this.responses);
+  _FakePort(this.responseBatches);
 
-  final List<Uint8List> responses;
+  final List<List<Uint8List>> responseBatches;
   final List<Uint8List> written = [];
   final _controller = StreamController<Uint8List>.broadcast();
   bool dtr = false;
@@ -16,10 +20,14 @@ class _FakePort implements EspFlashPort {
   @override
   Future<void> write(Uint8List bytes) async {
     written.add(bytes);
-    if (responses.isNotEmpty) {
-      final response = responses.removeAt(0);
+    if (responseBatches.isNotEmpty) {
+      final batch = responseBatches.removeAt(0);
       // Simulate the device replying asynchronously, next microtask.
-      scheduleMicrotask(() => _controller.add(response));
+      scheduleMicrotask(() {
+        for (final response in batch) {
+          _controller.add(response);
+        }
+      });
     }
   }
 
@@ -33,16 +41,20 @@ class _FakePort implements EspFlashPort {
   Future<void> setRts(bool value) async => rts = value;
 }
 
-Uint8List _syncSuccessResponse() {
+/// ROM-style response: 4-byte status trailer [status, error, 0, 0], the
+/// format every ESP32-family ROM loader actually sends.
+Uint8List _romResponse(int opcode, {int status = 0, int error = 0}) {
   final body = Uint8List.fromList(<int>[
     0x01,
-    espOpcodeSync,
-    0x02,
+    opcode,
+    0x04,
     0x00,
     0x00,
     0x00,
     0x00,
     0x00,
+    status,
+    error,
     0x00,
     0x00,
   ]);
@@ -53,31 +65,15 @@ Uint8List _syncSuccessResponse() {
   return out.toBytes();
 }
 
-Uint8List _genericSuccessResponse(int opcode) {
-  final body = Uint8List.fromList(<int>[
-    0x01,
-    opcode,
-    0x02,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-  ]);
-  final out = BytesBuilder();
-  out.addByte(0xC0);
-  out.add(body);
-  out.addByte(0xC0);
-  return out.toBytes();
-}
+/// The real ROM answers one SYNC with a burst of identical responses.
+List<Uint8List> _syncBurst({int count = 8}) =>
+    List.generate(count, (_) => _romResponse(espOpcodeSync));
 
 void main() {
   test(
     'sync() succeeds on the first response and sends a SYNC command',
     () async {
-      final port = _FakePort([_syncSuccessResponse()]);
+      final port = _FakePort([_syncBurst()]);
       final protocol = EspFlashProtocol(port);
 
       await protocol.sync();
@@ -109,7 +105,9 @@ void main() {
   test(
     'attachSpiFlash sends SPI_ATTACH and succeeds on an OK response',
     () async {
-      final port = _FakePort([_genericSuccessResponse(espOpcodeSpiAttach)]);
+      final port = _FakePort([
+        [_romResponse(espOpcodeSpiAttach)],
+      ]);
       final protocol = EspFlashProtocol(port);
 
       await protocol.attachSpiFlash();
@@ -119,53 +117,160 @@ void main() {
   );
 
   test(
-    'flashImage sends FLASH_BEGIN then one FLASH_DATA block then FLASH_END, reporting progress',
+    'the SYNC response burst is drained: the command AFTER sync reads its '
+    'own response, not a leftover SYNC frame '
+    '(regression: leftover burst frames desynced every later exchange — '
+    'the flash "succeeded" against stale responses on real hardware)',
     () async {
       final port = _FakePort([
-        _genericSuccessResponse(espOpcodeFlashBegin),
-        _genericSuccessResponse(espOpcodeFlashData),
-        _genericSuccessResponse(espOpcodeFlashEnd),
+        _syncBurst(),
+        [_romResponse(espOpcodeSpiAttach)],
       ]);
       final protocol = EspFlashProtocol(port);
-      final image = Uint8List.fromList(List<int>.filled(100, 0xAB));
 
-      final progress = await protocol
-          .flashImage(image: image, offset: 0x10000, blockSize: 200)
-          .toList();
+      await protocol.sync();
+      // Must not throw an opcode mismatch — the burst must be gone.
+      await protocol.attachSpiFlash();
 
-      expect(
-        port.written,
-        hasLength(3),
-      ); // BEGIN, one DATA block (100 < 200), END
-      expect(progress.last, 1.0);
+      expect(port.written, hasLength(2));
     },
   );
+
+  test(
+    'a response opcode that does not match the command just sent throws '
+    '(the guard that turns any future stream desync into a loud failure)',
+    () async {
+      final port = _FakePort([
+        [_romResponse(espOpcodeSync)], // wrong opcode for SPI_ATTACH
+      ]);
+      final protocol = EspFlashProtocol(port);
+
+      await expectLater(
+        protocol.attachSpiFlash(),
+        throwsA(
+          isA<EspFlashException>().having(
+            (e) => e.message,
+            'message',
+            contains('opcode mismatch'),
+          ),
+        ),
+      );
+    },
+  );
+
+  test(
+    'a ROM failure status [1, error, 0, 0] throws instead of decoding as '
+    'success (regression: the 2-byte-trailer decode read the reserved '
+    'zeros as status/error, so a rejected FLASH_BEGIN looked successful)',
+    () async {
+      final port = _FakePort([
+        [_romResponse(espOpcodeSpiAttach, status: 1, error: 0x08)],
+      ]);
+      final protocol = EspFlashProtocol(port);
+
+      await expectLater(
+        protocol.attachSpiFlash(),
+        throwsA(
+          isA<EspFlashException>().having(
+            (e) => e.message,
+            'message',
+            contains('error=8'),
+          ),
+        ),
+      );
+    },
+  );
+
+  test('flashImage sends FLASH_BEGIN, one FLASH_DATA block, then a '
+      'best-effort FLASH_END(reboot), reporting progress', () async {
+    final port = _FakePort([
+      [_romResponse(espOpcodeFlashBegin)],
+      [_romResponse(espOpcodeFlashData)],
+      [_romResponse(espOpcodeFlashEnd)],
+    ]);
+    final protocol = EspFlashProtocol(port);
+    final image = Uint8List.fromList(List<int>.filled(100, 0xAB));
+
+    final progress = await protocol
+        .flashImage(image: image, offset: 0x10000, blockSize: 200)
+        .toList();
+
+    expect(
+      port.written,
+      hasLength(3),
+    ); // BEGIN, one DATA block (100 < 200), END
+    expect(progress.last, 1.0);
+  });
+
+  test(
+    'a rejected or unanswered FLASH_END never fails the flash — the data '
+    'is already written and the chip may reboot before replying '
+    '(the ROM rejects flag 1 with error 0x06; flag 0 may kill the link)',
+    () async {
+      final rejectingPort = _FakePort([
+        [_romResponse(espOpcodeFlashBegin)],
+        [_romResponse(espOpcodeFlashData)],
+        [_romResponse(espOpcodeFlashEnd, status: 1, error: 0x06)],
+      ]);
+      final progress = await EspFlashProtocol(rejectingPort)
+          .flashImage(
+            image: Uint8List.fromList(List<int>.filled(100, 0xAB)),
+            offset: 0x10000,
+            blockSize: 200,
+          )
+          .toList();
+      expect(progress.last, 1.0);
+
+      final silentPort = _FakePort([
+        [_romResponse(espOpcodeFlashBegin)],
+        [_romResponse(espOpcodeFlashData)],
+        // no batch for FLASH_END — the write goes unanswered
+      ]);
+      final silentProgress = await EspFlashProtocol(silentPort)
+          .flashImage(
+            image: Uint8List.fromList(List<int>.filled(100, 0xAB)),
+            offset: 0x10000,
+            blockSize: 200,
+          )
+          .toList();
+      expect(silentProgress.last, 1.0);
+    },
+  );
+
+  test('FLASH_BEGIN rejected with error 0x05 (classic ESP32 ROM refusing the '
+      '20-byte payload) is retried once with the 16-byte form', () async {
+    final port = _FakePort([
+      [
+        _romResponse(
+          espOpcodeFlashBegin,
+          status: 1,
+          error: espErrorInvalidMessage,
+        ),
+      ],
+      [_romResponse(espOpcodeFlashBegin)],
+      [_romResponse(espOpcodeFlashData)],
+      [_romResponse(espOpcodeFlashEnd)],
+    ]);
+    final protocol = EspFlashProtocol(port);
+    final image = Uint8List.fromList(List<int>.filled(100, 0xAB));
+
+    final progress = await protocol
+        .flashImage(image: image, offset: 0x10000, blockSize: 200)
+        .toList();
+
+    // BEGIN(modern), BEGIN(classic), DATA, END
+    expect(port.written, hasLength(4));
+    // The retried BEGIN is 4 bytes shorter (no encryption-flag word).
+    expect(port.written[0].length, greaterThan(port.written[1].length));
+    expect(progress.last, 1.0);
+  });
 
   test(
     'flashImage throws EspFlashException if a FLASH_DATA block fails',
     () async {
       final port = _FakePort([
-        _genericSuccessResponse(espOpcodeFlashBegin),
-        // FLASH_DATA response with status=1 (failure):
-        () {
-          final body = Uint8List.fromList(<int>[
-            0x01,
-            espOpcodeFlashData,
-            0x02,
-            0x00,
-            0x00,
-            0x00,
-            0x00,
-            0x00,
-            0x01,
-            0x02,
-          ]);
-          final out = BytesBuilder();
-          out.addByte(0xC0);
-          out.add(body);
-          out.addByte(0xC0);
-          return out.toBytes();
-        }(),
+        [_romResponse(espOpcodeFlashBegin)],
+        [_romResponse(espOpcodeFlashData, status: 1, error: 0x08)],
       ]);
       final protocol = EspFlashProtocol(port);
 
@@ -175,4 +280,28 @@ void main() {
       );
     },
   );
+
+  test('sync, attachSpiFlash and flashImage chained on ONE protocol instance '
+      'each consume their own matching response in order', () async {
+    final port = _FakePort([
+      _syncBurst(),
+      [_romResponse(espOpcodeSpiAttach)],
+      [_romResponse(espOpcodeFlashBegin)],
+      [_romResponse(espOpcodeFlashData)],
+      [_romResponse(espOpcodeFlashEnd)],
+    ]);
+    final protocol = EspFlashProtocol(port);
+
+    await protocol.sync();
+    await protocol.attachSpiFlash();
+    final progress = await protocol
+        .flashImage(
+          image: Uint8List.fromList(List<int>.filled(10, 0xAB)),
+          offset: 0x10000,
+        )
+        .toList();
+
+    expect(port.written, hasLength(5)); // SYNC, ATTACH, BEGIN, DATA, END
+    expect(progress.last, 1.0);
+  });
 }

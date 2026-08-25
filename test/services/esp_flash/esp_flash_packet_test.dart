@@ -68,29 +68,39 @@ void main() {
     expect(response.error, 5);
   });
 
-  test(
-    'EspFlashResponse.decode extracts a non-empty value before the 2-byte status trailer',
-    () {
-      // Added after external review: an earlier concern was whether decode()
-      // hardcodes "total data length == 2" — it doesn't; it always takes the
-      // LAST 2 bytes of `data` as [status, error] regardless of how many
-      // value bytes precede them (this matches the real ROM-loader wire
-      // format, e.g. a READ_REG response carries a 4-byte register value
-      // before its 2-byte status). This test proves that explicitly instead
-      // of leaving it implied by the smaller fixed-size responses above.
-      final header = Uint8List.fromList(<int>[
-        0x01, 0x0A, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0xDE, 0xAD, 0xBE, 0xEF, // 4-byte value
-        0x00, 0x00, // status=success, error=0
-      ]);
-      final frame = _slipWrap(header);
+  test('EspFlashResponse.decode extracts a non-empty value before the 4-byte '
+      'ROM status trailer', () {
+    // ESP32-family ROM loaders trail every response's data with FOUR
+    // status bytes [status, error, 0, 0] — e.g. a READ_REG response
+    // carries a 4-byte register value followed by that trailer.
+    final header = Uint8List.fromList(<int>[
+      0x01, 0x0A, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0xDE, 0xAD, 0xBE, 0xEF, // 4-byte value
+      0x00, 0x00, 0x00, 0x00, // status=success, error=0, reserved
+    ]);
+    final frame = _slipWrap(header);
 
-      final response = EspFlashResponse.decode(frame);
+    final response = EspFlashResponse.decode(frame);
 
-      expect(response.value, orderedEquals(<int>[0xDE, 0xAD, 0xBE, 0xEF]));
-      expect(response.success, isTrue);
-    },
-  );
+    expect(response.value, orderedEquals(<int>[0xDE, 0xAD, 0xBE, 0xEF]));
+    expect(response.success, isTrue);
+  });
+
+  test('EspFlashResponse.decode reads status from the FIRST byte of the 4-byte '
+      'ROM trailer (regression: reading the last 2 bytes decoded an ESP32-S3 '
+      'failure [1, 5, 0, 0] as success, faking an entire flash run)', () {
+    final header = Uint8List.fromList(<int>[
+      0x01, 0x02, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x01, 0x05, 0x00, 0x00, // status=1 (fail), error=0x05
+    ]);
+    final frame = _slipWrap(header);
+
+    final response = EspFlashResponse.decode(frame);
+
+    expect(response.success, isFalse);
+    expect(response.status, 1);
+    expect(response.error, 0x05);
+  });
 }
 
 Uint8List _slipWrap(Uint8List body) {

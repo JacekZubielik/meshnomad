@@ -266,6 +266,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
 
     final usb = UsbSerialService();
     var connected = false;
+    EspFlashProtocol? protocol;
     try {
       final ports = await usb.listPorts();
       if (ports.isEmpty) {
@@ -275,7 +276,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
       connected = true;
       final transport = EspSerialTransport(usb);
       await transport.resetIntoBootloader();
-      final protocol = EspFlashProtocol(transport);
+      protocol = EspFlashProtocol(transport);
       await protocol.sync();
 
       setState(() => _step = FlasherStep.flashing);
@@ -286,6 +287,9 @@ class _FlasherScreenState extends State<FlasherScreen> {
       )) {
         setState(() => _progress = progress);
       }
+      // Boot the freshly written firmware — FLASH_END parks the chip in
+      // the ROM loader, so reset it the same way esptool does.
+      await transport.hardReset();
 
       setState(() => _step = FlasherStep.done);
       _successBannerTimer?.cancel();
@@ -299,6 +303,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
         _errorMessage = error.toString();
       });
     } finally {
+      await protocol?.dispose();
       // Added after external review: without this, a failed or completed
       // flash left the USB port open and DTR/RTS in whatever state the
       // sequence last set them to, so a retry (or connecting a MeshCore
@@ -381,6 +386,44 @@ class _FlasherScreenState extends State<FlasherScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  // Connect/flashing/error status renders right below the
+                  // source chips — NOT after the board/ROM/file picker — so
+                  // it stays visible without scrolling regardless of how
+                  // long the discovered board or version list is (bug fixed
+                  // 2026-08-25: the progress bar used to land at the very
+                  // bottom of the scrollable content, effectively invisible
+                  // during a long list).
+                  if (_step == FlasherStep.connect) ...[
+                    Text(l10n.flasherConnecting),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.flasherBootHint,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  if (_step == FlasherStep.flashing) ...[
+                    Text(l10n.flasherFlashing),
+                    LinearProgressIndicator(value: _progress),
+                    const SizedBox(height: 16),
+                  ],
+                  if (_step == FlasherStep.error) ...[
+                    Text(l10n.flasherError(_errorMessage ?? '')),
+                    const SizedBox(height: 8),
+                    // A failed attempt (typically: SYNC timeout because the
+                    // board's BOOT button wasn't held) must be retryable in
+                    // place — all selections and the downloaded firmware
+                    // stay intact, and every retry re-scans USB from
+                    // scratch (_startFlashing lists ports fresh each run).
+                    OutlinedButton(
+                      onPressed: () => setState(() {
+                        _step = FlasherStep.pickFile;
+                        _errorMessage = null;
+                      }),
+                      child: Text(l10n.flasherRetry),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   if (_sourceKind == _FirmwareSourceKind.meshcore ||
                       _sourceKind == _FirmwareSourceKind.meshcoreSolo) ...[
                     Row(
@@ -510,34 +553,6 @@ class _FlasherScreenState extends State<FlasherScreen> {
                       child: Text(_fileName ?? l10n.flasherPickFile),
                     ),
                     const SizedBox(height: 16),
-                  ],
-                  if (_step == FlasherStep.connect) ...[
-                    Text(l10n.flasherConnecting),
-                    const SizedBox(height: 8),
-                    Text(
-                      l10n.flasherBootHint,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                  if (_step == FlasherStep.flashing) ...[
-                    Text(l10n.flasherFlashing),
-                    LinearProgressIndicator(value: _progress),
-                  ],
-                  if (_step == FlasherStep.error) ...[
-                    Text(l10n.flasherError(_errorMessage ?? '')),
-                    const SizedBox(height: 8),
-                    // A failed attempt (typically: SYNC timeout because the
-                    // board's BOOT button wasn't held) must be retryable in
-                    // place — all selections and the downloaded firmware
-                    // stay intact, and every retry re-scans USB from
-                    // scratch (_startFlashing lists ports fresh each run).
-                    OutlinedButton(
-                      onPressed: () => setState(() {
-                        _step = FlasherStep.pickFile;
-                        _errorMessage = null;
-                      }),
-                      child: Text(l10n.flasherRetry),
-                    ),
                   ],
                 ],
               ),

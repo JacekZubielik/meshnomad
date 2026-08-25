@@ -41,9 +41,22 @@ class EspSerialTransport implements EspFlashPort {
   @override
   Future<void> setRts(bool value) => _usb.setRts(value);
 
-  /// Classic esptool "classic reset" sequence, timed to match esptool's own
-  /// defaults (100ms settle, 50ms reset pulse).
+  /// Runs both bootloader-entry sequences back to back:
+  ///
+  /// 1. esptool's "classic reset" (100ms settle, 50ms pulse) — the
+  ///    two-transistor circuit on external UART bridges (CP210x/CH340).
+  /// 2. esptool's `UsbJtagSerialReset` line dance — the native ESP32-S3/C3
+  ///    USB-Serial/JTAG peripheral (VID 303A PID 1001) emulates the reset
+  ///    circuit with a pattern matcher that the classic timing does NOT
+  ///    trigger (verified live 2026-08-25 on a Heltec V4: classic-only
+  ///    reset never entered the bootloader, the user always had to hold
+  ///    BOOT by hand).
+  ///
+  /// Running the wrong sequence for a given adapter is harmless — the
+  /// matcher simply doesn't fire — so both are sent unconditionally and
+  /// `sync()`'s retries take it from there.
   Future<void> resetIntoBootloader() async {
+    // Classic UART-bridge sequence.
     await setDtr(false);
     await setRts(true);
     await Future<void>.delayed(const Duration(milliseconds: 100));
@@ -51,5 +64,32 @@ class EspSerialTransport implements EspFlashPort {
     await setRts(false);
     await Future<void>.delayed(const Duration(milliseconds: 50));
     await setDtr(false);
+    // UsbJtagSerialReset sequence (esptool's exact ordering, including the
+    // deliberate pass through DTR=1/RTS=1 instead of 0/0).
+    await setRts(false);
+    await setDtr(false); // idle
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    await setDtr(true); // pull down GPIO0
+    await setRts(false);
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    await setRts(true); // reset, passing through the (1,1) state
+    await setDtr(false);
+    await setRts(true);
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    await setDtr(false);
+    await setRts(false);
+  }
+
+  /// esptool-style hard reset: pulse the EN/RST line (RTS) with BOOT (DTR)
+  /// released, so the chip reboots into whatever is in flash. FLASH_END
+  /// deliberately leaves the chip parked in the ROM loader (see
+  /// EspFlashProtocol.flashImage) — without this pulse the board keeps
+  /// running the downloader and the user sees "nothing changed" until they
+  /// power-cycle it by hand.
+  Future<void> hardReset() async {
+    await setDtr(false);
+    await setRts(true);
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    await setRts(false);
   }
 }
