@@ -964,6 +964,55 @@ class _PulseDotState extends State<PulseDot>
   }
 }
 
+/// Shared circular tinted icon button — the "-/+ stepper" visual family
+/// (`primary` @ 20% fill, `primary` icon, `CircleBorder` shape). Originally
+/// duplicated across the board-picker stepper, the Flasher refresh button,
+/// and the Flasher ⋮ menu icon — this is the single definition all three
+/// now use. Pass `onPressed: null` to render a non-interactive decorative
+/// circle (e.g. embedded as a `PopupMenuButton`'s `child`, where the
+/// PopupMenuButton itself owns the tap).
+class MeshCircleIconButton extends StatelessWidget {
+  const MeshCircleIconButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.size = 36,
+    this.iconSize = 18,
+    this.tooltip,
+  });
+
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final double size;
+  final double iconSize;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final circle = SizedBox(
+      width: size,
+      height: size,
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
+          shape: const CircleBorder(),
+          color: scheme.primary.withValues(alpha: 0.2),
+        ),
+        child: onPressed == null
+            ? Icon(icon, size: iconSize, color: scheme.primary)
+            : IconButton(
+                padding: EdgeInsets.zero,
+                iconSize: iconSize,
+                color: scheme.primary,
+                icon: Icon(icon),
+                onPressed: onPressed,
+              ),
+      ),
+    );
+    return tooltip == null ? circle : Tooltip(message: tooltip!, child: circle);
+  }
+}
+
 /// Standard modal sheet header: drag handle, title, optional subtitle and
 /// trailing action, and a close button.
 class BottomSheetHeader extends StatelessWidget {

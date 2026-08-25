@@ -11,6 +11,7 @@ import '../services/firmware_catalog.dart';
 import '../services/usb_serial_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_dashed_divider.dart';
+import '../widgets/mesh_ui.dart';
 import '../widgets/theme_profile_selector.dart' show SelectableChipButton;
 
 enum FlasherStep { pickFile, connect, flashing, done, error }
@@ -666,31 +667,6 @@ class _BoardPickerFieldState extends State<_BoardPickerField> {
     return boards.where((b) => b.toLowerCase().contains(query)).toList();
   }
 
-  Widget _circleButton(
-    BuildContext context, {
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: 36,
-      height: 36,
-      child: DecoratedBox(
-        decoration: ShapeDecoration(
-          shape: const CircleBorder(),
-          color: scheme.primary.withValues(alpha: 0.2),
-        ),
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          iconSize: 18,
-          color: scheme.primary,
-          icon: Icon(icon),
-          onPressed: boards.isEmpty ? null : onPressed,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = MeshTokens.of(context);
@@ -700,10 +676,9 @@ class _BoardPickerFieldState extends State<_BoardPickerField> {
       children: [
         Row(
           children: [
-            _circleButton(
-              context,
+            MeshCircleIconButton(
               icon: Icons.remove,
-              onPressed: () => onStep(-1),
+              onPressed: boards.isEmpty ? null : () => onStep(-1),
             ),
             SizedBox(width: t.spacingXxs),
             Expanded(
@@ -738,7 +713,10 @@ class _BoardPickerFieldState extends State<_BoardPickerField> {
               ),
             ),
             SizedBox(width: t.spacingXxs),
-            _circleButton(context, icon: Icons.add, onPressed: () => onStep(1)),
+            MeshCircleIconButton(
+              icon: Icons.add,
+              onPressed: boards.isEmpty ? null : () => onStep(1),
+            ),
           ],
         ),
         if (isOpen)
