@@ -21,8 +21,15 @@ class EspSerialTransport implements EspFlashPort {
   final UsbSerialService _usb;
   final SlipFrameReader _frameReader = SlipFrameReader();
 
+  // writeRaw, NOT write: UsbSerialService.write() wraps every payload in
+  // MeshCore's own `0x3C + length` companion framing and rejects anything
+  // over 172 bytes (usb_serial_frame_codec.dart) — esptool SLIP frames are
+  // a different protocol entirely, and a FLASH_DATA block (4 KB + header)
+  // blows that cap. SYNC only ever worked through write() by luck: the ROM
+  // bootloader's SLIP parser skips the 3 spurious header bytes as garbage
+  // before the first 0xC0.
   @override
-  Future<void> write(Uint8List bytes) => _usb.write(bytes);
+  Future<void> write(Uint8List bytes) => _usb.writeRaw(bytes);
 
   @override
   Stream<Uint8List> get incoming =>

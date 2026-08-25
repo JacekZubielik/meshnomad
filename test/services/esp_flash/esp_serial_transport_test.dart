@@ -17,8 +17,10 @@ class _RecordingUsbSerialService extends UsbSerialService {
   @override
   Future<void> setRts(bool value) async => rts = value;
 
+  // The transport must use writeRaw (raw pass-through), never write()
+  // (which wraps payloads in MeshCore's 172-byte-capped companion framing).
   @override
-  Future<void> write(Uint8List data) async => written.add(data);
+  Future<void> writeRaw(Uint8List data) async => written.add(data);
 
   @override
   Stream<Uint8List> get rawByteStream => _incoming.stream;

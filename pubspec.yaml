@@ -129,6 +129,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/fonts/
+    - assets/flasher/boards.json
 
   fonts:
     - family: Inter

@@ -10117,6 +10117,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Configure a repeater or room server'**
   String get hubSetupSubtitle;
+
+  /// Flasher: button to pick a local .bin firmware file
+  ///
+  /// In en, this message translates to:
+  /// **'Choose firmware file'**
+  String get flasherPickFile;
+
+  /// Flasher: status while syncing with the ESP32 bootloader
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to device...'**
+  String get flasherConnecting;
+
+  /// Flasher: status while writing firmware to flash
+  ///
+  /// In en, this message translates to:
+  /// **'Flashing firmware...'**
+  String get flasherFlashing;
+
+  /// Flasher: success message
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware flashed successfully'**
+  String get flasherDone;
+
+  /// Flasher: error message
+  ///
+  /// In en, this message translates to:
+  /// **'Flashing failed: {message}'**
+  String flasherError(String message);
+
+  /// Flasher: button to begin flashing
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get flasherStart;
+
+  /// Flasher: hint shown while connecting — some boards (e.g. native-USB ESP32-S3 boards) don't auto-enter bootloader mode reliably
+  ///
+  /// In en, this message translates to:
+  /// **'If this takes more than a few seconds, hold the board\'s BOOT button while it connects'**
+  String get flasherBootHint;
+
+  /// Flasher: built-in firmware source — official MeshCore repo
+  ///
+  /// In en, this message translates to:
+  /// **'MeshCore'**
+  String get flasherSourceMeshCore;
+
+  /// Flasher: built-in firmware source — community MeshCore-Solo repo
+  ///
+  /// In en, this message translates to:
+  /// **'MeshCore-Solo'**
+  String get flasherSourceMeshCoreSolo;
+
+  /// Flasher: firmware source option
+  ///
+  /// In en, this message translates to:
+  /// **'Local file'**
+  String get flasherSourceLocalFile;
+
+  /// Flasher: firmware source option
+  ///
+  /// In en, this message translates to:
+  /// **'Custom URL'**
+  String get flasherSourceCustomUrl;
+
+  /// Flasher: section heading above the board picker
+  ///
+  /// In en, this message translates to:
+  /// **'Board'**
+  String get flasherBoardLabel;
+
+  /// Flasher: board picker placeholder before anything is chosen
+  ///
+  /// In en, this message translates to:
+  /// **'Select board'**
+  String get flasherSelectBoard;
+
+  /// Flasher: shown when board discovery from the repo's releases came back empty
+  ///
+  /// In en, this message translates to:
+  /// **'No boards found'**
+  String get flasherNoBoardsFound;
+
+  /// Flasher: section heading above the Companion/Repeater/Room Server chips
+  ///
+  /// In en, this message translates to:
+  /// **'ROM type'**
+  String get flasherRomTypeLabel;
+
+  /// Flasher: section heading above the asset radio list
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get flasherFileLabel;
+
+  /// Flasher: dropdown label for the release-version picker
+  ///
+  /// In en, this message translates to:
+  /// **'Select version'**
+  String get flasherSelectVersion;
+
+  /// Flasher: shown when the GitHub releases list came back empty for the chosen ROM type
+  ///
+  /// In en, this message translates to:
+  /// **'No releases found'**
+  String get flasherNoReleasesFound;
+
+  /// Flasher: flash-mode radio option, offset 0x0
+  ///
+  /// In en, this message translates to:
+  /// **'Full reset (erases everything)'**
+  String get flasherFullResetOption;
+
+  /// Flasher: flash-mode radio option, offset 0x10000
+  ///
+  /// In en, this message translates to:
+  /// **'Update (keeps existing settings)'**
+  String get flasherUpdateOption;
+
+  /// Flasher: confirmation dialog title before a full-reset (offset 0x0) flash
+  ///
+  /// In en, this message translates to:
+  /// **'Erase everything?'**
+  String get flasherFullResetConfirmTitle;
+
+  /// Flasher: confirmation dialog body
+  ///
+  /// In en, this message translates to:
+  /// **'This will erase the bootloader and all settings on the device, not just the app. Make sure this is the firmware file you intend to use.'**
+  String get flasherFullResetConfirmBody;
+
+  /// Flasher: confirmation dialog proceed button
+  ///
+  /// In en, this message translates to:
+  /// **'Erase and flash'**
+  String get flasherFullResetConfirmProceed;
+
+  /// Flasher: confirmation dialog cancel button
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get flasherFullResetConfirmCancel;
 }
 
 class _AppLocalizationsDelegate

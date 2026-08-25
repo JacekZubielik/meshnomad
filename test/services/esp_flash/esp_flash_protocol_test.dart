@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meshnomad/services/esp_flash/esp_flash_packet.dart';
 import 'package:meshnomad/services/esp_flash/esp_flash_protocol.dart';
 
 class _FakePort implements EspFlashPort {

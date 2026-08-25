@@ -1,0 +1,34 @@
+{
+  "sources": [
+    {
+      "id": "meshcore",
+      "displayName": "MeshCore",
+      "repo": "ripplebiz/MeshCore",
+      "boardTokenIsSubstring": false,
+      "romTypes": [
+        {
+          "id": "companion",
+          "displayName": "Companion",
+          "tagPrefix": "companion-"
+        },
+        {
+          "id": "repeater",
+          "displayName": "Repeater",
+          "tagPrefix": "repeater-"
+        },
+        {
+          "id": "room_server",
+          "displayName": "Room Server",
+          "tagPrefix": "room-server-"
+        }
+      ]
+    },
+    {
+      "id": "meshcore_solo",
+      "displayName": "MeshCore-Solo",
+      "repo": "MarekZegare4/MeshCore-Solo",
+      "boardTokenIsSubstring": true,
+      "romTypes": []
+    }
+  ]
+}
