@@ -1199,7 +1199,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_aboutVersion.
   ///
   /// In en, this message translates to:
-  /// **'MeshNomad v{version}'**
+  /// **'v{version}'**
   String settings_aboutVersion(String version);
 
   /// No description provided for @settings_aboutLegalese.
@@ -9853,18 +9853,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Large section breaks'**
   String get styleEditor_spacingXlg_subtitle;
-
-  /// No description provided for @styleEditor_spacingXxlg_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Huge (xxlg)'**
-  String get styleEditor_spacingXxlg_label;
-
-  /// No description provided for @styleEditor_spacingXxlg_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Largest layout gaps'**
-  String get styleEditor_spacingXxlg_subtitle;
 
   /// No description provided for @styleEditor_radiusSection.
   ///

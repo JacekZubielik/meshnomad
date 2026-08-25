@@ -2200,7 +2200,7 @@ class _RepeaterSettingsScreenState extends State<RepeaterSettingsScreen> {
                   ),
                 ),
               ),
-              SizedBox(width: MeshTokens.of(context).spacingXxlg),
+              SizedBox(width: MeshTokens.of(context).spacingXlg),
             ],
           ),
         ],

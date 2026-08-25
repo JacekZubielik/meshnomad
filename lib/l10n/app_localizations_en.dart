@@ -608,7 +608,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settings_aboutVersion(String version) {
-    return 'MeshNomad v$version';
+    return 'v$version';
   }
 
   @override
@@ -5649,12 +5649,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get styleEditor_spacingXlg_subtitle => 'Large section breaks';
-
-  @override
-  String get styleEditor_spacingXxlg_label => 'Huge (xxlg)';
-
-  @override
-  String get styleEditor_spacingXxlg_subtitle => 'Largest layout gaps';
 
   @override
   String get styleEditor_radiusSection => 'Corner radius';

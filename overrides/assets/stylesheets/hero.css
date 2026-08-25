@@ -1,0 +1,102 @@
+/*
+  Plain-CSS port of squidfunk/mkdocs-material's free/OSS
+  src/overrides/assets/stylesheets/custom/layout/_hero.scss (MIT licensed).
+  Hand-converted from SCSS since this project has no SCSS build step —
+  px2rem(Npx) values below are N/16 rem (16px root, standard browser
+  default). Breakpoints (44.984375em / 60em / 76.25em) are Material's own
+  real "mobile portrait" / "tablet landscape" / "screen" values, confirmed
+  2026-08-24 directly from squidfunk.github.io/mkdocs-material's compiled
+  CSS output — not guessed.
+*/
+
+.mdx-container {
+  padding-top: 1.25rem;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1123 258'><path d='M1124,2c0,0 0,256 0,256l-1125,0l0,-48c0,0 16,5 55,5c116,0 197,-92 325,-92c121,0 114,46 254,46c140,0 214,-167 572,-166Z' style='fill: hsla(230, 15%, 14%, 1)' /></svg>") no-repeat bottom,
+    linear-gradient(
+      to bottom,
+      var(--md-primary-fg-color),
+      #2A420C 99%,
+      var(--md-default-bg-color) 99%
+    );
+}
+
+[data-md-color-scheme="slate"] .mdx-container {
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1123 258'><path d='M1124,2c0,0 0,256 0,256l-1125,0l0,-48c0,0 16,5 55,5c116,0 197,-92 325,-92c121,0 114,46 254,46c140,0 214,-167 572,-166Z' style='fill: hsla(230, 15%, 14%, 1)' /></svg>") no-repeat bottom,
+    linear-gradient(
+      to bottom,
+      var(--md-primary-fg-color),
+      #2A420C 99%,
+      var(--md-default-bg-color) 99%
+    );
+}
+
+.mdx-hero {
+  margin: 0 1rem;
+  color: var(--md-primary-bg-color);
+}
+
+.mdx-hero h1 {
+  margin-bottom: 1.25rem;
+  font-weight: 700;
+  color: currentcolor;
+}
+
+@media screen and (max-width: 44.984375em) {
+  .mdx-hero h1 {
+    font-size: 1.75rem;
+  }
+}
+
+.mdx-hero__content {
+  /* Readable measure in the stacked (sub-60em) layout — without a cap the
+     description runs the full viewport width on mid-size screens. */
+  max-width: 34rem;
+  padding-bottom: 7.5rem;
+}
+
+@media screen and (min-width: 60em) {
+  .mdx-hero {
+    display: flex;
+    align-items: stretch;
+  }
+  .mdx-hero__content {
+    max-width: 23.75rem;
+    padding-bottom: 14vw;
+    margin-top: 4.375rem;
+  }
+  .mdx-hero__image {
+    order: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 0 auto;
+    margin-top: 4.375rem;
+  }
+}
+
+.mdx-hero .md-button {
+  margin-top: 0.625rem;
+  margin-right: 0.625rem;
+  color: var(--md-primary-bg-color);
+}
+
+.mdx-hero .md-button:is(:focus, :hover) {
+  color: var(--md-accent-bg-color);
+  background-color: var(--md-accent-fg-color);
+  border-color: var(--md-accent-fg-color);
+}
+
+.mdx-hero .md-button--primary {
+  color: var(--md-primary-fg-color);
+  background-color: var(--md-primary-bg-color);
+  border-color: var(--md-primary-bg-color);
+}
+
+.mdx-hero__image img,
+.mdx-hero__image svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}

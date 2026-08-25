@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -55,7 +56,13 @@ class _AboutScreenState extends State<AboutScreen> {
 
   String get _versionLabel {
     if (_appVersion.isEmpty) return '';
-    return _buildNumber.isEmpty ? _appVersion : '$_appVersion ($_buildNumber)';
+    // The platform build number is not human-readable on its own: Android's
+    // --split-per-abi packaging mangles it into `abiCode * 1000 +
+    // buildNumber` (arm64-v8a's abiCode 2 turns build "17" into "2017",
+    // which reads like a year). Builds carrying BuildInfo already show the
+    // real provenance (commit/branch/date) below, so skip it here.
+    if (_buildNumber.isEmpty || BuildInfo.hasDetails) return _appVersion;
+    return '$_appVersion ($_buildNumber)';
   }
 
   String _buildSourceLabel(BuildContext context) => BuildInfo.isCi
@@ -123,32 +130,88 @@ class _AboutScreenState extends State<AboutScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Stack(
             children: [
-              Expanded(
-                child: Text(
-                  l10n.appTitle,
-                  style: Theme.of(context).textTheme.titleMedium,
+              // Lockup: mark + "meshnomad" wordmark — same identity as on
+              // meshnomad.org (assets/icons/lockup.svg).
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: t.spacingSm),
+                  child: Column(
+                    children: [
+                      Container(
+                        // The mark SVG is a filled disc with the M cut out
+                        // (evenodd), so a circular BoxShadow hugs its true
+                        // silhouette rather than boxing it.
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: t.logoShadow,
+                        ),
+                        child: SvgPicture.asset(
+                          'assets/icons/app_mark.svg',
+                          height: 64,
+                          colorFilter: ColorFilter.mode(
+                            scheme.onSurface,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: t.spacingSm),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'mesh',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                color: scheme.onSurface.withValues(alpha: .8),
+                                shadows: t.logoShadow,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'nomad',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                shadows: t.logoShadow,
+                              ),
+                            ),
+                          ],
+                        ),
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              IconButton(
-                tooltip: l10n.about_copyVersionTooltip,
-                icon: const Icon(Icons.copy_outlined, size: 20),
-                color: t.primary,
-                onPressed: () => _copyVersionInfo(context),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: IconButton(
+                  tooltip: l10n.about_copyVersionTooltip,
+                  icon: const Icon(Icons.copy_outlined, size: 20),
+                  color: t.primary,
+                  onPressed: () => _copyVersionInfo(context),
+                ),
               ),
             ],
           ),
-          Text(
-            l10n.settings_aboutVersion(
-              _versionLabel.isEmpty ? l10n.common_loading : _versionLabel,
+          Center(
+            child: Text(
+              l10n.settings_aboutVersion(
+                _versionLabel.isEmpty ? l10n.common_loading : _versionLabel,
+              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
             ),
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
           SizedBox(height: t.spacingMd),
-          Text(l10n.settings_aboutDescription),
+          Center(
+            child: Text(
+              l10n.settings_aboutDescription,
+              textAlign: TextAlign.center,
+            ),
+          ),
           if (BuildInfo.hasDetails) ...[
             SizedBox(height: t.spacingSm),
             const MeshDashedDivider(),
@@ -261,11 +324,14 @@ class _AboutScreenState extends State<AboutScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l10n.settings_aboutLegalese,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+          Center(
+            child: Text(
+              l10n.settings_aboutLegalese,
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            ),
           ),
           SizedBox(height: t.spacingSm),
           SizedBox(

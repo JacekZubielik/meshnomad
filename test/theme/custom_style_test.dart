@@ -205,21 +205,23 @@ void main() {
       );
     });
 
-    test('default spacing scale is 6/16/13/14/24/32/48 in both brightnesses '
-        '(2026-08-21 operator-set defaults)', () {
-      for (final tokens in [
-        MeshTokens.defaultTokens,
-        MeshTokens.defaultTokensLight,
-      ]) {
-        expect(tokens.spacingXxs, 6);
-        expect(tokens.spacingXs, 16);
-        expect(tokens.spacingSm, 13);
-        expect(tokens.spacingMd, 14);
-        expect(tokens.spacingLg, 24);
-        expect(tokens.spacingXlg, 32);
-        expect(tokens.spacingXxlg, 48);
-      }
-    });
+    test(
+      'default spacing scale is 6/16/13/14/24/32 in both brightnesses '
+      '(2026-08-21 operator-set defaults; spacingXxlg removed 2026-08-24)',
+      () {
+        for (final tokens in [
+          MeshTokens.defaultTokens,
+          MeshTokens.defaultTokensLight,
+        ]) {
+          expect(tokens.spacingXxs, 6);
+          expect(tokens.spacingXs, 16);
+          expect(tokens.spacingSm, 13);
+          expect(tokens.spacingMd, 14);
+          expect(tokens.spacingLg, 24);
+          expect(tokens.spacingXlg, 32);
+        }
+      },
+    );
 
     test('a present spacing override wins over the default '
         '(brightness-independent)', () {

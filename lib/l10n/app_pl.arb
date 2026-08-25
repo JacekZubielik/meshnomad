@@ -128,7 +128,7 @@
   "settings_appDebugLog": "Dziennik debugowania aplikacji",
   "settings_appDebugLogSubtitle": "Komunikaty debugowania aplikacji",
   "settings_about": "O aplikacji",
-  "settings_aboutVersion": "MeshNomad w wersji {version}",
+  "settings_aboutVersion": "w wersji {version}",
   "@settings_aboutVersion": {
     "placeholders": {
       "version": {
@@ -2972,8 +2972,6 @@
   "styleEditor_spacingLg_subtitle": "Odstępy między sekcjami",
   "styleEditor_spacingXlg_label": "Bardzo duży (xlg)",
   "styleEditor_spacingXlg_subtitle": "Duże przerwy między sekcjami",
-  "styleEditor_spacingXxlg_label": "Ogromny (xxlg)",
-  "styleEditor_spacingXxlg_subtitle": "Największe odstępy układu",
   "styleEditor_radiusSection": "Zaokrąglenia",
   "styleEditor_radiusXs_label": "Małe (xs)",
   "styleEditor_radiusXs_subtitle": "Chipy, małe pola",

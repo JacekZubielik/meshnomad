@@ -246,7 +246,7 @@
   "settings_appDebugLog": "App Debug Log",
   "settings_appDebugLogSubtitle": "Application debug messages",
   "settings_about": "About",
-  "settings_aboutVersion": "MeshNomad v{version}",
+  "settings_aboutVersion": "v{version}",
   "@settings_aboutVersion": {
     "placeholders": {
       "version": {
@@ -3141,8 +3141,6 @@
   "styleEditor_spacingLg_subtitle": "Gaps between sections",
   "styleEditor_spacingXlg_label": "Extra large (xlg)",
   "styleEditor_spacingXlg_subtitle": "Large section breaks",
-  "styleEditor_spacingXxlg_label": "Huge (xxlg)",
-  "styleEditor_spacingXxlg_subtitle": "Largest layout gaps",
   "styleEditor_radiusSection": "Corner radius",
   "styleEditor_radiusXs_label": "Small (xs)",
   "styleEditor_radiusXs_subtitle": "Chips, small fields",

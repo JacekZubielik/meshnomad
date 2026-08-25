@@ -256,12 +256,6 @@ final List<_SpacingFieldSpec> _spacingFields = [
   _SpacingFieldSpec('spacingMd', MeshTokens.defaultTokens.spacingMd, 8, 28),
   _SpacingFieldSpec('spacingLg', MeshTokens.defaultTokens.spacingLg, 16, 40),
   _SpacingFieldSpec('spacingXlg', MeshTokens.defaultTokens.spacingXlg, 20, 52),
-  _SpacingFieldSpec(
-    'spacingXxlg',
-    MeshTokens.defaultTokens.spacingXxlg,
-    32,
-    72,
-  ),
 ];
 
 final List<_SpacingFieldSpec> _radiusFields = [
@@ -512,11 +506,6 @@ final _SpacingFieldSpec _buttonRadiusField = _SpacingFieldSpec(
       return (
         l10n.styleEditor_spacingXlg_label,
         l10n.styleEditor_spacingXlg_subtitle,
-      );
-    case 'spacingXxlg':
-      return (
-        l10n.styleEditor_spacingXxlg_label,
-        l10n.styleEditor_spacingXxlg_subtitle,
       );
     default:
       throw ArgumentError('Unknown spacing field key: $key');
