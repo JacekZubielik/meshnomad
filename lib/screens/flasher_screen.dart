@@ -514,17 +514,40 @@ class _FlasherScreenState extends State<FlasherScreen> {
                             },
                           ),
                           _sectionLabel(context, l10n.flasherFileLabel),
-                          ...(_selectedVersion?.files ?? const []).map(
-                            (file) => RadioListTile<String>(
-                              title: Text(
-                                file.offset == catalogOffsetFullReset
-                                    ? l10n.flasherFullResetOption
-                                    : l10n.flasherUpdateOption,
-                              ),
-                              subtitle: Text(file.name),
-                              value: file.name,
-                              groupValue: _fileName,
-                              onChanged: (_) => _selectFile(file),
+                          // RadioGroup (Flutter 3.32+ API) owns the group
+                          // value; individual tiles carry only their own
+                          // value. Radio identity stays the unique file
+                          // NAME, not the offset — several files share one
+                          // offset (BLE + USB role variants).
+                          RadioGroup<String>(
+                            groupValue: _fileName,
+                            onChanged: (name) {
+                              for (final file
+                                  in _selectedVersion?.files ??
+                                      const <CatalogFile>[]) {
+                                if (file.name == name) {
+                                  _selectFile(file);
+                                  return;
+                                }
+                              }
+                            },
+                            child: Column(
+                              children:
+                                  (_selectedVersion?.files ??
+                                          const <CatalogFile>[])
+                                      .map(
+                                        (file) => RadioListTile<String>(
+                                          title: Text(
+                                            file.offset ==
+                                                    catalogOffsetFullReset
+                                                ? l10n.flasherFullResetOption
+                                                : l10n.flasherUpdateOption,
+                                          ),
+                                          subtitle: Text(file.name),
+                                          value: file.name,
+                                        ),
+                                      )
+                                      .toList(),
                             ),
                           ),
                         ],
