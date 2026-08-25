@@ -174,6 +174,41 @@ void main() {
     },
   );
 
+  test(
+    'repeated fetches reuse one cached /releases response per source',
+    () async {
+      var requestCount = 0;
+      final byTag = companionAndSiblingReleases();
+      final client = MockClient((request) async {
+        requestCount++;
+        return http.Response(
+          jsonEncode(
+            byTag.entries
+                .map((e) => {'tag_name': e.key, 'assets': e.value})
+                .toList(),
+          ),
+          200,
+        );
+      });
+      final firmwareSource = FirmwareSource(httpClient: client);
+      final sources = await firmwareSource.loadCatalog();
+      final meshcore = sources.firstWhere((s) => s.id == 'meshcore');
+      final companion = meshcore.romTypes.firstWhere(
+        (r) => r.id == 'companion',
+      );
+      final repeater = meshcore.romTypes.firstWhere((r) => r.id == 'repeater');
+
+      await firmwareSource.discoverBoards(source: meshcore);
+      await firmwareSource.fetchReleases(source: meshcore, romType: companion);
+      await firmwareSource.fetchReleases(source: meshcore, romType: repeater);
+
+      // Unauthenticated GitHub allows 60 requests/hour — a single screen
+      // session burning one request per board/ROM switch exhausted it in
+      // real testing (403). Everything above must share ONE fetch.
+      expect(requestCount, 1);
+    },
+  );
+
   test('fetchReleases caps the returned list at the given limit', () async {
     final manyReleases = List.generate(
       30,

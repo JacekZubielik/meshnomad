@@ -10196,6 +10196,12 @@ abstract class AppLocalizations {
   /// **'Select board'**
   String get flasherSelectBoard;
 
+  /// Flasher: hint of the type-to-filter field at the top of the expanded board list
+  ///
+  /// In en, this message translates to:
+  /// **'Search boards'**
+  String get flasherSearchBoardHint;
+
   /// Flasher: shown when board discovery from the repo's releases came back empty
   ///
   /// In en, this message translates to:
@@ -10213,6 +10219,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'File'**
   String get flasherFileLabel;
+
+  /// Flasher: button shown under a flash error — returns to the form with all selections kept so the user can retry (USB is re-scanned on every attempt)
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get flasherRetry;
 
   /// Flasher: dropdown label for the release-version picker
   ///

@@ -5937,6 +5937,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get flasherSelectBoard => 'Wybierz płytkę';
 
   @override
+  String get flasherSearchBoardHint => 'Szukaj płytki';
+
+  @override
   String get flasherNoBoardsFound => 'Nie znaleziono płytek';
 
   @override
@@ -5944,6 +5947,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get flasherFileLabel => 'Plik';
+
+  @override
+  String get flasherRetry => 'Spróbuj ponownie';
 
   @override
   String get flasherSelectVersion => 'Wybierz wersję';

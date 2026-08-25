@@ -117,21 +117,42 @@ class FirmwareSource {
     return parsed;
   }
 
+  // One /releases fetch per source per FirmwareSource instance. Without
+  // this, every board/ROM-type switch refired the same request, and
+  // unauthenticated api.github.com allows only 60 requests/hour per IP —
+  // a normal testing session exhausted the quota and every fetch started
+  // failing with 403. The response already contains every release with its
+  // full asset list, so nothing is lost by reusing it. A fresh
+  // FlasherScreen creates a fresh FirmwareSource, so re-entering the
+  // screen naturally re-fetches (that's the refresh path).
+  final Map<String, List<Map<String, dynamic>>> _releasesCache = {};
+
   Future<List<Map<String, dynamic>>> _fetchAllReleases(
     FirmwareGithubSource source,
   ) async {
+    final cached = _releasesCache[source.repo];
+    if (cached != null) return cached;
     final response = await _httpClient.get(
       Uri.parse(
         'https://api.github.com/repos/${source.repo}/releases?per_page=100',
       ),
     );
+    if (response.statusCode == 403) {
+      throw StateError(
+        'GitHub API rate limit reached for ${source.repo} (403) — '
+        'unauthenticated access allows 60 requests/hour; wait a while '
+        'and try again',
+      );
+    }
     if (response.statusCode != 200) {
       throw StateError(
         'GitHub releases request failed for ${source.repo}: ${response.statusCode}',
       );
     }
-    return (jsonDecode(response.body) as List<dynamic>)
+    final parsed = (jsonDecode(response.body) as List<dynamic>)
         .cast<Map<String, dynamic>>();
+    _releasesCache[source.repo] = parsed;
+    return parsed;
   }
 
   /// Discovers the set of board tokens present in [source]'s most recent

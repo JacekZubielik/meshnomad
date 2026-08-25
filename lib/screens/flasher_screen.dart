@@ -427,6 +427,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
                           onStep: _stepBoard,
                           onSelect: _selectBoard,
                           placeholder: l10n.flasherSelectBoard,
+                          searchHint: l10n.flasherSearchBoardHint,
                         ),
                       if (_selectedBoard != null) ...[
                         if ((_activeSource?.romTypes ?? const [])
@@ -536,8 +537,22 @@ class _FlasherScreenState extends State<FlasherScreen> {
                     Text(l10n.flasherFlashing),
                     LinearProgressIndicator(value: _progress),
                   ],
-                  if (_step == FlasherStep.error)
+                  if (_step == FlasherStep.error) ...[
                     Text(l10n.flasherError(_errorMessage ?? '')),
+                    const SizedBox(height: 8),
+                    // A failed attempt (typically: SYNC timeout because the
+                    // board's BOOT button wasn't held) must be retryable in
+                    // place — all selections and the downloaded firmware
+                    // stay intact, and every retry re-scans USB from
+                    // scratch (_startFlashing lists ports fresh each run).
+                    OutlinedButton(
+                      onPressed: () => setState(() {
+                        _step = FlasherStep.pickFile;
+                        _errorMessage = null;
+                      }),
+                      child: Text(l10n.flasherRetry),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -569,7 +584,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
   }
 }
 
-class _BoardPickerField extends StatelessWidget {
+class _BoardPickerField extends StatefulWidget {
   const _BoardPickerField({
     required this.boards,
     required this.selected,
@@ -578,6 +593,7 @@ class _BoardPickerField extends StatelessWidget {
     required this.onStep,
     required this.onSelect,
     required this.placeholder,
+    required this.searchHint,
   });
 
   final List<String> boards;
@@ -587,6 +603,44 @@ class _BoardPickerField extends StatelessWidget {
   final ValueChanged<int> onStep;
   final ValueChanged<String> onSelect;
   final String placeholder;
+  final String searchHint;
+
+  @override
+  State<_BoardPickerField> createState() => _BoardPickerFieldState();
+}
+
+class _BoardPickerFieldState extends State<_BoardPickerField> {
+  final TextEditingController _filterController = TextEditingController();
+
+  List<String> get boards => widget.boards;
+  String? get selected => widget.selected;
+  bool get isOpen => widget.isOpen;
+  VoidCallback get onToggle => widget.onToggle;
+  ValueChanged<int> get onStep => widget.onStep;
+  ValueChanged<String> get onSelect => widget.onSelect;
+  String get placeholder => widget.placeholder;
+
+  @override
+  void dispose() {
+    _filterController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant _BoardPickerField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Stale filter text from a previous open would silently hide boards
+    // the next time the list expands — reset it whenever the list closes.
+    if (oldWidget.isOpen && !widget.isOpen) {
+      _filterController.clear();
+    }
+  }
+
+  List<String> get _filteredBoards {
+    final query = _filterController.text.trim().toLowerCase();
+    if (query.isEmpty) return boards;
+    return boards.where((b) => b.toLowerCase().contains(query)).toList();
+  }
 
   Widget _circleButton(
     BuildContext context, {
@@ -666,7 +720,7 @@ class _BoardPickerField extends StatelessWidget {
         if (isOpen)
           Container(
             margin: EdgeInsets.only(top: t.spacingXs),
-            constraints: const BoxConstraints(maxHeight: 220),
+            constraints: const BoxConstraints(maxHeight: 280),
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(t.sm),
@@ -678,23 +732,52 @@ class _BoardPickerField extends StatelessWidget {
             // this Material instead of a DecoratedBox.
             child: Material(
               color: Theme.of(context).colorScheme.surfaceContainerLow,
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: boards.length,
-                separatorBuilder: (_, _) =>
-                    const MeshDashedDivider(indent: 14, endIndent: 14),
-                itemBuilder: (context, index) {
-                  final board = boards[index];
-                  final isSelected = board == selected;
-                  return ListTile(
-                    dense: true,
-                    title: Text(board),
-                    trailing: isSelected
-                        ? Icon(Icons.check, size: 16, color: scheme.primary)
-                        : null,
-                    onTap: () => onSelect(board),
-                  );
-                },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Type-to-filter, meshcore.io/flasher-style: the full
+                  // discovered board list can be long, so the expanded
+                  // panel leads with a search field narrowing it live.
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: t.spacingSm,
+                      vertical: t.spacingXxs,
+                    ),
+                    child: TextField(
+                      controller: _filterController,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        prefixIcon: const Icon(Icons.search, size: 18),
+                        hintText: widget.searchHint,
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: _filteredBoards.length,
+                      separatorBuilder: (_, _) =>
+                          const MeshDashedDivider(indent: 14, endIndent: 14),
+                      itemBuilder: (context, index) {
+                        final board = _filteredBoards[index];
+                        final isSelected = board == selected;
+                        return ListTile(
+                          dense: true,
+                          title: Text(board),
+                          trailing: isSelected
+                              ? Icon(
+                                  Icons.check,
+                                  size: 16,
+                                  color: scheme.primary,
+                                )
+                              : null,
+                          onTap: () => onSelect(board),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

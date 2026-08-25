@@ -5828,6 +5828,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get flasherSelectBoard => 'Select board';
 
   @override
+  String get flasherSearchBoardHint => 'Search boards';
+
+  @override
   String get flasherNoBoardsFound => 'No boards found';
 
   @override
@@ -5835,6 +5838,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get flasherFileLabel => 'File';
+
+  @override
+  String get flasherRetry => 'Try again';
 
   @override
   String get flasherSelectVersion => 'Select version';
