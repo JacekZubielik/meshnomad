@@ -34,6 +34,8 @@ class UsbSerialService {
   String? _connectedPortKey;
   String? _connectedPortLabel;
   SerialPort? _serial;
+  bool _lastDtr = true;
+  bool _lastRts = false;
   AppDebugLogService? _debugLogService;
   Object? _lastError;
 
@@ -521,6 +523,44 @@ class UsbSerialService {
       return [normalizedPort, '$cuPrefix$suffix'];
     }
     return [normalizedPort];
+  }
+
+  /// Sets the DTR line. On Android this issues a CDC control transfer; on
+  /// desktop it reconfigures the open [SerialPort]. Throws [StateError] if
+  /// not connected.
+  Future<void> setDtr(bool value) async {
+    if (_useAndroidUsbHost) {
+      await _androidMethodChannel.invokeMethod<void>('setControlLines', {
+        'dtr': value,
+        'rts': _lastRts,
+      });
+      _lastDtr = value;
+    } else {
+      final serial = _serial;
+      if (serial == null) {
+        throw StateError('setDtr called while not connected');
+      }
+      serial.config = SerialPortConfig()
+        ..dtr = value ? SerialPortDtr.on : SerialPortDtr.off;
+    }
+  }
+
+  /// Sets the RTS line. See [setDtr].
+  Future<void> setRts(bool value) async {
+    if (_useAndroidUsbHost) {
+      await _androidMethodChannel.invokeMethod<void>('setControlLines', {
+        'dtr': _lastDtr,
+        'rts': value,
+      });
+      _lastRts = value;
+    } else {
+      final serial = _serial;
+      if (serial == null) {
+        throw StateError('setRts called while not connected');
+      }
+      serial.config = SerialPortConfig()
+        ..rts = value ? SerialPortRts.on : SerialPortRts.off;
+    }
   }
 }
 

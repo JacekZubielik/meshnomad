@@ -5875,4 +5875,112 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get about_openSourceLicenses => 'Licencje open source';
+
+  @override
+  String get hubCompanionTile => 'Companion';
+
+  @override
+  String get hubCompanionSubtitle => 'Połącz przez BLE, TCP lub USB';
+
+  @override
+  String get hubFlasherTile => 'Flasher';
+
+  @override
+  String get hubFlasherSubtitle => 'Wgraj firmware na urządzenie';
+
+  @override
+  String get hubSetupTile => 'Setup USB';
+
+  @override
+  String get hubSetupSubtitle => 'Skonfiguruj repeater lub room server';
+
+  @override
+  String get flasherPickFile => 'Wybierz plik firmware';
+
+  @override
+  String get flasherConnecting => 'Łączenie z urządzeniem...';
+
+  @override
+  String get flasherFlashing => 'Wgrywanie firmware...';
+
+  @override
+  String get flasherDone => 'Firmware wgrane pomyślnie';
+
+  @override
+  String flasherError(String message) {
+    return 'Błąd wgrywania: $message';
+  }
+
+  @override
+  String get flasherStart => 'Rozpocznij';
+
+  @override
+  String get flasherBootHint =>
+      'Jeśli to trwa dłużej niż kilka sekund, przytrzymaj przycisk BOOT na płytce podczas łączenia';
+
+  @override
+  String get flasherSourceMeshCore => 'MeshCore';
+
+  @override
+  String get flasherSourceMeshCoreSolo => 'MeshCore-Solo';
+
+  @override
+  String get flasherSourceLocalFile => 'Plik lokalny';
+
+  @override
+  String get flasherSourceCustomUrl => 'Własny URL';
+
+  @override
+  String get flasherBoardLabel => 'Płytka';
+
+  @override
+  String get flasherSelectBoard => 'Wybierz płytkę';
+
+  @override
+  String get flasherSearchBoardHint => 'Szukaj płytki';
+
+  @override
+  String flasherCatalogUpdated(String date) {
+    return 'Katalog z $date';
+  }
+
+  @override
+  String get flasherRefreshTooltip => 'Odśwież katalog';
+
+  @override
+  String get flasherNoBoardsFound => 'Nie znaleziono płytek';
+
+  @override
+  String get flasherRomTypeLabel => 'Typ ROM-u';
+
+  @override
+  String get flasherFileLabel => 'Plik';
+
+  @override
+  String get flasherRetry => 'Spróbuj ponownie';
+
+  @override
+  String get flasherSelectVersion => 'Wybierz wersję';
+
+  @override
+  String get flasherNoReleasesFound => 'Nie znaleziono release\'ów';
+
+  @override
+  String get flasherFullResetOption => 'Pełny reset (kasuje wszystko)';
+
+  @override
+  String get flasherUpdateOption => 'Aktualizacja (zachowuje ustawienia)';
+
+  @override
+  String get flasherFullResetConfirmTitle => 'Skasować wszystko?';
+
+  @override
+  String get flasherFullResetConfirmBody =>
+      'Ta operacja skasuje bootloader i wszystkie ustawienia urządzenia, nie tylko aplikację. Upewnij się, że to na pewno plik firmware, którego chcesz użyć.';
+
+  @override
+  String get flasherFullResetConfirmProceed => 'Skasuj i wgraj';
+
+  @override
+  String get flasherFullResetConfirmCancel => 'Anuluj';
 }

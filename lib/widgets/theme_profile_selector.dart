@@ -28,7 +28,7 @@ class ThemeChipRow extends StatelessWidget {
       runSpacing: t.spacingXs,
       children: [
         for (final theme in themes)
-          _SelectableChipButton(
+          SelectableChipButton(
             key: ValueKey('themeChip_${theme.id}'),
             label: theme.displayName,
             selected: activeThemeId == theme.id,
@@ -60,7 +60,7 @@ class ProfileChipRow extends StatelessWidget {
       runSpacing: t.spacingXs,
       children: [
         for (final profile in activeTheme.profiles)
-          _SelectableChipButton(
+          SelectableChipButton(
             key: ValueKey('profileChip_${profile.id}'),
             label: profile.displayName,
             selected: activeProfileId == profile.id,
@@ -80,9 +80,11 @@ class ProfileChipRow extends StatelessWidget {
 /// FilledButton/OutlinedButton instead means they pick up `buttonRadius`
 /// and `buttonBorder` (none/solid/dotted) from the Custom Style Editor's
 /// Buttons section, like every other button in the app, without touching
-/// chipTheme or any chip used elsewhere.
-class _SelectableChipButton extends StatelessWidget {
-  const _SelectableChipButton({
+/// chipTheme or any chip used elsewhere. Public since 2026-08-24 — also
+/// used by `FlasherScreen`'s source picker; keep this the single
+/// implementation of this pattern rather than a per-screen copy.
+class SelectableChipButton extends StatelessWidget {
+  const SelectableChipButton({
     super.key,
     required this.label,
     required this.selected,

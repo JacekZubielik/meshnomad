@@ -5766,4 +5766,112 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get about_openSourceLicenses => 'Open source licenses';
+
+  @override
+  String get hubCompanionTile => 'Companion';
+
+  @override
+  String get hubCompanionSubtitle => 'Connect via BLE, TCP, or USB';
+
+  @override
+  String get hubFlasherTile => 'Flasher';
+
+  @override
+  String get hubFlasherSubtitle => 'Flash firmware onto a device';
+
+  @override
+  String get hubSetupTile => 'Setup USB';
+
+  @override
+  String get hubSetupSubtitle => 'Configure a repeater or room server';
+
+  @override
+  String get flasherPickFile => 'Choose firmware file';
+
+  @override
+  String get flasherConnecting => 'Connecting to device...';
+
+  @override
+  String get flasherFlashing => 'Flashing firmware...';
+
+  @override
+  String get flasherDone => 'Firmware flashed successfully';
+
+  @override
+  String flasherError(String message) {
+    return 'Flashing failed: $message';
+  }
+
+  @override
+  String get flasherStart => 'Start';
+
+  @override
+  String get flasherBootHint =>
+      'If this takes more than a few seconds, hold the board\'s BOOT button while it connects';
+
+  @override
+  String get flasherSourceMeshCore => 'MeshCore';
+
+  @override
+  String get flasherSourceMeshCoreSolo => 'MeshCore-Solo';
+
+  @override
+  String get flasherSourceLocalFile => 'Local file';
+
+  @override
+  String get flasherSourceCustomUrl => 'Custom URL';
+
+  @override
+  String get flasherBoardLabel => 'Board';
+
+  @override
+  String get flasherSelectBoard => 'Select board';
+
+  @override
+  String get flasherSearchBoardHint => 'Search boards';
+
+  @override
+  String flasherCatalogUpdated(String date) {
+    return 'Catalog from $date';
+  }
+
+  @override
+  String get flasherRefreshTooltip => 'Refresh catalog';
+
+  @override
+  String get flasherNoBoardsFound => 'No boards found';
+
+  @override
+  String get flasherRomTypeLabel => 'ROM type';
+
+  @override
+  String get flasherFileLabel => 'File';
+
+  @override
+  String get flasherRetry => 'Try again';
+
+  @override
+  String get flasherSelectVersion => 'Select version';
+
+  @override
+  String get flasherNoReleasesFound => 'No releases found';
+
+  @override
+  String get flasherFullResetOption => 'Full reset (erases everything)';
+
+  @override
+  String get flasherUpdateOption => 'Update (keeps existing settings)';
+
+  @override
+  String get flasherFullResetConfirmTitle => 'Erase everything?';
+
+  @override
+  String get flasherFullResetConfirmBody =>
+      'This will erase the bootloader and all settings on the device, not just the app. Make sure this is the firmware file you intend to use.';
+
+  @override
+  String get flasherFullResetConfirmProceed => 'Erase and flash';
+
+  @override
+  String get flasherFullResetConfirmCancel => 'Cancel';
 }
