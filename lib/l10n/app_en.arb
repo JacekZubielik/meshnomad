@@ -3227,12 +3227,8 @@
   "@flasherNoBoardsFound": {"description": "Flasher: shown when board discovery from the repo's releases came back empty"},
   "flasherRomTypeLabel": "ROM type",
   "@flasherRomTypeLabel": {"description": "Flasher: section heading above the Companion/Repeater/Room Server chips"},
-  "flasherFileLabel": "File",
-  "@flasherFileLabel": {"description": "Flasher: section heading above the asset radio list"},
   "flasherRetry": "Try again",
   "@flasherRetry": {"description": "Flasher: button shown under a flash error — returns to the form with all selections kept so the user can retry (USB is re-scanned on every attempt)"},
-  "flasherSelectVersion": "Select version",
-  "@flasherSelectVersion": {"description": "Flasher: dropdown label for the release-version picker"},
   "flasherNoReleasesFound": "No releases found",
   "@flasherNoReleasesFound": {"description": "Flasher: shown when the GitHub releases list came back empty for the chosen ROM type"},
   "flasherFullResetOption": "Full reset (erases everything)",
@@ -3246,5 +3242,22 @@
   "flasherFullResetConfirmProceed": "Erase and flash",
   "@flasherFullResetConfirmProceed": {"description": "Flasher: confirmation dialog proceed button"},
   "flasherFullResetConfirmCancel": "Cancel",
-  "@flasherFullResetConfirmCancel": {"description": "Flasher: confirmation dialog cancel button"}
+  "@flasherFullResetConfirmCancel": {"description": "Flasher: confirmation dialog cancel button"},
+  "flasherDownloading": "Downloading…",
+  "flasherDownloadedFile": "Downloaded — {label}",
+  "@flasherDownloadedFile": {
+    "placeholders": { "label": { "type": "String" } }
+  },
+  "flasherFlashedFile": "Flashed — {label}",
+  "@flasherFlashedFile": {
+    "placeholders": { "label": { "type": "String" } }
+  },
+  "flasherFullResetShortLabel": "Full reset",
+  "flasherUpdateShortLabel": "Update",
+  "flasherAboutMenuItem": "About USB Flashing",
+  "flasherAboutIntro": "This screen writes MeshCore firmware directly to a board over its USB serial port — no companion app or computer flashing tool required.",
+  "flasherAboutFullResetHeading": "Full reset",
+  "flasherAboutUpdateHeading": "Update",
+  "flasherAboutConnectionHeading": "Connecting over USB",
+  "flasherVersionLabel": "Version"
 }

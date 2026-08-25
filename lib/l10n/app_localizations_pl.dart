@@ -5954,13 +5954,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get flasherRomTypeLabel => 'Typ ROM-u';
 
   @override
-  String get flasherFileLabel => 'Plik';
-
-  @override
   String get flasherRetry => 'Spróbuj ponownie';
-
-  @override
-  String get flasherSelectVersion => 'Wybierz wersję';
 
   @override
   String get flasherNoReleasesFound => 'Nie znaleziono release\'ów';
@@ -5983,4 +5977,42 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get flasherFullResetConfirmCancel => 'Anuluj';
+
+  @override
+  String get flasherDownloading => 'Pobieranie…';
+
+  @override
+  String flasherDownloadedFile(String label) {
+    return 'Pobrano — $label';
+  }
+
+  @override
+  String flasherFlashedFile(String label) {
+    return 'Wgrano — $label';
+  }
+
+  @override
+  String get flasherFullResetShortLabel => 'Full reset';
+
+  @override
+  String get flasherUpdateShortLabel => 'Aktualizacja';
+
+  @override
+  String get flasherAboutMenuItem => 'O flashowaniu przez USB';
+
+  @override
+  String get flasherAboutIntro =>
+      'Ten ekran wgrywa firmware MeshCore bezpośrednio na płytkę przez port szeregowy USB — bez aplikacji towarzyszącej ani komputerowego narzędzia do flashowania.';
+
+  @override
+  String get flasherAboutFullResetHeading => 'Full reset';
+
+  @override
+  String get flasherAboutUpdateHeading => 'Aktualizacja';
+
+  @override
+  String get flasherAboutConnectionHeading => 'Łączenie przez USB';
+
+  @override
+  String get flasherVersionLabel => 'Wersja';
 }

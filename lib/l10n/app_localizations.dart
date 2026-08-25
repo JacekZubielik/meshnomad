@@ -10226,23 +10226,11 @@ abstract class AppLocalizations {
   /// **'ROM type'**
   String get flasherRomTypeLabel;
 
-  /// Flasher: section heading above the asset radio list
-  ///
-  /// In en, this message translates to:
-  /// **'File'**
-  String get flasherFileLabel;
-
   /// Flasher: button shown under a flash error — returns to the form with all selections kept so the user can retry (USB is re-scanned on every attempt)
   ///
   /// In en, this message translates to:
   /// **'Try again'**
   String get flasherRetry;
-
-  /// Flasher: dropdown label for the release-version picker
-  ///
-  /// In en, this message translates to:
-  /// **'Select version'**
-  String get flasherSelectVersion;
 
   /// Flasher: shown when the GitHub releases list came back empty for the chosen ROM type
   ///
@@ -10285,6 +10273,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get flasherFullResetConfirmCancel;
+
+  /// No description provided for @flasherDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading…'**
+  String get flasherDownloading;
+
+  /// No description provided for @flasherDownloadedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded — {label}'**
+  String flasherDownloadedFile(String label);
+
+  /// No description provided for @flasherFlashedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashed — {label}'**
+  String flasherFlashedFile(String label);
+
+  /// No description provided for @flasherFullResetShortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full reset'**
+  String get flasherFullResetShortLabel;
+
+  /// No description provided for @flasherUpdateShortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get flasherUpdateShortLabel;
+
+  /// No description provided for @flasherAboutMenuItem.
+  ///
+  /// In en, this message translates to:
+  /// **'About USB Flashing'**
+  String get flasherAboutMenuItem;
+
+  /// No description provided for @flasherAboutIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'This screen writes MeshCore firmware directly to a board over its USB serial port — no companion app or computer flashing tool required.'**
+  String get flasherAboutIntro;
+
+  /// No description provided for @flasherAboutFullResetHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Full reset'**
+  String get flasherAboutFullResetHeading;
+
+  /// No description provided for @flasherAboutUpdateHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get flasherAboutUpdateHeading;
+
+  /// No description provided for @flasherAboutConnectionHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting over USB'**
+  String get flasherAboutConnectionHeading;
+
+  /// No description provided for @flasherVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get flasherVersionLabel;
 }
 
 class _AppLocalizationsDelegate
