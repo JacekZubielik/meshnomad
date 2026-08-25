@@ -968,9 +968,17 @@ class _PulseDotState extends State<PulseDot>
 /// (`primary` @ 20% fill, `primary` icon, `CircleBorder` shape). Originally
 /// duplicated across the board-picker stepper, the Flasher refresh button,
 /// and the Flasher ⋮ menu icon — this is the single definition all three
-/// now use. Pass `onPressed: null` to render a non-interactive decorative
-/// circle (e.g. embedded as a `PopupMenuButton`'s `child`, where the
-/// PopupMenuButton itself owns the tap).
+/// now use.
+///
+/// By default (`decorative: false`), always renders a real `IconButton`, so
+/// `onPressed: null` gets Material's normal disabled/dimmed look — this is
+/// what the board-stepper's `boards.isEmpty` case needs, and works exactly
+/// as the original `_circleButton` did, with proper accessibility semantics.
+///
+/// Pass `decorative: true` to render a non-interactive bare circle (e.g.
+/// embedded as a `PopupMenuButton`'s `child`, where the PopupMenuButton
+/// itself owns the tap) — in this case the icon is always full-brightness
+/// since it's never itself interactive.
 class MeshCircleIconButton extends StatelessWidget {
   const MeshCircleIconButton({
     super.key,
@@ -979,6 +987,7 @@ class MeshCircleIconButton extends StatelessWidget {
     this.size = 36,
     this.iconSize = 18,
     this.tooltip,
+    this.decorative = false,
   });
 
   final IconData icon;
@@ -986,6 +995,7 @@ class MeshCircleIconButton extends StatelessWidget {
   final double size;
   final double iconSize;
   final String? tooltip;
+  final bool decorative;
 
   @override
   Widget build(BuildContext context) {
@@ -998,7 +1008,7 @@ class MeshCircleIconButton extends StatelessWidget {
           shape: const CircleBorder(),
           color: scheme.primary.withValues(alpha: 0.2),
         ),
-        child: onPressed == null
+        child: decorative
             ? Icon(icon, size: iconSize, color: scheme.primary)
             : IconButton(
                 padding: EdgeInsets.zero,

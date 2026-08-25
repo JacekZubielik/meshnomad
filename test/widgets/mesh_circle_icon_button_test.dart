@@ -27,16 +27,34 @@ void main() {
     expect(tapped, isTrue);
   });
 
-  testWidgets('onPressed:null renders a decorative, non-tappable icon', (
+  testWidgets('decorative:true renders a non-tappable icon, no IconButton', (
     tester,
   ) async {
     await tester.pumpWidget(
-      _wrap(const MeshCircleIconButton(icon: Icons.more_vert, onPressed: null)),
+      _wrap(
+        const MeshCircleIconButton(
+          icon: Icons.more_vert,
+          onPressed: null,
+          decorative: true,
+        ),
+      ),
     );
 
     expect(find.byType(IconButton), findsNothing);
     expect(find.byIcon(Icons.more_vert), findsOneWidget);
   });
+
+  testWidgets(
+    'onPressed:null with decorative:false (default) renders a disabled IconButton',
+    (tester) async {
+      await tester.pumpWidget(
+        _wrap(const MeshCircleIconButton(icon: Icons.remove, onPressed: null)),
+      );
+
+      final button = tester.widget<IconButton>(find.byType(IconButton));
+      expect(button.onPressed, isNull);
+    },
+  );
 
   testWidgets('size and iconSize are honored', (tester) async {
     await tester.pumpWidget(
