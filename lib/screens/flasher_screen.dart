@@ -41,6 +41,12 @@ class _FlasherScreenState extends State<FlasherScreen> {
   double _progress = 0;
   String? _errorMessage;
   _FirmwareSourceKind _sourceKind = _FirmwareSourceKind.meshcore;
+  // ignore: prefer_final_fields — intentionally mutable, not final: this
+  // preserves pre-redesign semantics for a future Local file/Custom URL
+  // offset selector; nothing currently mutates it, which is why the
+  // linter flags it, but making it final was already tried and reverted
+  // (see Task 6 fix round 1) because it silently broke offset selection.
+  // ignore: prefer_final_fields
   int _selectedOffset = catalogOffsetUpdate;
   late final FirmwareCatalogService _catalogService;
   FirmwareCatalog? _catalog;

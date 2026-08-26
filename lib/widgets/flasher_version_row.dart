@@ -246,7 +246,7 @@ class FlasherVersionRow extends StatelessWidget {
               ),
             ],
           ),
-          if (panel != null) panel,
+          ?panel,
         ],
       ),
     );
