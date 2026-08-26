@@ -184,12 +184,12 @@ class FlasherVersionRow extends StatelessWidget {
 
   Widget _segmentedTrack(BuildContext context, double progress) {
     final scheme = Theme.of(context).colorScheme;
-    // 24 small dots, not 10 wide bars — with few real progress ticks (small
+    // 48 small dots, not 10 wide bars — with few real progress ticks (small
     // firmware files often download in 1-3 HTTP chunks), a handful of fat
     // segments jumped from empty to full almost at once and read as "no
     // progress effect" (device-test feedback, 2026-08-26). More, smaller
     // dots make the same jump look like a gradual fill instead.
-    const dotCount = 24;
+    const dotCount = 48;
     const dotHeight = 5.0;
     final filled = (progress.clamp(0, 1) * dotCount).round();
     return Row(
@@ -197,17 +197,16 @@ class FlasherVersionRow extends StatelessWidget {
         final on = i < filled;
         return Expanded(
           child: Container(
-            margin: EdgeInsets.only(right: i == dotCount - 1 ? 0 : 2),
+            margin: EdgeInsets.only(right: i == dotCount - 1 ? 0 : 1),
             height: dotHeight,
             decoration: BoxDecoration(
+              // No outline — tinted fill only (device-test feedback,
+              // 2026-08-26), matching the accent-tint-only fill of the
+              // button family without the always-on border these dots
+              // had before.
               color: on
                   ? scheme.primary.withValues(alpha: 0.2)
                   : scheme.onSurfaceVariant.withValues(alpha: 0.08),
-              border: Border.all(
-                color: on
-                    ? scheme.primary
-                    : scheme.onSurfaceVariant.withValues(alpha: 0.3),
-              ),
               borderRadius: BorderRadius.circular(dotHeight / 2),
             ),
           ),
