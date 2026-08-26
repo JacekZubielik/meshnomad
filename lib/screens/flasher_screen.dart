@@ -21,6 +21,35 @@ enum FlasherStep { pickFile, connect, flashing, done, error }
 
 enum _FirmwareSourceKind { meshcore, meshcoreSolo, localFile, customUrl }
 
+/// A board can publish separate firmware images for the same flash offset
+/// — a BLE-companion build and a USB-companion build (filename markers
+/// `_ble`/`_usb`, e.g. Ebyte_EoRa-S3, Heltec_v3, LilyGo_TBeam_1W). Files
+/// with neither marker (repeater/room_server builds, or any board that
+/// only ever publishes one companion variant) are `generic` — the common
+/// case, and the only one most versions ever have.
+enum _FileVariant { ble, usb, generic }
+
+_FileVariant _variantOf(CatalogFile file) {
+  final lower = file.name.toLowerCase();
+  if (lower.contains('_ble')) return _FileVariant.ble;
+  if (lower.contains('_usb')) return _FileVariant.usb;
+  return _FileVariant.generic;
+}
+
+String _variantLabel(_FileVariant variant) => switch (variant) {
+  _FileVariant.ble => 'BLE',
+  _FileVariant.usb => 'USB',
+  _FileVariant.generic => '',
+};
+
+/// Distinct variants present in this version's files, in a stable order
+/// (ble, usb, generic) — NOT insertion order, so the same variant always
+/// sorts to the same chip position across versions.
+List<_FileVariant> _variantsFor(CatalogVersion version) {
+  final present = version.files.map(_variantOf).toSet();
+  return _FileVariant.values.where(present.contains).toList();
+}
+
 /// Flasher wizard: offers four firmware sources (MeshCore, MeshCore-Solo,
 /// local file, custom URL) via [FirmwareSource] (task 08), with the flash
 /// offset selected per-asset instead of hardcoded (task 09).
@@ -61,6 +90,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
   Timer? _successBannerTimer;
   final Map<String, FlasherActionState> _fileStates = {};
   final Map<String, Uint8List> _downloadedBytes = {};
+  final Map<String, _FileVariant> _selectedVariantByTag = {};
 
   @override
   void initState() {
@@ -140,6 +170,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
     final source = _activeSource;
     final board = source?.boards.firstOrNull;
     final romType = board?.romTypes.firstOrNull;
+    _selectedVariantByTag.clear();
     setState(() {
       _selectedBoard = board?.name;
       _boardListOpen = false;
@@ -155,6 +186,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
       if (b.name == name) board = b;
     }
     final romType = board?.romTypes.firstOrNull;
+    _selectedVariantByTag.clear();
     setState(() {
       _selectedBoard = name;
       _boardListOpen = false;
@@ -178,6 +210,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
   }
 
   void _selectRomType(CatalogRomType romType) {
+    _selectedVariantByTag.clear();
     setState(() {
       _selectedRomType = romType;
       _firmwareBytes = null;
@@ -670,13 +703,25 @@ class _FlasherScreenState extends State<FlasherScreen> {
                                 itemBuilder: (context, index) {
                                   final version =
                                       _selectedRomType!.versions[index];
-                                  final resetFile = version.files
+                                  final variants = _variantsFor(version);
+                                  final hasVariantChoice = variants.length > 1;
+                                  final selectedVariant = hasVariantChoice
+                                      ? (_selectedVariantByTag[version.tag] ??
+                                            variants.first)
+                                      : (variants.firstOrNull ??
+                                            _FileVariant.generic);
+                                  final variantFiles = version.files
+                                      .where(
+                                        (f) => _variantOf(f) == selectedVariant,
+                                      )
+                                      .toList();
+                                  final resetFile = variantFiles
                                       .where(
                                         (f) =>
                                             f.offset == catalogOffsetFullReset,
                                       )
                                       .firstOrNull;
-                                  final updateFile = version.files
+                                  final updateFile = variantFiles
                                       .where(
                                         (f) => f.offset == catalogOffsetUpdate,
                                       )
@@ -702,6 +747,23 @@ class _FlasherScreenState extends State<FlasherScreen> {
                                             _step != FlasherStep.pickFile)
                                         ? null
                                         : () => _onTapAction(updateFile),
+                                    variantLabels: hasVariantChoice
+                                        ? [
+                                            for (final v in variants)
+                                              _variantLabel(v),
+                                          ]
+                                        : const [],
+                                    selectedVariantIndex: hasVariantChoice
+                                        ? variants.indexOf(selectedVariant)
+                                        : 0,
+                                    onSelectVariant: hasVariantChoice
+                                        ? (index) => setState(
+                                            () =>
+                                                _selectedVariantByTag[version
+                                                        .tag] =
+                                                    variants[index],
+                                          )
+                                        : null,
                                   );
                                 },
                               ),

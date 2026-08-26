@@ -4,6 +4,8 @@ import 'package:meshnomad/l10n/app_localizations.dart';
 import 'package:meshnomad/theme/mesh_theme.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
 import 'package:meshnomad/widgets/flasher_version_row.dart';
+import 'package:meshnomad/widgets/theme_profile_selector.dart'
+    show SelectableChipButton;
 
 Widget _wrap(Widget child) => MaterialApp(
   theme: MeshTheme.light().copyWith(
@@ -148,6 +150,53 @@ void main() {
 
     expect(find.byTooltip('Full reset'), findsOneWidget);
     expect(find.byTooltip('Update'), findsOneWidget);
+  });
+
+  testWidgets('no variant chips render when variantLabels is empty', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        FlasherVersionRow(
+          tag: 'v1.7.2',
+          subLabel: 'sub',
+          resetState: const FlasherActionState(),
+          updateState: const FlasherActionState(),
+          onTapReset: () {},
+          onTapUpdate: () {},
+        ),
+      ),
+    );
+
+    expect(find.byType(SelectableChipButton), findsNothing);
+  });
+
+  testWidgets('variant chips render both labels and report the tapped index', (
+    tester,
+  ) async {
+    var tappedIndex = -1;
+    await tester.pumpWidget(
+      _wrap(
+        FlasherVersionRow(
+          tag: 'v1.7.2',
+          subLabel: 'sub',
+          resetState: const FlasherActionState(),
+          updateState: const FlasherActionState(),
+          onTapReset: () {},
+          onTapUpdate: () {},
+          variantLabels: const ['BLE', 'USB'],
+          selectedVariantIndex: 0,
+          onSelectVariant: (index) => tappedIndex = index,
+        ),
+      ),
+    );
+
+    expect(find.text('BLE'), findsOneWidget);
+    expect(find.text('USB'), findsOneWidget);
+    expect(find.byType(SelectableChipButton), findsNWidgets(2));
+
+    await tester.tap(find.text('USB'));
+    expect(tappedIndex, 1);
   });
 
   testWidgets('when both states are busy, update panel takes precedence', (

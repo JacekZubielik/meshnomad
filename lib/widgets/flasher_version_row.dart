@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
+import 'theme_profile_selector.dart' show SelectableChipButton;
 
 /// Lifecycle of one action icon (Full Reset or Update) within a single
 /// [FlasherVersionRow]. The two icons in a row are fully independent — one
@@ -41,6 +42,9 @@ class FlasherVersionRow extends StatelessWidget {
     required this.updateState,
     required this.onTapReset,
     required this.onTapUpdate,
+    this.variantLabels = const [],
+    this.selectedVariantIndex = 0,
+    this.onSelectVariant,
   });
 
   final String tag;
@@ -49,6 +53,13 @@ class FlasherVersionRow extends StatelessWidget {
   final FlasherActionState updateState;
   final VoidCallback? onTapReset;
   final VoidCallback? onTapUpdate;
+
+  /// Variant chip labels (e.g. `['BLE', 'USB']`) for boards that publish
+  /// separate firmware images at the same flash offset. Empty — the common
+  /// case — means the row has no variant choice and renders no chips.
+  final List<String> variantLabels;
+  final int selectedVariantIndex;
+  final ValueChanged<int>? onSelectVariant;
 
   FlasherActionState? get _activeState {
     if (updateState.isBusy || updateState.completionMessage != null) {
@@ -240,6 +251,20 @@ class FlasherVersionRow extends StatelessWidget {
                         context,
                       ).textTheme.bodySmall?.copyWith(color: t.ink3),
                     ),
+                    if (variantLabels.length > 1) ...[
+                      SizedBox(height: t.spacingXxs),
+                      Wrap(
+                        spacing: t.spacingXxs,
+                        children: [
+                          for (var i = 0; i < variantLabels.length; i++)
+                            SelectableChipButton(
+                              label: variantLabels[i],
+                              selected: i == selectedVariantIndex,
+                              onTap: () => onSelectVariant?.call(i),
+                            ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
