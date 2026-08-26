@@ -216,7 +216,10 @@ void main() {
     await tester.runAsync(() async {
       await tester.tap(find.byIcon(Icons.restart_alt));
       await tester.pump();
-      await Future<void>.delayed(const Duration(milliseconds: 1000));
+      // Must exceed _downloadFile's fixed 900ms completion-message hold
+      // with real margin — 1000ms left only 100ms of buffer, a plausible
+      // flake source under CI load.
+      await Future<void>.delayed(const Duration(milliseconds: 1500));
     });
     await tester.pumpAndSettle();
     // Now ready — tap again to flash.

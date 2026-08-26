@@ -41,7 +41,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
   double _progress = 0;
   String? _errorMessage;
   _FirmwareSourceKind _sourceKind = _FirmwareSourceKind.meshcore;
-  final int _selectedOffset = catalogOffsetUpdate;
+  int _selectedOffset = catalogOffsetUpdate;
   late final FirmwareCatalogService _catalogService;
   FirmwareCatalog? _catalog;
   String? _catalogError;
@@ -298,6 +298,13 @@ class _FlasherScreenState extends State<FlasherScreen> {
   }
 
   Future<void> _flashFile(CatalogFile file) async {
+    // Defensive backstop: the row-builder already disables every icon while
+    // a flash is in progress (gated on _step), but this guard makes it
+    // impossible for a second concurrent flash to actually start even if
+    // that UI-level gating is ever bypassed — two flashes racing over the
+    // same physical serial port is a real hardware-safety risk, not
+    // cosmetic.
+    if (_step != FlasherStep.pickFile) return;
     if (file.offset == catalogOffsetFullReset && !await _confirmFullReset()) {
       return;
     }
@@ -309,7 +316,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
         phase: FlasherRowPhase.flashing,
       ),
     );
-    await _startFlashing(
+    final succeeded = await _startFlashing(
       firmware: bytes,
       offset: file.offset,
       onProgress: (p) {
@@ -323,6 +330,16 @@ class _FlasherScreenState extends State<FlasherScreen> {
       },
     );
     if (!mounted) return;
+    if (!succeeded) {
+      // The top-level error banner already told the user what happened —
+      // don't also claim success on this row with a false "✓ Flashed".
+      setState(
+        () => _fileStates[file.name] = const FlasherActionState(
+          phase: FlasherRowPhase.ready,
+        ),
+      );
+      return;
+    }
     final label = file.offset == catalogOffsetFullReset
         ? context.l10n.flasherFullResetShortLabel
         : context.l10n.flasherUpdateShortLabel;
@@ -361,7 +378,11 @@ class _FlasherScreenState extends State<FlasherScreen> {
     setState(() => _step = FlasherStep.pickFile);
   }
 
-  Future<void> _startFlashing({
+  /// Returns `true` on a successful flash (the existing `FlasherStep.done` +
+  /// banner-timer path), `false` on failure (the existing `catch` path) —
+  /// callers use this to avoid reporting a false success when the flash
+  /// actually failed.
+  Future<bool> _startFlashing({
     required Uint8List firmware,
     required int offset,
     required void Function(double progress) onProgress,
@@ -404,11 +425,13 @@ class _FlasherScreenState extends State<FlasherScreen> {
         if (!mounted) return;
         setState(() => _step = FlasherStep.pickFile);
       });
+      return true;
     } catch (error) {
       setState(() {
         _step = FlasherStep.error;
         _errorMessage = error.toString();
       });
+      return false;
     } finally {
       await protocol?.dispose();
       // Added after external review: without this, a failed or completed
@@ -653,10 +676,14 @@ class _FlasherScreenState extends State<FlasherScreen> {
                                     updateState: updateFile == null
                                         ? const FlasherActionState()
                                         : _stateFor(updateFile),
-                                    onTapReset: resetFile == null
+                                    onTapReset:
+                                        (resetFile == null ||
+                                            _step != FlasherStep.pickFile)
                                         ? null
                                         : () => _onTapAction(resetFile),
-                                    onTapUpdate: updateFile == null
+                                    onTapUpdate:
+                                        (updateFile == null ||
+                                            _step != FlasherStep.pickFile)
                                         ? null
                                         : () => _onTapAction(updateFile),
                                   );
