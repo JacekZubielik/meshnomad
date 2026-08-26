@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:async' show Timer, unawaited;
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -10,9 +10,12 @@ import '../services/esp_flash/esp_serial_transport.dart';
 import '../services/firmware_catalog.dart';
 import '../services/usb_serial_service.dart';
 import '../theme/mesh_tokens.dart';
+import '../widgets/app_bar.dart' show quickAccessMenuItems;
+import '../widgets/flasher_version_row.dart';
 import '../widgets/mesh_dashed_divider.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/theme_profile_selector.dart' show SelectableChipButton;
+import 'flasher_about_screen.dart';
 
 enum FlasherStep { pickFile, connect, flashing, done, error }
 
@@ -38,7 +41,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
   double _progress = 0;
   String? _errorMessage;
   _FirmwareSourceKind _sourceKind = _FirmwareSourceKind.meshcore;
-  int _selectedOffset = catalogOffsetUpdate;
+  final int _selectedOffset = catalogOffsetUpdate;
   late final FirmwareCatalogService _catalogService;
   FirmwareCatalog? _catalog;
   String? _catalogError;
@@ -46,9 +49,10 @@ class _FlasherScreenState extends State<FlasherScreen> {
   String? _selectedBoard;
   bool _boardListOpen = false;
   CatalogRomType? _selectedRomType;
-  CatalogVersion? _selectedVersion;
   final TextEditingController _customUrlController = TextEditingController();
   Timer? _successBannerTimer;
+  final Map<String, FlasherActionState> _fileStates = {};
+  final Map<String, Uint8List> _downloadedBytes = {};
 
   @override
   void initState() {
@@ -132,7 +136,6 @@ class _FlasherScreenState extends State<FlasherScreen> {
       _selectedBoard = board?.name;
       _boardListOpen = false;
       _selectedRomType = romType;
-      _selectedVersion = romType?.versions.firstOrNull;
       _firmwareBytes = null;
       _fileName = null;
     });
@@ -148,7 +151,6 @@ class _FlasherScreenState extends State<FlasherScreen> {
       _selectedBoard = name;
       _boardListOpen = false;
       _selectedRomType = romType;
-      _selectedVersion = romType?.versions.firstOrNull;
       _firmwareBytes = null;
       _fileName = null;
     });
@@ -170,27 +172,8 @@ class _FlasherScreenState extends State<FlasherScreen> {
   void _selectRomType(CatalogRomType romType) {
     setState(() {
       _selectedRomType = romType;
-      _selectedVersion = romType.versions.firstOrNull;
       _firmwareBytes = null;
       _fileName = null;
-    });
-  }
-
-  void _selectVersion(CatalogVersion version) {
-    setState(() {
-      _selectedVersion = version;
-      _firmwareBytes = null;
-      _fileName = null;
-    });
-  }
-
-  Future<void> _selectFile(CatalogFile file) async {
-    final bytes = await _catalogService.assetFor(file).fetch();
-    if (!mounted) return;
-    setState(() {
-      _firmwareBytes = bytes;
-      _fileName = file.name;
-      _selectedOffset = file.offset;
     });
   }
 
@@ -226,30 +209,151 @@ class _FlasherScreenState extends State<FlasherScreen> {
     });
   }
 
-  Future<void> _confirmAndStartFlashing() async {
-    if (_selectedOffset == catalogOffsetFullReset) {
-      final l10n = context.l10n;
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: Text(l10n.flasherFullResetConfirmTitle),
-          content: Text(l10n.flasherFullResetConfirmBody),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(l10n.flasherFullResetConfirmCancel),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(l10n.flasherFullResetConfirmProceed),
-            ),
-          ],
+  FlasherActionState _stateFor(CatalogFile file) =>
+      _fileStates[file.name] ??
+      (_downloadedBytes.containsKey(file.name)
+          ? const FlasherActionState(phase: FlasherRowPhase.ready)
+          : const FlasherActionState());
+
+  void _onTapAction(CatalogFile file) {
+    final state = _stateFor(file);
+    if (state.isBusy) return;
+    if (state.phase == FlasherRowPhase.ready) {
+      unawaited(_flashFile(file));
+    } else {
+      unawaited(_downloadFile(file));
+    }
+  }
+
+  Future<void> _downloadFile(CatalogFile file) async {
+    setState(
+      () => _fileStates[file.name] = const FlasherActionState(
+        phase: FlasherRowPhase.downloading,
+      ),
+    );
+    try {
+      final bytes = await _catalogService
+          .assetFor(file)
+          .fetch(
+            onProgress: (p) {
+              if (!mounted) return;
+              setState(
+                () => _fileStates[file.name] = FlasherActionState(
+                  phase: FlasherRowPhase.downloading,
+                  progress: p,
+                ),
+              );
+            },
+          );
+      if (!mounted) return;
+      _downloadedBytes[file.name] = bytes;
+      final label = file.offset == catalogOffsetFullReset
+          ? context.l10n.flasherFullResetShortLabel
+          : context.l10n.flasherUpdateShortLabel;
+      setState(
+        () => _fileStates[file.name] = FlasherActionState(
+          completionMessage: context.l10n.flasherDownloadedFile(label),
         ),
       );
-      if (confirmed != true) return;
+      await Future<void>.delayed(const Duration(milliseconds: 900));
+      if (!mounted) return;
+      setState(
+        () => _fileStates[file.name] = const FlasherActionState(
+          phase: FlasherRowPhase.ready,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _fileStates.remove(file.name));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.flasherError(e.toString()))),
+      );
+    }
+  }
+
+  /// Shared by both flashing entry points (this row-based flow and the
+  /// existing Local file/Custom URL `_confirmAndStartFlashing`) — extracted
+  /// here instead of duplicated so there is exactly one place that builds
+  /// this dialog.
+  Future<bool> _confirmFullReset() async {
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.flasherFullResetConfirmTitle),
+        content: Text(l10n.flasherFullResetConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.flasherFullResetConfirmCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.flasherFullResetConfirmProceed),
+          ),
+        ],
+      ),
+    );
+    return confirmed == true;
+  }
+
+  Future<void> _flashFile(CatalogFile file) async {
+    if (file.offset == catalogOffsetFullReset && !await _confirmFullReset()) {
+      return;
     }
     if (!mounted) return;
-    await _startFlashing();
+    final bytes = _downloadedBytes[file.name];
+    if (bytes == null) return;
+    setState(
+      () => _fileStates[file.name] = const FlasherActionState(
+        phase: FlasherRowPhase.flashing,
+      ),
+    );
+    await _startFlashing(
+      firmware: bytes,
+      offset: file.offset,
+      onProgress: (p) {
+        if (!mounted) return;
+        setState(
+          () => _fileStates[file.name] = FlasherActionState(
+            phase: FlasherRowPhase.flashing,
+            progress: p,
+          ),
+        );
+      },
+    );
+    if (!mounted) return;
+    final label = file.offset == catalogOffsetFullReset
+        ? context.l10n.flasherFullResetShortLabel
+        : context.l10n.flasherUpdateShortLabel;
+    setState(
+      () => _fileStates[file.name] = FlasherActionState(
+        completionMessage: context.l10n.flasherFlashedFile(label),
+      ),
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 1100));
+    if (!mounted) return;
+    setState(
+      () => _fileStates[file.name] = const FlasherActionState(
+        phase: FlasherRowPhase.ready,
+      ),
+    );
+  }
+
+  Future<void> _confirmAndStartFlashing() async {
+    if (_selectedOffset == catalogOffsetFullReset &&
+        !await _confirmFullReset()) {
+      return;
+    }
+    if (!mounted) return;
+    await _startFlashing(
+      firmware: _firmwareBytes!,
+      offset: _selectedOffset,
+      onProgress: (p) {
+        if (!mounted) return;
+        setState(() => _progress = p);
+      },
+    );
   }
 
   void _dismissSuccessBanner() {
@@ -257,9 +361,11 @@ class _FlasherScreenState extends State<FlasherScreen> {
     setState(() => _step = FlasherStep.pickFile);
   }
 
-  Future<void> _startFlashing() async {
-    final firmware = _firmwareBytes;
-    if (firmware == null) return;
+  Future<void> _startFlashing({
+    required Uint8List firmware,
+    required int offset,
+    required void Function(double progress) onProgress,
+  }) async {
     setState(() {
       _step = FlasherStep.connect;
       _errorMessage = null;
@@ -284,9 +390,9 @@ class _FlasherScreenState extends State<FlasherScreen> {
       await protocol.attachSpiFlash();
       await for (final progress in protocol.flashImage(
         image: firmware,
-        offset: _selectedOffset,
+        offset: offset,
       )) {
-        setState(() => _progress = progress);
+        onProgress(progress);
       }
       // Boot the freshly written firmware — FLASH_END parks the chip in
       // the ROM loader, so reset it the same way esptool does.
@@ -333,8 +439,13 @@ class _FlasherScreenState extends State<FlasherScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final t = MeshTokens.of(context);
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text(l10n.hubFlasherTile)),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(l10n.hubFlasherTile),
+        actions: const [_FlasherMenuButton()],
+      ),
       body: Stack(
         children: [
           SafeArea(
@@ -448,9 +559,11 @@ class _FlasherScreenState extends State<FlasherScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         else
-                          IconButton(
+                          MeshCircleIconButton(
+                            icon: Icons.refresh,
+                            size: 32,
+                            iconSize: 16,
                             tooltip: l10n.flasherRefreshTooltip,
-                            icon: const Icon(Icons.refresh, size: 20),
                             onPressed: _refreshCatalog,
                           ),
                       ],
@@ -497,58 +610,58 @@ class _FlasherScreenState extends State<FlasherScreen> {
                           const SizedBox(height: 16),
                         ],
                         if (_selectedRomType != null) ...[
-                          DropdownButtonFormField<CatalogVersion>(
-                            initialValue: _selectedVersion,
-                            decoration: InputDecoration(
-                              labelText: l10n.flasherSelectVersion,
-                            ),
-                            items: _selectedRomType!.versions
-                                .map(
-                                  (version) => DropdownMenuItem(
-                                    value: version,
-                                    child: Text(version.tag),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (version) {
-                              if (version != null) _selectVersion(version);
-                            },
-                          ),
-                          _sectionLabel(context, l10n.flasherFileLabel),
-                          // RadioGroup (Flutter 3.32+ API) owns the group
-                          // value; individual tiles carry only their own
-                          // value. Radio identity stays the unique file
-                          // NAME, not the offset — several files share one
-                          // offset (BLE + USB role variants).
-                          RadioGroup<String>(
-                            groupValue: _fileName,
-                            onChanged: (name) {
-                              for (final file
-                                  in _selectedVersion?.files ??
-                                      const <CatalogFile>[]) {
-                                if (file.name == name) {
-                                  _selectFile(file);
-                                  return;
-                                }
-                              }
-                            },
-                            child: Column(
-                              children:
-                                  (_selectedVersion?.files ??
-                                          const <CatalogFile>[])
-                                      .map(
-                                        (file) => RadioListTile<String>(
-                                          title: Text(
-                                            file.offset ==
-                                                    catalogOffsetFullReset
-                                                ? l10n.flasherFullResetOption
-                                                : l10n.flasherUpdateOption,
-                                          ),
-                                          subtitle: Text(file.name),
-                                          value: file.name,
-                                        ),
+                          _sectionLabel(context, l10n.flasherVersionLabel),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 280),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(t.sm),
+                              ),
+                              child: ListView.separated(
+                                shrinkWrap: true,
+                                itemCount: _selectedRomType!.versions.length,
+                                separatorBuilder: (_, _) =>
+                                    const MeshDashedDivider(
+                                      indent: 14,
+                                      endIndent: 14,
+                                    ),
+                                itemBuilder: (context, index) {
+                                  final version =
+                                      _selectedRomType!.versions[index];
+                                  final resetFile = version.files
+                                      .where(
+                                        (f) =>
+                                            f.offset == catalogOffsetFullReset,
                                       )
-                                      .toList(),
+                                      .firstOrNull;
+                                  final updateFile = version.files
+                                      .where(
+                                        (f) => f.offset == catalogOffsetUpdate,
+                                      )
+                                      .firstOrNull;
+                                  return FlasherVersionRow(
+                                    tag: version.tag,
+                                    subLabel:
+                                        (resetFile ?? updateFile)?.name ??
+                                        version.tag,
+                                    resetState: resetFile == null
+                                        ? const FlasherActionState()
+                                        : _stateFor(resetFile),
+                                    updateState: updateFile == null
+                                        ? const FlasherActionState()
+                                        : _stateFor(updateFile),
+                                    onTapReset: resetFile == null
+                                        ? null
+                                        : () => _onTapAction(resetFile),
+                                    onTapUpdate: updateFile == null
+                                        ? null
+                                        : () => _onTapAction(updateFile),
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ],
@@ -784,6 +897,41 @@ class _BoardPickerFieldState extends State<_BoardPickerField> {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _FlasherMenuButton extends StatelessWidget {
+  const _FlasherMenuButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<void>(
+      tooltip: context.l10n.contacts_moreOptions,
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const FlasherAboutScreen()),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.info_outline),
+              SizedBox(width: MeshTokens.of(context).spacingXs),
+              Text(context.l10n.flasherAboutMenuItem),
+            ],
+          ),
+        ),
+        const PopupMenuDivider(),
+        ...quickAccessMenuItems(context),
+      ],
+      child: const MeshCircleIconButton(
+        icon: Icons.more_vert,
+        onPressed: null,
+        decorative: true,
+        size: 32,
+        iconSize: 16,
+      ),
     );
   }
 }

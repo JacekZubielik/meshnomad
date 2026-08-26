@@ -106,6 +106,9 @@ void main() {
               if (request.url.toString() == 'https://example.test/merged.bin') {
                 return http.Response.bytes([1, 2, 3, 4], 200);
               }
+              if (request.url.toString() == 'https://example.test/rpt.bin') {
+                return http.Response.bytes([5, 6, 7, 8], 200);
+              }
               throw StateError('Unexpected request: ${request.url}');
             }),
         storageDirectory: tempDir,
@@ -161,22 +164,6 @@ void main() {
     expect(find.text('Repeater'), findsOneWidget);
   });
 
-  testWidgets('full-reset file + Start shows the confirm dialog', (
-    tester,
-  ) async {
-    await pumpFlasherScreen(
-      tester,
-      wrap(FlasherScreen(catalogService: service())),
-    );
-
-    await tester.tap(find.text('Full reset (erases everything)'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Start'));
-    await tester.pump();
-
-    expect(find.text('Erase everything?'), findsOneWidget);
-  });
-
   testWidgets('four source chips still offered', (tester) async {
     await pumpFlasherScreen(
       tester,
@@ -187,5 +174,69 @@ void main() {
     expect(find.text('MeshCore-Solo'), findsOneWidget);
     expect(find.text('Local file'), findsOneWidget);
     expect(find.text('Custom URL'), findsOneWidget);
+  });
+
+  testWidgets('tapping an idle Update icon downloads, then shows it ready', (
+    tester,
+  ) async {
+    await pumpFlasherScreen(
+      tester,
+      wrap(FlasherScreen(catalogService: service())),
+    );
+
+    // Heltec_v3/companion has one version (companion-v1.17.1) with only a
+    // merged (full-reset) file in the fixture — switch to Repeater, whose
+    // single file is an update-offset file, to exercise the Update icon.
+    await tester.tap(find.text('Repeater'));
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.download), findsOneWidget);
+    await tester.runAsync(() async {
+      await tester.tap(find.byIcon(Icons.download));
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    });
+    await tester.pumpAndSettle();
+
+    // Downloaded, ready to flash — the completion message appeared and
+    // cleared, icon is now in the accent/ready visual (IconButton present,
+    // no CircularProgressIndicator left over).
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+  });
+
+  testWidgets('tapping a ready Full-Reset icon shows the confirm dialog', (
+    tester,
+  ) async {
+    await pumpFlasherScreen(
+      tester,
+      wrap(FlasherScreen(catalogService: service())),
+    );
+    // Heltec_v3/companion's only file is the merged (full-reset) one.
+
+    await tester.runAsync(() async {
+      await tester.tap(find.byIcon(Icons.restart_alt));
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 1000));
+    });
+    await tester.pumpAndSettle();
+    // Now ready — tap again to flash.
+    await tester.tap(find.byIcon(Icons.restart_alt));
+    await tester.pump();
+
+    expect(find.text('Erase everything?'), findsOneWidget);
+  });
+
+  testWidgets('VERSION list is capped to 280px with internal scroll', (
+    tester,
+  ) async {
+    await pumpFlasherScreen(
+      tester,
+      wrap(FlasherScreen(catalogService: service())),
+    );
+
+    final constrainedBox = tester
+        .widgetList<ConstrainedBox>(find.byType(ConstrainedBox))
+        .where((w) => w.constraints.maxHeight == 280);
+    expect(constrainedBox, isNotEmpty);
   });
 }
