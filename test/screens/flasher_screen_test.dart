@@ -287,8 +287,9 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 1500));
     });
     await tester.pumpAndSettle();
-    // Now ready — tap again to flash.
-    await tester.tap(find.byIcon(Icons.restart_alt));
+    // Now ready — the icon swaps to the flash glyph once armed
+    // (Icons.bolt), so tap that instead of the idle restart_alt icon.
+    await tester.tap(find.byIcon(Icons.bolt));
     await tester.pump();
 
     expect(find.text('Erase everything?'), findsOneWidget);

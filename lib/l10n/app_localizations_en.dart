@@ -5889,6 +5889,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get flasherUpdateShortLabel => 'Update';
 
   @override
+  String get flasherFullResetReadyTooltip =>
+      'Downloaded — tap to flash Full Reset';
+
+  @override
+  String get flasherUpdateReadyTooltip => 'Downloaded — tap to flash Update';
+
+  @override
+  String get flasherIconLegend =>
+      '⟳ Full reset erases the bootloader and settings (confirmation required). ↓ Update keeps existing settings. Grey = not downloaded yet, tap to fetch. Accent + ⚡ = downloaded and ready, tap to flash.';
+
+  @override
   String get flasherAboutMenuItem => 'About USB Flashing';
 
   @override

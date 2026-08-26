@@ -10304,6 +10304,24 @@ abstract class AppLocalizations {
   /// **'Update'**
   String get flasherUpdateShortLabel;
 
+  /// No description provided for @flasherFullResetReadyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded — tap to flash Full Reset'**
+  String get flasherFullResetReadyTooltip;
+
+  /// No description provided for @flasherUpdateReadyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded — tap to flash Update'**
+  String get flasherUpdateReadyTooltip;
+
+  /// No description provided for @flasherIconLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'⟳ Full reset erases the bootloader and settings (confirmation required). ↓ Update keeps existing settings. Grey = not downloaded yet, tap to fetch. Accent + ⚡ = downloaded and ready, tap to flash.'**
+  String get flasherIconLegend;
+
   /// No description provided for @flasherAboutMenuItem.
   ///
   /// In en, this message translates to:

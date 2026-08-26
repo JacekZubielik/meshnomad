@@ -5998,6 +5998,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String get flasherUpdateShortLabel => 'Aktualizacja';
 
   @override
+  String get flasherFullResetReadyTooltip =>
+      'Pobrano — dotknij, aby wgrać Full Reset';
+
+  @override
+  String get flasherUpdateReadyTooltip =>
+      'Pobrano — dotknij, aby wgrać Aktualizację';
+
+  @override
+  String get flasherIconLegend =>
+      '⟳ Full reset kasuje bootloader i ustawienia (wymaga potwierdzenia). ↓ Aktualizacja zachowuje ustawienia. Szary = jeszcze nie pobrano, dotknij, aby pobrać. Akcent + ⚡ = pobrano i gotowe, dotknij, aby wgrać.';
+
+  @override
   String get flasherAboutMenuItem => 'O flashowaniu przez USB';
 
   @override

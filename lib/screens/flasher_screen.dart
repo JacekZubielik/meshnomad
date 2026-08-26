@@ -769,6 +769,15 @@ class _FlasherScreenState extends State<FlasherScreen> {
                               ),
                             ),
                           ),
+                          Padding(
+                            padding: EdgeInsets.only(top: t.spacingXxs),
+                            child: Text(
+                              l10n.flasherIconLegend,
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(color: t.ink3),
+                            ),
+                          ),
                         ],
                       ],
                     ],

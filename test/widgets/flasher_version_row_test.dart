@@ -4,8 +4,6 @@ import 'package:meshnomad/l10n/app_localizations.dart';
 import 'package:meshnomad/theme/mesh_theme.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
 import 'package:meshnomad/widgets/flasher_version_row.dart';
-import 'package:meshnomad/widgets/theme_profile_selector.dart'
-    show SelectableChipButton;
 
 Widget _wrap(Widget child) => MaterialApp(
   theme: MeshTheme.light().copyWith(
@@ -128,7 +126,10 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byIcon(Icons.download));
+    // Ready = armed to flash, so the icon swaps to the flash glyph rather
+    // than staying on the download arrow (which would misleadingly read
+    // as "tap to download" when tapping it now writes firmware).
+    await tester.tap(find.byIcon(Icons.bolt));
     expect(tapped, isTrue);
   });
 
@@ -168,7 +169,9 @@ void main() {
       ),
     );
 
-    expect(find.byType(SelectableChipButton), findsNothing);
+    // The variant-toggle Wrap only builds when variantLabels.length > 1;
+    // with the default empty list, no chip row exists at all.
+    expect(find.byType(Wrap), findsNothing);
   });
 
   testWidgets('variant chips render both labels and report the tapped index', (
@@ -193,7 +196,19 @@ void main() {
 
     expect(find.text('BLE'), findsOneWidget);
     expect(find.text('USB'), findsOneWidget);
-    expect(find.byType(SelectableChipButton), findsNWidgets(2));
+    // Compact custom toggle, not SelectableChipButton — that button-family
+    // chip's real height blew up this row (device-test feedback,
+    // 2026-08-26); each toggle is an InkWell-wrapped label. The action
+    // icons also use InkWell internally (IconButton), so scope the finder
+    // to InkWell ancestors of the two chip labels specifically.
+    expect(
+      find.ancestor(of: find.text('BLE'), matching: find.byType(InkWell)),
+      findsOneWidget,
+    );
+    expect(
+      find.ancestor(of: find.text('USB'), matching: find.byType(InkWell)),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('USB'));
     expect(tappedIndex, 1);

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
-import 'theme_profile_selector.dart' show SelectableChipButton;
 
 /// Lifecycle of one action icon (Full Reset or Update) within a single
 /// [FlasherVersionRow]. The two icons in a row are fully independent — one
@@ -77,10 +76,17 @@ class FlasherVersionRow extends StatelessWidget {
     required FlasherActionState state,
     required VoidCallback? onTap,
     required String tooltip,
+    required String readyTooltip,
   }) {
     final scheme = Theme.of(context).colorScheme;
     final ready = state.phase == FlasherRowPhase.ready;
     final tappable = onTap != null && !state.isBusy;
+    // Once the file is downloaded (ready == armed to flash), the icon
+    // itself changes to a flash-specific glyph — leaving it as the
+    // download arrow read as "tap to download" even though tapping it now
+    // writes firmware to the device, which is misleading and confusing on
+    // a control this consequential (device-test feedback, 2026-08-26).
+    final displayIcon = ready ? Icons.bolt : icon;
     return SizedBox(
       width: 32,
       height: 32,
@@ -103,10 +109,52 @@ class FlasherVersionRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 iconSize: 15,
                 color: ready ? scheme.primary : scheme.onSurfaceVariant,
-                icon: Icon(icon),
-                tooltip: tooltip,
+                icon: Icon(displayIcon),
+                tooltip: ready ? readyTooltip : tooltip,
                 onPressed: tappable ? onTap : null,
               ),
+      ),
+    );
+  }
+
+  /// Compact BLE/USB toggle for rows that publish more than one firmware
+  /// variant at the same offset. Deliberately NOT [SelectableChipButton] —
+  /// that button-family chip's real padding/text height (~46px tall) blew
+  /// up this already-dense row's height when reused here (device-test
+  /// feedback, 2026-08-26); this is sized to sit inline with the tag/sub
+  /// text instead, roughly matching a compact label rather than a full
+  /// button. Same tint/accent language as the rest of this row's controls
+  /// (primary @ 20% fill, primary border/text when selected).
+  Widget _variantToggle(
+    BuildContext context, {
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+        decoration: BoxDecoration(
+          color: selected
+              ? scheme.primary.withValues(alpha: 0.2)
+              : Colors.transparent,
+          border: Border.all(
+            color: selected
+                ? scheme.primary
+                : scheme.onSurfaceVariant.withValues(alpha: 0.4),
+          ),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: selected ? scheme.primary : scheme.onSurfaceVariant,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+          ),
+        ),
       ),
     );
   }
@@ -136,15 +184,21 @@ class FlasherVersionRow extends StatelessWidget {
 
   Widget _segmentedTrack(BuildContext context, double progress) {
     final scheme = Theme.of(context).colorScheme;
-    const segCount = 10;
-    final filled = (progress.clamp(0, 1) * segCount).round();
+    // 24 small dots, not 10 wide bars — with few real progress ticks (small
+    // firmware files often download in 1-3 HTTP chunks), a handful of fat
+    // segments jumped from empty to full almost at once and read as "no
+    // progress effect" (device-test feedback, 2026-08-26). More, smaller
+    // dots make the same jump look like a gradual fill instead.
+    const dotCount = 24;
+    const dotHeight = 5.0;
+    final filled = (progress.clamp(0, 1) * dotCount).round();
     return Row(
-      children: List.generate(segCount, (i) {
+      children: List.generate(dotCount, (i) {
         final on = i < filled;
         return Expanded(
           child: Container(
-            margin: EdgeInsets.only(right: i == segCount - 1 ? 0 : 3),
-            height: 8,
+            margin: EdgeInsets.only(right: i == dotCount - 1 ? 0 : 2),
+            height: dotHeight,
             decoration: BoxDecoration(
               color: on
                   ? scheme.primary.withValues(alpha: 0.2)
@@ -154,7 +208,7 @@ class FlasherVersionRow extends StatelessWidget {
                     ? scheme.primary
                     : scheme.onSurfaceVariant.withValues(alpha: 0.3),
               ),
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(dotHeight / 2),
             ),
           ),
         );
@@ -257,7 +311,8 @@ class FlasherVersionRow extends StatelessWidget {
                         spacing: t.spacingXxs,
                         children: [
                           for (var i = 0; i < variantLabels.length; i++)
-                            SelectableChipButton(
+                            _variantToggle(
+                              context,
                               label: variantLabels[i],
                               selected: i == selectedVariantIndex,
                               onTap: () => onSelectVariant?.call(i),
@@ -274,6 +329,7 @@ class FlasherVersionRow extends StatelessWidget {
                 state: resetState,
                 onTap: onTapReset,
                 tooltip: context.l10n.flasherFullResetShortLabel,
+                readyTooltip: context.l10n.flasherFullResetReadyTooltip,
               ),
               SizedBox(width: t.spacingXxs),
               _actionIcon(
@@ -282,6 +338,7 @@ class FlasherVersionRow extends StatelessWidget {
                 state: updateState,
                 onTap: onTapUpdate,
                 tooltip: context.l10n.flasherUpdateShortLabel,
+                readyTooltip: context.l10n.flasherUpdateReadyTooltip,
               ),
             ],
           ),
