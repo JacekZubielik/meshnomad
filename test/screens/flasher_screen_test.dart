@@ -237,9 +237,13 @@ void main() {
       wrap(FlasherScreen(catalogService: service())),
     );
 
-    final constrainedBox = tester
-        .widgetList<ConstrainedBox>(find.byType(ConstrainedBox))
-        .where((w) => w.constraints.maxHeight == 280);
-    expect(constrainedBox, isNotEmpty);
+    // Scope the finder to the VERSION list's own ConstrainedBox (by key) —
+    // matching on maxHeight alone would also hit _BoardPickerField's
+    // expanded panel, which shares the same 280px cap and only fails to
+    // interfere here because it happens to start closed.
+    final constrainedBox = tester.widget<ConstrainedBox>(
+      find.byKey(const Key('flasherVersionListConstrainedBox')),
+    );
+    expect(constrainedBox.constraints.maxHeight, 280);
   });
 }

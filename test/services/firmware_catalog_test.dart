@@ -207,6 +207,37 @@ void main() {
     },
   );
 
+  test('assetFor clamps progress to 1.0 when the body exceeds a '
+      'deliberately-understated Content-Length', () async {
+    final payload = Uint8List.fromList(List.generate(40, (i) => i));
+    final client = MockClient((request) async {
+      return http.Response.bytes(
+        payload,
+        200,
+        // Understate the true length so the naive ratio would exceed 1.0.
+        headers: {'content-length': (payload.length ~/ 2).toString()},
+      );
+    });
+    final service = FirmwareCatalogService(
+      httpClient: client,
+      storageDirectory: tempDir,
+    );
+    final file = CatalogFile(
+      name: 'fw.bin',
+      url: 'https://example.test/fw.bin',
+      offset: catalogOffsetUpdate,
+    );
+    final progressValues = <double>[];
+
+    final bytes = await service
+        .assetFor(file)
+        .fetch(onProgress: progressValues.add);
+
+    expect(bytes, orderedEquals(payload));
+    expect(progressValues, isNotEmpty);
+    expect(progressValues, everyElement(inInclusiveRange(0.0, 1.0)));
+  });
+
   test(
     'assetFor still returns full bytes when onProgress is omitted',
     () async {

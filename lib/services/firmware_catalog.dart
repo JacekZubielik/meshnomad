@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart' show rootBundle;
@@ -207,6 +208,9 @@ class FirmwareCatalogService {
       http.Request('GET', Uri.parse(url)),
     );
     if (response.statusCode != 200) {
+      // Drain the stream before throwing so the underlying connection is
+      // released cleanly instead of left dangling.
+      await response.stream.drain<void>();
       throw StateError(
         'Firmware download failed for $label: HTTP ${response.statusCode}',
       );
@@ -216,7 +220,9 @@ class FirmwareCatalogService {
     await for (final chunk in response.stream) {
       received.addAll(chunk);
       if (total != null && total > 0) {
-        onProgress?.call(received.length / total);
+        // A server that under-reports Content-Length relative to the actual
+        // body size would otherwise push this ratio past 1.0.
+        onProgress?.call(math.min(1.0, received.length / total));
       }
     }
     return Uint8List.fromList(received);

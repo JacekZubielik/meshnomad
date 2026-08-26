@@ -130,6 +130,26 @@ void main() {
     expect(tapped, isTrue);
   });
 
+  testWidgets('action icons carry the full-reset/update tooltips', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        FlasherVersionRow(
+          tag: 'v1.7.2',
+          subLabel: 'sub',
+          resetState: const FlasherActionState(),
+          updateState: const FlasherActionState(),
+          onTapReset: () {},
+          onTapUpdate: () {},
+        ),
+      ),
+    );
+
+    expect(find.byTooltip('Full reset'), findsOneWidget);
+    expect(find.byTooltip('Update'), findsOneWidget);
+  });
+
   testWidgets('when both states are busy, update panel takes precedence', (
     tester,
   ) async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
 
 /// Lifecycle of one action icon (Full Reset or Update) within a single
@@ -40,7 +41,6 @@ class FlasherVersionRow extends StatelessWidget {
     required this.updateState,
     required this.onTapReset,
     required this.onTapUpdate,
-    this.selected = false,
   });
 
   final String tag;
@@ -49,7 +49,6 @@ class FlasherVersionRow extends StatelessWidget {
   final FlasherActionState updateState;
   final VoidCallback? onTapReset;
   final VoidCallback? onTapUpdate;
-  final bool selected;
 
   FlasherActionState? get _activeState {
     if (updateState.isBusy || updateState.completionMessage != null) {
@@ -66,6 +65,7 @@ class FlasherVersionRow extends StatelessWidget {
     required IconData icon,
     required FlasherActionState state,
     required VoidCallback? onTap,
+    required String tooltip,
   }) {
     final scheme = Theme.of(context).colorScheme;
     final ready = state.phase == FlasherRowPhase.ready;
@@ -93,6 +93,7 @@ class FlasherVersionRow extends StatelessWidget {
                 iconSize: 15,
                 color: ready ? scheme.primary : scheme.onSurfaceVariant,
                 icon: Icon(icon),
+                tooltip: tooltip,
                 onPressed: tappable ? onTap : null,
               ),
       ),
@@ -178,17 +179,31 @@ class FlasherVersionRow extends StatelessWidget {
     final isFlash = active.phase == FlasherRowPhase.flashing;
     return Padding(
       padding: EdgeInsets.only(top: t.spacingXs),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: isFlash
-                ? _pillTrack(context, active.progress)
-                : _segmentedTrack(context, active.progress),
-          ),
-          SizedBox(width: t.spacingXs),
           Text(
-            '${(active.progress * 100).round()}%',
-            style: t.monoBody(color: t.primary),
+            isFlash
+                ? context.l10n.flasherFlashing
+                : context.l10n.flasherDownloading,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: t.ink3),
+          ),
+          SizedBox(height: t.spacingXxs),
+          Row(
+            children: [
+              Expanded(
+                child: isFlash
+                    ? _pillTrack(context, active.progress)
+                    : _segmentedTrack(context, active.progress),
+              ),
+              SizedBox(width: t.spacingXs),
+              Text(
+                '${(active.progress * 100).round()}%',
+                style: t.monoBody(color: t.primary),
+              ),
+            ],
           ),
         ],
       ),
@@ -204,9 +219,6 @@ class FlasherVersionRow extends StatelessWidget {
         horizontal: t.spacingSm,
         vertical: t.spacingXxs + 4,
       ),
-      color: selected
-          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
-          : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -236,6 +248,7 @@ class FlasherVersionRow extends StatelessWidget {
                 icon: Icons.restart_alt,
                 state: resetState,
                 onTap: onTapReset,
+                tooltip: context.l10n.flasherFullResetShortLabel,
               ),
               SizedBox(width: t.spacingXxs),
               _actionIcon(
@@ -243,6 +256,7 @@ class FlasherVersionRow extends StatelessWidget {
                 icon: Icons.download,
                 state: updateState,
                 onTap: onTapUpdate,
+                tooltip: context.l10n.flasherUpdateShortLabel,
               ),
             ],
           ),

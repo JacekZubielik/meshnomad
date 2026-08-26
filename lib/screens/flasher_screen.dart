@@ -41,11 +41,13 @@ class _FlasherScreenState extends State<FlasherScreen> {
   double _progress = 0;
   String? _errorMessage;
   _FirmwareSourceKind _sourceKind = _FirmwareSourceKind.meshcore;
-  // ignore: prefer_final_fields — intentionally mutable, not final: this
-  // preserves pre-redesign semantics for a future Local file/Custom URL
-  // offset selector; nothing currently mutates it, which is why the
-  // linter flags it, but making it final was already tried and reverted
-  // (see Task 6 fix round 1) because it silently broke offset selection.
+  // No code currently mutates this field — the only site that used to
+  // (_selectFile, part of the pre-redesign version picker) was removed.
+  // Kept mutable (not final) so Local file / Custom URL retain the *option*
+  // of targeting the Full Reset offset in the future; today neither path
+  // has any UI to set it away from the Update default, so
+  // _confirmAndStartFlashing's `_selectedOffset == catalogOffsetFullReset`
+  // branch is effectively dead until such UI exists.
   // ignore: prefer_final_fields
   int _selectedOffset = catalogOffsetUpdate;
   late final FirmwareCatalogService _catalogService;
@@ -216,8 +218,8 @@ class _FlasherScreenState extends State<FlasherScreen> {
   }
 
   FlasherActionState _stateFor(CatalogFile file) =>
-      _fileStates[file.name] ??
-      (_downloadedBytes.containsKey(file.name)
+      _fileStates[file.url] ??
+      (_downloadedBytes.containsKey(file.url)
           ? const FlasherActionState(phase: FlasherRowPhase.ready)
           : const FlasherActionState());
 
@@ -233,7 +235,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
 
   Future<void> _downloadFile(CatalogFile file) async {
     setState(
-      () => _fileStates[file.name] = const FlasherActionState(
+      () => _fileStates[file.url] = const FlasherActionState(
         phase: FlasherRowPhase.downloading,
       ),
     );
@@ -244,7 +246,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
             onProgress: (p) {
               if (!mounted) return;
               setState(
-                () => _fileStates[file.name] = FlasherActionState(
+                () => _fileStates[file.url] = FlasherActionState(
                   phase: FlasherRowPhase.downloading,
                   progress: p,
                 ),
@@ -252,25 +254,30 @@ class _FlasherScreenState extends State<FlasherScreen> {
             },
           );
       if (!mounted) return;
-      _downloadedBytes[file.name] = bytes;
+      _downloadedBytes[file.url] = bytes;
       final label = file.offset == catalogOffsetFullReset
           ? context.l10n.flasherFullResetShortLabel
           : context.l10n.flasherUpdateShortLabel;
       setState(
-        () => _fileStates[file.name] = FlasherActionState(
+        () => _fileStates[file.url] = FlasherActionState(
+          // phase must stay `ready` (not the default `idle`) — otherwise a
+          // tap during this completion-message window falls through
+          // _stateFor's idle branch and re-triggers a download instead of
+          // flashing the already-downloaded bytes.
+          phase: FlasherRowPhase.ready,
           completionMessage: context.l10n.flasherDownloadedFile(label),
         ),
       );
       await Future<void>.delayed(const Duration(milliseconds: 900));
       if (!mounted) return;
       setState(
-        () => _fileStates[file.name] = const FlasherActionState(
+        () => _fileStates[file.url] = const FlasherActionState(
           phase: FlasherRowPhase.ready,
         ),
       );
     } catch (e) {
       if (!mounted) return;
-      setState(() => _fileStates.remove(file.name));
+      setState(() => _fileStates.remove(file.url));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.flasherError(e.toString()))),
       );
@@ -315,10 +322,10 @@ class _FlasherScreenState extends State<FlasherScreen> {
       return;
     }
     if (!mounted) return;
-    final bytes = _downloadedBytes[file.name];
+    final bytes = _downloadedBytes[file.url];
     if (bytes == null) return;
     setState(
-      () => _fileStates[file.name] = const FlasherActionState(
+      () => _fileStates[file.url] = const FlasherActionState(
         phase: FlasherRowPhase.flashing,
       ),
     );
@@ -327,12 +334,13 @@ class _FlasherScreenState extends State<FlasherScreen> {
       offset: file.offset,
       onProgress: (p) {
         if (!mounted) return;
-        setState(
-          () => _fileStates[file.name] = FlasherActionState(
+        setState(() {
+          _progress = p;
+          _fileStates[file.url] = FlasherActionState(
             phase: FlasherRowPhase.flashing,
             progress: p,
-          ),
-        );
+          );
+        });
       },
     );
     if (!mounted) return;
@@ -340,7 +348,7 @@ class _FlasherScreenState extends State<FlasherScreen> {
       // The top-level error banner already told the user what happened —
       // don't also claim success on this row with a false "✓ Flashed".
       setState(
-        () => _fileStates[file.name] = const FlasherActionState(
+        () => _fileStates[file.url] = const FlasherActionState(
           phase: FlasherRowPhase.ready,
         ),
       );
@@ -350,14 +358,14 @@ class _FlasherScreenState extends State<FlasherScreen> {
         ? context.l10n.flasherFullResetShortLabel
         : context.l10n.flasherUpdateShortLabel;
     setState(
-      () => _fileStates[file.name] = FlasherActionState(
+      () => _fileStates[file.url] = FlasherActionState(
         completionMessage: context.l10n.flasherFlashedFile(label),
       ),
     );
     await Future<void>.delayed(const Duration(milliseconds: 1100));
     if (!mounted) return;
     setState(
-      () => _fileStates[file.name] = const FlasherActionState(
+      () => _fileStates[file.url] = const FlasherActionState(
         phase: FlasherRowPhase.ready,
       ),
     );
@@ -641,8 +649,10 @@ class _FlasherScreenState extends State<FlasherScreen> {
                         if (_selectedRomType != null) ...[
                           _sectionLabel(context, l10n.flasherVersionLabel),
                           ConstrainedBox(
+                            key: const Key('flasherVersionListConstrainedBox'),
                             constraints: const BoxConstraints(maxHeight: 280),
-                            child: DecoratedBox(
+                            child: Container(
+                              clipBehavior: Clip.antiAlias,
                               decoration: BoxDecoration(
                                 color: Theme.of(
                                   context,
@@ -958,6 +968,8 @@ class _FlasherMenuButton extends StatelessWidget {
         const PopupMenuDivider(),
         ...quickAccessMenuItems(context),
       ],
+      // Deliberate, user-confirmed exception to the flat AppBarMenuIcon
+      // pattern used elsewhere in the app.
       child: const MeshCircleIconButton(
         icon: Icons.more_vert,
         onPressed: null,
