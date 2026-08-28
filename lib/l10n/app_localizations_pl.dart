@@ -5802,9 +5802,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_cardShadow_subtitle => 'Unoszący cień pod kartami';
 
   @override
-  String get appSettings_about => 'O aplikacji';
-
-  @override
   String get appSettings_editCustomStyleTooltip => 'Edytuj styl Custom';
 
   @override

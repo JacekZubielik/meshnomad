@@ -5693,9 +5693,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get styleEditor_cardShadow_subtitle => 'Floating shadow under cards';
 
   @override
-  String get appSettings_about => 'About';
-
-  @override
   String get appSettings_editCustomStyleTooltip => 'Edit custom style';
 
   @override

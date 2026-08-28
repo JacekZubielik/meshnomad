@@ -9938,12 +9938,6 @@ abstract class AppLocalizations {
   /// **'Floating shadow under cards'**
   String get styleEditor_cardShadow_subtitle;
 
-  /// No description provided for @appSettings_about.
-  ///
-  /// In en, this message translates to:
-  /// **'About'**
-  String get appSettings_about;
-
   /// No description provided for @appSettings_editCustomStyleTooltip.
   ///
   /// In en, this message translates to:

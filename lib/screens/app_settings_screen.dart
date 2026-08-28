@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 import '../connector/meshcore_connector.dart';
@@ -141,13 +140,6 @@ class AppSettingsScreen extends StatelessWidget {
                         MeshCard(
                           padding: EdgeInsets.zero,
                           child: _buildDebugContent(context, settingsService),
-                        ),
-
-                        // ABOUT
-                        SectionHeader(context.l10n.appSettings_about),
-                        const MeshCard(
-                          padding: EdgeInsets.zero,
-                          child: _AboutTile(),
                         ),
                       ],
                     );
@@ -2443,74 +2435,6 @@ class _TranslationLanguageDialogContentState
           child: Text(context.l10n.common_close),
         ),
       ],
-    );
-  }
-}
-
-/// The "About" row at the bottom of app settings — same `showAboutDialog`
-/// entry point as `SettingsScreen._showAbout`, reachable from app-wide
-/// settings too (D2, 05-settings-entry.md), not only from a connected
-/// device's settings screen.
-class _AboutTile extends StatefulWidget {
-  const _AboutTile();
-
-  @override
-  State<_AboutTile> createState() => _AboutTileState();
-}
-
-class _AboutTileState extends State<_AboutTile> {
-  String _appVersion = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadVersion();
-  }
-
-  Future<void> _loadVersion() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    if (!mounted) return;
-    setState(() {
-      _appVersion = packageInfo.version;
-    });
-  }
-
-  void _showAbout(BuildContext context) {
-    final l10n = context.l10n;
-    final t = MeshTokens.of(context);
-    showAboutDialog(
-      context: context,
-      applicationName: l10n.appTitle,
-      applicationVersion: _appVersion.isEmpty
-          ? l10n.common_loading
-          : _appVersion,
-      applicationLegalese: l10n.settings_aboutLegalese,
-      children: [
-        SizedBox(height: t.spacingMd),
-        Text(l10n.settings_aboutDescription),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final scheme = Theme.of(context).colorScheme;
-    final t = MeshTokens.of(context);
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: t.spacingMd,
-        vertical: t.spacingXxs,
-      ),
-      leading: Icon(Icons.info_outline, color: scheme.onSurfaceVariant),
-      title: Text(l10n.appSettings_about),
-      subtitle: Text(
-        l10n.settings_aboutVersion(
-          _appVersion.isEmpty ? l10n.common_loading : _appVersion,
-        ),
-      ),
-      trailing: Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
-      onTap: () => _showAbout(context),
     );
   }
 }
