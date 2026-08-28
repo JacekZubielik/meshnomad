@@ -808,6 +808,7 @@ class _ContactsScreenState extends State<ContactsScreen>
           // FAB + bottom sheet (2026-08-23), so it no longer shares this row.
           child: TextField(
             controller: _searchController,
+            style: Theme.of(context).textTheme.bodyMedium,
             decoration: InputDecoration(
               hintText: hintText,
               prefixIcon: const Icon(Icons.search),
@@ -1717,7 +1718,7 @@ class _ContactTile extends StatelessWidget {
                   child: Text(
                     contact.name,
                     maxLines: 1,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: unreadCount > 0
                           ? FontWeight.w700
                           : FontWeight.w500,
