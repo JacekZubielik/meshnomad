@@ -807,10 +807,13 @@ class _ContactBadge extends StatelessWidget {
   }
 }
 
-/// Fixed-order row of contact status badges — Favorite, GPS, Smaz, Route,
-/// Time, always in that order, every one always rendered
-/// (ghosted via [_ContactBadge] when inactive/unavailable so position never
-/// shifts). Accepted mockup: .mockups/contact-tile-badges.html, 2026-08-19.
+/// Fixed-order row of contact status badges — GPS, Smaz, Route, Time,
+/// always in that order, every one always rendered (ghosted via
+/// [_ContactBadge] when inactive/unavailable so position never shifts),
+/// plus a right-aligned favorite star icon that replaces the former
+/// FAVORITES badge (2026-08-28) and keeps its semantics: always tappable,
+/// toggles either direction. Accepted mockup:
+/// .mockups/contact-tile-badges.html, 2026-08-19.
 class ContactBadgeRow extends StatelessWidget {
   final bool isFavorite;
   final bool hasLocation;
@@ -847,40 +850,59 @@ class ContactBadgeRow extends StatelessWidget {
     final tokens = MeshTokens.of(context);
     final scheme = Theme.of(context).colorScheme;
     final neutral = scheme.onSurfaceVariant;
-    return Wrap(
-      spacing: tokens.spacingXxs,
-      runSpacing: tokens.spacingXxs,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _ContactBadge(
-          label: context.l10n.listFilter_favorites,
-          color: tokens.warn,
-          active: isFavorite,
-          fillColor: isFavorite ? tokens.warn.withValues(alpha: 0.2) : null,
+        Expanded(
+          child: Wrap(
+            spacing: tokens.spacingXxs,
+            runSpacing: tokens.spacingXxs,
+            children: [
+              _ContactBadge(
+                label: 'GPS',
+                color: tokens.primary,
+                active: hasLocation,
+                fillColor: hasLocation
+                    ? tokens.primary.withValues(alpha: 0.2)
+                    : null,
+                onTap: hasLocation ? onGpsTap : null,
+              ),
+              _ContactBadge(
+                label: 'Smaz',
+                color: neutral,
+                active: isSmazEnabled,
+              ),
+              _ContactBadge(
+                label: routeLabel ?? context.l10n.contacts_routeUnknown,
+                color: tokens.routeActive,
+                active: routeLabel != null,
+                fillColor: routeLabel != null
+                    ? tokens.routeActive.withValues(alpha: 0.2)
+                    : null,
+                onTap: routeLabel != null ? onRouteTap : null,
+              ),
+              _ContactBadge(
+                label: timeLabel,
+                color: isUnread ? tokens.primary : neutral,
+                active: true,
+                fillColor: (isUnread ? tokens.primary : neutral).withValues(
+                  alpha: 0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: tokens.spacingXxs),
+        GestureDetector(
           onTap: onFavoriteTap,
-        ),
-        _ContactBadge(
-          label: 'GPS',
-          color: tokens.primary,
-          active: hasLocation,
-          fillColor: hasLocation ? tokens.primary.withValues(alpha: 0.2) : null,
-          onTap: hasLocation ? onGpsTap : null,
-        ),
-        _ContactBadge(label: 'Smaz', color: neutral, active: isSmazEnabled),
-        _ContactBadge(
-          label: routeLabel ?? context.l10n.contacts_routeUnknown,
-          color: tokens.routeActive,
-          active: routeLabel != null,
-          fillColor: routeLabel != null
-              ? tokens.routeActive.withValues(alpha: 0.2)
-              : null,
-          onTap: routeLabel != null ? onRouteTap : null,
-        ),
-        _ContactBadge(
-          label: timeLabel,
-          color: isUnread ? tokens.primary : neutral,
-          active: true,
-          fillColor: (isUnread ? tokens.primary : neutral).withValues(
-            alpha: 0.2,
+          behavior: HitTestBehavior.opaque,
+          child: Opacity(
+            opacity: isFavorite ? 1.0 : 0.30,
+            child: Icon(
+              isFavorite ? Icons.star : Icons.star_border,
+              size: 18,
+              color: tokens.warn,
+            ),
           ),
         ),
       ],
