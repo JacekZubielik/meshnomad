@@ -1718,6 +1718,7 @@ class _ContactTile extends StatelessWidget {
                   child: Text(
                     contact.name,
                     maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: unreadCount > 0
                           ? FontWeight.w700
