@@ -1752,7 +1752,9 @@ class _ContactTile extends StatelessWidget {
             // footers) cutting the header off the status-badge row below it
             // — full card width, 2026-08-20 refinement.
             DottedSeparator(color: scheme.outlineVariant),
-            SizedBox(height: t.spacingXxs),
+            // Same token as the card's own padding, so the gap above the
+            // badge row always equals the card padding below it.
+            SizedBox(height: t.spacingMd),
             // Fixed-order status badges (2026-08-19 accepted mockup:
             // .mockups/contact-tile-badges.html; moved below the header and
             // left-aligned to the full card width, labels at 3/4 size,
