@@ -24,9 +24,18 @@ class CompanionRadioStatsScreen extends StatelessWidget {
     return SelectionArea(
       child: Scaffold(
         appBar: AppBar(
+          // Circular/accent app-bar family (2026-08-29) — see
+          // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            onPressed: () => Navigator.of(context).maybePop(),
+          ),
           title: Text(context.l10n.radioStats_screenTitle),
           centerTitle: true,
-          actions: const [QuickAccessMenuButton()],
+          actions: const [CircleQuickAccessMenuButton()],
         ),
         // top:false — the AppBar already absorbs the status bar; the bottom
         // inset keeps the last chart above the Android system nav bar.

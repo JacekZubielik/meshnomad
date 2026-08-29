@@ -43,6 +43,15 @@ class LocationSettingsScreen extends StatelessWidget {
       builder: (context, connector, _) {
         return Scaffold(
           appBar: AppBar(
+            // Circular/accent app-bar family (2026-08-29) — see
+            // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
             title: Text(l10n.settings_location),
             centerTitle: true,
           ),

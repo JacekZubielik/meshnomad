@@ -15,7 +15,19 @@ class FlasherAboutScreen extends StatelessWidget {
     final l10n = context.l10n;
     final t = MeshTokens.of(context);
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text(l10n.flasherAboutMenuItem)),
+      appBar: AppBar(
+        // Circular/accent app-bar family (2026-08-29) — see
+        // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        centerTitle: true,
+        title: Text(l10n.flasherAboutMenuItem),
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),

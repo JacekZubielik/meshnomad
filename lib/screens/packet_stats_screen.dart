@@ -184,10 +184,20 @@ class _PacketStatsScreenState extends State<PacketStatsScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        // Circular/accent app-bar family (2026-08-29) — see
+        // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         title: Text(context.l10n.packetStats_screenTitle),
         centerTitle: true,
         actions: [
           PopupMenuButton<void>(
+            tooltip: context.l10n.contacts_moreOptions,
             itemBuilder: (context) => [
               PopupMenuItem(
                 onTap: () => service.clear(),
@@ -196,6 +206,23 @@ class _PacketStatsScreenState extends State<PacketStatsScreen> {
               const PopupMenuDivider(),
               ...quickAccessMenuItems(context),
             ],
+            // Same 48x48 box + MeshCircleIconButton chrome as
+            // CircleQuickAccessMenuButton (app_bar.dart) — this button
+            // can't reuse that widget directly because it needs the extra
+            // "Clear log" item ahead of quickAccessMenuItems.
+            child: const SizedBox(
+              width: 48,
+              height: 48,
+              child: Center(
+                child: MeshCircleIconButton(
+                  icon: Icons.more_vert,
+                  onPressed: null,
+                  decorative: true,
+                  size: 32,
+                  iconSize: 16,
+                ),
+              ),
+            ),
           ),
         ],
       ),

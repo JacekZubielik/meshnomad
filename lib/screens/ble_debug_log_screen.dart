@@ -50,6 +50,17 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
             : rawEntries.isNotEmpty;
         return Scaffold(
           appBar: AppBar(
+            // Circular/accent app-bar family (2026-08-29) — see
+            // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+            // The copy/clear action icons are unchanged (not part of the
+            // leading/trailing menu-icon pattern this schema covers).
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
             title: AdaptiveAppBarTitle(context.l10n.debugLog_bleTitle),
             centerTitle: true,
             actions: [
@@ -89,7 +100,7 @@ class _BleDebugLogScreenState extends State<BleDebugLogScreen> {
                       }
                     : null,
               ),
-              const QuickAccessMenuButton(),
+              const CircleQuickAccessMenuButton(),
             ],
           ),
           body: SafeArea(

@@ -71,6 +71,17 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
         final currentDefault = connector.defaultFloodScope?.name;
         return Scaffold(
           appBar: AppBar(
+            // Circular/accent app-bar family (2026-08-29) — see
+            // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+            // The add/fetch action icons are unchanged (not part of the
+            // leading/trailing menu-icon pattern this schema covers).
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
             title: Text(l10n.settings_regionManagement_screenTitle),
             centerTitle: true,
             actions: [
@@ -90,7 +101,7 @@ class _RegionManagementScreenState extends State<RegionManagementScreen> {
                     : const Icon(Icons.travel_explore),
                 onPressed: _isFetchingRegions ? null : _showFetchRegionsDialog,
               ),
-              const QuickAccessMenuButton(),
+              const CircleQuickAccessMenuButton(),
             ],
           ),
           body: RadioGroup<String?>(

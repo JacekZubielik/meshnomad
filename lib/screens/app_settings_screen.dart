@@ -40,9 +40,19 @@ class AppSettingsScreen extends StatelessWidget {
   Widget _screenBody(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // Circular/accent app-bar family (2026-08-29, matching Flasher and
+        // the companion-connect screens) — see
+        // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         title: AdaptiveAppBarTitle(context.l10n.appSettings_title),
         centerTitle: true,
-        actions: const [QuickAccessMenuButton()],
+        actions: const [CircleQuickAccessMenuButton()],
         bottom: const SyncProgressAppBarBottom(),
       ),
       body: SafeArea(

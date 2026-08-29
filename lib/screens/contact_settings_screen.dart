@@ -69,7 +69,21 @@ class _ContactSettingsScreenState extends State<ContactSettingsScreen> {
     return SelectionArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(l10n.contactsSettings_autoAddTitle),
+          // Circular/accent app-bar family (2026-08-29) — see
+          // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            onPressed: () => Navigator.of(context).maybePop(),
+          ),
+          // Bug fix (2026-08-30): was contactsSettings_autoAddTitle
+          // ("Automatic Discovery") — that string names the section widget
+          // further down this same screen, not the screen itself. The
+          // screen's real name, matching how location_settings_screen.dart
+          // labels the entry tile that opens it, is settings_contactSettings.
+          title: Text(l10n.settings_contactSettings),
           centerTitle: true,
         ),
         body: SafeArea(
