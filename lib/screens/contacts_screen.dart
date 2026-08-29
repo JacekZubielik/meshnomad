@@ -868,9 +868,14 @@ class _ContactsScreenState extends State<ContactsScreen>
                   )
                 : ListView.builder(
                     controller: _contactsScrollController,
-                    padding: const EdgeInsets.only(
-                      bottom: 88,
-                    ), // spacing: size-special (>25% off nearest token)
+                    // Was a size-special literal (88) reserved as FAB
+                    // clearance — left a large dead gap between the last
+                    // card and QuickSwitchBar once scrolled to the end
+                    // (2026-08-29 on-device feedback: should read as a
+                    // normal small bottom inset, not FAB-sized).
+                    padding: EdgeInsets.only(
+                      bottom: MeshTokens.of(context).spacingMd,
+                    ),
                     itemCount: filteredAndSorted.length,
                     itemBuilder: (context, index) {
                       final contact = filteredAndSorted[index];
