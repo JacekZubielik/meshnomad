@@ -2348,6 +2348,36 @@ abstract class AppLocalizations {
   /// **'Channel {index}'**
   String channels_channelIndex(int index);
 
+  /// No description provided for @channelType_public.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get channelType_public;
+
+  /// No description provided for @channelType_hashtag.
+  ///
+  /// In en, this message translates to:
+  /// **'Hashtag'**
+  String get channelType_hashtag;
+
+  /// No description provided for @channelType_private.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get channelType_private;
+
+  /// No description provided for @channelType_community.
+  ///
+  /// In en, this message translates to:
+  /// **'Community'**
+  String get channelType_community;
+
+  /// No description provided for @channels_badgeRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Region'**
+  String get channels_badgeRegion;
+
   /// No description provided for @channels_public.
   ///
   /// In en, this message translates to:

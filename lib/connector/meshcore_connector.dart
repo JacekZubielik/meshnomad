@@ -396,6 +396,9 @@ class MeshCoreConnector extends ChangeNotifier {
   final UnreadStore _unreadStore = UnreadStore();
   List<Channel> _cachedChannels = [];
   final Map<int, bool> _channelSmazEnabled = {};
+  final Map<int, bool> _channelFavorite = {};
+  final Map<int, String?> _channelTranslationLanguage = {};
+  final Map<int, bool> _channelTranslateBeforeSending = {};
   final Map<int, bool> _channelCyr2LatEnabled = {};
   final Map<int, String?> _channelCyr2LatProfileId = {};
   final Map<int, Region> _channelRegions = {};
@@ -5826,6 +5829,88 @@ class MeshCoreConnector extends ChangeNotifier {
   String? getContactCyr2LatProfileId(String contactKeyHex) {
     _ensureContactCyr2LatProfileLoaded(contactKeyHex);
     return _contactCyr2LatProfileId[contactKeyHex];
+  }
+
+  void _ensureChannelFavoriteLoaded(int channelIndex) {
+    if (_channelFavorite.containsKey(channelIndex)) return;
+    _channelSettingsStore.loadFavorite(channelIndex).then((favorite) {
+      if (_channelFavorite[channelIndex] == favorite) return;
+      _channelFavorite[channelIndex] = favorite;
+      notifyListeners();
+    });
+  }
+
+  bool isChannelFavorite(int channelIndex) {
+    _ensureChannelFavoriteLoaded(channelIndex);
+    return _channelFavorite[channelIndex] ?? false;
+  }
+
+  Future<void> setChannelFavorite(int channelIndex, bool favorite) async {
+    if (_channelFavorite[channelIndex] == favorite) return;
+    _channelFavorite[channelIndex] = favorite;
+    await _channelSettingsStore.saveFavorite(channelIndex, favorite);
+    notifyListeners();
+  }
+
+  void _ensureChannelTranslationLoaded(int channelIndex) {
+    if (!_channelTranslationLanguage.containsKey(channelIndex)) {
+      _channelSettingsStore.loadTranslationLanguage(channelIndex).then((lang) {
+        if (_channelTranslationLanguage.containsKey(channelIndex) &&
+            _channelTranslationLanguage[channelIndex] == lang) {
+          return;
+        }
+        _channelTranslationLanguage[channelIndex] = lang;
+        notifyListeners();
+      });
+    }
+    if (!_channelTranslateBeforeSending.containsKey(channelIndex)) {
+      _channelSettingsStore.loadTranslateBeforeSending(channelIndex).then((
+        enabled,
+      ) {
+        if (_channelTranslateBeforeSending[channelIndex] == enabled) return;
+        _channelTranslateBeforeSending[channelIndex] = enabled;
+        notifyListeners();
+      });
+    }
+  }
+
+  /// Per-channel translation target language; null = inherit the app-wide
+  /// setting.
+  String? getChannelTranslationLanguage(int channelIndex) {
+    _ensureChannelTranslationLoaded(channelIndex);
+    return _channelTranslationLanguage[channelIndex];
+  }
+
+  bool isChannelTranslateBeforeSending(int channelIndex) {
+    _ensureChannelTranslationLoaded(channelIndex);
+    return _channelTranslateBeforeSending[channelIndex] ?? false;
+  }
+
+  /// True when the channel has any translation setting diverging from the
+  /// app-wide defaults — drives the translate icon's active state on the
+  /// channel card.
+  bool hasChannelTranslationOverride(int channelIndex) {
+    _ensureChannelTranslationLoaded(channelIndex);
+    return _channelTranslationLanguage[channelIndex] != null ||
+        (_channelTranslateBeforeSending[channelIndex] ?? false);
+  }
+
+  Future<void> setChannelTranslation(
+    int channelIndex, {
+    required String? languageCode,
+    required bool translateBeforeSending,
+  }) async {
+    _channelTranslationLanguage[channelIndex] = languageCode;
+    _channelTranslateBeforeSending[channelIndex] = translateBeforeSending;
+    await _channelSettingsStore.saveTranslationLanguage(
+      channelIndex,
+      languageCode,
+    );
+    await _channelSettingsStore.saveTranslateBeforeSending(
+      channelIndex,
+      translateBeforeSending,
+    );
+    notifyListeners();
   }
 
   Future<void> setContactCyr2LatProfileId(

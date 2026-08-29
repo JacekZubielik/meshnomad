@@ -1256,6 +1256,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get channelType_public => 'Public';
+
+  @override
+  String get channelType_hashtag => 'Hashtag';
+
+  @override
+  String get channelType_private => 'Private';
+
+  @override
+  String get channelType_community => 'Community';
+
+  @override
+  String get channels_badgeRegion => 'Region';
+
+  @override
   String get channels_public => 'Public';
 
   @override

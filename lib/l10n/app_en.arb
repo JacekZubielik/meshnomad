@@ -575,6 +575,11 @@
   "channels_searchChannels": "Search channels...",
   "channels_noChannelsFound": "No channels found",
   "channels_channelIndex": "Channel {index}",
+  "channelType_public": "Public",
+  "channelType_hashtag": "Hashtag",
+  "channelType_private": "Private",
+  "channelType_community": "Community",
+  "channels_badgeRegion": "Region",
   "@channels_channelIndex": {
     "placeholders": {
       "index": {

@@ -703,21 +703,22 @@ Color colorForContactType(MeshTokens tokens, int type) {
   }
 }
 
-/// Node-type pill next to a contact's name in the Contacts list — border +
-/// text in the type's accent color (see [colorForContactType]), background
+/// Header type pill — border + text in the given accent color, background
 /// filled with that same color at 20% alpha, no icon (2026-08-19 accepted
 /// mockup, .mockups/contact-tile-badges.html; fill treatment added in the
-/// 2026-08-19 refinement, uniform across all 4 types).
-class ContactTypeBadge extends StatelessWidget {
-  final int type;
+/// 2026-08-19 refinement). One implementation for every card-header type
+/// pill: contacts pass a type-derived color via [ContactTypeBadge], channel
+/// cards pass their own type color directly (2026-08-29 channel-card
+/// parity).
+class MeshTypePill extends StatelessWidget {
   final String label;
+  final Color color;
 
-  const ContactTypeBadge({super.key, required this.type, required this.label});
+  const MeshTypePill({super.key, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
     final tokens = MeshTokens.of(context);
-    final color = colorForContactType(tokens, type);
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: tokens.spacingXxs,
@@ -739,10 +740,66 @@ class ContactTypeBadge extends StatelessWidget {
   }
 }
 
+/// Node-type pill next to a contact's name in the Contacts list — a
+/// [MeshTypePill] colored by [colorForContactType].
+class ContactTypeBadge extends StatelessWidget {
+  final int type;
+  final String label;
+
+  const ContactTypeBadge({super.key, required this.type, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return MeshTypePill(
+      label: label,
+      color: colorForContactType(MeshTokens.of(context), type),
+    );
+  }
+}
+
+/// Two-layer selection dot — the canonical single-choice indicator
+/// (accepted variant B2, 2026-08-29; see
+/// docs/superpowers/meshnomad-vault/templates/ui-patterns/dropdown-menu-row-schema.md).
+/// Modeled on the real switchTheme grammar (mesh_theme.dart:603-614): a
+/// tinted 20×20 track circle (primary @ 20% alpha, no outline) holding a
+/// solid primary thumb that grows 8→12 on selection; the whole pair ghosts
+/// to opacity .30 when unselected. Used by the sort/filter dropdown rows
+/// and every selection-sheet ("winda") row.
+class MeshSelectorDot extends StatelessWidget {
+  final bool selected;
+
+  const MeshSelectorDot({super.key, required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Opacity(
+      opacity: selected ? 1.0 : 0.30,
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: scheme.primary.withValues(alpha: 0.2),
+        ),
+        alignment: Alignment.center,
+        child: Container(
+          width: selected ? 12 : 8,
+          height: selected ? 12 : 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: scheme.primary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// One badge inside [ContactBadgeRow] — text + 1px border only, no icon.
 /// Ghosting (opacity 0.30) signals "exists but inactive" without removing
 /// the element, so sibling badges never change position.
-class _ContactBadge extends StatelessWidget {
+class MeshStatusBadge extends StatelessWidget {
   final String label;
   final Color color;
   final bool active;
@@ -759,7 +816,8 @@ class _ContactBadge extends StatelessWidget {
   /// states, and every one of the other 5 badges, pass null here).
   final VoidCallback? onTap;
 
-  const _ContactBadge({
+  const MeshStatusBadge({
+    super.key,
     required this.label,
     required this.color,
     required this.active,
@@ -809,7 +867,7 @@ class _ContactBadge extends StatelessWidget {
 
 /// Fixed-order row of contact status badges — GPS, Smaz, Route, Time,
 /// always in that order, every one always rendered (ghosted via
-/// [_ContactBadge] when inactive/unavailable so position never shifts),
+/// [MeshStatusBadge] when inactive/unavailable so position never shifts),
 /// plus a right-aligned favorite star icon that replaces the former
 /// FAVORITES badge (2026-08-28) and keeps its semantics: always tappable,
 /// toggles either direction. Accepted mockup:
@@ -858,7 +916,7 @@ class ContactBadgeRow extends StatelessWidget {
             spacing: tokens.spacingXxs,
             runSpacing: tokens.spacingXxs,
             children: [
-              _ContactBadge(
+              MeshStatusBadge(
                 label: 'GPS',
                 color: tokens.primary,
                 active: hasLocation,
@@ -867,12 +925,12 @@ class ContactBadgeRow extends StatelessWidget {
                     : null,
                 onTap: hasLocation ? onGpsTap : null,
               ),
-              _ContactBadge(
+              MeshStatusBadge(
                 label: 'Smaz',
                 color: neutral,
                 active: isSmazEnabled,
               ),
-              _ContactBadge(
+              MeshStatusBadge(
                 label: routeLabel ?? context.l10n.contacts_routeUnknown,
                 color: tokens.routeActive,
                 active: routeLabel != null,
@@ -881,7 +939,7 @@ class ContactBadgeRow extends StatelessWidget {
                     : null,
                 onTap: routeLabel != null ? onRouteTap : null,
               ),
-              _ContactBadge(
+              MeshStatusBadge(
                 label: timeLabel,
                 color: isUnread ? tokens.primary : neutral,
                 active: true,

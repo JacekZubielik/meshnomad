@@ -366,6 +366,11 @@
   "channels_searchChannels": "Wyszukaj kanały...",
   "channels_noChannelsFound": "Brak znalezionych kanałów",
   "channels_channelIndex": "Kanał {index}",
+  "channelType_public": "Publiczny",
+  "channelType_hashtag": "Hashtag",
+  "channelType_private": "Prywatny",
+  "channelType_community": "Społeczność",
+  "channels_badgeRegion": "Region",
   "@channels_channelIndex": {
     "placeholders": {
       "index": {

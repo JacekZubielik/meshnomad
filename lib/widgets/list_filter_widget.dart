@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/dotted_separator.dart';
+import '../widgets/mesh_ui.dart';
 import '../utils/contact_search.dart';
 
 class SortFilterMenuOption<T> {
@@ -200,37 +201,9 @@ class _MenuOptionLeading<T> extends StatelessWidget {
     if (option.checked == null) {
       return const SizedBox(width: 20, height: 20);
     }
-    // Selector dot — two-layer, modeled on switchTheme (mesh_theme.dart:
-    // 603-614): tinted track (no outline) + solid thumb, thumb grows on
-    // selection. Same accent everywhere; unselected = whole pair ghosted
-    // to opacity .30 (matches favorite-star/ContactBadgeRow elsewhere) —
-    // accepted variant B2, 2026-08-29.
-    return SizedBox(
-      width: 20,
-      height: 20,
-      child: Opacity(
-        opacity: selected ? 1.0 : 0.30,
-        child: Center(
-          child: Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: scheme.primary.withValues(alpha: 0.2),
-            ),
-            alignment: Alignment.center,
-            child: Container(
-              width: selected ? 12 : 8,
-              height: selected ? 12 : 8,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: scheme.primary,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+    // Selector dot — accepted variant B2 (2026-08-29); shared widget so the
+    // dropdown rows and selection sheets ("winda") can never drift apart.
+    return MeshSelectorDot(selected: selected);
   }
 }
 
