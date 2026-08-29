@@ -18,6 +18,8 @@ import '../models/contact.dart';
 import '../l10n/contact_localization.dart';
 import '../models/contact_group.dart';
 import '../helpers/node_freshness.dart';
+import '../models/translation_support.dart';
+import '../services/app_settings_service.dart';
 import '../services/ui_view_state_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/contact_search.dart';
@@ -30,6 +32,7 @@ import '../utils/last_seen_label.dart';
 import '../utils/route_transitions.dart';
 import '../widgets/list_filter_widget.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/mesh_selection_sheet.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/quick_switch_bar.dart';
@@ -1782,8 +1785,24 @@ class _ContactTile extends StatelessWidget {
                       pathHashByteWidth: pathHashByteWidth,
                     )
                   : null,
+              languageCode: context
+                  .watch<MeshCoreConnector>()
+                  .getContactTranslationLanguage(contact.publicKeyHex),
               timeLabel: _formatLastSeen(context, lastSeen),
               isUnread: unreadCount > 0,
+              isMuted: context.watch<AppSettingsService>().isContactMuted(
+                contact.publicKeyHex,
+              ),
+              onLanguageTap: () =>
+                  _showContactTranslationSheet(context, contact),
+              onMuteTap: () {
+                final settings = context.read<AppSettingsService>();
+                if (settings.isContactMuted(contact.publicKeyHex)) {
+                  settings.unmuteContact(contact.publicKeyHex);
+                } else {
+                  settings.muteContact(contact.publicKeyHex);
+                }
+              },
               onFavoriteTap: () {
                 context.read<MeshCoreConnector>().setContactFlags(
                   contact,
@@ -1821,6 +1840,45 @@ class _ContactTile extends StatelessWidget {
 
   String _formatLastSeen(BuildContext context, DateTime lastSeen) =>
       formatLastSeenLabel(context, lastSeen);
+
+  Future<void> _showContactTranslationSheet(
+    BuildContext context,
+    Contact contact,
+  ) async {
+    final connector = context.read<MeshCoreConnector>();
+    final l10n = context.l10n;
+    final result = await showMeshSelectionSheet<String?>(
+      context,
+      title: l10n.translation_messageTranslation,
+      subtitle: contact.name,
+      toggleTitle: l10n.translation_translateBeforeSending,
+      toggleSubtitle: l10n.translation_composerEnabledHint,
+      toggleValue: connector.isContactTranslateBeforeSending(
+        contact.publicKeyHex,
+      ),
+      selectedValue: connector.getContactTranslationLanguage(
+        contact.publicKeyHex,
+      ),
+      options: [
+        MeshSelectionOption<String?>(
+          value: null,
+          label: l10n.translation_useAppLanguage,
+        ),
+        for (final option in supportedTranslationLanguages)
+          MeshSelectionOption<String?>(
+            value: option.code,
+            label: option.label,
+            trailing: option.code.toUpperCase(),
+          ),
+      ],
+    );
+    if (result == null) return;
+    await connector.setContactTranslation(
+      contact.publicKeyHex,
+      languageCode: result.value,
+      translateBeforeSending: result.toggleValue ?? false,
+    );
+  }
 }
 
 // Wrap each contact tile with staggered entrance.

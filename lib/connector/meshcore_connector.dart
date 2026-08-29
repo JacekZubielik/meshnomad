@@ -399,6 +399,8 @@ class MeshCoreConnector extends ChangeNotifier {
   final Map<int, bool> _channelFavorite = {};
   final Map<int, String?> _channelTranslationLanguage = {};
   final Map<int, bool> _channelTranslateBeforeSending = {};
+  final Map<String, String?> _contactTranslationLanguage = {};
+  final Map<String, bool> _contactTranslateBeforeSending = {};
   final Map<int, bool> _channelCyr2LatEnabled = {};
   final Map<int, String?> _channelCyr2LatProfileId = {};
   final Map<int, Region> _channelRegions = {};
@@ -5601,7 +5603,11 @@ class MeshCoreConnector extends ChangeNotifier {
           !message.isCli &&
           _appSettingsService != null) {
         final settings = _appSettingsService!.settings;
-        if (settings.notificationsEnabled && settings.notifyOnNewMessage) {
+        if (settings.notificationsEnabled &&
+            settings.notifyOnNewMessage &&
+            // Contact mute (2026-08-29) — same gate as the channel path's
+            // isChannelMuted check in _maybeNotifyChannelMessage.
+            !_appSettingsService!.isContactMuted(message.senderKeyHex)) {
           final msg = message; // capture for closure
           final c = contact; // capture contact reference
           unawaited(() async {
@@ -5872,6 +5878,58 @@ class MeshCoreConnector extends ChangeNotifier {
         notifyListeners();
       });
     }
+  }
+
+  void _ensureContactTranslationLoaded(String contactKeyHex) {
+    if (!_contactTranslationLanguage.containsKey(contactKeyHex)) {
+      _contactSettingsStore.loadTranslationLanguage(contactKeyHex).then((lang) {
+        if (_contactTranslationLanguage.containsKey(contactKeyHex) &&
+            _contactTranslationLanguage[contactKeyHex] == lang) {
+          return;
+        }
+        _contactTranslationLanguage[contactKeyHex] = lang;
+        notifyListeners();
+      });
+    }
+    if (!_contactTranslateBeforeSending.containsKey(contactKeyHex)) {
+      _contactSettingsStore.loadTranslateBeforeSending(contactKeyHex).then((
+        enabled,
+      ) {
+        if (_contactTranslateBeforeSending[contactKeyHex] == enabled) return;
+        _contactTranslateBeforeSending[contactKeyHex] = enabled;
+        notifyListeners();
+      });
+    }
+  }
+
+  /// Per-contact translation target language; null = inherit the app-wide
+  /// setting.
+  String? getContactTranslationLanguage(String contactKeyHex) {
+    _ensureContactTranslationLoaded(contactKeyHex);
+    return _contactTranslationLanguage[contactKeyHex];
+  }
+
+  bool isContactTranslateBeforeSending(String contactKeyHex) {
+    _ensureContactTranslationLoaded(contactKeyHex);
+    return _contactTranslateBeforeSending[contactKeyHex] ?? false;
+  }
+
+  Future<void> setContactTranslation(
+    String contactKeyHex, {
+    required String? languageCode,
+    required bool translateBeforeSending,
+  }) async {
+    _contactTranslationLanguage[contactKeyHex] = languageCode;
+    _contactTranslateBeforeSending[contactKeyHex] = translateBeforeSending;
+    await _contactSettingsStore.saveTranslationLanguage(
+      contactKeyHex,
+      languageCode,
+    );
+    await _contactSettingsStore.saveTranslateBeforeSending(
+      contactKeyHex,
+      translateBeforeSending,
+    );
+    notifyListeners();
   }
 
   /// Per-channel translation target language; null = inherit the app-wide

@@ -865,13 +865,12 @@ class MeshStatusBadge extends StatelessWidget {
   }
 }
 
-/// Fixed-order row of contact status badges — GPS, Smaz, Route, Time,
-/// always in that order, every one always rendered (ghosted via
-/// [MeshStatusBadge] when inactive/unavailable so position never shifts),
-/// plus a right-aligned favorite star icon that replaces the former
-/// FAVORITES badge (2026-08-28) and keeps its semantics: always tappable,
-/// toggles either direction. Accepted mockup:
-/// .mockups/contact-tile-badges.html, 2026-08-19.
+/// Fixed-order row of contact status badges — GPS, Route, Smaz, Lang, Time
+/// (order per 2026-08-29 user spec), always in that order, every one always
+/// rendered (ghosted via [MeshStatusBadge] when inactive/unavailable so
+/// position never shifts), plus right-aligned mute-bell and favorite-star
+/// icons (channel-card parity). The star replaced the former FAVORITES
+/// badge (2026-08-28): always tappable, toggles either direction.
 class ContactBadgeRow extends StatelessWidget {
   final bool isFavorite;
   final bool hasLocation;
@@ -879,16 +878,23 @@ class ContactBadgeRow extends StatelessWidget {
 
   /// Null = route unknown for this contact; renders a ghosted placeholder.
   final String? routeLabel;
+
+  /// Per-contact translation target language code; null = inherits the
+  /// app-wide setting (ghost 'LANG' pill — 2026-08-29, channel-card parity).
+  final String? languageCode;
   final String timeLabel;
   final bool isUnread;
+  final bool isMuted;
 
-  /// Tap targets (2026-08-19 refinement). Favorite always fires regardless
-  /// of state (toggles either direction). GPS/Route only fire when their
-  /// own badge is active — gated INSIDE build() below, not by the caller,
-  /// so a ghosted badge is never accidentally wired live.
+  /// Tap targets (2026-08-19 refinement). Favorite/mute/lang always fire
+  /// regardless of state (they toggle or open a picker). GPS/Route only
+  /// fire when their own badge is active — gated INSIDE build() below, not
+  /// by the caller, so a ghosted badge is never accidentally wired live.
   final VoidCallback? onFavoriteTap;
   final VoidCallback? onGpsTap;
   final VoidCallback? onRouteTap;
+  final VoidCallback? onLanguageTap;
+  final VoidCallback? onMuteTap;
 
   const ContactBadgeRow({
     super.key,
@@ -898,9 +904,13 @@ class ContactBadgeRow extends StatelessWidget {
     required this.routeLabel,
     required this.timeLabel,
     required this.isUnread,
+    this.languageCode,
+    this.isMuted = false,
     this.onFavoriteTap,
     this.onGpsTap,
     this.onRouteTap,
+    this.onLanguageTap,
+    this.onMuteTap,
   });
 
   @override
@@ -926,11 +936,6 @@ class ContactBadgeRow extends StatelessWidget {
                 onTap: hasLocation ? onGpsTap : null,
               ),
               MeshStatusBadge(
-                label: 'Smaz',
-                color: neutral,
-                active: isSmazEnabled,
-              ),
-              MeshStatusBadge(
                 label: routeLabel ?? context.l10n.contacts_routeUnknown,
                 color: tokens.routeActive,
                 active: routeLabel != null,
@@ -938,6 +943,20 @@ class ContactBadgeRow extends StatelessWidget {
                     ? tokens.routeActive.withValues(alpha: 0.2)
                     : null,
                 onTap: routeLabel != null ? onRouteTap : null,
+              ),
+              MeshStatusBadge(
+                label: 'Smaz',
+                color: neutral,
+                active: isSmazEnabled,
+              ),
+              MeshStatusBadge(
+                label: languageCode?.toUpperCase() ?? 'LANG',
+                color: tokens.primary,
+                active: languageCode != null,
+                fillColor: languageCode != null
+                    ? tokens.primary.withValues(alpha: 0.2)
+                    : null,
+                onTap: onLanguageTap,
               ),
               MeshStatusBadge(
                 label: timeLabel,
@@ -948,6 +967,19 @@ class ContactBadgeRow extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+        SizedBox(width: tokens.spacingXxs),
+        GestureDetector(
+          onTap: onMuteTap,
+          behavior: HitTestBehavior.opaque,
+          child: Opacity(
+            opacity: isMuted ? 1.0 : 0.30,
+            child: Icon(
+              isMuted ? Icons.notifications_off : Icons.notifications,
+              size: 18,
+              color: tokens.warn,
+            ),
           ),
         ),
         SizedBox(width: tokens.spacingXxs),

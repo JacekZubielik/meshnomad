@@ -87,14 +87,16 @@ void main() {
     );
   }
 
-  testWidgets('ContactBadgeRow always renders all 4 badges in fixed order '
-      '(GPS, Smaz, Route, Time) plus the right-aligned favorite star, '
-      'regardless of state', (tester) async {
+  testWidgets('ContactBadgeRow always renders all 5 badges in fixed order '
+      '(GPS, Route, Smaz, Lang, Time — 2026-08-29 order) plus the '
+      'right-aligned mute bell and favorite star, regardless of state', (
+    tester,
+  ) async {
     // Wide viewport so all badges land on one line — this test checks
     // left-to-right order, not the Wrap widget's wrapping behavior itself.
     await tester.pumpWidget(badgeRow(routeLabel: null, width: 900));
 
-    final labels = ['GPS', 'SMAZ', 'ROUTE'];
+    final labels = ['GPS', 'ROUTE', 'SMAZ', 'LANG'];
     for (final label in labels) {
       expect(find.text(label), findsOneWidget);
     }
@@ -113,14 +115,15 @@ void main() {
       lastX = x;
     }
 
-    // Favorite star sits to the right of every badge (2026-08-28: replaced
-    // the former FAVORITES badge).
+    // Mute bell then favorite star sit to the right of every badge
+    // (channel-card parity, 2026-08-29).
     expect(find.text('FAVORITES'), findsNothing);
+    expect(find.byIcon(Icons.notifications), findsOneWidget);
     expect(find.byIcon(Icons.star_border), findsOneWidget);
-    expect(
-      tester.getTopLeft(find.byIcon(Icons.star_border)).dx,
-      greaterThan(lastX),
-    );
+    final bellX = tester.getTopLeft(find.byIcon(Icons.notifications)).dx;
+    final starX = tester.getTopLeft(find.byIcon(Icons.star_border)).dx;
+    expect(bellX, greaterThan(lastX));
+    expect(starX, greaterThan(bellX));
   });
 
   testWidgets('ContactBadgeRow ghosts inactive badges instead of hiding them '

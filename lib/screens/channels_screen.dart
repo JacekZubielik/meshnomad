@@ -593,7 +593,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       // tappable — shortcut to the language selection sheet
                       // for THIS channel only.
                       MeshStatusBadge(
-                        label: channelLang?.toUpperCase() ?? 'AUTO',
+                        // Ghost label 'LANG', not 'AUTO' — "auto" read as
+                        // ambiguous (2026-08-29 user feedback).
+                        label: channelLang?.toUpperCase() ?? 'LANG',
                         color: t.primary,
                         active: channelLang != null,
                         fillColor: channelLang != null
