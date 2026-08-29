@@ -26,6 +26,7 @@ import '../utils/dialog_utils.dart';
 import '../widgets/dotted_separator.dart';
 import '../utils/disconnect_navigation_mixin.dart';
 import '../utils/emoji_utils.dart';
+import '../utils/last_seen_label.dart';
 import '../utils/route_transitions.dart';
 import '../widgets/list_filter_widget.dart';
 import '../widgets/empty_state.dart';
@@ -1818,27 +1819,8 @@ class _ContactTile extends StatelessWidget {
     );
   }
 
-  String _formatLastSeen(BuildContext context, DateTime lastSeen) {
-    final now = DateTime.now();
-    final diff = now.difference(lastSeen);
-
-    if (diff.isNegative || diff.inMinutes < 5) {
-      return context.l10n.contacts_lastSeenNow;
-    }
-    if (diff.inMinutes < 60) {
-      return context.l10n.contacts_lastSeenMinsAgo(diff.inMinutes);
-    }
-    if (diff.inHours < 24) {
-      final hours = diff.inHours;
-      return hours == 1
-          ? context.l10n.contacts_lastSeenHourAgo
-          : context.l10n.contacts_lastSeenHoursAgo(hours);
-    }
-    final days = diff.inDays;
-    return days == 1
-        ? context.l10n.contacts_lastSeenDayAgo
-        : context.l10n.contacts_lastSeenDaysAgo(days);
-  }
+  String _formatLastSeen(BuildContext context, DateTime lastSeen) =>
+      formatLastSeenLabel(context, lastSeen);
 }
 
 // Wrap each contact tile with staggered entrance.

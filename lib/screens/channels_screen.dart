@@ -20,6 +20,7 @@ import '../storage/community_store.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/dialog_utils.dart';
 import '../utils/disconnect_navigation_mixin.dart';
+import '../utils/last_seen_label.dart';
 import '../utils/route_transitions.dart';
 import '../widgets/dotted_separator.dart';
 import '../widgets/list_filter_widget.dart';
@@ -87,14 +88,6 @@ class _ChannelsScreenState extends State<ChannelsScreen>
     _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
-  }
-
-  String _relativeTime(DateTime t) {
-    final diff = DateTime.now().difference(t);
-    if (diff.inMinutes < 1) return 'now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
-    if (diff.inHours < 24) return '${diff.inHours}h';
-    return '${diff.inDays}d';
   }
 
   @override
@@ -285,13 +278,20 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         )
                       : (viewState.channelsSortOption ==
                                 ChannelSortOption.manual &&
-                            viewState.channelsSearchText.isEmpty)
+                            viewState.channelsSearchText.isEmpty &&
+                            // Reordering a filtered subset would persist a
+                            // partial order — drag mode needs the full list.
+                            viewState.channelsTypeFilter ==
+                                ChannelTypeFilter.all &&
+                            !viewState.channelsShowUnreadOnly)
                       ? ReorderableListView.builder(
-                          // Small bottom inset (was a FAB-sized 88 literal) —
-                          // same fix as the contacts list, 2026-08-29: the
-                          // last card should stop near the QuickSwitchBar.
+                          // Insets match the contacts list exactly
+                          // (2026-08-29): no extra top padding (the search
+                          // field's own 16 inset provides the gap — the
+                          // first card must start at the same height as on
+                          // Contacts), small bottom inset instead of the
+                          // old FAB-sized 88 literal.
                           padding: EdgeInsets.only(
-                            top: MeshTokens.of(context).spacingXs,
                             bottom: MeshTokens.of(context).spacingMd,
                           ),
                           buildDefaultDragHandles: false,
@@ -322,9 +322,8 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                           },
                         )
                       : ListView.builder(
-                          // Same small bottom inset as above.
+                          // Same insets as above.
                           padding: EdgeInsets.only(
-                            top: MeshTokens.of(context).spacingXs,
                             bottom: MeshTokens.of(context).spacingMd,
                           ),
                           itemCount: filteredChannels.length,
@@ -424,9 +423,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
         : channel.name;
 
     final isFavorite = connector.isChannelFavorite(channel.index);
-    final hasTranslationOverride = connector.hasChannelTranslationOverride(
-      channel.index,
-    );
+    final channelLang = connector.getChannelTranslationLanguage(channel.index);
     final hasRegion = connector.hasChannelRegion(channel.index);
 
     // 2026-08-29 channel-card parity redesign (accepted mockup
@@ -588,8 +585,31 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         color: scheme.onSurfaceVariant,
                         active: connector.isChannelSmazEnabled(channel.index),
                       ),
+                      // Per-channel translation language (2026-08-29,
+                      // replaces the translate icon; moved into the pill row
+                      // between SMAZ and TIME per user feedback): the
+                      // channel's assigned 2-letter code, ghosted "AUTO"
+                      // when inheriting the app-wide setting; always
+                      // tappable — shortcut to the language selection sheet
+                      // for THIS channel only.
                       MeshStatusBadge(
-                        label: lastTime != null ? _relativeTime(lastTime) : '—',
+                        label: channelLang?.toUpperCase() ?? 'AUTO',
+                        color: t.primary,
+                        active: channelLang != null,
+                        fillColor: channelLang != null
+                            ? t.primary.withValues(alpha: 0.2)
+                            : null,
+                        onTap: () => _showChannelTranslationSheet(
+                          this.context,
+                          connector,
+                          channel,
+                          channelLabel,
+                        ),
+                      ),
+                      MeshStatusBadge(
+                        label: lastTime != null
+                            ? formatLastSeenLabel(context, lastTime)
+                            : '—',
                         color: unreadCount > 0
                             ? t.primary
                             : scheme.onSurfaceVariant,
@@ -602,20 +622,6 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                             : null,
                       ),
                     ],
-                  ),
-                ),
-                SizedBox(width: t.spacingXxs),
-                GestureDetector(
-                  onTap: () => _showChannelTranslationSheet(
-                    this.context,
-                    connector,
-                    channel,
-                    channelLabel,
-                  ),
-                  behavior: HitTestBehavior.opaque,
-                  child: Opacity(
-                    opacity: hasTranslationOverride ? 1.0 : 0.30,
-                    child: Icon(Icons.translate, size: 18, color: t.primary),
                   ),
                 ),
                 SizedBox(width: t.spacingXxs),
@@ -817,39 +823,100 @@ class _ChannelsScreenState extends State<ChannelsScreen>
   }
 
   Widget _buildFilterButton(UiViewStateService viewState) {
-    return SortFilterMenu<ChannelSortOption>(
+    // Sort + Filters, parity with the contacts menu (2026-08-29) — the
+    // filter set matches what channels actually are: favorites + the four
+    // channel types + unread-only.
+    return SortFilterMenu<_ChannelsFilterAction>(
       tooltip: context.l10n.listFilter_tooltip,
       sections: [
-        SortFilterMenuSection<ChannelSortOption>(
+        SortFilterMenuSection<_ChannelsFilterAction>(
           title: context.l10n.channels_sortBy,
           options: [
-            SortFilterMenuOption<ChannelSortOption>(
-              value: ChannelSortOption.manual,
+            SortFilterMenuOption(
+              value: const _ChannelSortAction(ChannelSortOption.manual),
               label: context.l10n.channels_sortManual,
               checked: viewState.channelsSortOption == ChannelSortOption.manual,
             ),
-            SortFilterMenuOption<ChannelSortOption>(
-              value: ChannelSortOption.name,
+            SortFilterMenuOption(
+              value: const _ChannelSortAction(ChannelSortOption.name),
               label: context.l10n.channels_sortAZ,
               checked: viewState.channelsSortOption == ChannelSortOption.name,
             ),
-            SortFilterMenuOption<ChannelSortOption>(
-              value: ChannelSortOption.latestMessages,
+            SortFilterMenuOption(
+              value: const _ChannelSortAction(ChannelSortOption.latestMessages),
               label: context.l10n.channels_sortLatestMessages,
               checked:
                   viewState.channelsSortOption ==
                   ChannelSortOption.latestMessages,
             ),
-            SortFilterMenuOption<ChannelSortOption>(
-              value: ChannelSortOption.unread,
+            SortFilterMenuOption(
+              value: const _ChannelSortAction(ChannelSortOption.unread),
               label: context.l10n.channels_sortUnread,
               checked: viewState.channelsSortOption == ChannelSortOption.unread,
             ),
           ],
         ),
+        SortFilterMenuSection<_ChannelsFilterAction>(
+          title: context.l10n.listFilter_filters,
+          options: [
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(ChannelTypeFilter.all),
+              label: context.l10n.listFilter_all,
+              checked: viewState.channelsTypeFilter == ChannelTypeFilter.all,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(
+                ChannelTypeFilter.favorites,
+              ),
+              label: context.l10n.listFilter_favorites,
+              checked:
+                  viewState.channelsTypeFilter == ChannelTypeFilter.favorites,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(ChannelTypeFilter.public),
+              label: context.l10n.channelType_public,
+              checked: viewState.channelsTypeFilter == ChannelTypeFilter.public,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(ChannelTypeFilter.hashtag),
+              label: context.l10n.channelType_hashtag,
+              checked:
+                  viewState.channelsTypeFilter == ChannelTypeFilter.hashtag,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(ChannelTypeFilter.private),
+              label: context.l10n.channelType_private,
+              checked:
+                  viewState.channelsTypeFilter == ChannelTypeFilter.private,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(
+                ChannelTypeFilter.community,
+              ),
+              label: context.l10n.channelType_community,
+              checked:
+                  viewState.channelsTypeFilter == ChannelTypeFilter.community,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelToggleUnreadAction(),
+              label: context.l10n.listFilter_unreadOnly,
+              checked: viewState.channelsShowUnreadOnly,
+              isToggle: true,
+            ),
+          ],
+        ),
       ],
-      onSelected: (sortOption) {
-        viewState.setChannelsSortOption(sortOption);
+      onSelected: (action) {
+        switch (action) {
+          case _ChannelSortAction(:final option):
+            viewState.setChannelsSortOption(option);
+          case _ChannelTypeFilterAction(:final filter):
+            viewState.setChannelsTypeFilter(filter);
+          case _ChannelToggleUnreadAction():
+            viewState.setChannelsShowUnreadOnly(
+              !viewState.channelsShowUnreadOnly,
+            );
+        }
       },
     );
   }
@@ -859,7 +926,26 @@ class _ChannelsScreenState extends State<ChannelsScreen>
     MeshCoreConnector connector,
     UiViewStateService viewState,
   ) {
+    bool matchesTypeFilter(Channel channel) {
+      final type = Channel.getChannelType(channel, _communityIndex);
+      return switch (viewState.channelsTypeFilter) {
+        ChannelTypeFilter.all => true,
+        ChannelTypeFilter.favorites => connector.isChannelFavorite(
+          channel.index,
+        ),
+        ChannelTypeFilter.public => type == ChannelType.public,
+        ChannelTypeFilter.hashtag => type == ChannelType.hashtag,
+        ChannelTypeFilter.private => type == ChannelType.private,
+        ChannelTypeFilter.community => Channel.isCommunityChannel(type),
+      };
+    }
+
     var filtered = channels.where((channel) {
+      if (!matchesTypeFilter(channel)) return false;
+      if (viewState.channelsShowUnreadOnly &&
+          connector.getUnreadCountForChannel(channel) == 0) {
+        return false;
+      }
       if (viewState.channelsSearchText.isEmpty) return true;
       final label = _normalizeChannelName(channel);
       return label.toLowerCase().contains(
@@ -2178,4 +2264,22 @@ class _ChannelsScreenState extends State<ChannelsScreen>
       ),
     );
   }
+}
+
+sealed class _ChannelsFilterAction {
+  const _ChannelsFilterAction();
+}
+
+class _ChannelSortAction extends _ChannelsFilterAction {
+  final ChannelSortOption option;
+  const _ChannelSortAction(this.option);
+}
+
+class _ChannelTypeFilterAction extends _ChannelsFilterAction {
+  final ChannelTypeFilter filter;
+  const _ChannelTypeFilterAction(this.filter);
+}
+
+class _ChannelToggleUnreadAction extends _ChannelsFilterAction {
+  const _ChannelToggleUnreadAction();
 }

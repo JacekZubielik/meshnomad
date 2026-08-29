@@ -19,11 +19,19 @@ class SortFilterMenuOption<T> {
   /// canonical row spec this establishes for ALL future dropdown menus.
   final IconData? icon;
 
+  /// On/off row (accepted variant U-A, 2026-08-29): rendered cut off from
+  /// the single-choice group above it by a [DottedSeparator], with an EMPTY
+  /// leading slot (text keeps the shared indent) and a mini switch on the
+  /// trailing side — a toggle must not wear the selector dot, which promises
+  /// "pick one of many" semantics this row doesn't have.
+  final bool isToggle;
+
   const SortFilterMenuOption({
     required this.value,
     required this.label,
     this.checked,
     this.icon,
+    this.isToggle = false,
   });
 }
 
@@ -112,6 +120,20 @@ class SortFilterMenu<T> extends StatelessWidget {
             ),
           );
           for (final option in section.options) {
+            if (option.isToggle) {
+              // Variant U-A: a toggle row is a different kind of control —
+              // cut it off from the single-choice rows above it.
+              entries.add(
+                PopupMenuItem<T>(
+                  enabled: false,
+                  height: 13,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: DottedSeparator(
+                    color: theme.colorScheme.outlineVariant,
+                  ),
+                ),
+              );
+            }
             entries.add(
               PopupMenuItem<T>(
                 value: option.value,
@@ -174,7 +196,44 @@ class _MenuOptionRow<T> extends StatelessWidget {
               ),
             ),
           ),
+          if (option.isToggle) _MiniToggle(on: selected),
         ],
+      ),
+    );
+  }
+}
+
+/// Trailing mini switch for toggle rows (variant U-A, 2026-08-29) — the
+/// real switchTheme grammar shrunk to row scale: tinted track (no outline)
+/// + solid primary thumb sliding right when on; the off state ghosts the
+/// whole pair to .30 like every other inactive indicator.
+class _MiniToggle extends StatelessWidget {
+  final bool on;
+
+  const _MiniToggle({required this.on});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Opacity(
+      opacity: on ? 1.0 : 0.30,
+      child: Container(
+        width: 34,
+        height: 20,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: scheme.primary.withValues(alpha: 0.2),
+        ),
+        alignment: on ? Alignment.centerRight : Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 3),
+        child: Container(
+          width: 14,
+          height: 14,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: scheme.primary,
+          ),
+        ),
       ),
     );
   }
@@ -198,7 +257,10 @@ class _MenuOptionLeading<T> extends StatelessWidget {
         child: Icon(option.icon, size: 18, color: scheme.primary),
       );
     }
-    if (option.checked == null) {
+    if (option.checked == null || option.isToggle) {
+      // Toggle rows keep the slot EMPTY (variant U-A) — the mini switch on
+      // the trailing side carries the state; the reserved width keeps the
+      // text at the shared indent.
       return const SizedBox(width: 20, height: 20);
     }
     // Selector dot — accepted variant B2 (2026-08-29); shared widget so the
@@ -301,6 +363,7 @@ class ContactsFilterMenu extends StatelessWidget {
               value: const _ToggleUnreadAction(),
               label: l10n.listFilter_unreadOnly,
               checked: showUnreadOnly,
+              isToggle: true,
             ),
           ],
         ),

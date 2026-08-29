@@ -40,7 +40,10 @@ void main() {
       await tester.tap(find.byIcon(Icons.filter_list_outlined));
       await tester.pumpAndSettle();
 
-      expect(find.byType(DottedSeparator), findsOneWidget);
+      // Two dotted rules: one between the Sort by / Filters groups, one
+      // cutting the "Unread only" toggle off the single-choice rows
+      // (variant U-A, 2026-08-29).
+      expect(find.byType(DottedSeparator), findsNWidgets(2));
       expect(find.byType(PopupMenuDivider), findsNothing);
       // Generic type param is a private class, so byType<CheckedPopupMenuItem<T>>
       // can't be spelled here — match on the runtime type name instead.
