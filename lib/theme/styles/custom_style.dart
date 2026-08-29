@@ -481,7 +481,20 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
               : BorderSide.none,
         ),
       ),
-      popupMenuTheme: base.popupMenuTheme.copyWith(shape: rrb(t.md)),
+      // Re-derive with a border, same as snackBarTheme above — plain
+      // rrb(t.md) never carries a side, so the popup menu (sort/filter
+      // dropdowns) silently never got an outline when the user disabled
+      // card shadow and expected the app-wide bordersVisible fallback to
+      // kick in everywhere else, like it does for Card/TextField/Chip/
+      // SnackBar (found on-device 2026-08-29).
+      popupMenuTheme: base.popupMenuTheme.copyWith(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(t.md),
+          side: t.bordersVisible
+              ? BorderSide(color: base.colorScheme.outlineVariant)
+              : BorderSide.none,
+        ),
+      ),
       dialogTheme: base.dialogTheme.copyWith(shape: rrb(t.lg)),
       bottomSheetTheme: base.bottomSheetTheme.copyWith(
         shape: RoundedRectangleBorder(

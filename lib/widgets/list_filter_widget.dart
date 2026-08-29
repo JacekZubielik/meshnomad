@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
+import '../theme/mesh_tokens.dart';
+import '../widgets/dotted_separator.dart';
 import '../utils/contact_search.dart';
 
 class SortFilterMenuOption<T> {
@@ -7,10 +9,20 @@ class SortFilterMenuOption<T> {
   final String label;
   final bool? checked;
 
+  /// Leading slot override (2026-08-29 button-family redesign): when set,
+  /// renders this icon (accent-colored, always full opacity — it signals
+  /// "what this option is", not "is it selected") instead of the selector
+  /// dot. Menus that aren't a single-choice group (no [checked]) can still
+  /// carry a plain accent icon here and keep the exact same row geometry as
+  /// every other dropdown — see [SortFilterMenu] doc comment for the
+  /// canonical row spec this establishes for ALL future dropdown menus.
+  final IconData? icon;
+
   const SortFilterMenuOption({
     required this.value,
     required this.label,
     this.checked,
+    this.icon,
   });
 }
 
@@ -21,6 +33,24 @@ class SortFilterMenuSection<T> {
   const SortFilterMenuSection({required this.title, required this.options});
 }
 
+/// Canonical dropdown-menu row spec (2026-08-29 button-family redesign) —
+/// established here for [SortFilterMenu] first, but the geometry below is
+/// the pattern EVERY future dropdown menu in the app should reuse, whether
+/// or not it happens to need the selector dot:
+/// - row: `EdgeInsets.symmetric(horizontal: 12, vertical: 7)`, corner
+///   radius `t.buttonRadius` (same slider as every other button-family
+///   member), fill `scheme.primary @ alpha 0.2` when selected/active, no
+///   fill otherwise — same button-family formula as [SelectableChipButton].
+/// - leading slot: fixed 20×20, always reserved (even when empty) so text
+///   starts at the same x offset in every row of every menu. Filled by
+///   EITHER the selector dot (single-choice groups, [SortFilterMenuOption.
+///   checked] set) OR a plain accent-colored icon ([SortFilterMenuOption.
+///   icon] set) — never both, and a menu can mix rows of each kind.
+/// - text: `bodyMedium` (13), `w600`+primary when selected, `w500`+
+///   onSurface otherwise.
+/// - section separator: [DottedSeparator] between groups, replacing the
+///   solid `PopupMenuDivider` — dash/gap geometry matches every other
+///   dotted rule in the app (contact/channel card footers).
 class SortFilterMenu<T> extends StatelessWidget {
   final List<SortFilterMenuSection<T>> sections;
   final ValueChanged<T> onSelected;
@@ -48,6 +78,19 @@ class SortFilterMenu<T> extends StatelessWidget {
             color: Theme.of(context).colorScheme.primary,
           ),
       tooltip: tooltip,
+      // Flutter's default position is PopupMenuPosition.over — the menu
+      // opens directly ON TOP of the trigger icon, covering the search bar
+      // that hosts it (2026-08-29 on-device feedback). `under` anchors it
+      // Offset(0, button.size.height) below the icon instead; the extra
+      // `offset` adds a small additional gap so it doesn't sit flush
+      // against the search bar's bottom edge.
+      position: PopupMenuPosition.under,
+      offset: Offset(0, MeshTokens.of(context).spacingXxs),
+      // Flutter's own default here is EdgeInsets.symmetric(vertical: 8) —
+      // independent of the row gutter (padding: 10 on each option's
+      // PopupMenuItem below), so the menu's top/bottom inset didn't match
+      // its left/right inset (2026-08-29 on-device feedback). Match both.
+      menuPadding: const EdgeInsets.symmetric(vertical: 10),
       onSelected: onSelected,
       itemBuilder: (context) {
         final theme = Theme.of(context);
@@ -68,29 +111,125 @@ class SortFilterMenu<T> extends StatelessWidget {
             ),
           );
           for (final option in section.options) {
-            if (option.checked == null) {
-              entries.add(
-                PopupMenuItem<T>(
-                  value: option.value,
-                  child: Text(option.label),
-                ),
-              );
-            } else {
-              entries.add(
-                CheckedPopupMenuItem<T>(
-                  value: option.value,
-                  checked: option.checked ?? false,
-                  child: Text(option.label),
-                ),
-              );
-            }
+            entries.add(
+              PopupMenuItem<T>(
+                value: option.value,
+                // Gutter between the menu's own rounded edge and the row's
+                // fill pill — was EdgeInsets.zero, which let the pill touch
+                // the popup card's edge directly (2026-08-29 on-device
+                // feedback: missing L/R padding vs the accepted mockup,
+                // where the row sat inside a `.row-pad` 10px inset before
+                // its own 12px content padding).
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                height: 38,
+                child: _MenuOptionRow(option: option),
+              ),
+            );
           }
           if (i < visibleSections.length - 1) {
-            entries.add(const PopupMenuDivider());
+            entries.add(
+              PopupMenuItem<T>(
+                enabled: false,
+                height: 13,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: DottedSeparator(color: theme.colorScheme.outlineVariant),
+              ),
+            );
           }
         }
         return entries;
       },
+    );
+  }
+}
+
+class _MenuOptionRow<T> extends StatelessWidget {
+  final SortFilterMenuOption<T> option;
+
+  const _MenuOptionRow({required this.option});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final selected = option.checked ?? false;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 1),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: selected ? scheme.primary.withValues(alpha: 0.2) : null,
+        borderRadius: BorderRadius.circular(t.buttonRadius),
+      ),
+      child: Row(
+        children: [
+          _MenuOptionLeading(option: option, selected: selected),
+          SizedBox(width: t.spacingXxs + 4),
+          Expanded(
+            child: Text(
+              option.label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: selected ? scheme.primary : scheme.onSurface,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Fixed 20×20 leading slot — selector dot, plain accent icon, or empty
+/// spacer, always reserved so option text aligns identically either way.
+class _MenuOptionLeading<T> extends StatelessWidget {
+  final SortFilterMenuOption<T> option;
+  final bool selected;
+
+  const _MenuOptionLeading({required this.option, required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    if (option.icon != null) {
+      return SizedBox(
+        width: 20,
+        height: 20,
+        child: Icon(option.icon, size: 18, color: scheme.primary),
+      );
+    }
+    if (option.checked == null) {
+      return const SizedBox(width: 20, height: 20);
+    }
+    // Selector dot — two-layer, modeled on switchTheme (mesh_theme.dart:
+    // 603-614): tinted track (no outline) + solid thumb, thumb grows on
+    // selection. Same accent everywhere; unselected = whole pair ghosted
+    // to opacity .30 (matches favorite-star/ContactBadgeRow elsewhere) —
+    // accepted variant B2, 2026-08-29.
+    return SizedBox(
+      width: 20,
+      height: 20,
+      child: Opacity(
+        opacity: selected ? 1.0 : 0.30,
+        child: Center(
+          child: Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: scheme.primary.withValues(alpha: 0.2),
+            ),
+            alignment: Alignment.center,
+            child: Container(
+              width: selected ? 12 : 8,
+              height: selected ? 12 : 8,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: scheme.primary,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
