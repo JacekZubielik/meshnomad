@@ -692,12 +692,25 @@ class _ChatScreenState extends State<ChatScreen> {
     String? translatedLanguageCode;
     String? translationModelId;
     if (settings.translationEnabled) {
-      final targetLanguageCode = translationService.resolvedTargetLanguageCode(
-        Localizations.localeOf(context).languageCode,
+      final rawContactLanguage = connector.getContactTranslationLanguage(
+        widget.contact.publicKeyHex,
       );
+      final contactLanguageCode =
+          (rawContactLanguage != null && rawContactLanguage.trim().isNotEmpty)
+          ? rawContactLanguage.trim()
+          : null;
+      final contactTranslateBeforeSending = connector
+          .isContactTranslateBeforeSending(widget.contact.publicKeyHex);
+      // Per-conversation override (2026-08-29) — falls back to the app-wide chain.
+      final targetLanguageCode =
+          contactLanguageCode ??
+          translationService.resolvedTargetLanguageCode(
+            Localizations.localeOf(context).languageCode,
+          );
       if (translationService.shouldTranslateOutgoing(
         text: text,
         targetLanguageCode: targetLanguageCode,
+        additionalOptIn: contactTranslateBeforeSending,
       )) {
         final result = await translationService.translateOutgoingText(
           text: text,

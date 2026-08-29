@@ -1329,9 +1329,17 @@ class MeshCoreConnector extends ChangeNotifier {
                 ))) {
         return null;
       }
-      final targetLanguageCode = service.resolvedIncomingLanguageCode(
-        _appSettingsService?.settings.languageOverride,
-      );
+      final rawContactLanguage = getContactTranslationLanguage(contactKeyHex);
+      final contactLanguageCode =
+          (rawContactLanguage != null && rawContactLanguage.trim().isNotEmpty)
+          ? rawContactLanguage.trim()
+          : null;
+      // Per-conversation override (2026-08-29) — falls back to the app-wide chain.
+      final targetLanguageCode =
+          contactLanguageCode ??
+          service.resolvedIncomingLanguageCode(
+            _appSettingsService?.settings.languageOverride,
+          );
       final result = await service.translateIncomingText(
         text: message.text,
         targetLanguageCode: targetLanguageCode,
@@ -1385,9 +1393,17 @@ class MeshCoreConnector extends ChangeNotifier {
                 ))) {
         return null;
       }
-      final targetLanguageCode = service.resolvedIncomingLanguageCode(
-        _appSettingsService?.settings.languageOverride,
-      );
+      final rawChannelLanguage = getChannelTranslationLanguage(channelIndex);
+      final channelLanguageCode =
+          (rawChannelLanguage != null && rawChannelLanguage.trim().isNotEmpty)
+          ? rawChannelLanguage.trim()
+          : null;
+      // Per-conversation override (2026-08-29) — falls back to the app-wide chain.
+      final targetLanguageCode =
+          channelLanguageCode ??
+          service.resolvedIncomingLanguageCode(
+            _appSettingsService?.settings.languageOverride,
+          );
       final result = await service.translateIncomingText(
         text: message.text,
         targetLanguageCode: targetLanguageCode,
@@ -7319,6 +7335,14 @@ class MeshCoreConnector extends ChangeNotifier {
   @visibleForTesting
   set debugAppDebugLogService(AppDebugLogService? service) =>
       _appDebugLogService = service;
+
+  @visibleForTesting
+  set debugTranslationService(TranslationService? service) =>
+      _translationService = service;
+
+  @visibleForTesting
+  set debugAppSettingsService(AppSettingsService? service) =>
+      _appSettingsService = service;
 
   @visibleForTesting
   Map<String, List<Message>> get debugConversations => _conversations;
