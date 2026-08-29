@@ -4,14 +4,18 @@ import 'package:flutter/material.dart';
 /// Features a tinted icon circle, fade+slide entrance animation, and clear
 /// typography hierarchy using the MeshCore design system.
 class EmptyState extends StatefulWidget {
-  final IconData icon;
+  final IconData? icon;
   final String title;
   final String? subtitle;
   final Widget? action;
 
+  /// [icon] is nullable (2026-08-29) for screens that already render their
+  /// own persistent background icon (e.g. companion-connect's
+  /// `ScreenWatermarkIcon`) — passing null skips the tinted icon circle so
+  /// the two don't visually duplicate.
   const EmptyState({
     super.key,
-    required this.icon,
+    this.icon,
     required this.title,
     this.subtitle,
     this.action,
@@ -61,24 +65,26 @@ class _EmptyStateState extends State<EmptyState>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: scheme.primary.withValues(alpha: 0.08),
-                    border: Border.all(
-                      color: scheme.primary.withValues(alpha: 0.18),
-                      width: 1.5,
+                if (widget.icon != null) ...[
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: scheme.primary.withValues(alpha: 0.08),
+                      border: Border.all(
+                        color: scheme.primary.withValues(alpha: 0.18),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Icon(
+                      widget.icon,
+                      size: 36,
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
-                  child: Icon(
-                    widget.icon,
-                    size: 36,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
+                ],
                 Text(
                   widget.title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(

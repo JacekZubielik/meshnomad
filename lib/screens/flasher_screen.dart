@@ -513,6 +513,17 @@ class _FlasherScreenState extends State<FlasherScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        // Explicit leading (2026-08-29, matching the companion-connect
+        // screens' fix) — the default auto-back-button reads
+        // appBarTheme.iconTheme (onSurface, neutral), mismatched against
+        // the trailing MeshCircleIconButton's accent color.
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         title: Text(l10n.hubFlasherTile),
         actions: const [_FlasherMenuButton()],
       ),
@@ -1040,13 +1051,25 @@ class _FlasherMenuButton extends StatelessWidget {
         ...quickAccessMenuItems(context),
       ],
       // Deliberate, user-confirmed exception to the flat AppBarMenuIcon
-      // pattern used elsewhere in the app.
-      child: const MeshCircleIconButton(
-        icon: Icons.more_vert,
-        onPressed: null,
-        decorative: true,
-        size: 32,
-        iconSize: 16,
+      // pattern used elsewhere in the app. Wrapped in the same 48x48 box
+      // as the leading back-button's IconButton (2026-08-29 padding-
+      // symmetry fix, matching app_bar.dart's CircleQuickAccessMenuButton)
+      // — the 32px circle itself is unchanged, but without this box its
+      // fully-painted edge sat visibly closer to the screen edge than the
+      // back arrow's mostly-invisible 48px tap target at the same
+      // actionsPadding.
+      child: const SizedBox(
+        width: 48,
+        height: 48,
+        child: Center(
+          child: MeshCircleIconButton(
+            icon: Icons.more_vert,
+            onPressed: null,
+            decorative: true,
+            size: 32,
+            iconSize: 16,
+          ),
+        ),
       ),
     );
   }

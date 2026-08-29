@@ -54,7 +54,7 @@
       }
     }
   },
-  "scanner_title": "MeshNomad – wersja open source",
+  "bleScreenTitle": "Połącz przez BLE",
   "scanner_scanning": "Skanowanie urządzeń...",
   "scanner_connecting": "Łączenie...",
   "scanner_disconnecting": "Odłączanie...",
@@ -2101,7 +2101,7 @@
   "usbScreenSubtitle": "Wybierz wykryte urządzenie szeregowe i połącz się bezpośrednio ze swoim węzłem MeshCore.",
   "usbScreenTitle": "Połącz przez USB",
   "connectionChoiceUsbLabel": "USB",
-  "connectionChoiceBluetoothLabel": "Bluetooth",
+  "connectionChoiceBluetoothLabel": "BLE",
   "usbScreenStatus": "Wybierz urządzenie USB",
   "usbScreenNote": "Port szeregowy USB jest aktywny na urządzeniach z systemem Android i platformach stacjonarnych, które go obsługują.",
   "usbScreenEmptyState": "Nie znaleziono żadnych urządzeń USB. Podłącz jedno i zaktualizuj.",

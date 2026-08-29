@@ -136,13 +136,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get common_interval => 'Interwał';
 
   @override
-  String get scanner_title => 'MeshNomad – wersja open source';
+  String get bleScreenTitle => 'Połącz przez BLE';
 
   @override
   String get connectionChoiceUsbLabel => 'USB';
 
   @override
-  String get connectionChoiceBluetoothLabel => 'Bluetooth';
+  String get connectionChoiceBluetoothLabel => 'BLE';
 
   @override
   String get connectionChoiceTcpLabel => 'TCP';

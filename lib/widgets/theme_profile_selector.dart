@@ -97,6 +97,8 @@ class SelectableChipButton extends StatelessWidget {
 
   /// Icon-only variant (QuickSwitchBar, 2026-08-29): renders [icon] instead
   /// of a text label — same fill/radius/border chain as the text chips.
+  /// When both [icon] and [label] are given (TransportSwitcher, 2026-08-29),
+  /// renders icon + gap + label in a row instead of either alone.
   final Widget? icon;
 
   /// Overrides the default `EdgeInsets.symmetric(horizontal: spacingMd,
@@ -132,7 +134,23 @@ class SelectableChipButton extends StatelessWidget {
       ),
       textStyle: WidgetStatePropertyAll(buttonTextStyle),
     );
-    final child = icon ?? Text(label!);
+    final child = icon != null && label != null
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              icon!,
+              SizedBox(width: t.spacingXxs),
+              Flexible(
+                child: Text(
+                  label!,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          )
+        : icon ?? Text(label!);
     return selected
         ? FilledButton(onPressed: onTap, style: style, child: child)
         : OutlinedButton(onPressed: onTap, style: style, child: child);

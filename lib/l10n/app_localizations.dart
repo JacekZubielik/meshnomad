@@ -344,11 +344,11 @@ abstract class AppLocalizations {
   /// **'Interval'**
   String get common_interval;
 
-  /// No description provided for @scanner_title.
+  /// No description provided for @bleScreenTitle.
   ///
   /// In en, this message translates to:
-  /// **'MeshNomad'**
-  String get scanner_title;
+  /// **'Connect over BLE'**
+  String get bleScreenTitle;
 
   /// No description provided for @connectionChoiceUsbLabel.
   ///
@@ -359,7 +359,7 @@ abstract class AppLocalizations {
   /// No description provided for @connectionChoiceBluetoothLabel.
   ///
   /// In en, this message translates to:
-  /// **'Bluetooth'**
+  /// **'BLE'**
   String get connectionChoiceBluetoothLabel;
 
   /// No description provided for @connectionChoiceTcpLabel.
