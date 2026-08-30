@@ -3958,6 +3958,69 @@ class LabelPlacement {
   final int offsetIndex;
 }
 
+/// Greedy priority-sorted label placement (2026-08-31 design doc,
+/// "Rekomendowane podejście" section). Sorts [candidates] by descending
+/// priority (ties broken alphabetically by [LabelCandidate.nodeId] for
+/// determinism), then for each one in order: if it has a
+/// [LabelCandidate.preferredOffsetIndex] that is still collision-free
+/// against every already-accepted rect, keep it there; otherwise try
+/// [labelCollisionOffsets] in order and accept the first collision-free
+/// one. A candidate with no collision-free offset gets `offsetIndex: -1`
+/// (hidden) instead of forcing an overlap.
+///
+/// Pure function: no widgets, no BuildContext, no map/camera access — every
+/// input is already in screen-space pixels. See
+/// `test/screens/map_label_collision_test.dart` for the full contract.
+List<LabelPlacement> resolveLabelCollisions(List<LabelCandidate> candidates) {
+  final sorted = [...candidates]
+    ..sort((a, b) {
+      final byPriority = b.priority.compareTo(a.priority);
+      if (byPriority != 0) return byPriority;
+      return a.nodeId.compareTo(b.nodeId);
+    });
+
+  final accepted = <Rect>[];
+
+  Rect rectForOffset(LabelCandidate candidate, int offsetIndex) {
+    final delta = labelCollisionOffsets[offsetIndex] - labelCollisionOffsets[0];
+    return candidate.screenRect.shift(delta);
+  }
+
+  bool collidesWithAccepted(Rect rect) =>
+      accepted.any((existing) => existing.overlaps(rect));
+
+  final placements = <LabelPlacement>[];
+  for (final candidate in sorted) {
+    var chosenIndex = -1;
+
+    final preferred = candidate.preferredOffsetIndex;
+    if (preferred != null) {
+      final preferredRect = rectForOffset(candidate, preferred);
+      if (!collidesWithAccepted(preferredRect)) {
+        chosenIndex = preferred;
+        accepted.add(preferredRect);
+      }
+    }
+
+    if (chosenIndex == -1) {
+      for (var i = 0; i < labelCollisionOffsets.length; i++) {
+        final rect = rectForOffset(candidate, i);
+        if (!collidesWithAccepted(rect)) {
+          chosenIndex = i;
+          accepted.add(rect);
+          break;
+        }
+      }
+    }
+
+    placements.add(
+      LabelPlacement(nodeId: candidate.nodeId, offsetIndex: chosenIndex),
+    );
+  }
+
+  return placements;
+}
+
 enum _NodeAge { online, recent, stale }
 
 enum _Freshness { all, online, recent, stale }
