@@ -101,21 +101,49 @@ void main() {
     expect(boxedIn.offsetIndex, -1);
   });
 
-  test('stability: a preferred offset that is still collision-free is kept '
-      'instead of re-deciding from the candidate list', () {
+  test('a stale non-default preferred offset is abandoned once the default '
+      'position is genuinely free again', () {
+    // Regression test for a bug found during device testing (2026-08-31):
+    // a label pushed aside by a neighbor at one zoom level stayed pushed
+    // aside forever, even after zooming to where the neighbor no longer
+    // crowded it — because the old solver kept a preferred offset simply
+    // for being collision-free, never re-checking whether it was still
+    // needed. Nothing else is present here, so the default (index 0)
+    // position is trivially free and must win over the stale preference.
     final point = const Offset(400, 400);
-    // 'moved' previously landed on offset 2; nothing else occupies offset
-    // 2's rect, so the solver must keep it there rather than resetting it
-    // to offset 0 just because offset 0 happens to also be free now.
     final placements = resolveLabelCollisions([
       LabelCandidate(
-        nodeId: 'moved',
+        nodeId: 'unstuck',
         priority: 0,
         screenRect: _rectAt(point),
         preferredOffsetIndex: 2,
       ),
     ]);
 
-    expect(placements.single.offsetIndex, 2);
+    expect(placements.single.offsetIndex, 0);
+  });
+
+  test('stability: a preferred offset is kept when the default position is '
+      'genuinely still blocked by another candidate', () {
+    // 'blocker' occupies the exact screen rect that would otherwise be
+    // 'moved'\'s own default (index 0) position, so 'moved' can't return
+    // to it — but its previously-chosen offset 2 is still clear, so the
+    // solver must keep it there instead of re-scanning from offset 1.
+    final moved = LabelCandidate(
+      nodeId: 'moved',
+      priority: 0,
+      screenRect: _rectAt(const Offset(400, 400)),
+      preferredOffsetIndex: 2,
+    );
+    final blocker = LabelCandidate(
+      nodeId: 'blocker',
+      priority: 10,
+      screenRect: _rectAt(const Offset(420, 400)),
+    );
+
+    final placements = resolveLabelCollisions([blocker, moved]);
+
+    final movedPlacement = placements.firstWhere((p) => p.nodeId == 'moved');
+    expect(movedPlacement.offsetIndex, 2);
   });
 }

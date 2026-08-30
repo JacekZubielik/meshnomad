@@ -101,6 +101,17 @@ class _MapScreenState extends State<MapScreen> {
   _NodeMarkersCacheKey? _nodeMarkersCacheKey;
   List<Marker> _cachedNodeMarkers = const [];
 
+  /// Per-node last-chosen label offset index, keyed by `contact.publicKeyHex`
+  /// — read as `LabelCandidate.preferredOffsetIndex` and written back after
+  /// every `resolveLabelCollisions` call. Only takes effect when the default
+  /// (index 0) position is still genuinely occupied by something else, so a
+  /// label that was pushed aside snaps back to its default spot as soon as
+  /// nothing crowds it there anymore (fixed 2026-08-31 after device testing
+  /// showed a label staying displaced across zoom levels even once its
+  /// original neighbor was no longer nearby on screen). Intentionally never
+  /// cleared — see Global Constraints in this plan.
+  final Map<String, int> _lastOffsetForNode = {};
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -942,6 +953,7 @@ class _MapScreenState extends State<MapScreen> {
                               connector.selfLongitude!,
                             ),
                             label: context.l10n.pathTrace_you,
+                            labelOffset: labelCollisionOffsets[0],
                           ),
                       ],
                     ),
@@ -1314,6 +1326,7 @@ class _MapScreenState extends State<MapScreen> {
           _buildNodeLabelMarker(
             point: guess.position,
             label: guess.contact.name,
+            labelOffset: labelCollisionOffsets[0],
           ),
         );
       }
@@ -1361,6 +1374,21 @@ class _MapScreenState extends State<MapScreen> {
       }
     }
     return filtered;
+  }
+
+  /// Label placement priority (2026-08-31 design doc, "Priorytet i
+  /// fallback" section): higher sorts first in [resolveLabelCollisions].
+  /// Selected node always wins; then recently-active (heard in the last 5
+  /// minutes); then repeaters/favorites; everyone else ties at 0 and falls
+  /// through to [resolveLabelCollisions]'s alphabetical tiebreak.
+  int _labelPriority(Contact contact, {required bool isSelected}) {
+    if (isSelected) return 3;
+    if (DateTime.now().difference(contact.lastSeen) <=
+        const Duration(minutes: 5)) {
+      return 2;
+    }
+    if (contact.type == advTypeRepeater || contact.isFavorite) return 1;
+    return 0;
   }
 
   List<Marker> _buildNodeMarkers(
@@ -1412,18 +1440,20 @@ class _MapScreenState extends State<MapScreen> {
           ),
         );
 
+    // Pass 1: pins are built immediately (unaffected by label collisions);
+    // label-eligible contacts are collected here instead, so their screen
+    // rects can all be resolved together in one resolveLabelCollisions call
+    // after this loop (2026-08-31, map label collision avoidance).
+    final pendingLabels = <(Contact, String, bool)>[];
+
     void addNode(Contact contact, {bool dot = false}) {
       final overlap = isOverlap(contact);
       markers.add(_nodeMarker(contact, overlapsMode: overlap, dot: dot));
       if (showLabels) {
-        markers.add(
-          _buildNodeLabelMarker(
-            point: LatLng(contact.latitude!, contact.longitude!),
-            label: overlap
-                ? "${contact.publicKeyHex.substring(0, 2)}:${contact.name}"
-                : contact.name,
-          ),
-        );
+        final label = overlap
+            ? "${contact.publicKeyHex.substring(0, 2)}:${contact.name}"
+            : contact.name;
+        pendingLabels.add((contact, label, false));
       }
     }
 
@@ -1460,12 +1490,69 @@ class _MapScreenState extends State<MapScreen> {
           selected: true,
         ),
       );
-      markers.add(
-        _buildNodeLabelMarker(
-          point: LatLng(selectedContact.latitude!, selectedContact.longitude!),
-          label: selectedContact.name,
-        ),
-      );
+      if (showLabels) {
+        pendingLabels.add((selectedContact, selectedContact.name, true));
+      }
+    }
+
+    // Pass 2: resolve collisions across every pending label together, then
+    // build only the placed (non-hidden) label markers.
+    if (pendingLabels.isNotEmpty) {
+      final t = MeshTokens.of(context);
+      final labelStyle = MeshTokens.of(
+        context,
+      ).monoBody(fontWeight: FontWeight.w700, color: _overlayPrimaryTextColor);
+      final horizontalPadding = t.spacingXxs + 2;
+      final textScaler = MediaQuery.textScalerOf(context);
+      final camera = _mapController.camera;
+
+      final candidates = <LabelCandidate>[];
+      for (final (contact, label, isSelected) in pendingLabels) {
+        final anchor = camera.latLngToScreenOffset(
+          LatLng(contact.latitude!, contact.longitude!),
+        );
+        final width = nodeLabelBubbleWidth(
+          label,
+          labelStyle,
+          horizontalPadding: horizontalPadding * 2,
+          textScaler: textScaler,
+        );
+        const height = 24.0;
+        final defaultOffset = labelCollisionOffsets[0];
+        final rect = Rect.fromLTWH(
+          anchor.dx - width / 2 + defaultOffset.dx,
+          anchor.dy + defaultOffset.dy,
+          width,
+          height,
+        );
+        candidates.add(
+          LabelCandidate(
+            nodeId: contact.publicKeyHex,
+            priority: _labelPriority(contact, isSelected: isSelected),
+            screenRect: rect,
+            preferredOffsetIndex: _lastOffsetForNode[contact.publicKeyHex],
+          ),
+        );
+      }
+
+      final placements = resolveLabelCollisions(candidates);
+      final placementByNodeId = {for (final p in placements) p.nodeId: p};
+
+      for (final (contact, label, _) in pendingLabels) {
+        final placement = placementByNodeId[contact.publicKeyHex]!;
+        if (placement.offsetIndex == -1) {
+          _lastOffsetForNode.remove(contact.publicKeyHex);
+          continue;
+        }
+        _lastOffsetForNode[contact.publicKeyHex] = placement.offsetIndex;
+        markers.add(
+          _buildNodeLabelMarker(
+            point: LatLng(contact.latitude!, contact.longitude!),
+            label: label,
+            labelOffset: labelCollisionOffsets[placement.offsetIndex],
+          ),
+        );
+      }
     }
 
     return markers;
@@ -1632,7 +1719,11 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Marker _buildNodeLabelMarker({required LatLng point, required String label}) {
+  Marker _buildNodeLabelMarker({
+    required LatLng point,
+    required String label,
+    required Offset labelOffset,
+  }) {
     final t = MeshTokens.of(context);
     final labelStyle = MeshTokens.of(
       context,
@@ -1668,7 +1759,7 @@ class _MapScreenState extends State<MapScreen> {
       alignment: Alignment.topCenter,
       child: IgnorePointer(
         child: Transform.translate(
-          offset: const Offset(0, -20),
+          offset: labelOffset,
           // No FittedBox (06-map-bugs.md): it scaled the whole card to fill
           // a fixed box, so short names rendered LARGER than long ones
           // despite sharing the same monoBody role. A fixed font size +
@@ -3937,11 +4028,16 @@ class LabelCandidate {
   /// The label bubble's rect at offset index 0.
   final Rect screenRect;
 
-  /// If set and that offset is still collision-free, [resolveLabelCollisions]
-  /// keeps the node at this offset instead of re-running the candidate list
+  /// If the default (index 0) position is genuinely occupied by something
+  /// else and this offset is still collision-free, [resolveLabelCollisions]
+  /// keeps the node at this offset instead of scanning the candidate list
   /// from scratch — this is what prevents labels from jumping between
   /// positions on every frame during a pan/zoom (2026-08-31 design doc,
-  /// "Stabilność" section).
+  /// "Stabilność" section). The default position always wins first when it
+  /// is free, so a label snaps back to it as soon as nothing crowds it
+  /// there anymore, instead of staying displaced forever (fixed 2026-08-31
+  /// after device testing showed a label staying pushed aside across zoom
+  /// levels even once the neighbor that caused it was no longer nearby).
   final int? preferredOffsetIndex;
 }
 
@@ -3961,12 +4057,13 @@ class LabelPlacement {
 /// Greedy priority-sorted label placement (2026-08-31 design doc,
 /// "Rekomendowane podejście" section). Sorts [candidates] by descending
 /// priority (ties broken alphabetically by [LabelCandidate.nodeId] for
-/// determinism), then for each one in order: if it has a
-/// [LabelCandidate.preferredOffsetIndex] that is still collision-free
-/// against every already-accepted rect, keep it there; otherwise try
-/// [labelCollisionOffsets] in order and accept the first collision-free
-/// one. A candidate with no collision-free offset gets `offsetIndex: -1`
-/// (hidden) instead of forcing an overlap.
+/// determinism), then for each one in order: the default (index 0) position
+/// always wins first if it's collision-free; only when it's genuinely
+/// occupied does a still-free [LabelCandidate.preferredOffsetIndex] get
+/// honored (stability without getting stuck — see that field's doc);
+/// otherwise scan the remaining [labelCollisionOffsets] in order and accept
+/// the first collision-free one. A candidate with no collision-free offset
+/// gets `offsetIndex: -1` (hidden) instead of forcing an overlap.
 ///
 /// Pure function: no widgets, no BuildContext, no map/camera access — every
 /// input is already in screen-space pixels. See
@@ -3993,22 +4090,28 @@ List<LabelPlacement> resolveLabelCollisions(List<LabelCandidate> candidates) {
   for (final candidate in sorted) {
     var chosenIndex = -1;
 
-    final preferred = candidate.preferredOffsetIndex;
-    if (preferred != null) {
-      final preferredRect = rectForOffset(candidate, preferred);
-      if (!collidesWithAccepted(preferredRect)) {
-        chosenIndex = preferred;
-        accepted.add(preferredRect);
+    final defaultRect = rectForOffset(candidate, 0);
+    if (!collidesWithAccepted(defaultRect)) {
+      chosenIndex = 0;
+      accepted.add(defaultRect);
+    } else {
+      final preferred = candidate.preferredOffsetIndex;
+      if (preferred != null && preferred != 0) {
+        final preferredRect = rectForOffset(candidate, preferred);
+        if (!collidesWithAccepted(preferredRect)) {
+          chosenIndex = preferred;
+          accepted.add(preferredRect);
+        }
       }
-    }
 
-    if (chosenIndex == -1) {
-      for (var i = 0; i < labelCollisionOffsets.length; i++) {
-        final rect = rectForOffset(candidate, i);
-        if (!collidesWithAccepted(rect)) {
-          chosenIndex = i;
-          accepted.add(rect);
-          break;
+      if (chosenIndex == -1) {
+        for (var i = 1; i < labelCollisionOffsets.length; i++) {
+          final rect = rectForOffset(candidate, i);
+          if (!collidesWithAccepted(rect)) {
+            chosenIndex = i;
+            accepted.add(rect);
+            break;
+          }
         }
       }
     }
