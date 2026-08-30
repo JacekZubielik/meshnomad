@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108">
+  <!-- Adaptive foreground: mark fitted into the 66/108 safe zone (circle diameter 66),
+       transparent background — color comes from adaptive_icon_background (#3F6212).
+       The same geometry doubles as the monochrome layer (Android 13 themed icons): only alpha matters. -->
+  <mask id="m">
+    <circle cx="54" cy="54" r="33" fill="#fff"/>
+    <path fill="#000" transform="translate(54 54) scale(.495) translate(-48 -48)"
+      d="M16 74 V22 H33 L48 43 L63 22 H80 V74 H66 V44 L48 68 L30 44 V74 Z"/>
+  </mask>
+  <rect width="108" height="108" fill="#FFFFFF" mask="url(#m)"/>
+</svg>
