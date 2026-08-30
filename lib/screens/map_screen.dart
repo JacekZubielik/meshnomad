@@ -25,6 +25,7 @@ import '../utils/contact_search.dart';
 import '../utils/battery_utils.dart';
 import '../utils/route_transitions.dart';
 import '../widgets/quick_switch_bar.dart';
+import '../widgets/dotted_separator.dart';
 import '../icons/los_icon.dart';
 import 'channels_screen.dart';
 import 'chat_screen.dart';
@@ -116,8 +117,21 @@ class _MapScreenState extends State<MapScreen> {
   // active style's scheme in BOTH brightnesses — user decision 2026-08-10;
   // previously dark mode read the fixed mapPanel*/mapText* palette, so a
   // custom background never reached these panels.
+  //
+  // Elevated-vs-bordered follows the app-wide Custom Style "Card shadow"
+  // toggle (MeshTokens.cardElevated), same rule as MeshCard
+  // (mesh_ui.dart:90-97): shadow on -> no border, fill bumped one surface
+  // level up; shadow off -> outlineVariant border, no shadow, lower fill.
+  // The map's overlay panels (control rail, stats card/pill) previously
+  // always drew a border AND a shadow regardless of this setting (2026-08-30
+  // feedback) — every panel below reads _overlayElevated instead.
+  bool get _overlayElevated => MeshTokens.of(context).cardElevated;
+
   Color get _overlayPanelColor =>
-      _overlayScheme.surfaceContainerLow.withValues(alpha: 0.96);
+      (_overlayElevated
+              ? _overlayScheme.surfaceContainerHigh
+              : _overlayScheme.surfaceContainerLow)
+          .withValues(alpha: 0.96);
 
   Color get _overlayPrimaryTextColor => _overlayScheme.onSurface;
 
@@ -129,6 +143,26 @@ class _MapScreenState extends State<MapScreen> {
 
   Color get _overlayShadowColor =>
       Colors.black.withValues(alpha: _useDarkOverlay ? 0.55 : 0.18);
+
+  Border? get _overlayCardBorder =>
+      _overlayElevated ? null : Border.all(color: _overlayBorderColor);
+
+  BorderSide get _overlayCardBorderSide => _overlayElevated
+      ? BorderSide.none
+      : BorderSide(color: _overlayBorderColor);
+
+  List<BoxShadow> _overlayCardShadow({
+    double blurRadius = 8,
+    Offset offset = const Offset(0, 3),
+  }) => _overlayElevated
+      ? [
+          BoxShadow(
+            color: _overlayShadowColor,
+            blurRadius: blurRadius,
+            offset: offset,
+          ),
+        ]
+      : const [];
 
   _NodeAge _ageOf(Contact contact) {
     final d = DateTime.now().difference(contact.lastSeen);
@@ -258,14 +292,8 @@ class _MapScreenState extends State<MapScreen> {
         decoration: BoxDecoration(
           color: _overlayPanelColor,
           borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
-          border: Border.all(color: _overlayBorderColor),
-          boxShadow: [
-            BoxShadow(
-              color: _overlayShadowColor,
-              blurRadius: 8,
-              offset: Offset(0, 3),
-            ),
-          ],
+          border: _overlayCardBorder,
+          boxShadow: _overlayCardShadow(),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
@@ -1851,37 +1879,40 @@ class _MapScreenState extends State<MapScreen> {
     final hasQuery = _searchQuery.trim().isNotEmpty;
     final t = MeshTokens.of(context);
     return Positioned(
-      top: 8,
-      left: 12,
-      right: 12,
+      // Matches the Contacts/Channels search bar's inset exactly
+      // (Padding(EdgeInsets.all(t.spacingXs)) — contacts_screen.dart:806)
+      // instead of the previous hardcoded 8/12 that put this overlay a few
+      // px off from the same field on those screens (2026-08-30 feedback).
+      top: t.spacingXs,
+      left: t.spacingXs,
+      right: t.spacingXs,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Material(
-                  color: _overlayPanelColor,
-                  shape: StadiumBorder(
-                    side: BorderSide(color: _overlayBorderColor),
-                  ),
-                  clipBehavior: Clip.antiAlias,
+          // IntrinsicHeight + stretch (2026-08-30 feedback: the hub-count
+          // pill's height didn't match the search field's) forces both
+          // children to the taller one's intrinsic height instead of each
+          // sizing independently off their own padding.
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Plain TextField inheriting the app-wide InputDecorationTheme
+                // (mesh_theme.dart:472-492) — matches the Contacts/Channels
+                // search bar exactly (contacts_screen.dart:811-833) instead of
+                // the previous hand-built pill (StadiumBorder, custom
+                // _overlay* colors, 96%-alpha translucent fill).
+                Expanded(
                   child: TextField(
                     controller: _searchController,
                     focusNode: _searchFocus,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     decoration: InputDecoration(
                       hintText: context.l10n.map_searchHint,
-                      hintStyle: TextStyle(color: _overlaySecondaryTextColor),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        size: 20,
-                        color: _overlayPrimaryTextColor,
-                      ),
+                      prefixIcon: const Icon(Icons.search),
                       suffixIcon: hasQuery
                           ? IconButton(
-                              color: _overlayPrimaryTextColor,
-                              icon: const Icon(Icons.close, size: 18),
+                              icon: const Icon(Icons.clear),
                               onPressed: () {
                                 setState(() {
                                   _searchQuery = '';
@@ -1890,129 +1921,75 @@ class _MapScreenState extends State<MapScreen> {
                               },
                             )
                           : null,
-                      filled: false,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      isDense: true,
                       contentPadding: EdgeInsets.symmetric(
-                        horizontal: t.spacingXxs,
+                        horizontal: t.spacingMd,
                         vertical: t.spacingSm,
                       ),
                     ),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: _overlayPrimaryTextColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    cursorColor: MeshTokens.of(context).mapSelected,
                     onChanged: (value) {
                       setState(() => _searchQuery = value);
                     },
                   ),
                 ),
-              ),
-              SizedBox(width: t.spacingXs),
-              Material(
-                color: _overlayPanelColor,
-                shape: StadiumBorder(
-                  side: BorderSide(color: _overlayBorderColor),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: () => setState(() => _statsExpanded = !_statsExpanded),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: t.spacingSm,
-                      vertical: t.spacingSm,
+                SizedBox(width: t.spacingXs),
+                Material(
+                  color: _overlayPanelColor,
+                  // Rounded-rect (MeshRadii.md), matching the search field's
+                  // own shape (OutlineInputBorder, mesh_theme.dart:480-483) —
+                  // was a StadiumBorder, which read as a mismatched shape
+                  // family next to both the search field and the app's
+                  // buttons (2026-08-30 feedback). Widened (spacingMd instead
+                  // of spacingSm) at the same time, per the same feedback.
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      MeshTokens.of(context).md,
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.hub,
-                          size: 15,
-                          color: MeshTokens.of(context).mapSelected,
-                        ),
-                        SizedBox(width: t.spacingXs),
-                        Text(
-                          '$visibleCount',
-                          style: MeshTokens.of(context).monoBody(
-                            fontWeight: FontWeight.w700,
-                            color: _overlayPrimaryTextColor,
+                    side: _overlayCardBorderSide,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () =>
+                        setState(() => _statsExpanded = !_statsExpanded),
+                    child: Padding(
+                      // Widened further (2026-08-30 feedback: still too
+                      // narrow) — spacingMd + spacingXs instead of spacingMd.
+                      padding: EdgeInsets.symmetric(
+                        horizontal: t.spacingMd + t.spacingXs,
+                        vertical: t.spacingSm,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.hub,
+                            size: 15,
+                            color: MeshTokens.of(context).mapSelected,
                           ),
-                        ),
-                        const SizedBox(width: 2),
-                        AnimatedRotation(
-                          turns: _statsExpanded ? 0.5 : 0,
-                          duration: const Duration(milliseconds: 200),
-                          child: Icon(
-                            Icons.expand_more,
-                            size: 16,
-                            color: _overlayPrimaryTextColor,
+                          SizedBox(width: t.spacingXs),
+                          Text(
+                            '$visibleCount',
+                            style: MeshTokens.of(context).monoBody(
+                              fontWeight: FontWeight.w700,
+                              color: _overlayPrimaryTextColor,
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 2),
+                          AnimatedRotation(
+                            turns: _statsExpanded ? 0.5 : 0,
+                            duration: const Duration(milliseconds: 200),
+                            child: Icon(
+                              Icons.expand_more,
+                              size: 16,
+                              color: _overlayPrimaryTextColor,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: t.spacingXs),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final chips = <Widget>[
-                _mapChip(
-                  label: context.l10n.time_allTime,
-                  selected: _freshness == _Freshness.all,
-                  onTap: () => setState(() => _freshness = _Freshness.all),
-                ),
-                _mapChip(
-                  label: context.l10n.map_online,
-                  selected: _freshness == _Freshness.online,
-                  color: MeshTokens.of(context).mapOnline,
-                  onTap: () => setState(() => _freshness = _Freshness.online),
-                ),
-                _mapChip(
-                  label: context.l10n.map_recent,
-                  selected: _freshness == _Freshness.recent,
-                  color: MeshTokens.of(context).mapStale,
-                  onTap: () => setState(() => _freshness = _Freshness.recent),
-                ),
-                _mapChip(
-                  label: context.l10n.map_stale,
-                  selected: _freshness == _Freshness.stale,
-                  color: MeshTokens.of(context).mapOffline,
-                  onTap: () => setState(() => _freshness = _Freshness.stale),
-                ),
-                _mapChip(
-                  label: context.l10n.map_repeaters,
-                  selected: settings.mapShowRepeaters,
-                  color: MeshTokens.of(context).warn,
-                  onTap: () => settingsService.setMapShowRepeaters(
-                    !settings.mapShowRepeaters,
-                  ),
-                ),
-                _mapChip(
-                  label: context.l10n.map_chatNodes,
-                  selected: settings.mapShowChatNodes,
-                  color: MeshTokens.of(context).mapSelected,
-                  onTap: () => settingsService.setMapShowChatNodes(
-                    !settings.mapShowChatNodes,
-                  ),
-                ),
-              ];
-
-              if (constraints.maxWidth < 600) {
-                return Wrap(runSpacing: t.spacingXs, children: chips);
-              }
-
-              return SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(children: chips),
-              );
-            },
+              ],
+            ),
           ),
           if (hasQuery)
             _buildSearchResults(context, allContacts, guessedLocations)
@@ -2031,65 +2008,6 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _mapChip({
-    required String label,
-    required bool selected,
-    required VoidCallback onTap,
-    Color? color,
-  }) {
-    final accent = color ?? MeshTokens.of(context).mapSelected;
-    final t = MeshTokens.of(context);
-    return Padding(
-      padding: EdgeInsets.only(right: t.spacingXs),
-      child: Material(
-        color: selected
-            ? Color.alphaBlend(
-                accent.withValues(alpha: 0.34),
-                _overlayPanelColor,
-              )
-            : _overlayPanelColor,
-        shape: StadiumBorder(
-          side: BorderSide(
-            color: selected ? accent : _overlayBorderColor,
-            width: selected ? 1.5 : 1,
-          ),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () {
-            HapticFeedback.selectionClick();
-            onTap();
-          },
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: t.spacingSm,
-              vertical: t.spacingXs,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (selected) ...[
-                  Icon(Icons.check, size: 13, color: _overlayPrimaryTextColor),
-                  SizedBox(width: t.spacingXxs),
-                ],
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                    color: selected
-                        ? _overlayPrimaryTextColor
-                        : _overlaySecondaryTextColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -2255,14 +2173,11 @@ class _MapScreenState extends State<MapScreen> {
       decoration: BoxDecoration(
         color: _overlayPanelColor,
         borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
-        border: Border.all(color: _overlayBorderColor),
-        boxShadow: [
-          BoxShadow(
-            color: _overlayShadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: _overlayCardBorder,
+        boxShadow: _overlayCardShadow(
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2293,7 +2208,13 @@ class _MapScreenState extends State<MapScreen> {
             pinCount,
             MeshTokens.of(context).mapShared,
           ),
-          Divider(height: 16, color: _overlayBorderColor),
+          // Dotted section rule (2026-08-30 feedback), matching the app-wide
+          // dropdown-menu section separator convention
+          // (dropdown-menu-row-schema.md) instead of a solid Divider.
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: t.spacingXxs + 2),
+            child: DottedSeparator(color: _overlayBorderColor),
+          ),
           _buildLegendItem(
             Icons.person,
             context.l10n.map_chat,
