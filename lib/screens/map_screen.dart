@@ -1634,9 +1634,36 @@ class _MapScreenState extends State<MapScreen> {
 
   Marker _buildNodeLabelMarker({required LatLng point, required String label}) {
     final t = MeshTokens.of(context);
+    final labelStyle = MeshTokens.of(
+      context,
+    ).monoBody(fontWeight: FontWeight.w700, color: _overlayPrimaryTextColor);
+    // flutter_map's Marker/Positioned constrains its child to exactly
+    // Marker.width/height (marker_layer.dart) — there is no intrinsic/
+    // content sizing inside a MarkerLayer, so a fixed width (previously
+    // 140) either clips longer names or leaves short names visually
+    // off-center in a too-wide box with mismatched left/right whitespace
+    // (2026-08-30 feedback). Measure the label itself and size the marker
+    // to it instead, clamped so one pathological name can't blow up the
+    // map view.
+    //
+    // spacingXxs (not spacingXs) — spacingXs read as excessive padding once
+    // the box actually wraps the text tightly instead of a fixed 140px box
+    // (2026-08-30 follow-up feedback); must match the Container's own
+    // padding below exactly.
+    final horizontalPadding = t.spacingXxs + 2;
+    final width = nodeLabelBubbleWidth(
+      label,
+      labelStyle,
+      horizontalPadding: horizontalPadding * 2,
+      // Real device text-scale, not the default — under-measuring here is
+      // what caused the persistent ellipsis-clipping Grok's adversarial
+      // review traced to (2026-08-30): this marker-list build is memoized
+      // by the caller, so a too-narrow first measurement never self-heals.
+      textScaler: MediaQuery.textScalerOf(context),
+    );
     return Marker(
       point: point,
-      width: 140,
+      width: width,
       height: 24,
       alignment: Alignment.topCenter,
       child: IgnorePointer(
@@ -1645,29 +1672,35 @@ class _MapScreenState extends State<MapScreen> {
           // No FittedBox (06-map-bugs.md): it scaled the whole card to fill
           // a fixed box, so short names rendered LARGER than long ones
           // despite sharing the same monoBody role. A fixed font size +
-          // the Text's own maxLines/ellipsis handles long names instead.
+          // the Text's own maxLines/ellipsis (now only a safety net beyond
+          // [nodeLabelBubbleWidthMax]) handles long names instead.
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: t.spacingXs, vertical: 2),
+            // alignment: center (2026-08-30 feedback: text sat at the top
+            // of the box, not centered) — flutter_map's Positioned gives
+            // this Container a TIGHT height (Marker.height=24), and
+            // Container only centers its child when alignment is set;
+            // without it, a tightly-constrained Container places its
+            // (padded) child at the top rather than centering it.
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: 2,
+            ),
             decoration: BoxDecoration(
               color: _overlayPanelColor,
               borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
-              border: Border.all(color: _overlayBorderColor),
-              boxShadow: [
-                BoxShadow(
-                  color: _overlayShadowColor,
-                  blurRadius: 4,
-                  offset: Offset(0, 1),
-                ),
-              ],
+              border: _overlayCardBorder,
+              boxShadow: _overlayCardShadow(
+                blurRadius: 4,
+                offset: Offset(0, 1),
+              ),
             ),
             child: Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: MeshTokens.of(context).monoBody(
-                fontWeight: FontWeight.w700,
-                color: _overlayPrimaryTextColor,
-              ),
+              textAlign: TextAlign.center,
+              style: labelStyle,
             ),
           ),
         ),
@@ -3819,6 +3852,47 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
+}
+
+/// Max width a node-label marker bubble is allowed to grow to (2026-08-30) —
+/// a safety clamp against one pathological device name blowing up the map
+/// view; [Text.overflow] on the label still ellipsizes past this point.
+const double nodeLabelBubbleWidthMax = 220;
+
+/// Extra slack added on top of the measured text width (2026-08-30, Grok
+/// adversarial review) — `flutter_map`'s `Positioned` gives the bubble a
+/// TIGHT width from [Marker.width], computed once and then memoized by the
+/// caller's marker-list cache, so any small mismatch between what
+/// [TextPainter] measures here and what the real [Text] renders at (custom
+/// mono font metrics, device text-scale) shows up as permanent ellipsis
+/// clipping instead of self-correcting on a later frame. A few px of slack
+/// is cheap insurance against that class of drift.
+const double nodeLabelBubbleWidthSlack = 4;
+
+/// Measures [label] set in [style] and returns the marker bubble width that
+/// wraps it exactly (content-sized instead of a fixed box that either clips
+/// longer names or leaves short ones adrift in extra whitespace), clamped to
+/// [nodeLabelBubbleWidthMax]. [horizontalPadding] is the *total* left+right
+/// padding the bubble's own [Container] will apply around the text.
+/// [textScaler] should be the real [MediaQuery.textScalerOf] the label will
+/// actually render at — measuring at the default (unscaled) size under-sizes
+/// the bubble on any device with a larger system font-size setting.
+double nodeLabelBubbleWidth(
+  String label,
+  TextStyle style, {
+  required double horizontalPadding,
+  TextScaler textScaler = TextScaler.noScaling,
+}) {
+  final painter = TextPainter(
+    text: TextSpan(text: label, style: style),
+    textScaler: textScaler,
+    maxLines: 1,
+    textDirection: TextDirection.ltr,
+  )..layout();
+  return (painter.width + horizontalPadding + nodeLabelBubbleWidthSlack).clamp(
+    0,
+    nodeLabelBubbleWidthMax,
+  );
 }
 
 enum _NodeAge { online, recent, stale }
