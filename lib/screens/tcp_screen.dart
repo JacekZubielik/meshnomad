@@ -7,13 +7,16 @@ import 'package:provider/provider.dart';
 import '../connector/meshcore_connector.dart';
 import '../l10n/l10n.dart';
 import '../services/app_settings_service.dart';
+import '../theme/dashed_rounded_border.dart';
 import '../theme/mesh_tokens.dart';
-import '../utils/platform_info.dart';
 import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
+import '../widgets/screen_watermark_icon.dart';
+import '../widgets/transport_switcher.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'channels_screen.dart';
+import 'scanner_screen.dart';
 import 'usb_screen.dart';
 
 class TcpScreen extends StatefulWidget {
@@ -89,16 +92,23 @@ class _TcpScreenState extends State<TcpScreen> {
     return SelectionArea(child: _screenBody(context));
   }
 
+  void _backToHub(BuildContext context) {
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
   Widget _screenBody(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).maybePop(),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onPressed: () => _backToHub(context),
         ),
         title: AdaptiveAppBarTitle(context.l10n.tcpScreenTitle),
         centerTitle: true,
-        actions: const [QuickAccessMenuButton()],
+        actions: const [CircleQuickAccessMenuButton()],
       ),
       body: SafeArea(
         top: false,
@@ -111,117 +121,148 @@ class _TcpScreenState extends State<TcpScreen> {
             // scanning, connecting, or an active session must settle first.
             final isButtonDisabled =
                 connector.state != MeshCoreConnectionState.disconnected;
-            return ListView(
-              padding: EdgeInsets.only(
-                bottom: MeshTokens.of(context).spacingXlg,
-              ),
+            final buttonBorder = context
+                .watch<AppSettingsService>()
+                .activeProfileOverrides
+                .buttonBorder;
+            return Stack(
               children: [
-                // Status header
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    MeshTokens.of(context).spacingMd,
-                    MeshTokens.of(context).spacingSm,
-                    MeshTokens.of(context).spacingMd,
-                    MeshTokens.of(context).spacingXxs,
+                const ScreenWatermarkIcon(icon: Icons.lan),
+                ListView(
+                  padding: EdgeInsets.only(
+                    bottom: MeshTokens.of(context).spacingXlg,
                   ),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: Align(
-                      key: ValueKey(connector.state),
-                      alignment: Alignment.centerLeft,
-                      child: _buildStatusChip(context, connector),
+                  children: [
+                    // Status header
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        MeshTokens.of(context).spacingMd,
+                        MeshTokens.of(context).spacingSm,
+                        MeshTokens.of(context).spacingMd,
+                        MeshTokens.of(context).spacingXxs,
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: Align(
+                          key: ValueKey(connector.state),
+                          alignment: Alignment.centerLeft,
+                          child: _buildStatusChip(context, connector),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
 
-                // Transport switcher
-                _buildTransportLinks(context),
+                    TransportSwitcher(
+                      current: MeshCoreTransportType.tcp,
+                      onSelectBluetooth: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => const ScannerScreen(),
+                          ),
+                        );
+                      },
+                      onSelectUsb: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const UsbScreen()),
+                        );
+                      },
+                      onSelectTcp: () {},
+                    ),
 
-                // Connection form
-                const SectionHeader('TCP / IP'),
-                MeshCard(
-                  padding: EdgeInsets.all(MeshTokens.of(context).spacingMd),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextField(
-                        controller: _hostController,
-                        decoration: InputDecoration(
-                          labelText: context.l10n.tcpHostLabel,
-                          hintText: context.l10n.tcpHostHint,
-                        ),
-                        enabled: !isConnecting,
-                        keyboardType: TextInputType.url,
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _portController,
-                        decoration: InputDecoration(
-                          labelText: context.l10n.tcpPortLabel,
-                          hintText: context.l10n.tcpPortHint,
-                        ),
-                        enabled: !isConnecting,
-                        keyboardType: TextInputType.number,
-                      ),
-                      const SizedBox(height: 16),
-                      FilledButton.icon(
-                        key: const Key('tcp_connect_button'),
-                        onPressed: isButtonDisabled
-                            ? null
-                            : () {
-                                HapticFeedback.lightImpact();
-                                _connectTcp();
-                              },
-                        icon: isConnecting
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
+                    // Connection form
+                    const SectionHeader('TCP / IP'),
+                    MeshCard(
+                      padding: EdgeInsets.all(MeshTokens.of(context).spacingMd),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextField(
+                            controller: _hostController,
+                            decoration: InputDecoration(
+                              labelText: context.l10n.tcpHostLabel,
+                              hintText: context.l10n.tcpHostHint,
+                            ),
+                            enabled: !isConnecting,
+                            keyboardType: TextInputType.url,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            context.l10n.tcpPortLabel,
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
-                              )
-                            : const Icon(Icons.lan),
-                        label: Text(
-                          isConnecting
-                              ? context.l10n.scanner_connecting
-                              : context.l10n.common_connect,
+                          ),
+                          const SizedBox(height: 4),
+                          _PortStepper(
+                            controller: _portController,
+                            buttonBorder: buttonBorder,
+                            enabled: !isConnecting,
+                          ),
+                          const SizedBox(height: 16),
+                          FilledButton.icon(
+                            key: const Key('tcp_connect_button'),
+                            onPressed: isButtonDisabled
+                                ? null
+                                : () {
+                                    HapticFeedback.lightImpact();
+                                    _connectTcp();
+                                  },
+                            icon: isConnecting
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.lan),
+                            label: Text(
+                              isConnecting
+                                  ? context.l10n.scanner_connecting
+                                  : context.l10n.common_connect,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Last used endpoint
+                    if (connector.activeTcpEndpoint != null &&
+                        connector.isTcpTransportConnected) ...[
+                      const SectionHeader('CONNECTED TO'),
+                      MeshCard(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.lan,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                connector.activeTcpEndpoint!,
+                                style: MeshTokens.of(context).monoBody(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-
-                // Last used endpoint
-                if (connector.activeTcpEndpoint != null &&
-                    connector.isTcpTransportConnected) ...[
-                  const SectionHeader('CONNECTED TO'),
-                  MeshCard(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.lan,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            connector.activeTcpEndpoint!,
-                            style: MeshTokens.of(context).monoBody(
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ],
             );
           },
@@ -260,36 +301,6 @@ class _TcpScreenState extends State<TcpScreen> {
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       );
     }
-  }
-
-  Widget _buildTransportLinks(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: MeshTokens.of(context).spacingMd,
-        vertical: MeshTokens.of(context).spacingXs,
-      ),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 8,
-        children: [
-          if (PlatformInfo.supportsUsbSerial)
-            OutlinedButton.icon(
-              onPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const UsbScreen()),
-                );
-              },
-              icon: const Icon(Icons.usb),
-              label: Text(context.l10n.connectionChoiceUsbLabel),
-            ),
-          OutlinedButton.icon(
-            onPressed: () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.bluetooth),
-            label: Text(context.l10n.connectionChoiceBluetoothLabel),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _connectTcp() async {
@@ -343,5 +354,110 @@ class _TcpScreenState extends State<TcpScreen> {
       );
     }
     return context.l10n.tcpConnectionFailed(error.toString());
+  }
+}
+
+/// Numeric port stepper (2026-08-29 redesign) — steals the button-family
+/// circle chrome from `SettingsValueStepper`/`_BorderStyleStepper`
+/// (`settings_value_stepper.dart`, `custom_style_editor_screen.dart`), but
+/// is NOT built on either: those cycle a fixed `List<T>` of choices, which
+/// doesn't fit an arbitrary TCP port (1-65535) — the +/- buttons here do
+/// real arithmetic on an editable, still-directly-typable field instead of
+/// cycling a closed set.
+class _PortStepper extends StatelessWidget {
+  const _PortStepper({
+    required this.controller,
+    required this.buttonBorder,
+    required this.enabled,
+  });
+
+  final TextEditingController controller;
+
+  /// Current app-wide `buttonBorder` ('none'/'solid'/'dotted', null ==
+  /// 'none') — same source as every other button-family member, read by
+  /// the caller via `activeProfileOverrides.buttonBorder`.
+  final String? buttonBorder;
+  final bool enabled;
+
+  static const int _minPort = 1;
+  static const int _maxPort = 65535;
+
+  void _step(int direction) {
+    final current = int.tryParse(controller.text.trim()) ?? 0;
+    final next = (current + direction).clamp(_minPort, _maxPort);
+    controller.text = next.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
+
+    final borderStyle = buttonBorder ?? 'none';
+    final circleBorderSide = borderStyle == 'none'
+        ? BorderSide.none
+        : BorderSide(color: scheme.primary);
+    final circleShape = borderStyle == 'dotted'
+        ? DashedCircleBorder(side: circleBorderSide)
+        : CircleBorder(side: circleBorderSide);
+
+    Widget circleButton(IconData icon, VoidCallback onPressed) {
+      return SizedBox(
+        width: 34,
+        height: 34,
+        child: DecoratedBox(
+          decoration: ShapeDecoration(
+            shape: circleShape,
+            color: scheme.primary.withValues(alpha: 0.2),
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            iconSize: 16,
+            color: scheme.primary,
+            icon: Icon(icon),
+            onPressed: enabled ? onPressed : null,
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      children: [
+        circleButton(Icons.remove, () => _step(-1)),
+        SizedBox(width: t.spacingXxs),
+        Expanded(
+          child: TextField(
+            controller: controller,
+            enabled: enabled,
+            keyboardType: TextInputType.number,
+            textAlign: TextAlign.center,
+            style: t.monoBody(color: scheme.onSurface),
+            decoration: InputDecoration(
+              hintText: context.l10n.tcpPortHint,
+              filled: true,
+              fillColor: scheme.primary.withValues(alpha: 0.2),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: t.spacingSm,
+                vertical: t.spacingSm,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(t.sm),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(t.sm),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(t.sm),
+                borderSide: BorderSide(color: scheme.primary, width: 1.5),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: t.spacingXxs),
+        circleButton(Icons.add, () => _step(1)),
+      ],
+    );
   }
 }

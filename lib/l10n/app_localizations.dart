@@ -344,11 +344,11 @@ abstract class AppLocalizations {
   /// **'Interval'**
   String get common_interval;
 
-  /// No description provided for @scanner_title.
+  /// No description provided for @bleScreenTitle.
   ///
   /// In en, this message translates to:
-  /// **'MeshNomad'**
-  String get scanner_title;
+  /// **'Connect over BLE'**
+  String get bleScreenTitle;
 
   /// No description provided for @connectionChoiceUsbLabel.
   ///
@@ -359,7 +359,7 @@ abstract class AppLocalizations {
   /// No description provided for @connectionChoiceBluetoothLabel.
   ///
   /// In en, this message translates to:
-  /// **'Bluetooth'**
+  /// **'BLE'**
   String get connectionChoiceBluetoothLabel;
 
   /// No description provided for @connectionChoiceTcpLabel.
@@ -2347,6 +2347,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Channel {index}'**
   String channels_channelIndex(int index);
+
+  /// No description provided for @channelType_public.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get channelType_public;
+
+  /// No description provided for @channelType_hashtag.
+  ///
+  /// In en, this message translates to:
+  /// **'Hashtag'**
+  String get channelType_hashtag;
+
+  /// No description provided for @channelType_private.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get channelType_private;
+
+  /// No description provided for @channelType_community.
+  ///
+  /// In en, this message translates to:
+  /// **'Community'**
+  String get channelType_community;
+
+  /// No description provided for @channels_badgeRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Region'**
+  String get channels_badgeRegion;
 
   /// No description provided for @channels_public.
   ///
@@ -9938,12 +9968,6 @@ abstract class AppLocalizations {
   /// **'Floating shadow under cards'**
   String get styleEditor_cardShadow_subtitle;
 
-  /// No description provided for @appSettings_about.
-  ///
-  /// In en, this message translates to:
-  /// **'About'**
-  String get appSettings_about;
-
   /// No description provided for @appSettings_editCustomStyleTooltip.
   ///
   /// In en, this message translates to:
@@ -10226,23 +10250,11 @@ abstract class AppLocalizations {
   /// **'ROM type'**
   String get flasherRomTypeLabel;
 
-  /// Flasher: section heading above the asset radio list
-  ///
-  /// In en, this message translates to:
-  /// **'File'**
-  String get flasherFileLabel;
-
   /// Flasher: button shown under a flash error — returns to the form with all selections kept so the user can retry (USB is re-scanned on every attempt)
   ///
   /// In en, this message translates to:
   /// **'Try again'**
   String get flasherRetry;
-
-  /// Flasher: dropdown label for the release-version picker
-  ///
-  /// In en, this message translates to:
-  /// **'Select version'**
-  String get flasherSelectVersion;
 
   /// Flasher: shown when the GitHub releases list came back empty for the chosen ROM type
   ///
@@ -10285,6 +10297,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get flasherFullResetConfirmCancel;
+
+  /// No description provided for @flasherDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading…'**
+  String get flasherDownloading;
+
+  /// No description provided for @flasherDownloadedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded — {label}'**
+  String flasherDownloadedFile(String label);
+
+  /// No description provided for @flasherFlashedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashed — {label}'**
+  String flasherFlashedFile(String label);
+
+  /// No description provided for @flasherFullResetShortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full reset'**
+  String get flasherFullResetShortLabel;
+
+  /// No description provided for @flasherUpdateShortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get flasherUpdateShortLabel;
+
+  /// No description provided for @flasherFullResetReadyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded — tap to flash Full Reset'**
+  String get flasherFullResetReadyTooltip;
+
+  /// No description provided for @flasherUpdateReadyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded — tap to flash Update'**
+  String get flasherUpdateReadyTooltip;
+
+  /// No description provided for @flasherIconLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'⟳ Full reset erases the bootloader and settings (confirmation required). ↓ Update keeps existing settings. Grey = not downloaded yet, tap to fetch. Accent + ⚡ = downloaded and ready, tap to flash.'**
+  String get flasherIconLegend;
+
+  /// No description provided for @flasherAboutMenuItem.
+  ///
+  /// In en, this message translates to:
+  /// **'About USB Flashing'**
+  String get flasherAboutMenuItem;
+
+  /// No description provided for @flasherAboutIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'This screen writes MeshCore firmware directly to a board over its USB serial port — no companion app or computer flashing tool required.'**
+  String get flasherAboutIntro;
+
+  /// No description provided for @flasherAboutFullResetHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Full reset'**
+  String get flasherAboutFullResetHeading;
+
+  /// No description provided for @flasherAboutUpdateHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get flasherAboutUpdateHeading;
+
+  /// No description provided for @flasherAboutConnectionHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting over USB'**
+  String get flasherAboutConnectionHeading;
+
+  /// No description provided for @flasherVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get flasherVersionLabel;
 }
 
 class _AppLocalizationsDelegate

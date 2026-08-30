@@ -14,8 +14,11 @@ import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/mesh_ui.dart';
+import '../widgets/screen_watermark_icon.dart';
+import '../widgets/transport_switcher.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'channels_screen.dart';
+import 'scanner_screen.dart';
 import 'tcp_screen.dart';
 
 class UsbScreen extends StatefulWidget {
@@ -93,80 +96,106 @@ class _UsbScreenState extends State<UsbScreen> {
     return SelectionArea(child: _screenBody(context));
   }
 
+  void _backToHub(BuildContext context) {
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
   Widget _screenBody(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).maybePop(),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onPressed: () => _backToHub(context),
         ),
         title: AdaptiveAppBarTitle(context.l10n.usbScreenTitle),
         centerTitle: true,
-        actions: const [QuickAccessMenuButton()],
+        actions: const [CircleQuickAccessMenuButton()],
       ),
       body: SafeArea(
         top: false,
         child: Consumer<MeshCoreConnector>(
           builder: (context, connector, child) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            return Stack(
               children: [
-                // Status header
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    MeshTokens.of(context).spacingMd,
-                    MeshTokens.of(context).spacingSm,
-                    MeshTokens.of(context).spacingMd,
-                    MeshTokens.of(context).spacingXxs,
-                  ),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: Align(
-                      key: ValueKey('${connector.state}_$_isLoadingPorts'),
-                      alignment: Alignment.centerLeft,
-                      child: _buildStatusChip(context, connector),
+                const ScreenWatermarkIcon(icon: Icons.usb),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Status header
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        MeshTokens.of(context).spacingMd,
+                        MeshTokens.of(context).spacingSm,
+                        MeshTokens.of(context).spacingMd,
+                        MeshTokens.of(context).spacingXxs,
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: Align(
+                          key: ValueKey('${connector.state}_$_isLoadingPorts'),
+                          alignment: Alignment.centerLeft,
+                          child: _buildStatusChip(context, connector),
+                        ),
+                      ),
                     ),
-                  ),
+
+                    TransportSwitcher(
+                      current: MeshCoreTransportType.usb,
+                      onSelectBluetooth: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => const ScannerScreen(),
+                          ),
+                        );
+                      },
+                      onSelectUsb: () {},
+                      onSelectTcp: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const TcpScreen()),
+                        );
+                      },
+                    ),
+
+                    // Stable Scan/Refresh slot — replaces the old
+                    // bottom-right FAB (previously mobile-only, gated on
+                    // !_supportsHotPlug) and gives the empty state a
+                    // button it never had before.
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        MeshTokens.of(context).spacingMd,
+                        0,
+                        MeshTokens.of(context).spacingMd,
+                        MeshTokens.of(context).spacingMd,
+                      ),
+                      child: Center(
+                        child: FilledButton.icon(
+                          onPressed: _isLoadingPorts ? null : _loadPorts,
+                          icon: _isLoadingPorts
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.usb),
+                          label: Text(context.l10n.scanner_scan),
+                        ),
+                      ),
+                    ),
+
+                    // Port list
+                    Expanded(child: _buildPortList(context, connector)),
+                  ],
                 ),
-
-                // Transport switcher
-                _buildTransportLinks(context),
-
-                // Port list
-                Expanded(child: _buildPortList(context, connector)),
               ],
             );
           },
         ),
       ),
-      bottomNavigationBar: _supportsHotPlug
-          ? null
-          : SafeArea(
-              top: false,
-              minimum: EdgeInsets.fromLTRB(
-                MeshTokens.of(context).spacingMd,
-                MeshTokens.of(context).spacingXs,
-                MeshTokens.of(context).spacingMd,
-                MeshTokens.of(context).spacingMd,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  FloatingActionButton.extended(
-                    onPressed: _isLoadingPorts ? null : _loadPorts,
-                    heroTag: 'usb_refresh_action',
-                    icon: _isLoadingPorts
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.usb),
-                    label: Text(context.l10n.scanner_scan),
-                  ),
-                ],
-              ),
-            ),
     );
   }
 
@@ -216,45 +245,15 @@ class _UsbScreenState extends State<UsbScreen> {
     }
   }
 
-  Widget _buildTransportLinks(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: MeshTokens.of(context).spacingMd,
-        vertical: MeshTokens.of(context).spacingXs,
-      ),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 8,
-        children: [
-          if (!PlatformInfo.isWeb)
-            OutlinedButton.icon(
-              onPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const TcpScreen()),
-                );
-              },
-              icon: const Icon(Icons.lan),
-              label: Text(context.l10n.connectionChoiceTcpLabel),
-            ),
-          OutlinedButton.icon(
-            onPressed: () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.bluetooth),
-            label: Text(context.l10n.connectionChoiceBluetoothLabel),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildPortList(BuildContext context, MeshCoreConnector connector) {
     final l10n = context.l10n;
 
     if (_isLoadingPorts) {
-      return EmptyState(icon: Icons.usb, title: l10n.usbStatus_searching);
+      return EmptyState(title: l10n.usbStatus_searching);
     }
 
     if (_ports.isEmpty) {
-      return EmptyState(icon: Icons.usb, title: l10n.usbScreenEmptyState);
+      return EmptyState(title: l10n.usbScreenEmptyState);
     }
 
     final isConnecting =

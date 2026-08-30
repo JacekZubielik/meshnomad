@@ -703,21 +703,22 @@ Color colorForContactType(MeshTokens tokens, int type) {
   }
 }
 
-/// Node-type pill next to a contact's name in the Contacts list — border +
-/// text in the type's accent color (see [colorForContactType]), background
+/// Header type pill — border + text in the given accent color, background
 /// filled with that same color at 20% alpha, no icon (2026-08-19 accepted
 /// mockup, .mockups/contact-tile-badges.html; fill treatment added in the
-/// 2026-08-19 refinement, uniform across all 4 types).
-class ContactTypeBadge extends StatelessWidget {
-  final int type;
+/// 2026-08-19 refinement). One implementation for every card-header type
+/// pill: contacts pass a type-derived color via [ContactTypeBadge], channel
+/// cards pass their own type color directly (2026-08-29 channel-card
+/// parity).
+class MeshTypePill extends StatelessWidget {
   final String label;
+  final Color color;
 
-  const ContactTypeBadge({super.key, required this.type, required this.label});
+  const MeshTypePill({super.key, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
     final tokens = MeshTokens.of(context);
-    final color = colorForContactType(tokens, type);
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: tokens.spacingXxs,
@@ -739,10 +740,66 @@ class ContactTypeBadge extends StatelessWidget {
   }
 }
 
+/// Node-type pill next to a contact's name in the Contacts list — a
+/// [MeshTypePill] colored by [colorForContactType].
+class ContactTypeBadge extends StatelessWidget {
+  final int type;
+  final String label;
+
+  const ContactTypeBadge({super.key, required this.type, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return MeshTypePill(
+      label: label,
+      color: colorForContactType(MeshTokens.of(context), type),
+    );
+  }
+}
+
+/// Two-layer selection dot — the canonical single-choice indicator
+/// (accepted variant B2, 2026-08-29; see
+/// docs/superpowers/meshnomad-vault/templates/ui-patterns/dropdown-menu-row-schema.md).
+/// Modeled on the real switchTheme grammar (mesh_theme.dart:603-614): a
+/// tinted 20×20 track circle (primary @ 20% alpha, no outline) holding a
+/// solid primary thumb that grows 8→12 on selection; the whole pair ghosts
+/// to opacity .30 when unselected. Used by the sort/filter dropdown rows
+/// and every selection-sheet ("winda") row.
+class MeshSelectorDot extends StatelessWidget {
+  final bool selected;
+
+  const MeshSelectorDot({super.key, required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Opacity(
+      opacity: selected ? 1.0 : 0.30,
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: scheme.primary.withValues(alpha: 0.2),
+        ),
+        alignment: Alignment.center,
+        child: Container(
+          width: selected ? 12 : 8,
+          height: selected ? 12 : 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: scheme.primary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// One badge inside [ContactBadgeRow] — text + 1px border only, no icon.
 /// Ghosting (opacity 0.30) signals "exists but inactive" without removing
 /// the element, so sibling badges never change position.
-class _ContactBadge extends StatelessWidget {
+class MeshStatusBadge extends StatelessWidget {
   final String label;
   final Color color;
   final bool active;
@@ -759,7 +816,8 @@ class _ContactBadge extends StatelessWidget {
   /// states, and every one of the other 5 badges, pass null here).
   final VoidCallback? onTap;
 
-  const _ContactBadge({
+  const MeshStatusBadge({
+    super.key,
     required this.label,
     required this.color,
     required this.active,
@@ -807,10 +865,12 @@ class _ContactBadge extends StatelessWidget {
   }
 }
 
-/// Fixed-order row of contact status badges — Favorite, GPS, Smaz, Route,
-/// Time, always in that order, every one always rendered
-/// (ghosted via [_ContactBadge] when inactive/unavailable so position never
-/// shifts). Accepted mockup: .mockups/contact-tile-badges.html, 2026-08-19.
+/// Fixed-order row of contact status badges — GPS, Route, Smaz, Lang, Time
+/// (order per 2026-08-29 user spec), always in that order, every one always
+/// rendered (ghosted via [MeshStatusBadge] when inactive/unavailable so
+/// position never shifts), plus right-aligned mute-bell and favorite-star
+/// icons (channel-card parity). The star replaced the former FAVORITES
+/// badge (2026-08-28): always tappable, toggles either direction.
 class ContactBadgeRow extends StatelessWidget {
   final bool isFavorite;
   final bool hasLocation;
@@ -818,16 +878,23 @@ class ContactBadgeRow extends StatelessWidget {
 
   /// Null = route unknown for this contact; renders a ghosted placeholder.
   final String? routeLabel;
+
+  /// Per-contact translation target language code; null = inherits the
+  /// app-wide setting (ghost 'LANG' pill — 2026-08-29, channel-card parity).
+  final String? languageCode;
   final String timeLabel;
   final bool isUnread;
+  final bool isMuted;
 
-  /// Tap targets (2026-08-19 refinement). Favorite always fires regardless
-  /// of state (toggles either direction). GPS/Route only fire when their
-  /// own badge is active — gated INSIDE build() below, not by the caller,
-  /// so a ghosted badge is never accidentally wired live.
+  /// Tap targets (2026-08-19 refinement). Favorite/mute/lang always fire
+  /// regardless of state (they toggle or open a picker). GPS/Route only
+  /// fire when their own badge is active — gated INSIDE build() below, not
+  /// by the caller, so a ghosted badge is never accidentally wired live.
   final VoidCallback? onFavoriteTap;
   final VoidCallback? onGpsTap;
   final VoidCallback? onRouteTap;
+  final VoidCallback? onLanguageTap;
+  final VoidCallback? onMuteTap;
 
   const ContactBadgeRow({
     super.key,
@@ -837,9 +904,13 @@ class ContactBadgeRow extends StatelessWidget {
     required this.routeLabel,
     required this.timeLabel,
     required this.isUnread,
+    this.languageCode,
+    this.isMuted = false,
     this.onFavoriteTap,
     this.onGpsTap,
     this.onRouteTap,
+    this.onLanguageTap,
+    this.onMuteTap,
   });
 
   @override
@@ -847,40 +918,81 @@ class ContactBadgeRow extends StatelessWidget {
     final tokens = MeshTokens.of(context);
     final scheme = Theme.of(context).colorScheme;
     final neutral = scheme.onSurfaceVariant;
-    return Wrap(
-      spacing: tokens.spacingXxs,
-      runSpacing: tokens.spacingXxs,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _ContactBadge(
-          label: context.l10n.listFilter_favorites,
-          color: tokens.warn,
-          active: isFavorite,
-          fillColor: isFavorite ? tokens.warn.withValues(alpha: 0.2) : null,
+        Expanded(
+          child: Wrap(
+            spacing: tokens.spacingXxs,
+            runSpacing: tokens.spacingXxs,
+            children: [
+              MeshStatusBadge(
+                label: 'GPS',
+                color: tokens.primary,
+                active: hasLocation,
+                fillColor: hasLocation
+                    ? tokens.primary.withValues(alpha: 0.2)
+                    : null,
+                onTap: hasLocation ? onGpsTap : null,
+              ),
+              MeshStatusBadge(
+                label: routeLabel ?? context.l10n.contacts_routeUnknown,
+                color: tokens.routeActive,
+                active: routeLabel != null,
+                fillColor: routeLabel != null
+                    ? tokens.routeActive.withValues(alpha: 0.2)
+                    : null,
+                onTap: routeLabel != null ? onRouteTap : null,
+              ),
+              MeshStatusBadge(
+                label: 'Smaz',
+                color: neutral,
+                active: isSmazEnabled,
+              ),
+              MeshStatusBadge(
+                label: languageCode?.toUpperCase() ?? 'LANG',
+                color: tokens.primary,
+                active: languageCode != null,
+                fillColor: languageCode != null
+                    ? tokens.primary.withValues(alpha: 0.2)
+                    : null,
+                onTap: onLanguageTap,
+              ),
+              MeshStatusBadge(
+                label: timeLabel,
+                color: isUnread ? tokens.primary : neutral,
+                active: true,
+                fillColor: (isUnread ? tokens.primary : neutral).withValues(
+                  alpha: 0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: tokens.spacingXxs),
+        GestureDetector(
+          onTap: onMuteTap,
+          behavior: HitTestBehavior.opaque,
+          child: Opacity(
+            opacity: isMuted ? 1.0 : 0.30,
+            child: Icon(
+              isMuted ? Icons.notifications_off : Icons.notifications,
+              size: 18,
+              color: tokens.warn,
+            ),
+          ),
+        ),
+        SizedBox(width: tokens.spacingXxs),
+        GestureDetector(
           onTap: onFavoriteTap,
-        ),
-        _ContactBadge(
-          label: 'GPS',
-          color: tokens.primary,
-          active: hasLocation,
-          fillColor: hasLocation ? tokens.primary.withValues(alpha: 0.2) : null,
-          onTap: hasLocation ? onGpsTap : null,
-        ),
-        _ContactBadge(label: 'Smaz', color: neutral, active: isSmazEnabled),
-        _ContactBadge(
-          label: routeLabel ?? context.l10n.contacts_routeUnknown,
-          color: tokens.routeActive,
-          active: routeLabel != null,
-          fillColor: routeLabel != null
-              ? tokens.routeActive.withValues(alpha: 0.2)
-              : null,
-          onTap: routeLabel != null ? onRouteTap : null,
-        ),
-        _ContactBadge(
-          label: timeLabel,
-          color: isUnread ? tokens.primary : neutral,
-          active: true,
-          fillColor: (isUnread ? tokens.primary : neutral).withValues(
-            alpha: 0.2,
+          behavior: HitTestBehavior.opaque,
+          child: Opacity(
+            opacity: isFavorite ? 1.0 : 0.30,
+            child: Icon(
+              isFavorite ? Icons.star : Icons.star_border,
+              size: 18,
+              color: tokens.warn,
+            ),
           ),
         ),
       ],
@@ -961,6 +1073,65 @@ class _PulseDotState extends State<PulseDot>
         ),
       ),
     );
+  }
+}
+
+/// Shared circular tinted icon button — the "-/+ stepper" visual family
+/// (`primary` @ 20% fill, `primary` icon, `CircleBorder` shape). Originally
+/// duplicated across the board-picker stepper, the Flasher refresh button,
+/// and the Flasher ⋮ menu icon — this is the single definition all three
+/// now use.
+///
+/// By default (`decorative: false`), always renders a real `IconButton`, so
+/// `onPressed: null` gets Material's normal disabled/dimmed look — this is
+/// what the board-stepper's `boards.isEmpty` case needs, and works exactly
+/// as the original `_circleButton` did, with proper accessibility semantics.
+///
+/// Pass `decorative: true` to render a non-interactive bare circle (e.g.
+/// embedded as a `PopupMenuButton`'s `child`, where the PopupMenuButton
+/// itself owns the tap) — in this case the icon is always full-brightness
+/// since it's never itself interactive.
+class MeshCircleIconButton extends StatelessWidget {
+  const MeshCircleIconButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.size = 36,
+    this.iconSize = 18,
+    this.tooltip,
+    this.decorative = false,
+  });
+
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final double size;
+  final double iconSize;
+  final String? tooltip;
+  final bool decorative;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final circle = SizedBox(
+      width: size,
+      height: size,
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
+          shape: const CircleBorder(),
+          color: scheme.primary.withValues(alpha: 0.2),
+        ),
+        child: decorative
+            ? Icon(icon, size: iconSize, color: scheme.primary)
+            : IconButton(
+                padding: EdgeInsets.zero,
+                iconSize: iconSize,
+                color: scheme.primary,
+                icon: Icon(icon),
+                onPressed: onPressed,
+              ),
+      ),
+    );
+    return tooltip == null ? circle : Tooltip(message: tooltip!, child: circle);
   }
 }
 

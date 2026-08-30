@@ -60,6 +60,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
+        // Circular/accent app-bar family (2026-08-29, matching Flasher and
+        // the companion-connect screens) — see
+        // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         title: AppBarTitle(
           l10n.settings_title,
           indicators: false,

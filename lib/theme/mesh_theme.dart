@@ -371,6 +371,14 @@ class MeshTheme {
           color: scheme.onSurface,
         ),
         iconTheme: IconThemeData(color: scheme.onSurface),
+        // Symmetric leading/trailing icon inset (2026-08-29 — right-side
+        // action sat flush against the edge while the leading back button
+        // got a natural 4dp margin): AppBar's leading box is 56dp wide
+        // (_kLeadingWidth) and centers the default 48dp IconButton inside
+        // it, leaving (56-48)/2 = 4dp on each side; actionsPadding has no
+        // such box and defaults to EdgeInsets.zero, so the trailing icon
+        // sits flush against the edge unless matched here.
+        actionsPadding: const EdgeInsets.only(right: 4),
         shape: Border(
           bottom: BorderSide(color: scheme.outlineVariant, width: 1),
         ),

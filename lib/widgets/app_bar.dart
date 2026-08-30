@@ -8,6 +8,7 @@ import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
 import 'indicator_caption.dart';
 import 'mesh_info_dialog.dart';
+import 'mesh_ui.dart';
 import 'quick_style_picker_dialog.dart';
 import 'radio_stats_entry.dart';
 import 'snr_indicator.dart';
@@ -84,6 +85,45 @@ class AppBarMenuIcon extends StatelessWidget {
           Icons.more_vert,
           size: 18,
           color: Theme.of(context).colorScheme.onSurface,
+        ),
+      ),
+    );
+  }
+}
+
+/// ⋮ menu offering [quickAccessMenuItems] via the circular
+/// `MeshCircleIconButton` chrome (2026-08-29) — the same widget the
+/// companion-connect screens (BLE/USB/TCP) and `FlasherScreen`
+/// (`_FlasherMenuButton`) use, "a deliberate, user-confirmed exception to
+/// the flat [AppBarMenuIcon] pattern used elsewhere" for sub-screens with
+/// their own back-navigation flow. Prefer [QuickAccessMenuButton] on
+/// screens that follow the flat pattern instead.
+class CircleQuickAccessMenuButton extends StatelessWidget {
+  const CircleQuickAccessMenuButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<dynamic>(
+      tooltip: context.l10n.contacts_moreOptions,
+      itemBuilder: quickAccessMenuItems,
+      // Wrapped in the SAME 48x48 box the leading back-button's IconButton
+      // occupies (2026-08-29 padding-symmetry fix) — the 32px circle itself
+      // is unchanged, but without this box its fully-painted edge sat
+      // right at actionsPadding's raw inset while the back arrow's mostly
+      // invisible 48px tap target (with a much smaller glyph inside)
+      // effectively reads much further from the edge at the same
+      // actionsPadding value. Same box size both sides = same margin.
+      child: const SizedBox(
+        width: 48,
+        height: 48,
+        child: Center(
+          child: MeshCircleIconButton(
+            icon: Icons.more_vert,
+            onPressed: null,
+            decorative: true,
+            size: 32,
+            iconSize: 16,
+          ),
         ),
       ),
     );

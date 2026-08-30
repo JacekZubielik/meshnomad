@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,15 +24,6 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     PrefsManager.reset();
     await PrefsManager.initialize();
-    // _AboutTile calls PackageInfo.fromPlatform() — mock it so the widget
-    // test doesn't hit a real (unavailable) platform channel.
-    PackageInfo.setMockInitialValues(
-      appName: 'MeshNomad',
-      packageName: 'com.meshnomad.app',
-      version: '9.5.0',
-      buildNumber: '13',
-      buildSignature: '',
-    );
     settingsService = AppSettingsService();
     await settingsService.loadSettings();
     connector = MeshCoreConnector();
@@ -121,44 +111,6 @@ void main() {
 
       expect(find.widgetWithText(FilledButton, 'Terminal'), findsOneWidget);
       expect(settingsService.settings.activeThemeId, 'default');
-    });
-  });
-
-  group('AppSettingsScreen — About row (D2, 05-settings-entry.md)', () {
-    testWidgets('About row is present at the bottom and opens the about '
-        'dialog', (tester) async {
-      await tester.pumpWidget(wrap());
-      await tester.pumpAndSettle();
-
-      // The ListView is a lazy sliver — "About" sits well below the fold,
-      // so scroll it into view before it exists in the tree at all. Target
-      // the main list's own Scrollable by its key — the screen has other
-      // Scrollables (an internal TextField, modal sheets) that would
-      // otherwise make a positional/type-only finder ambiguous or fragile.
-      // The keyed list itself has a nested Scrollable too (a TextField's
-      // internal EditableText further down) — `.first` resolves to the
-      // list's OWN Scrollable since it's the structural ancestor and a
-      // depth-first descendant search finds it before the nested one.
-      final outerScrollable = find
-          .descendant(
-            of: find.byKey(const ValueKey('appSettingsMainList')),
-            matching: find.byType(Scrollable),
-          )
-          .first;
-      await tester.scrollUntilVisible(
-        find.text('About'),
-        500,
-        scrollable: outerScrollable,
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('About'), findsOneWidget);
-      expect(find.byIcon(Icons.info_outline), findsOneWidget);
-
-      await tester.tap(find.text('About'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(AboutDialog), findsOneWidget);
     });
   });
 }

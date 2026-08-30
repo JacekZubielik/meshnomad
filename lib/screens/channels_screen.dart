@@ -15,13 +15,17 @@ import '../services/app_settings_service.dart';
 import '../services/ui_view_state_service.dart';
 import '../models/channel.dart';
 import '../models/community.dart';
+import '../models/translation_support.dart';
 import '../storage/community_store.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/dialog_utils.dart';
 import '../utils/disconnect_navigation_mixin.dart';
+import '../utils/last_seen_label.dart';
 import '../utils/route_transitions.dart';
+import '../widgets/dotted_separator.dart';
 import '../widgets/list_filter_widget.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/mesh_selection_sheet.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/qr_code_display.dart';
 import '../widgets/quick_style_picker_dialog.dart';
@@ -84,14 +88,6 @@ class _ChannelsScreenState extends State<ChannelsScreen>
     _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
-  }
-
-  String _relativeTime(DateTime t) {
-    final diff = DateTime.now().difference(t);
-    if (diff.inMinutes < 1) return 'now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
-    if (diff.inHours < 24) return '${diff.inHours}h';
-    return '${diff.inDays}d';
   }
 
   @override
@@ -282,14 +278,21 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                         )
                       : (viewState.channelsSortOption ==
                                 ChannelSortOption.manual &&
-                            viewState.channelsSearchText.isEmpty)
+                            viewState.channelsSearchText.isEmpty &&
+                            // Reordering a filtered subset would persist a
+                            // partial order — drag mode needs the full list.
+                            viewState.channelsTypeFilter ==
+                                ChannelTypeFilter.all &&
+                            !viewState.channelsShowUnreadOnly)
                       ? ReorderableListView.builder(
+                          // Insets match the contacts list exactly
+                          // (2026-08-29): no extra top padding (the search
+                          // field's own 16 inset provides the gap — the
+                          // first card must start at the same height as on
+                          // Contacts), small bottom inset instead of the
+                          // old FAB-sized 88 literal.
                           padding: EdgeInsets.only(
-                            left: 0,
-                            right: 0,
-                            top: MeshTokens.of(context).spacingXs,
-                            bottom:
-                                88, // spacing: rozmiar-specjalny (>25% od najblizszego stopnia)
+                            bottom: MeshTokens.of(context).spacingMd,
                           ),
                           buildDefaultDragHandles: false,
                           itemCount: filteredChannels.length,
@@ -319,12 +322,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                           },
                         )
                       : ListView.builder(
+                          // Same insets as above.
                           padding: EdgeInsets.only(
-                            left: 0,
-                            right: 0,
-                            top: MeshTokens.of(context).spacingXs,
-                            bottom:
-                                88, // spacing: rozmiar-specjalny (>25% od najblizszego stopnia)
+                            bottom: MeshTokens.of(context).spacingMd,
                           ),
                           itemCount: filteredChannels.length,
                           itemBuilder: (context, index) {
@@ -376,48 +376,35 @@ class _ChannelsScreenState extends State<ChannelsScreen>
       channel.name,
     );
     final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
 
-    // Determine icon and colors based on channel type
+    // Determine icon, colors and the header type-pill label per channel type
     IconData icon;
     Color iconColor;
+    String typeLabel;
     final ChannelType channelType = Channel.getChannelType(
       channel,
       _communityIndex,
     );
     final bool isCommunityChannel = Channel.isCommunityChannel(channelType);
-    final community = isCommunityChannel
-        ? _communityIndex.getCommunityForChannel(channel)
-        : null;
-    // Only flood-routed channels carry a region; show it when one is set.
-    String subtitle = connector.hasChannelRegion(channel.index)
-        ? context.l10n.channels_regionSetTo(
-            connector.getChannelRegion(channel.index),
-          )
-        : '';
     switch (channelType) {
       case ChannelType.communityPublic:
-        icon = Icons.groups;
-        iconColor = MeshTokens.of(context).secondary;
-        if (community != null) {
-          subtitle =
-              '${context.l10n.community_publicChannel} • ${community.name}';
-        }
       case ChannelType.communityHashtag:
         icon = Icons.groups;
-        iconColor = MeshTokens.of(context).secondary;
-        if (community != null) {
-          subtitle =
-              '${context.l10n.community_hashtagChannel} • ${community.name}';
-        }
+        iconColor = t.secondary;
+        typeLabel = context.l10n.channelType_community;
       case ChannelType.public:
         icon = Icons.public;
-        iconColor = MeshTokens.of(context).signal;
+        iconColor = t.signal;
+        typeLabel = context.l10n.channelType_public;
       case ChannelType.hashtag:
         icon = Icons.tag;
-        iconColor = MeshTokens.of(context).primary;
+        iconColor = t.primary;
+        typeLabel = context.l10n.channelType_hashtag;
       case ChannelType.private:
         icon = Icons.lock;
-        iconColor = MeshTokens.of(context).primary;
+        iconColor = t.primary;
+        typeLabel = context.l10n.channelType_private;
     }
 
     // Last message preview
@@ -435,19 +422,23 @@ class _ChannelsScreenState extends State<ChannelsScreen>
         ? context.l10n.channels_channelIndex(channel.index)
         : channel.name;
 
+    final isFavorite = connector.isChannelFavorite(channel.index);
+    final channelLang = connector.getChannelTranslationLanguage(channel.index);
+    final hasRegion = connector.hasChannelRegion(channel.index);
+
+    // 2026-08-29 channel-card parity redesign (accepted mockup
+    // .mockups/channel-card-parity.html, wariant 3b): same geometry as the
+    // contact card — default MeshCard margin, uniform spacingMd padding,
+    // header centered on the avatar with a type pill, DottedSeparator, then
+    // a fixed-order badge row (CH → REGION → TIME, always rendered, ghosted
+    // when inactive) with translate/mute/favorite icons on the right, and a
+    // one-line last-message quote in the stepper value-pill style below.
     return ListEntrance(
       key: ValueKey('channel_entrance_${channel.index}'),
       index: dragIndex ?? listIndex,
       child: MeshCard(
         key: ValueKey('channel_${channel.index}'),
-        margin: EdgeInsets.symmetric(
-          horizontal: MeshTokens.of(context).spacingMd,
-          vertical: MeshTokens.of(context).spacingXxs,
-        ),
-        padding: EdgeInsets.symmetric(
-          horizontal: MeshTokens.of(context).spacingSm,
-          vertical: MeshTokens.of(context).spacingSm,
-        ), // spacing: vertical 10->Sm (+2px)
+        padding: EdgeInsets.all(t.spacingMd),
         onTap: () {
           HapticFeedback.selectionClick();
           final unread = connector.getUnreadCountForChannelIndex(channel.index);
@@ -476,162 +467,260 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 channel,
               )
             : null,
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Leading avatar with optional community badge
-            Stack(
-              clipBehavior: Clip.none,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                AvatarCircle(
-                  name: channelLabel,
-                  size: 42,
-                  color: iconColor,
-                  icon: icon,
-                ),
-                if (isCommunityChannel)
-                  Positioned(
-                    right: -2,
-                    bottom: -2,
-                    child: Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: MeshTokens.of(context).secondary,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerLow,
-                          width: 2,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.people,
-                        size: 8,
-                        color: MeshTokens.of(context).secondaryInk,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            SizedBox(width: MeshTokens.of(context).spacingSm),
-            // Title + subtitle + ch chip
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          channelLabel,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(width: MeshTokens.of(context).spacingXs),
-                      Text(
-                        'CH ${channel.index}',
-                        style: MeshTokens.of(context).monoCaption(
-                          color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (subtitle.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                  if (lastPreview.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      lastPreview,
-                      style: MeshTokens.of(
-                        context,
-                      ).monoCaption(color: scheme.onSurfaceVariant),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            SizedBox(width: MeshTokens.of(context).spacingXs),
-            // Right side: time + unread badge + muted + drag handle
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (lastTime != null)
-                  Text(
-                    _relativeTime(lastTime),
-                    style: MeshTokens.of(
-                      context,
-                    ).monoCaption(color: scheme.onSurfaceVariant),
-                  ),
-                SizedBox(height: MeshTokens.of(context).spacingXxs),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                Stack(
+                  clipBehavior: Clip.none,
                   children: [
-                    if (isMuted) ...[
-                      Icon(
-                        Icons.notifications_off,
-                        size: 14,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                      SizedBox(width: MeshTokens.of(context).spacingXxs),
-                    ],
-                    if (unreadCount > 0)
-                      UnreadBadge(count: unreadCount)
-                    else
-                      // Reserve the badge's footprint so a new unread count
-                      // never changes the tile height.
-                      const Visibility(
-                        visible: false,
-                        maintainSize: true,
-                        maintainAnimation: true,
-                        maintainState: true,
-                        child: UnreadBadge(count: 0),
+                    AvatarCircle(
+                      name: channelLabel,
+                      size: 42,
+                      color: iconColor,
+                      icon: icon,
+                    ),
+                    if (isCommunityChannel)
+                      Positioned(
+                        right: -2,
+                        bottom: -2,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: t.secondary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: scheme.surfaceContainerLow,
+                              width: 2,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.people,
+                            size: 8,
+                            color: t.secondaryInk,
+                          ),
+                        ),
                       ),
                   ],
                 ),
+                SizedBox(width: t.spacingSm),
+                Expanded(
+                  child: Text(
+                    channelLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: unreadCount > 0
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: scheme.onSurface,
+                    ),
+                  ),
+                ),
+                SizedBox(width: t.spacingXs),
+                MeshTypePill(label: typeLabel, color: iconColor),
+                if (unreadCount > 0) ...[
+                  SizedBox(width: t.spacingXs),
+                  MediaQuery(
+                    data: MediaQuery.of(context).copyWith(
+                      textScaler: TextScaler.linear(
+                        MediaQuery.textScalerOf(
+                          context,
+                        ).scale(1.0).clamp(1.0, 1.3),
+                      ),
+                    ),
+                    child: UnreadBadge(count: unreadCount),
+                  ),
+                ],
+                if (showDragHandle && dragIndex != null) ...[
+                  SizedBox(width: t.spacingXxs),
+                  ReorderableDragStartListener(
+                    index: dragIndex,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: t.spacingXs),
+                      child: Icon(
+                        Icons.drag_handle,
+                        size: 18,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
-            if (showDragHandle && dragIndex != null) ...[
-              SizedBox(width: MeshTokens.of(context).spacingXxs),
-              ReorderableDragStartListener(
-                index: dragIndex,
-                // Top-aligned with the "CH n" / time line. Bottom padding keeps
-                // a comfortable drag target without pushing the icon down.
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    left: MeshTokens.of(context).spacingXs,
-                    right: MeshTokens.of(context).spacingXs,
-                    bottom: MeshTokens.of(context).spacingMd,
+            SizedBox(height: t.spacingSm),
+            DottedSeparator(color: scheme.outlineVariant),
+            // Same token as the card's own padding — gap above the badge row
+            // equals the card padding below it (contact-card rule).
+            SizedBox(height: t.spacingMd),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Wrap(
+                    spacing: t.spacingXxs,
+                    runSpacing: t.spacingXxs,
+                    children: [
+                      MeshStatusBadge(
+                        label: 'CH ${channel.index}',
+                        color: scheme.onSurfaceVariant,
+                        active: true,
+                      ),
+                      MeshStatusBadge(
+                        label: hasRegion
+                            ? connector.getChannelRegion(channel.index)
+                            : context.l10n.channels_badgeRegion,
+                        color: t.routeActive,
+                        active: hasRegion,
+                        fillColor: hasRegion
+                            ? t.routeActive.withValues(alpha: 0.2)
+                            : null,
+                      ),
+                      MeshStatusBadge(
+                        label: 'Smaz',
+                        color: scheme.onSurfaceVariant,
+                        active: connector.isChannelSmazEnabled(channel.index),
+                      ),
+                      // Per-channel translation language (2026-08-29,
+                      // replaces the translate icon; moved into the pill row
+                      // between SMAZ and TIME per user feedback): the
+                      // channel's assigned 2-letter code, ghosted "AUTO"
+                      // when inheriting the app-wide setting; always
+                      // tappable — shortcut to the language selection sheet
+                      // for THIS channel only.
+                      MeshStatusBadge(
+                        // Ghost label 'LANG', not 'AUTO' — "auto" read as
+                        // ambiguous (2026-08-29 user feedback).
+                        label: channelLang?.toUpperCase() ?? 'LANG',
+                        color: t.primary,
+                        active: channelLang != null,
+                        fillColor: channelLang != null
+                            ? t.primary.withValues(alpha: 0.2)
+                            : null,
+                        onTap: () => _showChannelTranslationSheet(
+                          this.context,
+                          connector,
+                          channel,
+                          channelLabel,
+                        ),
+                      ),
+                      MeshStatusBadge(
+                        label: lastTime != null
+                            ? formatLastSeenLabel(context, lastTime)
+                            : '—',
+                        color: unreadCount > 0
+                            ? t.primary
+                            : scheme.onSurfaceVariant,
+                        active: lastTime != null,
+                        fillColor: lastTime != null
+                            ? (unreadCount > 0
+                                      ? t.primary
+                                      : scheme.onSurfaceVariant)
+                                  .withValues(alpha: 0.2)
+                            : null,
+                      ),
+                    ],
                   ),
-                  child: Icon(
-                    Icons.drag_handle,
-                    size: 18,
-                    color: scheme.onSurfaceVariant,
+                ),
+                SizedBox(width: t.spacingXxs),
+                GestureDetector(
+                  onTap: () {
+                    final settings = context.read<AppSettingsService>();
+                    if (isMuted) {
+                      settings.unmuteChannel(channel.name);
+                    } else {
+                      settings.muteChannel(channel.name);
+                    }
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Opacity(
+                    opacity: isMuted ? 1.0 : 0.30,
+                    child: Icon(
+                      isMuted ? Icons.notifications_off : Icons.notifications,
+                      size: 18,
+                      color: t.warn,
+                    ),
                   ),
+                ),
+                SizedBox(width: t.spacingXxs),
+                GestureDetector(
+                  onTap: () =>
+                      connector.setChannelFavorite(channel.index, !isFavorite),
+                  behavior: HitTestBehavior.opaque,
+                  child: Opacity(
+                    opacity: isFavorite ? 1.0 : 0.30,
+                    child: Icon(
+                      isFavorite ? Icons.star : Icons.star_border,
+                      size: 18,
+                      color: t.warn,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (lastPreview.isNotEmpty) ...[
+              SizedBox(height: t.spacingSm),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(
+                  horizontal: t.spacingMd,
+                  vertical: t.spacingXxs + 2,
+                ),
+                decoration: BoxDecoration(
+                  color: scheme.primary.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(t.sm),
+                ),
+                child: Text(
+                  lastPreview,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: t.mono(fontSize: 12, color: scheme.primary),
                 ),
               ),
             ],
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _showChannelTranslationSheet(
+    BuildContext context,
+    MeshCoreConnector connector,
+    Channel channel,
+    String channelLabel,
+  ) async {
+    final l10n = context.l10n;
+    final result = await showMeshSelectionSheet<String?>(
+      context,
+      title: l10n.translation_messageTranslation,
+      subtitle: channelLabel,
+      toggleTitle: l10n.translation_translateBeforeSending,
+      toggleSubtitle: l10n.translation_composerEnabledHint,
+      toggleValue: connector.isChannelTranslateBeforeSending(channel.index),
+      selectedValue: connector.getChannelTranslationLanguage(channel.index),
+      options: [
+        MeshSelectionOption<String?>(
+          value: null,
+          label: l10n.translation_useAppLanguage,
+        ),
+        for (final option in supportedTranslationLanguages)
+          MeshSelectionOption<String?>(
+            value: option.code,
+            label: option.label,
+            trailing: option.code.toUpperCase(),
+          ),
+      ],
+    );
+    if (result == null) return;
+    await connector.setChannelTranslation(
+      channel.index,
+      languageCode: result.value,
+      translateBeforeSending: result.toggleValue ?? false,
     );
   }
 
@@ -736,39 +825,100 @@ class _ChannelsScreenState extends State<ChannelsScreen>
   }
 
   Widget _buildFilterButton(UiViewStateService viewState) {
-    return SortFilterMenu<ChannelSortOption>(
+    // Sort + Filters, parity with the contacts menu (2026-08-29) — the
+    // filter set matches what channels actually are: favorites + the four
+    // channel types + unread-only.
+    return SortFilterMenu<_ChannelsFilterAction>(
       tooltip: context.l10n.listFilter_tooltip,
       sections: [
-        SortFilterMenuSection<ChannelSortOption>(
+        SortFilterMenuSection<_ChannelsFilterAction>(
           title: context.l10n.channels_sortBy,
           options: [
-            SortFilterMenuOption<ChannelSortOption>(
-              value: ChannelSortOption.manual,
+            SortFilterMenuOption(
+              value: const _ChannelSortAction(ChannelSortOption.manual),
               label: context.l10n.channels_sortManual,
               checked: viewState.channelsSortOption == ChannelSortOption.manual,
             ),
-            SortFilterMenuOption<ChannelSortOption>(
-              value: ChannelSortOption.name,
+            SortFilterMenuOption(
+              value: const _ChannelSortAction(ChannelSortOption.name),
               label: context.l10n.channels_sortAZ,
               checked: viewState.channelsSortOption == ChannelSortOption.name,
             ),
-            SortFilterMenuOption<ChannelSortOption>(
-              value: ChannelSortOption.latestMessages,
+            SortFilterMenuOption(
+              value: const _ChannelSortAction(ChannelSortOption.latestMessages),
               label: context.l10n.channels_sortLatestMessages,
               checked:
                   viewState.channelsSortOption ==
                   ChannelSortOption.latestMessages,
             ),
-            SortFilterMenuOption<ChannelSortOption>(
-              value: ChannelSortOption.unread,
+            SortFilterMenuOption(
+              value: const _ChannelSortAction(ChannelSortOption.unread),
               label: context.l10n.channels_sortUnread,
               checked: viewState.channelsSortOption == ChannelSortOption.unread,
             ),
           ],
         ),
+        SortFilterMenuSection<_ChannelsFilterAction>(
+          title: context.l10n.listFilter_filters,
+          options: [
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(ChannelTypeFilter.all),
+              label: context.l10n.listFilter_all,
+              checked: viewState.channelsTypeFilter == ChannelTypeFilter.all,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(
+                ChannelTypeFilter.favorites,
+              ),
+              label: context.l10n.listFilter_favorites,
+              checked:
+                  viewState.channelsTypeFilter == ChannelTypeFilter.favorites,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(ChannelTypeFilter.public),
+              label: context.l10n.channelType_public,
+              checked: viewState.channelsTypeFilter == ChannelTypeFilter.public,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(ChannelTypeFilter.hashtag),
+              label: context.l10n.channelType_hashtag,
+              checked:
+                  viewState.channelsTypeFilter == ChannelTypeFilter.hashtag,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(ChannelTypeFilter.private),
+              label: context.l10n.channelType_private,
+              checked:
+                  viewState.channelsTypeFilter == ChannelTypeFilter.private,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelTypeFilterAction(
+                ChannelTypeFilter.community,
+              ),
+              label: context.l10n.channelType_community,
+              checked:
+                  viewState.channelsTypeFilter == ChannelTypeFilter.community,
+            ),
+            SortFilterMenuOption(
+              value: const _ChannelToggleUnreadAction(),
+              label: context.l10n.listFilter_unreadOnly,
+              checked: viewState.channelsShowUnreadOnly,
+              isToggle: true,
+            ),
+          ],
+        ),
       ],
-      onSelected: (sortOption) {
-        viewState.setChannelsSortOption(sortOption);
+      onSelected: (action) {
+        switch (action) {
+          case _ChannelSortAction(:final option):
+            viewState.setChannelsSortOption(option);
+          case _ChannelTypeFilterAction(:final filter):
+            viewState.setChannelsTypeFilter(filter);
+          case _ChannelToggleUnreadAction():
+            viewState.setChannelsShowUnreadOnly(
+              !viewState.channelsShowUnreadOnly,
+            );
+        }
       },
     );
   }
@@ -778,7 +928,26 @@ class _ChannelsScreenState extends State<ChannelsScreen>
     MeshCoreConnector connector,
     UiViewStateService viewState,
   ) {
+    bool matchesTypeFilter(Channel channel) {
+      final type = Channel.getChannelType(channel, _communityIndex);
+      return switch (viewState.channelsTypeFilter) {
+        ChannelTypeFilter.all => true,
+        ChannelTypeFilter.favorites => connector.isChannelFavorite(
+          channel.index,
+        ),
+        ChannelTypeFilter.public => type == ChannelType.public,
+        ChannelTypeFilter.hashtag => type == ChannelType.hashtag,
+        ChannelTypeFilter.private => type == ChannelType.private,
+        ChannelTypeFilter.community => Channel.isCommunityChannel(type),
+      };
+    }
+
     var filtered = channels.where((channel) {
+      if (!matchesTypeFilter(channel)) return false;
+      if (viewState.channelsShowUnreadOnly &&
+          connector.getUnreadCountForChannel(channel) == 0) {
+        return false;
+      }
       if (viewState.channelsSearchText.isEmpty) return true;
       final label = _normalizeChannelName(channel);
       return label.toLowerCase().contains(
@@ -1590,21 +1759,23 @@ class _ChannelsScreenState extends State<ChannelsScreen>
     showMeshSheet(
       context,
       builder: (sheetContext) => StatefulBuilder(
-        builder: (sheetContext, setSheetState) => DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: 0.65,
-          minChildSize: 0.4,
-          maxChildSize: 0.95,
-          builder: (_, scrollController) => Column(
+        // Winda template (2026-08-29): content-hugging height instead of the
+        // old fixed DraggableScrollableSheet(initialChildSize: 0.65) that
+        // left dead space below short content, and a SafeArea'd footer so
+        // Cancel/Save never land under the Android system bars.
+        builder: (sheetContext, setSheetState) => SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               BottomSheetHeader(
                 title: sheetContext.l10n.channels_editChannelTitle(
                   channel.index,
                 ),
               ),
-              Expanded(
+              Flexible(
                 child: ListView(
-                  controller: scrollController,
+                  shrinkWrap: true,
                   padding: EdgeInsets.symmetric(
                     horizontal: MeshTokens.of(sheetContext).spacingMd,
                   ),
@@ -1706,7 +1877,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 child: Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
+                      // Winda template: Cancel is a bare text button — no
+                      // fill, no border (2026-08-29 user spec).
+                      child: TextButton(
                         onPressed: () => Navigator.pop(sheetContext),
                         child: Text(sheetContext.l10n.common_cancel),
                       ),
@@ -2093,4 +2266,22 @@ class _ChannelsScreenState extends State<ChannelsScreen>
       ),
     );
   }
+}
+
+sealed class _ChannelsFilterAction {
+  const _ChannelsFilterAction();
+}
+
+class _ChannelSortAction extends _ChannelsFilterAction {
+  final ChannelSortOption option;
+  const _ChannelSortAction(this.option);
+}
+
+class _ChannelTypeFilterAction extends _ChannelsFilterAction {
+  final ChannelTypeFilter filter;
+  const _ChannelTypeFilterAction(this.filter);
+}
+
+class _ChannelToggleUnreadAction extends _ChannelsFilterAction {
+  const _ChannelToggleUnreadAction();
 }

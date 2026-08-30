@@ -1502,12 +1502,25 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     String? translatedLanguageCode;
     String? translationModelId;
     if (settings.translationEnabled) {
-      final targetLanguageCode = translationService.resolvedTargetLanguageCode(
-        Localizations.localeOf(context).languageCode,
+      final rawChannelLanguage = connector.getChannelTranslationLanguage(
+        widget.channel.index,
       );
+      final channelLanguageCode =
+          (rawChannelLanguage != null && rawChannelLanguage.trim().isNotEmpty)
+          ? rawChannelLanguage.trim()
+          : null;
+      final channelTranslateBeforeSending = connector
+          .isChannelTranslateBeforeSending(widget.channel.index);
+      // Per-conversation override (2026-08-29) — falls back to the app-wide chain.
+      final targetLanguageCode =
+          channelLanguageCode ??
+          translationService.resolvedTargetLanguageCode(
+            Localizations.localeOf(context).languageCode,
+          );
       if (translationService.shouldTranslateOutgoing(
         text: text,
         targetLanguageCode: targetLanguageCode,
+        additionalOptIn: channelTranslateBeforeSending,
       )) {
         final result = await translationService.translateOutgoingText(
           text: text,

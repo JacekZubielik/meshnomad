@@ -174,6 +174,90 @@ void main() {
     expect(await asset.fetch(), orderedEquals([9, 8, 7]));
   });
 
+  test(
+    'assetFor reports byte progress when the server sends Content-Length',
+    () async {
+      final payload = Uint8List.fromList(List.generate(40, (i) => i));
+      final client = MockClient((request) async {
+        return http.Response.bytes(
+          payload,
+          200,
+          headers: {'content-length': payload.length.toString()},
+        );
+      });
+      final service = FirmwareCatalogService(
+        httpClient: client,
+        storageDirectory: tempDir,
+      );
+      final file = CatalogFile(
+        name: 'fw.bin',
+        url: 'https://example.test/fw.bin',
+        offset: catalogOffsetUpdate,
+      );
+      final progressValues = <double>[];
+
+      final bytes = await service
+          .assetFor(file)
+          .fetch(onProgress: progressValues.add);
+
+      expect(bytes, orderedEquals(payload));
+      expect(progressValues, isNotEmpty);
+      expect(progressValues.last, 1.0);
+      expect(progressValues, everyElement(inInclusiveRange(0.0, 1.0)));
+    },
+  );
+
+  test('assetFor clamps progress to 1.0 when the body exceeds a '
+      'deliberately-understated Content-Length', () async {
+    final payload = Uint8List.fromList(List.generate(40, (i) => i));
+    final client = MockClient((request) async {
+      return http.Response.bytes(
+        payload,
+        200,
+        // Understate the true length so the naive ratio would exceed 1.0.
+        headers: {'content-length': (payload.length ~/ 2).toString()},
+      );
+    });
+    final service = FirmwareCatalogService(
+      httpClient: client,
+      storageDirectory: tempDir,
+    );
+    final file = CatalogFile(
+      name: 'fw.bin',
+      url: 'https://example.test/fw.bin',
+      offset: catalogOffsetUpdate,
+    );
+    final progressValues = <double>[];
+
+    final bytes = await service
+        .assetFor(file)
+        .fetch(onProgress: progressValues.add);
+
+    expect(bytes, orderedEquals(payload));
+    expect(progressValues, isNotEmpty);
+    expect(progressValues, everyElement(inInclusiveRange(0.0, 1.0)));
+  });
+
+  test(
+    'assetFor still returns full bytes when onProgress is omitted',
+    () async {
+      final client = MockClient(
+        (_) async => http.Response.bytes(Uint8List.fromList([5, 6, 7]), 200),
+      );
+      final service = FirmwareCatalogService(
+        httpClient: client,
+        storageDirectory: tempDir,
+      );
+      final file = CatalogFile(
+        name: 'fw2.bin',
+        url: 'https://example.test/fw2.bin',
+        offset: catalogOffsetFullReset,
+      );
+
+      expect(await service.assetFor(file).fetch(), orderedEquals([5, 6, 7]));
+    },
+  );
+
   test('fromCustomUrl keeps the previous contract', () async {
     final client = MockClient(
       (_) async => http.Response.bytes(Uint8List.fromList([1, 2]), 200),

@@ -15,6 +15,8 @@ import '../widgets/app_bar.dart';
 import '../widgets/device_tile.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/mesh_ui.dart';
+import '../widgets/screen_watermark_icon.dart';
+import '../widgets/transport_switcher.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'channels_screen.dart';
 import 'tcp_screen.dart';
@@ -98,119 +100,116 @@ class _ScannerScreenState extends State<ScannerScreen> {
     return SelectionArea(child: _screenBody(context));
   }
 
+  void _backToHub(BuildContext context) {
+    appLogger.info('Back to Hub', tag: 'ScannerScreen');
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
   Widget _screenBody(BuildContext context) {
-    final canPop = Navigator.of(context).canPop();
     return Scaffold(
       appBar: AppBar(
-        leading: canPop
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  appLogger.info('Back button pressed', tag: 'ScannerScreen');
-                  Navigator.of(context).maybePop();
-                },
-              )
-            : null,
-        title: AdaptiveAppBarTitle(context.l10n.scanner_title),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onPressed: () => _backToHub(context),
+        ),
+        title: AdaptiveAppBarTitle(context.l10n.bleScreenTitle),
         centerTitle: true,
         automaticallyImplyLeading: false,
-        actions: [
-          if (PlatformInfo.supportsUsbSerial)
-            IconButton(
-              icon: const Icon(Icons.usb),
-              tooltip: context.l10n.connectionChoiceUsbLabel,
-              onPressed: () {
-                appLogger.info(
-                  'USB selected, opening UsbScreen',
-                  tag: 'ScannerScreen',
-                );
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => const UsbScreen()));
-              },
-            ),
-          if (!PlatformInfo.isWeb)
-            IconButton(
-              icon: const Icon(Icons.lan),
-              tooltip: context.l10n.connectionChoiceTcpLabel,
-              onPressed: () {
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => const TcpScreen()));
-              },
-            ),
-          const QuickAccessMenuButton(),
-        ],
+        actions: const [CircleQuickAccessMenuButton()],
       ),
       body: SafeArea(
         top: false,
         child: Consumer<MeshCoreConnector>(
           builder: (context, connector, child) {
-            return Column(
+            final isScanning =
+                connector.state == MeshCoreConnectionState.scanning;
+            final isBluetoothOff = _bluetoothState == BluetoothAdapterState.off;
+            return Stack(
               children: [
-                // Bluetooth off warning — slides in/out with AnimatedSize
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeInOut,
-                  child: _bluetoothState == BluetoothAdapterState.off
-                      ? _BluetoothOffBanner(
-                          onEnable: PlatformInfo.isAndroid
-                              ? () => FlutterBluePlus.turnOn()
-                              : null,
-                        )
-                      : const SizedBox.shrink(),
+                const ScreenWatermarkIcon(icon: Icons.bluetooth),
+                Column(
+                  children: [
+                    // Bluetooth off warning — slides in/out with AnimatedSize
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOut,
+                      child: isBluetoothOff
+                          ? _BluetoothOffBanner(
+                              onEnable: PlatformInfo.isAndroid
+                                  ? () => FlutterBluePlus.turnOn()
+                                  : null,
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+
+                    // Connection status header
+                    _ConnectionStatusHeader(connector: connector),
+
+                    TransportSwitcher(
+                      current: MeshCoreTransportType.bluetooth,
+                      onSelectBluetooth: () {},
+                      onSelectUsb: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const UsbScreen()),
+                        );
+                      },
+                      onSelectTcp: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const TcpScreen()),
+                        );
+                      },
+                    ),
+
+                    // Stable Scan/Stop slot — replaces the old bottom-right
+                    // FAB and the EmptyState action button; always in the
+                    // same place regardless of scan state or list emptiness.
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        MeshTokens.of(context).spacingMd,
+                        0,
+                        MeshTokens.of(context).spacingMd,
+                        MeshTokens.of(context).spacingMd,
+                      ),
+                      child: Center(
+                        child: FilledButton.icon(
+                          onPressed: isBluetoothOff
+                              ? null
+                              : () {
+                                  HapticFeedback.lightImpact();
+                                  _toggleScan(connector);
+                                },
+                          icon: isScanning
+                              ? SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimary,
+                                  ),
+                                )
+                              : const Icon(Icons.bluetooth_searching),
+                          label: Text(
+                            isScanning
+                                ? context.l10n.scanner_stop
+                                : context.l10n.scanner_scan,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Device list
+                    Expanded(child: _buildDeviceList(context, connector)),
+                  ],
                 ),
-
-                // Connection status header
-                _ConnectionStatusHeader(connector: connector),
-
-                // Device list
-                Expanded(child: _buildDeviceList(context, connector)),
               ],
             );
           },
         ),
-      ),
-      floatingActionButton: Consumer<MeshCoreConnector>(
-        builder: (context, connector, child) {
-          final isScanning =
-              connector.state == MeshCoreConnectionState.scanning;
-          final isBluetoothOff = _bluetoothState == BluetoothAdapterState.off;
-
-          return FloatingActionButton.extended(
-            heroTag: 'scanner_ble_action',
-            onPressed: isBluetoothOff
-                ? null
-                : () {
-                    HapticFeedback.lightImpact();
-                    _toggleScan(connector);
-                  },
-            icon: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 220),
-              transitionBuilder: (child, anim) =>
-                  ScaleTransition(scale: anim, child: child),
-              child: isScanning
-                  ? SizedBox(
-                      key: const ValueKey('scanning'),
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    )
-                  : const Icon(
-                      Icons.bluetooth_searching,
-                      key: ValueKey('idle'),
-                    ),
-            ),
-            label: Text(
-              isScanning
-                  ? context.l10n.scanner_stop
-                  : context.l10n.scanner_scan,
-            ),
-          );
-        },
       ),
     );
   }
@@ -241,7 +240,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
       final isBluetoothOff = _bluetoothState == BluetoothAdapterState.off;
       final isScanning = connector.state == MeshCoreConnectionState.scanning;
       return EmptyState(
-        icon: isBluetoothOff ? Icons.bluetooth_disabled : Icons.bluetooth,
         title: isBluetoothOff
             ? context.l10n.scanner_bluetoothOff
             : isScanning
@@ -250,16 +248,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
         subtitle: isBluetoothOff
             ? context.l10n.scanner_bluetoothOffMessage
             : null,
-        action: (isBluetoothOff || isScanning)
-            ? null
-            : FilledButton.icon(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  _toggleScan(connector);
-                },
-                icon: const Icon(Icons.bluetooth_searching),
-                label: Text(context.l10n.scanner_scan),
-              ),
       );
     }
 

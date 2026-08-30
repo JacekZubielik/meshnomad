@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart' show rootBundle;
@@ -121,6 +122,9 @@ class FirmwareCatalog {
 
 /// A single flashable image resolved from the catalog (or a custom URL) —
 /// the screen-facing contract carried over from the previous design.
+/// [fetch]'s optional [onProgress] reports real bytes-received/content-
+/// length (0.0-1.0); it is only invoked when the server sends a
+/// Content-Length header — never a fabricated/timer-driven value.
 class FirmwareAsset {
   FirmwareAsset({
     required this.label,
@@ -129,7 +133,8 @@ class FirmwareAsset {
   });
 
   final String label;
-  final Future<Uint8List> Function() fetch;
+  final Future<Uint8List> Function({void Function(double progress)? onProgress})
+  fetch;
   final int flashOffset;
 }
 
@@ -182,31 +187,44 @@ class FirmwareCatalogService {
   FirmwareAsset assetFor(CatalogFile file) => FirmwareAsset(
     label: file.name,
     flashOffset: file.offset,
-    fetch: () async {
-      // Direct release-asset download — plain HTTP, not the GitHub API, so
-      // it is not subject to the 60-requests/hour unauthenticated limit.
-      final response = await _httpClient.get(Uri.parse(file.url));
-      if (response.statusCode != 200) {
-        throw StateError(
-          'Firmware download failed for ${file.name}: HTTP ${response.statusCode}',
-        );
-      }
-      return response.bodyBytes;
-    },
+    fetch: ({void Function(double progress)? onProgress}) =>
+        _streamedFetch(file.url, label: file.name, onProgress: onProgress),
   );
 
   FirmwareAsset fromCustomUrl(String url, {required int flashOffset}) =>
       FirmwareAsset(
         label: url,
         flashOffset: flashOffset,
-        fetch: () async {
-          final response = await _httpClient.get(Uri.parse(url));
-          if (response.statusCode != 200) {
-            throw StateError(
-              'Custom firmware URL failed: ${response.statusCode}',
-            );
-          }
-          return response.bodyBytes;
-        },
+        fetch: ({void Function(double progress)? onProgress}) =>
+            _streamedFetch(url, label: url, onProgress: onProgress),
       );
+
+  Future<Uint8List> _streamedFetch(
+    String url, {
+    required String label,
+    void Function(double progress)? onProgress,
+  }) async {
+    final response = await _httpClient.send(
+      http.Request('GET', Uri.parse(url)),
+    );
+    if (response.statusCode != 200) {
+      // Drain the stream before throwing so the underlying connection is
+      // released cleanly instead of left dangling.
+      await response.stream.drain<void>();
+      throw StateError(
+        'Firmware download failed for $label: HTTP ${response.statusCode}',
+      );
+    }
+    final total = response.contentLength;
+    final received = <int>[];
+    await for (final chunk in response.stream) {
+      received.addAll(chunk);
+      if (total != null && total > 0) {
+        // A server that under-reports Content-Length relative to the actual
+        // body size would otherwise push this ratio past 1.0.
+        onProgress?.call(math.min(1.0, received.length / total));
+      }
+    }
+    return Uint8List.fromList(received);
+  }
 }

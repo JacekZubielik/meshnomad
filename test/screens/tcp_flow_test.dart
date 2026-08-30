@@ -118,35 +118,103 @@ void main() {
     expect(connector.connectTcpCalls, 0);
   });
 
-  testWidgets('TCP Bluetooth action returns to existing scanner route', (
-    tester,
-  ) async {
-    final connector = _FakeMeshCoreConnector();
+  testWidgets(
+    'TCP BLE switcher action navigates to ScannerScreen (sibling switch, '
+    'not a Hub pop)',
+    (tester) async {
+      // 2026-08-29 fix: the transport switcher's BLE chip is a sibling
+      // switch (pushReplacement to ScannerScreen), distinct from the
+      // app-bar back arrow (popUntil isFirst → Hub, covered by the
+      // "returns to the Hub" test below). The two were conflated in the
+      // first redesign pass — tapping BLE from TCP incorrectly popped to
+      // Hub instead of opening the BLE screen.
+      final connector = _FakeMeshCoreConnector();
 
-    await tester.pumpWidget(
-      _buildTestApp(connector: connector, child: const ScannerScreen()),
-    );
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        _buildTestApp(connector: connector, child: const ScannerScreen()),
+      );
+      await tester.pumpAndSettle();
 
-    final scannerContext = tester.element(find.byType(ScannerScreen));
-    final scannerL10n = AppLocalizations.of(scannerContext);
-    await tester.tap(find.byTooltip(scannerL10n.connectionChoiceTcpLabel));
-    await tester.pumpAndSettle();
-    expect(find.byType(TcpScreen), findsOneWidget);
+      final scannerContext = tester.element(find.byType(ScannerScreen));
+      final scannerL10n = AppLocalizations.of(scannerContext);
+      await tester.tap(find.text(scannerL10n.connectionChoiceTcpLabel));
+      await tester.pumpAndSettle();
+      expect(find.byType(TcpScreen), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Bluetooth'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text(scannerL10n.connectionChoiceBluetoothLabel));
+      await tester.pumpAndSettle();
 
-    expect(find.byType(TcpScreen), findsNothing);
-    expect(find.byType(ScannerScreen), findsOneWidget);
-    final navigatorState = tester.state<NavigatorState>(find.byType(Navigator));
-    expect(navigatorState.canPop(), isFalse);
+      expect(find.byType(TcpScreen), findsNothing);
+      expect(find.byType(ScannerScreen), findsOneWidget);
 
-    // ScannerScreen.dispose() schedules disconnect work that debounces notify.
-    // Drain that debounce timer before test teardown.
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(milliseconds: 60));
-  });
+      // ScannerScreen.dispose() schedules disconnect work that debounces
+      // notify. Drain that debounce timer before test teardown.
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 60));
+    },
+  );
+
+  testWidgets(
+    'TCP back arrow pops back to the Hub (first route), not a sibling '
+    'BT/USB/TCP screen',
+    (tester) async {
+      // Real topology (main.dart: home: HubScreen()): Hub is the app's
+      // first/root route; BLE/USB/TCP are pushed on top of it and switch
+      // between each other via pushReplacement (2026-08-29 redesign), so
+      // the app-bar back arrow (popUntil isFirst) always lands on Hub,
+      // never on a sibling transport screen that pushReplacement already
+      // discarded. Model that here with a placeholder Hub-equivalent
+      // first route instead of pushing ScannerScreen as `home:` directly.
+      final connector = _FakeMeshCoreConnector();
+      const hubKey = Key('fake_hub');
+
+      await tester.pumpWidget(
+        _buildTestApp(
+          connector: connector,
+          child: Builder(
+            builder: (context) => Scaffold(
+              key: hubKey,
+              body: Center(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ScannerScreen()),
+                  ),
+                  child: const Text('Open Companion'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Open Companion'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ScannerScreen), findsOneWidget);
+
+      final scannerContext = tester.element(find.byType(ScannerScreen));
+      final scannerL10n = AppLocalizations.of(scannerContext);
+      await tester.tap(find.text(scannerL10n.connectionChoiceTcpLabel));
+      await tester.pumpAndSettle();
+      expect(find.byType(TcpScreen), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TcpScreen), findsNothing);
+      expect(find.byType(ScannerScreen), findsNothing);
+      expect(find.byKey(hubKey), findsOneWidget);
+      final navigatorState = tester.state<NavigatorState>(
+        find.byType(Navigator),
+      );
+      expect(navigatorState.canPop(), isFalse);
+
+      // ScannerScreen.dispose() schedules disconnect work that debounces
+      // notify. Drain that debounce timer before test teardown.
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 60));
+    },
+  );
 
   testWidgets('TcpScreen disables connect button while connector is scanning', (
     tester,

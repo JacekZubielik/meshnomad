@@ -86,12 +86,26 @@ class ProfileChipRow extends StatelessWidget {
 class SelectableChipButton extends StatelessWidget {
   const SelectableChipButton({
     super.key,
-    required this.label,
+    this.label,
+    this.icon,
+    this.padding,
     required this.selected,
     required this.onTap,
-  });
+  }) : assert(label != null || icon != null, 'provide label or icon');
 
-  final String label;
+  final String? label;
+
+  /// Icon-only variant (QuickSwitchBar, 2026-08-29): renders [icon] instead
+  /// of a text label — same fill/radius/border chain as the text chips.
+  /// When both [icon] and [label] are given (TransportSwitcher, 2026-08-29),
+  /// renders icon + gap + label in a row instead of either alone.
+  final Widget? icon;
+
+  /// Overrides the default `EdgeInsets.symmetric(horizontal: spacingMd,
+  /// vertical: spacingXs)` — per-caller only (QuickSwitchBar uses a taller
+  /// vertical padding for its icon-only buttons); other callers keep the
+  /// shared default.
+  final EdgeInsets? padding;
   final bool selected;
   final VoidCallback onTap;
 
@@ -112,12 +126,33 @@ class SelectableChipButton extends StatelessWidget {
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       minimumSize: const WidgetStatePropertyAll(Size(0, 0)),
       padding: WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: t.spacingMd, vertical: t.spacingXs),
+        padding ??
+            EdgeInsets.symmetric(
+              horizontal: t.spacingMd,
+              vertical: t.spacingXs,
+            ),
       ),
       textStyle: WidgetStatePropertyAll(buttonTextStyle),
     );
+    final child = icon != null && label != null
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              icon!,
+              SizedBox(width: t.spacingXxs),
+              Flexible(
+                child: Text(
+                  label!,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          )
+        : icon ?? Text(label!);
     return selected
-        ? FilledButton(onPressed: onTap, style: style, child: Text(label))
-        : OutlinedButton(onPressed: onTap, style: style, child: Text(label));
+        ? FilledButton(onPressed: onTap, style: style, child: child)
+        : OutlinedButton(onPressed: onTap, style: style, child: child);
   }
 }
