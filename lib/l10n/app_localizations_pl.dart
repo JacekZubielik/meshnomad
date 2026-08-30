@@ -136,13 +136,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get common_interval => 'Interwał';
 
   @override
-  String get scanner_title => 'MeshNomad – wersja open source';
+  String get bleScreenTitle => 'Połącz przez BLE';
 
   @override
   String get connectionChoiceUsbLabel => 'USB';
 
   @override
-  String get connectionChoiceBluetoothLabel => 'Bluetooth';
+  String get connectionChoiceBluetoothLabel => 'BLE';
 
   @override
   String get connectionChoiceTcpLabel => 'TCP';
@@ -1286,6 +1286,21 @@ class AppLocalizationsPl extends AppLocalizations {
   String channels_channelIndex(int index) {
     return 'Kanał $index';
   }
+
+  @override
+  String get channelType_public => 'Publiczny';
+
+  @override
+  String get channelType_hashtag => 'Hashtag';
+
+  @override
+  String get channelType_private => 'Prywatny';
+
+  @override
+  String get channelType_community => 'Społeczność';
+
+  @override
+  String get channels_badgeRegion => 'Region';
 
   @override
   String get channels_public => 'Publiczny';
@@ -5802,9 +5817,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_cardShadow_subtitle => 'Unoszący cień pod kartami';
 
   @override
-  String get appSettings_about => 'O aplikacji';
-
-  @override
   String get appSettings_editCustomStyleTooltip => 'Edytuj styl Custom';
 
   @override
@@ -5875,4 +5887,156 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get about_openSourceLicenses => 'Licencje open source';
+
+  @override
+  String get hubCompanionTile => 'Companion';
+
+  @override
+  String get hubCompanionSubtitle => 'Połącz przez BLE, TCP lub USB';
+
+  @override
+  String get hubFlasherTile => 'Flasher';
+
+  @override
+  String get hubFlasherSubtitle => 'Wgraj firmware na urządzenie';
+
+  @override
+  String get hubSetupTile => 'Setup USB';
+
+  @override
+  String get hubSetupSubtitle => 'Skonfiguruj repeater lub room server';
+
+  @override
+  String get flasherPickFile => 'Wybierz plik firmware';
+
+  @override
+  String get flasherConnecting => 'Łączenie z urządzeniem...';
+
+  @override
+  String get flasherFlashing => 'Wgrywanie firmware...';
+
+  @override
+  String get flasherDone => 'Firmware wgrane pomyślnie';
+
+  @override
+  String flasherError(String message) {
+    return 'Błąd wgrywania: $message';
+  }
+
+  @override
+  String get flasherStart => 'Rozpocznij';
+
+  @override
+  String get flasherBootHint =>
+      'Jeśli to trwa dłużej niż kilka sekund, przytrzymaj przycisk BOOT na płytce podczas łączenia';
+
+  @override
+  String get flasherSourceMeshCore => 'MeshCore';
+
+  @override
+  String get flasherSourceMeshCoreSolo => 'MeshCore-Solo';
+
+  @override
+  String get flasherSourceLocalFile => 'Plik lokalny';
+
+  @override
+  String get flasherSourceCustomUrl => 'Własny URL';
+
+  @override
+  String get flasherBoardLabel => 'Płytka';
+
+  @override
+  String get flasherSelectBoard => 'Wybierz płytkę';
+
+  @override
+  String get flasherSearchBoardHint => 'Szukaj płytki';
+
+  @override
+  String flasherCatalogUpdated(String date) {
+    return 'Katalog z $date';
+  }
+
+  @override
+  String get flasherRefreshTooltip => 'Odśwież katalog';
+
+  @override
+  String get flasherNoBoardsFound => 'Nie znaleziono płytek';
+
+  @override
+  String get flasherRomTypeLabel => 'Typ ROM-u';
+
+  @override
+  String get flasherRetry => 'Spróbuj ponownie';
+
+  @override
+  String get flasherNoReleasesFound => 'Nie znaleziono release\'ów';
+
+  @override
+  String get flasherFullResetOption => 'Pełny reset (kasuje wszystko)';
+
+  @override
+  String get flasherUpdateOption => 'Aktualizacja (zachowuje ustawienia)';
+
+  @override
+  String get flasherFullResetConfirmTitle => 'Skasować wszystko?';
+
+  @override
+  String get flasherFullResetConfirmBody =>
+      'Ta operacja skasuje bootloader i wszystkie ustawienia urządzenia, nie tylko aplikację. Upewnij się, że to na pewno plik firmware, którego chcesz użyć.';
+
+  @override
+  String get flasherFullResetConfirmProceed => 'Skasuj i wgraj';
+
+  @override
+  String get flasherFullResetConfirmCancel => 'Anuluj';
+
+  @override
+  String get flasherDownloading => 'Pobieranie…';
+
+  @override
+  String flasherDownloadedFile(String label) {
+    return 'Pobrano — $label';
+  }
+
+  @override
+  String flasherFlashedFile(String label) {
+    return 'Wgrano — $label';
+  }
+
+  @override
+  String get flasherFullResetShortLabel => 'Full reset';
+
+  @override
+  String get flasherUpdateShortLabel => 'Aktualizacja';
+
+  @override
+  String get flasherFullResetReadyTooltip =>
+      'Pobrano — dotknij, aby wgrać Full Reset';
+
+  @override
+  String get flasherUpdateReadyTooltip =>
+      'Pobrano — dotknij, aby wgrać Aktualizację';
+
+  @override
+  String get flasherIconLegend =>
+      '⟳ Full reset kasuje bootloader i ustawienia (wymaga potwierdzenia). ↓ Aktualizacja zachowuje ustawienia. Szary = jeszcze nie pobrano, dotknij, aby pobrać. Akcent + ⚡ = pobrano i gotowe, dotknij, aby wgrać.';
+
+  @override
+  String get flasherAboutMenuItem => 'O flashowaniu przez USB';
+
+  @override
+  String get flasherAboutIntro =>
+      'Ten ekran wgrywa firmware MeshCore bezpośrednio na płytkę przez port szeregowy USB — bez aplikacji towarzyszącej ani komputerowego narzędzia do flashowania.';
+
+  @override
+  String get flasherAboutFullResetHeading => 'Full reset';
+
+  @override
+  String get flasherAboutUpdateHeading => 'Aktualizacja';
+
+  @override
+  String get flasherAboutConnectionHeading => 'Łączenie przez USB';
+
+  @override
+  String get flasherVersionLabel => 'Wersja';
 }

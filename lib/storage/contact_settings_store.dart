@@ -103,4 +103,69 @@ class ContactSettingsStore {
       await prefs.setString(key, profileId);
     }
   }
+
+  static const String _translationKeyPrefix = 'contact_translation_';
+
+  String get keyForTranslation => '$_translationKeyPrefix$publicKeyHex';
+
+  /// Per-contact translation target language; null = inherit the app-wide
+  /// setting.
+  Future<String?> loadTranslationLanguage(String contactKeyHex) async {
+    if (publicKeyHex.isEmpty) {
+      appLogger.warn(
+        'Public key hex is not set. Cannot load contact translation settings.',
+      );
+      return null;
+    }
+    return PrefsManager.instance.getString(
+      '${keyForTranslation}lang_$contactKeyHex',
+    );
+  }
+
+  Future<void> saveTranslationLanguage(
+    String contactKeyHex,
+    String? languageCode,
+  ) async {
+    if (publicKeyHex.isEmpty) {
+      appLogger.warn(
+        'Public key hex is not set. Cannot save contact translation settings.',
+      );
+      return;
+    }
+    final key = '${keyForTranslation}lang_$contactKeyHex';
+    if (languageCode == null) {
+      await PrefsManager.instance.remove(key);
+    } else {
+      await PrefsManager.instance.setString(key, languageCode);
+    }
+  }
+
+  Future<bool> loadTranslateBeforeSending(String contactKeyHex) async {
+    if (publicKeyHex.isEmpty) {
+      appLogger.warn(
+        'Public key hex is not set. Cannot load contact translation settings.',
+      );
+      return false;
+    }
+    return PrefsManager.instance.getBool(
+          '${keyForTranslation}send_$contactKeyHex',
+        ) ??
+        false;
+  }
+
+  Future<void> saveTranslateBeforeSending(
+    String contactKeyHex,
+    bool enabled,
+  ) async {
+    if (publicKeyHex.isEmpty) {
+      appLogger.warn(
+        'Public key hex is not set. Cannot save contact translation settings.',
+      );
+      return;
+    }
+    await PrefsManager.instance.setBool(
+      '${keyForTranslation}send_$contactKeyHex',
+      enabled,
+    );
+  }
 }

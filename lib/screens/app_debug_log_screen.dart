@@ -30,6 +30,18 @@ class AppDebugLogScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
+            // Circular/accent app-bar family (2026-08-29) — see
+            // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+            // The copy/clear/preview action icons are unchanged (not part
+            // of the leading/trailing menu-icon pattern this schema
+            // covers).
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
             title: AdaptiveAppBarTitle(context.l10n.debugLog_appTitle),
             centerTitle: true,
             actions: [
@@ -73,7 +85,7 @@ class AppDebugLogScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const QuickAccessMenuButton(),
+              const CircleQuickAccessMenuButton(),
             ],
           ),
           body: SafeArea(

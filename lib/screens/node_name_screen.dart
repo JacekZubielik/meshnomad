@@ -62,7 +62,19 @@ class _NodeNameScreenState extends State<NodeNameScreen> {
     final t = MeshTokens.of(context);
     return SelectionArea(
       child: Scaffold(
-        appBar: AppBar(title: Text(l10n.settings_nodeName), centerTitle: true),
+        appBar: AppBar(
+          // Circular/accent app-bar family (2026-08-29) — see
+          // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            onPressed: () => Navigator.of(context).maybePop(),
+          ),
+          title: Text(l10n.settings_nodeName),
+          centerTitle: true,
+        ),
         body: SafeArea(
           top: false,
           child: ListView(

@@ -88,14 +88,15 @@ void main() {
   }
 
   testWidgets('ContactBadgeRow always renders all 5 badges in fixed order '
-      '(Favorite, GPS, Smaz, Route, Time), regardless of state', (
+      '(GPS, Route, Smaz, Lang, Time — 2026-08-29 order) plus the '
+      'right-aligned mute bell and favorite star, regardless of state', (
     tester,
   ) async {
-    // Wide viewport so all 5 badges land on one line — this test checks
+    // Wide viewport so all badges land on one line — this test checks
     // left-to-right order, not the Wrap widget's wrapping behavior itself.
     await tester.pumpWidget(badgeRow(routeLabel: null, width: 900));
 
-    final labels = ['FAVORITES', 'GPS', 'SMAZ', 'ROUTE'];
+    final labels = ['GPS', 'ROUTE', 'SMAZ', 'LANG'];
     for (final label in labels) {
       expect(find.text(label), findsOneWidget);
     }
@@ -113,6 +114,16 @@ void main() {
       );
       lastX = x;
     }
+
+    // Mute bell then favorite star sit to the right of every badge
+    // (channel-card parity, 2026-08-29).
+    expect(find.text('FAVORITES'), findsNothing);
+    expect(find.byIcon(Icons.notifications), findsOneWidget);
+    expect(find.byIcon(Icons.star_border), findsOneWidget);
+    final bellX = tester.getTopLeft(find.byIcon(Icons.notifications)).dx;
+    final starX = tester.getTopLeft(find.byIcon(Icons.star_border)).dx;
+    expect(bellX, greaterThan(lastX));
+    expect(starX, greaterThan(bellX));
   });
 
   testWidgets('ContactBadgeRow ghosts inactive badges instead of hiding them '
@@ -130,10 +141,21 @@ void main() {
       find.ancestor(of: find.text(label), matching: find.byType(Opacity)).first,
     );
 
-    expect(opacityOf('FAVORITES').opacity, 1.0);
     expect(opacityOf('GPS').opacity, closeTo(0.30, 0.001));
     expect(opacityOf('SMAZ').opacity, closeTo(0.30, 0.001));
     expect(find.text('FLOOD'), findsOneWidget);
+
+    // Favorite star follows the same ghost pattern: filled + full opacity
+    // when favorite, outlined + 0.30 when not.
+    Opacity starOpacity(IconData icon) => tester.widget<Opacity>(
+      find
+          .ancestor(of: find.byIcon(icon), matching: find.byType(Opacity))
+          .first,
+    );
+    expect(starOpacity(Icons.star).opacity, 1.0);
+
+    await tester.pumpWidget(badgeRow(isFavorite: false, routeLabel: 'Flood'));
+    expect(starOpacity(Icons.star_border).opacity, closeTo(0.30, 0.001));
   });
 
   testWidgets(
@@ -217,9 +239,11 @@ void main() {
       );
     }
 
-    // Everything inactive: Favorite still fires, GPS/Route do not.
+    // Everything inactive: the favorite star still fires (2026-08-28:
+    // replaced the FAVORITES badge, same always-tappable semantics),
+    // GPS/Route do not.
     await tester.pumpWidget(interactiveRow());
-    await tester.tap(find.text('FAVORITES'));
+    await tester.tap(find.byIcon(Icons.star_border));
     await tester.tap(find.text('GPS'));
     await tester.tap(find.text('ROUTE'));
     await tester.pump();

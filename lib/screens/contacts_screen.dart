@@ -18,6 +18,8 @@ import '../models/contact.dart';
 import '../l10n/contact_localization.dart';
 import '../models/contact_group.dart';
 import '../helpers/node_freshness.dart';
+import '../models/translation_support.dart';
+import '../services/app_settings_service.dart';
 import '../services/ui_view_state_service.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/contact_search.dart';
@@ -26,9 +28,11 @@ import '../utils/dialog_utils.dart';
 import '../widgets/dotted_separator.dart';
 import '../utils/disconnect_navigation_mixin.dart';
 import '../utils/emoji_utils.dart';
+import '../utils/last_seen_label.dart';
 import '../utils/route_transitions.dart';
 import '../widgets/list_filter_widget.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/mesh_selection_sheet.dart';
 import '../widgets/mesh_ui.dart';
 import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/quick_switch_bar.dart';
@@ -808,6 +812,7 @@ class _ContactsScreenState extends State<ContactsScreen>
           // FAB + bottom sheet (2026-08-23), so it no longer shares this row.
           child: TextField(
             controller: _searchController,
+            style: Theme.of(context).textTheme.bodyMedium,
             decoration: InputDecoration(
               hintText: hintText,
               prefixIcon: const Icon(Icons.search),
@@ -867,9 +872,14 @@ class _ContactsScreenState extends State<ContactsScreen>
                   )
                 : ListView.builder(
                     controller: _contactsScrollController,
-                    padding: const EdgeInsets.only(
-                      bottom: 88,
-                    ), // spacing: size-special (>25% off nearest token)
+                    // Was a size-special literal (88) reserved as FAB
+                    // clearance — left a large dead gap between the last
+                    // card and QuickSwitchBar once scrolled to the end
+                    // (2026-08-29 on-device feedback: should read as a
+                    // normal small bottom inset, not FAB-sized).
+                    padding: EdgeInsets.only(
+                      bottom: MeshTokens.of(context).spacingMd,
+                    ),
                     itemCount: filteredAndSorted.length,
                     itemBuilder: (context, index) {
                       final contact = filteredAndSorted[index];
@@ -1717,7 +1727,8 @@ class _ContactTile extends StatelessWidget {
                   child: Text(
                     contact.name,
                     maxLines: 1,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: unreadCount > 0
                           ? FontWeight.w700
                           : FontWeight.w500,
@@ -1751,7 +1762,9 @@ class _ContactTile extends StatelessWidget {
             // footers) cutting the header off the status-badge row below it
             // — full card width, 2026-08-20 refinement.
             DottedSeparator(color: scheme.outlineVariant),
-            SizedBox(height: t.spacingXxs),
+            // Same token as the card's own padding, so the gap above the
+            // badge row always equals the card padding below it.
+            SizedBox(height: t.spacingMd),
             // Fixed-order status badges (2026-08-19 accepted mockup:
             // .mockups/contact-tile-badges.html; moved below the header and
             // left-aligned to the full card width, labels at 3/4 size,
@@ -1772,8 +1785,24 @@ class _ContactTile extends StatelessWidget {
                       pathHashByteWidth: pathHashByteWidth,
                     )
                   : null,
+              languageCode: context
+                  .watch<MeshCoreConnector>()
+                  .getContactTranslationLanguage(contact.publicKeyHex),
               timeLabel: _formatLastSeen(context, lastSeen),
               isUnread: unreadCount > 0,
+              isMuted: context.watch<AppSettingsService>().isContactMuted(
+                contact.publicKeyHex,
+              ),
+              onLanguageTap: () =>
+                  _showContactTranslationSheet(context, contact),
+              onMuteTap: () {
+                final settings = context.read<AppSettingsService>();
+                if (settings.isContactMuted(contact.publicKeyHex)) {
+                  settings.unmuteContact(contact.publicKeyHex);
+                } else {
+                  settings.muteContact(contact.publicKeyHex);
+                }
+              },
               onFavoriteTap: () {
                 context.read<MeshCoreConnector>().setContactFlags(
                   contact,
@@ -1809,26 +1838,46 @@ class _ContactTile extends StatelessWidget {
     );
   }
 
-  String _formatLastSeen(BuildContext context, DateTime lastSeen) {
-    final now = DateTime.now();
-    final diff = now.difference(lastSeen);
+  String _formatLastSeen(BuildContext context, DateTime lastSeen) =>
+      formatLastSeenLabel(context, lastSeen);
 
-    if (diff.isNegative || diff.inMinutes < 5) {
-      return context.l10n.contacts_lastSeenNow;
-    }
-    if (diff.inMinutes < 60) {
-      return context.l10n.contacts_lastSeenMinsAgo(diff.inMinutes);
-    }
-    if (diff.inHours < 24) {
-      final hours = diff.inHours;
-      return hours == 1
-          ? context.l10n.contacts_lastSeenHourAgo
-          : context.l10n.contacts_lastSeenHoursAgo(hours);
-    }
-    final days = diff.inDays;
-    return days == 1
-        ? context.l10n.contacts_lastSeenDayAgo
-        : context.l10n.contacts_lastSeenDaysAgo(days);
+  Future<void> _showContactTranslationSheet(
+    BuildContext context,
+    Contact contact,
+  ) async {
+    final connector = context.read<MeshCoreConnector>();
+    final l10n = context.l10n;
+    final result = await showMeshSelectionSheet<String?>(
+      context,
+      title: l10n.translation_messageTranslation,
+      subtitle: contact.name,
+      toggleTitle: l10n.translation_translateBeforeSending,
+      toggleSubtitle: l10n.translation_composerEnabledHint,
+      toggleValue: connector.isContactTranslateBeforeSending(
+        contact.publicKeyHex,
+      ),
+      selectedValue: connector.getContactTranslationLanguage(
+        contact.publicKeyHex,
+      ),
+      options: [
+        MeshSelectionOption<String?>(
+          value: null,
+          label: l10n.translation_useAppLanguage,
+        ),
+        for (final option in supportedTranslationLanguages)
+          MeshSelectionOption<String?>(
+            value: option.code,
+            label: option.label,
+            trailing: option.code.toUpperCase(),
+          ),
+      ],
+    );
+    if (result == null) return;
+    await connector.setContactTranslation(
+      contact.publicKeyHex,
+      languageCode: result.value,
+      translateBeforeSending: result.toggleValue ?? false,
+    );
   }
 }
 

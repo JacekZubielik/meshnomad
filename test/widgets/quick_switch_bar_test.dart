@@ -6,9 +6,6 @@ import 'package:meshnomad/theme/mesh_theme.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
 import 'package:meshnomad/widgets/quick_switch_bar.dart';
 
-// M3 navigation indicator pill height (NavigationBar spec).
-const double _indicatorHeight = 32.0;
-
 Widget _wrap(Widget bar) {
   return MaterialApp(
     theme: MeshTheme.light().copyWith(
@@ -26,7 +23,68 @@ Widget _wrap(Widget bar) {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('pill and labels fit inside the bar with balanced margins', (
+  testWidgets('renders 3 icon-only destinations — active as FilledButton, '
+      'inactive as OutlinedButton, no text captions (2026-08-29 redesign)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(QuickSwitchBar(selectedIndex: 0, onDestinationSelected: (_) {})),
+    );
+    await tester.pumpAndSettle();
+
+    // Chip pattern from the QuickStylePicker: selected = FilledButton,
+    // the other two = OutlinedButton.
+    expect(find.byType(FilledButton), findsOneWidget);
+    expect(find.byType(OutlinedButton), findsNWidgets(2));
+    expect(find.byType(NavigationBar), findsNothing);
+
+    // Selected slot shows the filled icon variant, others outlined.
+    expect(find.byIcon(Icons.people), findsOneWidget);
+    expect(find.byIcon(Icons.tag), findsOneWidget);
+    expect(find.byIcon(Icons.map_outlined), findsOneWidget);
+
+    // Icons only — screen names must NOT render as visible captions.
+    expect(find.text('Contacts'), findsNothing);
+    expect(find.text('Channels'), findsNothing);
+    expect(find.text('Map'), findsNothing);
+  });
+
+  testWidgets('active button lives inside the FilledButton slot matching '
+      'selectedIndex', (tester) async {
+    await tester.pumpWidget(
+      _wrap(QuickSwitchBar(selectedIndex: 2, onDestinationSelected: (_) {})),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(
+        of: find.byType(FilledButton),
+        matching: find.byIcon(Icons.map),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('taps report the destination index without changing '
+      'own state (behavior identical to the old NavigationBar)', (
+    tester,
+  ) async {
+    final taps = <int>[];
+    await tester.pumpWidget(
+      _wrap(QuickSwitchBar(selectedIndex: 0, onDestinationSelected: taps.add)),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.tag));
+    await tester.tap(find.byIcon(Icons.map_outlined));
+    // Active destination also stays tappable.
+    await tester.tap(find.byIcon(Icons.people));
+    await tester.pump();
+
+    expect(taps, [1, 2, 0]);
+  });
+
+  testWidgets('unread badges ride on the contacts and channels icons', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -35,73 +93,27 @@ void main() {
           selectedIndex: 0,
           onDestinationSelected: (_) {},
           contactsUnreadCount: 3,
+          channelsUnreadCount: 120,
         ),
       ),
     );
     await tester.pumpAndSettle();
 
-    final barRect = tester.getRect(find.byType(NavigationBar));
-
-    // The selected destination's icon sits centered inside the indicator
-    // pill, so the pill's top edge is half the pill height above the icon
-    // center.
-    final iconRect = tester.getRect(find.byIcon(Icons.people).first);
-    final pillTop = iconRect.center.dy - _indicatorHeight / 2;
-    final pillTopMargin = pillTop - barRect.top;
-
-    final labelRect = tester.getRect(find.text('Contacts').first);
-    final labelBottomMargin = barRect.bottom - labelRect.bottom;
-
-    expect(
-      pillTopMargin,
-      greaterThanOrEqualTo(6),
-      reason:
-          'indicator pill must keep a visible margin from the top of the '
-          'bar (top margin $pillTopMargin)',
-    );
-    expect(
-      labelBottomMargin,
-      greaterThanOrEqualTo(6),
-      reason:
-          'label must keep a visible margin from the bottom of the bar '
-          '(bottom margin $labelBottomMargin)',
-    );
-    expect(
-      (pillTopMargin - labelBottomMargin).abs(),
-      lessThanOrEqualTo(8),
-      reason:
-          'top and bottom margins must be proportional '
-          '(top $pillTopMargin vs bottom $labelBottomMargin)',
-    );
-
-    // The unread badge rides above the icon — it must stay inside the bar.
-    final badgeRect = tester.getRect(find.text('3'));
-    expect(
-      badgeRect.top,
-      greaterThanOrEqualTo(barRect.top),
-      reason:
-          'unread badge must not be clipped by the top of the bar '
-          '(badge top ${badgeRect.top} vs bar top ${barRect.top})',
-    );
+    expect(find.text('3'), findsOneWidget);
+    expect(find.text('99+'), findsOneWidget);
   });
 
-  testWidgets('labels still fit with a larger system text scale', (
-    tester,
-  ) async {
-    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
-    addTearDown(tester.platformDispatcher.clearAllTestValues);
-
+  testWidgets('destinations keep semantic labels for assistive tech '
+      'even without visible captions', (tester) async {
+    final handle = tester.ensureSemantics();
     await tester.pumpWidget(
       _wrap(QuickSwitchBar(selectedIndex: 0, onDestinationSelected: (_) {})),
     );
     await tester.pumpAndSettle();
 
-    final barRect = tester.getRect(find.byType(NavigationBar));
-    final labelRect = tester.getRect(find.text('Contacts').first);
-    expect(
-      barRect.bottom - labelRect.bottom,
-      greaterThanOrEqualTo(2),
-      reason: 'label must not overflow the bar at 1.3x text scale',
-    );
+    expect(find.bySemanticsLabel('Contacts'), findsOneWidget);
+    expect(find.bySemanticsLabel('Channels'), findsOneWidget);
+    expect(find.bySemanticsLabel('Map'), findsOneWidget);
+    handle.dispose();
   });
 }

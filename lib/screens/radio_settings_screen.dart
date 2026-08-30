@@ -568,9 +568,18 @@ class _RadioSettingsScreenState extends State<RadioSettingsScreen> {
     return SelectionArea(
       child: Scaffold(
         appBar: AppBar(
+          // Circular/accent app-bar family (2026-08-29) — see
+          // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            onPressed: () => Navigator.of(context).maybePop(),
+          ),
           title: Text(l10n.settings_radioSettings),
           centerTitle: true,
-          actions: const [QuickAccessMenuButton()],
+          actions: const [CircleQuickAccessMenuButton()],
         ),
         body: SafeArea(
           top: false,

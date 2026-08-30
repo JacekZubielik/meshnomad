@@ -98,6 +98,15 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        // Circular/accent app-bar family (2026-08-29) — see
+        // docs/superpowers/meshnomad-vault/templates/ui-patterns/app-bar-schema.md.
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         title: AppBarTitle(
           l10n.discoveredContacts_Title,
           indicators: false,
@@ -106,6 +115,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
         centerTitle: true,
         actions: [
           PopupMenuButton<dynamic>(
+            tooltip: l10n.contacts_moreOptions,
             itemBuilder: (context) => <PopupMenuEntry<dynamic>>[
               PopupMenuItem(
                 child: Row(
@@ -125,7 +135,23 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               const PopupMenuDivider(),
               ...quickAccessMenuItems(context),
             ],
-            icon: const Icon(Icons.more_vert),
+            // Same 48x48 box + MeshCircleIconButton chrome as
+            // CircleQuickAccessMenuButton (app_bar.dart) — this button
+            // can't reuse that widget directly because it needs the extra
+            // "delete all" item ahead of quickAccessMenuItems.
+            child: const SizedBox(
+              width: 48,
+              height: 48,
+              child: Center(
+                child: MeshCircleIconButton(
+                  icon: Icons.more_vert,
+                  onPressed: null,
+                  decorative: true,
+                  size: 32,
+                  iconSize: 16,
+                ),
+              ),
+            ),
           ),
         ],
       ),

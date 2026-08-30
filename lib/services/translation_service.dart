@@ -119,8 +119,11 @@ class TranslationService extends ChangeNotifier {
   bool shouldTranslateOutgoing({
     required String text,
     required String? targetLanguageCode,
+    // Per-conversation override (2026-08-29) — an additional opt-in on top
+    // of the app-wide composer toggle, not a replacement for it.
+    bool additionalOptIn = false,
   }) {
-    return _settings.composerTranslationEnabled &&
+    return (_settings.composerTranslationEnabled || additionalOptIn) &&
         targetLanguageCode != null &&
         targetLanguageCode.isNotEmpty &&
         _isPlainTextEligible(text);

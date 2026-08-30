@@ -344,11 +344,11 @@ abstract class AppLocalizations {
   /// **'Interval'**
   String get common_interval;
 
-  /// No description provided for @scanner_title.
+  /// No description provided for @bleScreenTitle.
   ///
   /// In en, this message translates to:
-  /// **'MeshNomad'**
-  String get scanner_title;
+  /// **'Connect over BLE'**
+  String get bleScreenTitle;
 
   /// No description provided for @connectionChoiceUsbLabel.
   ///
@@ -359,7 +359,7 @@ abstract class AppLocalizations {
   /// No description provided for @connectionChoiceBluetoothLabel.
   ///
   /// In en, this message translates to:
-  /// **'Bluetooth'**
+  /// **'BLE'**
   String get connectionChoiceBluetoothLabel;
 
   /// No description provided for @connectionChoiceTcpLabel.
@@ -2347,6 +2347,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Channel {index}'**
   String channels_channelIndex(int index);
+
+  /// No description provided for @channelType_public.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get channelType_public;
+
+  /// No description provided for @channelType_hashtag.
+  ///
+  /// In en, this message translates to:
+  /// **'Hashtag'**
+  String get channelType_hashtag;
+
+  /// No description provided for @channelType_private.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get channelType_private;
+
+  /// No description provided for @channelType_community.
+  ///
+  /// In en, this message translates to:
+  /// **'Community'**
+  String get channelType_community;
+
+  /// No description provided for @channels_badgeRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Region'**
+  String get channels_badgeRegion;
 
   /// No description provided for @channels_public.
   ///
@@ -9938,12 +9968,6 @@ abstract class AppLocalizations {
   /// **'Floating shadow under cards'**
   String get styleEditor_cardShadow_subtitle;
 
-  /// No description provided for @appSettings_about.
-  ///
-  /// In en, this message translates to:
-  /// **'About'**
-  String get appSettings_about;
-
   /// No description provided for @appSettings_editCustomStyleTooltip.
   ///
   /// In en, this message translates to:
@@ -10081,6 +10105,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open source licenses'**
   String get about_openSourceLicenses;
+
+  /// Hub screen tile: connect to a MeshCore companion device
+  ///
+  /// In en, this message translates to:
+  /// **'Companion'**
+  String get hubCompanionTile;
+
+  /// Hub screen subtitle under the Companion tile
+  ///
+  /// In en, this message translates to:
+  /// **'Connect via BLE, TCP, or USB'**
+  String get hubCompanionSubtitle;
+
+  /// Hub screen tile: flash firmware onto a bare device
+  ///
+  /// In en, this message translates to:
+  /// **'Flasher'**
+  String get hubFlasherTile;
+
+  /// Hub screen subtitle under the Flasher tile
+  ///
+  /// In en, this message translates to:
+  /// **'Flash firmware onto a device'**
+  String get hubFlasherSubtitle;
+
+  /// Hub screen tile: configure a repeater/room server over USB
+  ///
+  /// In en, this message translates to:
+  /// **'Setup USB'**
+  String get hubSetupTile;
+
+  /// Hub screen subtitle under the Setup USB tile
+  ///
+  /// In en, this message translates to:
+  /// **'Configure a repeater or room server'**
+  String get hubSetupSubtitle;
+
+  /// Flasher: button to pick a local .bin firmware file
+  ///
+  /// In en, this message translates to:
+  /// **'Choose firmware file'**
+  String get flasherPickFile;
+
+  /// Flasher: status while syncing with the ESP32 bootloader
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to device...'**
+  String get flasherConnecting;
+
+  /// Flasher: status while writing firmware to flash
+  ///
+  /// In en, this message translates to:
+  /// **'Flashing firmware...'**
+  String get flasherFlashing;
+
+  /// Flasher: success message
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware flashed successfully'**
+  String get flasherDone;
+
+  /// Flasher: error message
+  ///
+  /// In en, this message translates to:
+  /// **'Flashing failed: {message}'**
+  String flasherError(String message);
+
+  /// Flasher: button to begin flashing
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get flasherStart;
+
+  /// Flasher: hint shown while connecting — some boards (e.g. native-USB ESP32-S3 boards) don't auto-enter bootloader mode reliably
+  ///
+  /// In en, this message translates to:
+  /// **'If this takes more than a few seconds, hold the board\'s BOOT button while it connects'**
+  String get flasherBootHint;
+
+  /// Flasher: built-in firmware source — official MeshCore repo
+  ///
+  /// In en, this message translates to:
+  /// **'MeshCore'**
+  String get flasherSourceMeshCore;
+
+  /// Flasher: built-in firmware source — community MeshCore-Solo repo
+  ///
+  /// In en, this message translates to:
+  /// **'MeshCore-Solo'**
+  String get flasherSourceMeshCoreSolo;
+
+  /// Flasher: firmware source option
+  ///
+  /// In en, this message translates to:
+  /// **'Local file'**
+  String get flasherSourceLocalFile;
+
+  /// Flasher: firmware source option
+  ///
+  /// In en, this message translates to:
+  /// **'Custom URL'**
+  String get flasherSourceCustomUrl;
+
+  /// Flasher: section heading above the board picker
+  ///
+  /// In en, this message translates to:
+  /// **'Board'**
+  String get flasherBoardLabel;
+
+  /// Flasher: board picker placeholder before anything is chosen
+  ///
+  /// In en, this message translates to:
+  /// **'Select board'**
+  String get flasherSelectBoard;
+
+  /// Flasher: hint of the type-to-filter field at the top of the expanded board list
+  ///
+  /// In en, this message translates to:
+  /// **'Search boards'**
+  String get flasherSearchBoardHint;
+
+  /// Flasher: caption showing when the firmware catalog was generated
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog from {date}'**
+  String flasherCatalogUpdated(String date);
+
+  /// Flasher: refresh button tooltip — the only action that downloads a fresh catalog from the internet
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh catalog'**
+  String get flasherRefreshTooltip;
+
+  /// Flasher: shown when board discovery from the repo's releases came back empty
+  ///
+  /// In en, this message translates to:
+  /// **'No boards found'**
+  String get flasherNoBoardsFound;
+
+  /// Flasher: section heading above the Companion/Repeater/Room Server chips
+  ///
+  /// In en, this message translates to:
+  /// **'ROM type'**
+  String get flasherRomTypeLabel;
+
+  /// Flasher: button shown under a flash error — returns to the form with all selections kept so the user can retry (USB is re-scanned on every attempt)
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get flasherRetry;
+
+  /// Flasher: shown when the GitHub releases list came back empty for the chosen ROM type
+  ///
+  /// In en, this message translates to:
+  /// **'No releases found'**
+  String get flasherNoReleasesFound;
+
+  /// Flasher: flash-mode radio option, offset 0x0
+  ///
+  /// In en, this message translates to:
+  /// **'Full reset (erases everything)'**
+  String get flasherFullResetOption;
+
+  /// Flasher: flash-mode radio option, offset 0x10000
+  ///
+  /// In en, this message translates to:
+  /// **'Update (keeps existing settings)'**
+  String get flasherUpdateOption;
+
+  /// Flasher: confirmation dialog title before a full-reset (offset 0x0) flash
+  ///
+  /// In en, this message translates to:
+  /// **'Erase everything?'**
+  String get flasherFullResetConfirmTitle;
+
+  /// Flasher: confirmation dialog body
+  ///
+  /// In en, this message translates to:
+  /// **'This will erase the bootloader and all settings on the device, not just the app. Make sure this is the firmware file you intend to use.'**
+  String get flasherFullResetConfirmBody;
+
+  /// Flasher: confirmation dialog proceed button
+  ///
+  /// In en, this message translates to:
+  /// **'Erase and flash'**
+  String get flasherFullResetConfirmProceed;
+
+  /// Flasher: confirmation dialog cancel button
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get flasherFullResetConfirmCancel;
+
+  /// No description provided for @flasherDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading…'**
+  String get flasherDownloading;
+
+  /// No description provided for @flasherDownloadedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded — {label}'**
+  String flasherDownloadedFile(String label);
+
+  /// No description provided for @flasherFlashedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashed — {label}'**
+  String flasherFlashedFile(String label);
+
+  /// No description provided for @flasherFullResetShortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full reset'**
+  String get flasherFullResetShortLabel;
+
+  /// No description provided for @flasherUpdateShortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get flasherUpdateShortLabel;
+
+  /// No description provided for @flasherFullResetReadyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded — tap to flash Full Reset'**
+  String get flasherFullResetReadyTooltip;
+
+  /// No description provided for @flasherUpdateReadyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded — tap to flash Update'**
+  String get flasherUpdateReadyTooltip;
+
+  /// No description provided for @flasherIconLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'⟳ Full reset erases the bootloader and settings (confirmation required). ↓ Update keeps existing settings. Grey = not downloaded yet, tap to fetch. Accent + ⚡ = downloaded and ready, tap to flash.'**
+  String get flasherIconLegend;
+
+  /// No description provided for @flasherAboutMenuItem.
+  ///
+  /// In en, this message translates to:
+  /// **'About USB Flashing'**
+  String get flasherAboutMenuItem;
+
+  /// No description provided for @flasherAboutIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'This screen writes MeshCore firmware directly to a board over its USB serial port — no companion app or computer flashing tool required.'**
+  String get flasherAboutIntro;
+
+  /// No description provided for @flasherAboutFullResetHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Full reset'**
+  String get flasherAboutFullResetHeading;
+
+  /// No description provided for @flasherAboutUpdateHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get flasherAboutUpdateHeading;
+
+  /// No description provided for @flasherAboutConnectionHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting over USB'**
+  String get flasherAboutConnectionHeading;
+
+  /// No description provided for @flasherVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get flasherVersionLabel;
 }
 
 class _AppLocalizationsDelegate

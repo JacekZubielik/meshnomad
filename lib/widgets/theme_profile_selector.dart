@@ -28,7 +28,7 @@ class ThemeChipRow extends StatelessWidget {
       runSpacing: t.spacingXs,
       children: [
         for (final theme in themes)
-          _SelectableChipButton(
+          SelectableChipButton(
             key: ValueKey('themeChip_${theme.id}'),
             label: theme.displayName,
             selected: activeThemeId == theme.id,
@@ -60,7 +60,7 @@ class ProfileChipRow extends StatelessWidget {
       runSpacing: t.spacingXs,
       children: [
         for (final profile in activeTheme.profiles)
-          _SelectableChipButton(
+          SelectableChipButton(
             key: ValueKey('profileChip_${profile.id}'),
             label: profile.displayName,
             selected: activeProfileId == profile.id,
@@ -80,16 +80,32 @@ class ProfileChipRow extends StatelessWidget {
 /// FilledButton/OutlinedButton instead means they pick up `buttonRadius`
 /// and `buttonBorder` (none/solid/dotted) from the Custom Style Editor's
 /// Buttons section, like every other button in the app, without touching
-/// chipTheme or any chip used elsewhere.
-class _SelectableChipButton extends StatelessWidget {
-  const _SelectableChipButton({
+/// chipTheme or any chip used elsewhere. Public since 2026-08-24 — also
+/// used by `FlasherScreen`'s source picker; keep this the single
+/// implementation of this pattern rather than a per-screen copy.
+class SelectableChipButton extends StatelessWidget {
+  const SelectableChipButton({
     super.key,
-    required this.label,
+    this.label,
+    this.icon,
+    this.padding,
     required this.selected,
     required this.onTap,
-  });
+  }) : assert(label != null || icon != null, 'provide label or icon');
 
-  final String label;
+  final String? label;
+
+  /// Icon-only variant (QuickSwitchBar, 2026-08-29): renders [icon] instead
+  /// of a text label — same fill/radius/border chain as the text chips.
+  /// When both [icon] and [label] are given (TransportSwitcher, 2026-08-29),
+  /// renders icon + gap + label in a row instead of either alone.
+  final Widget? icon;
+
+  /// Overrides the default `EdgeInsets.symmetric(horizontal: spacingMd,
+  /// vertical: spacingXs)` — per-caller only (QuickSwitchBar uses a taller
+  /// vertical padding for its icon-only buttons); other callers keep the
+  /// shared default.
+  final EdgeInsets? padding;
   final bool selected;
   final VoidCallback onTap;
 
@@ -110,12 +126,33 @@ class _SelectableChipButton extends StatelessWidget {
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       minimumSize: const WidgetStatePropertyAll(Size(0, 0)),
       padding: WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: t.spacingMd, vertical: t.spacingXs),
+        padding ??
+            EdgeInsets.symmetric(
+              horizontal: t.spacingMd,
+              vertical: t.spacingXs,
+            ),
       ),
       textStyle: WidgetStatePropertyAll(buttonTextStyle),
     );
+    final child = icon != null && label != null
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              icon!,
+              SizedBox(width: t.spacingXxs),
+              Flexible(
+                child: Text(
+                  label!,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          )
+        : icon ?? Text(label!);
     return selected
-        ? FilledButton(onPressed: onTap, style: style, child: Text(label))
-        : OutlinedButton(onPressed: onTap, style: style, child: Text(label));
+        ? FilledButton(onPressed: onTap, style: style, child: child)
+        : OutlinedButton(onPressed: onTap, style: style, child: child);
   }
 }

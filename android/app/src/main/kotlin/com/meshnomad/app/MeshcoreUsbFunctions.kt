@@ -112,6 +112,7 @@ class MeshcoreUsbFunctions(
                     "listPorts" -> result.success(listUsbPorts())
                     "connect" -> handleUsbConnect(call, result)
                     "write" -> handleUsbWrite(call, result)
+                    "setControlLines" -> handleSetControlLines(call, result)
                     "disconnect" -> {
                         scheduleCloseUsbConnection {
                             result.success(null)
@@ -427,6 +428,46 @@ class MeshcoreUsbFunctions(
             )
         if (controlLineResult < 0) {
             throw IllegalStateException("Failed to configure USB control line state")
+        }
+    }
+
+    private fun handleSetControlLines(call: MethodCall, result: MethodChannel.Result) {
+        val dtr = call.argument<Boolean>("dtr") ?: false
+        val rts = call.argument<Boolean>("rts") ?: false
+        val connection = usbConnection
+        val control = controlInterface
+        if (connection == null || control == null) {
+            result.error("NOT_CONNECTED", "No active USB connection", null)
+            return
+        }
+        // CDC SET_CONTROL_LINE_STATE bitmap: bit0 = DTR, bit1 = RTS.
+        val value = (if (dtr) 0x0001 else 0x0000) or (if (rts) 0x0002 else 0x0000)
+        try {
+            val controlLineResult =
+                connection.controlTransfer(
+                    UsbConstants.USB_DIR_OUT or
+                        UsbConstants.USB_TYPE_CLASS or
+                        usbRecipientInterface,
+                    0x22,
+                    value,
+                    control.id,
+                    null,
+                    0,
+                    1000,
+                )
+            if (controlLineResult < 0) {
+                result.error("CONTROL_TRANSFER_FAILED", "Failed to set DTR/RTS", null)
+            } else {
+                result.success(null)
+            }
+        } catch (e: Exception) {
+            // Added after external review: usbConnection/controlInterface are @Volatile
+            // reads, but a concurrent disconnect (e.g. the user backing out of the
+            // Flasher screen mid-sequence) between that read and this transfer can still
+            // race and throw (closed file descriptor). Surface it as a specific error
+            // instead of letting the exception cross the platform-channel boundary
+            // uncaught.
+            result.error("USB_DISCONNECTED", "USB device disconnected during control transfer: ${e.message}", null)
         }
     }
 

@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.13.0 (2026-08-30)
+
+### Highlights
+
+- USB firmware flasher: flash MeshCore-compatible boards directly from the app over USB, with a local-first firmware catalog (board → ROM type → version), live download/flash progress, retry, and search (#110) (#113)
+- Companion-connect screens (BLE/USB/TCP) redesigned with a unified shared port-stepper and consistent app-bar treatment (#113)
+- Contact and channel cards brought to full visual parity: typography, spacing, badges, favorite toggle, overflow handling, and a shared selection-sheet pattern for sort/filter menus (#113)
+
+### Features
+
+- USB flasher: SLIP framing and esptool ROM-loader protocol (SYNC, SPI attach, flash write), DTR/RTS bootloader reset, and a dedicated Flasher About screen (#110)
+- Per-conversation translation language override and mute, with channel-card parity for the new controls (#113)
+- App-bar leading/trailing icons unified to the 48×48 circular-accent pattern across 14+ screens (#113)
+
+### Fixes
+
+- Contact cards: right-aligned favorite star toggle, ellipsis instead of a hard clip on overflowing names, unified typography and badge spacing with channels (#113)
+- Web build: implement the `setDtr`/`setRts` USB serial signals on the Web Serial backend so the ESP flash transport compiles for web
+
 ## v0.12.0 (2026-08-25)
 
 ### Highlights

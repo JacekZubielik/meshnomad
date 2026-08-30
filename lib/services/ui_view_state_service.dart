@@ -9,6 +9,11 @@ const String contactsAllGroupsValue = '__all__';
 
 enum ChannelSortOption { manual, name, latestMessages, unread }
 
+/// Channel-list filter (2026-08-29, parity with the contacts filter menu but
+/// matched to what channels actually are: favorites + the four channel
+/// types).
+enum ChannelTypeFilter { all, favorites, public, hashtag, private, community }
+
 class UiViewStateService extends ChangeNotifier {
   static const _keyContactsSelectedGroupName = 'ui_contacts_selected_group';
   static const _keyContactsSortOption = 'ui_contacts_sort_option';
@@ -16,6 +21,8 @@ class UiViewStateService extends ChangeNotifier {
   static const _keyContactsTypeFilter = 'ui_contacts_type_filter';
   static const _keyChannelsSortOption = 'ui_channels_sort_option';
   static const _keyChannelsSortIndexLegacy = 'ui_channels_sort_index';
+  static const _keyChannelsTypeFilter = 'ui_channels_type_filter';
+  static const _keyChannelsShowUnreadOnly = 'ui_channels_show_unread_only';
 
   String _contactsSelectedGroupName = contactsAllGroupsValue;
   String _contactsSearchText = '';
@@ -25,6 +32,8 @@ class UiViewStateService extends ChangeNotifier {
 
   String _channelsSearchText = '';
   ChannelSortOption _channelsSortOption = ChannelSortOption.manual;
+  ChannelTypeFilter _channelsTypeFilter = ChannelTypeFilter.all;
+  bool _channelsShowUnreadOnly = false;
 
   String get contactsSelectedGroupName => _contactsSelectedGroupName;
   String get contactsSearchText => _contactsSearchText;
@@ -33,6 +42,8 @@ class UiViewStateService extends ChangeNotifier {
   ContactTypeFilter get contactsTypeFilter => _contactsTypeFilter;
   String get channelsSearchText => _channelsSearchText;
   ChannelSortOption get channelsSortOption => _channelsSortOption;
+  ChannelTypeFilter get channelsTypeFilter => _channelsTypeFilter;
+  bool get channelsShowUnreadOnly => _channelsShowUnreadOnly;
 
   Future<void> initialize() async {
     final prefs = PrefsManager.instance;
@@ -60,6 +71,16 @@ class UiViewStateService extends ChangeNotifier {
         orElse: () => ContactTypeFilter.all,
       );
     }
+
+    final channelTypeStr = prefs.getString(_keyChannelsTypeFilter);
+    if (channelTypeStr != null) {
+      _channelsTypeFilter = ChannelTypeFilter.values.firstWhere(
+        (e) => e.name == channelTypeStr,
+        orElse: () => ChannelTypeFilter.all,
+      );
+    }
+    _channelsShowUnreadOnly =
+        prefs.getBool(_keyChannelsShowUnreadOnly) ?? false;
 
     final channelSortStr = prefs.getString(_keyChannelsSortOption);
     if (channelSortStr != null) {
@@ -142,5 +163,21 @@ class UiViewStateService extends ChangeNotifier {
     unawaited(
       PrefsManager.instance.setString(_keyChannelsSortOption, value.name),
     );
+  }
+
+  void setChannelsTypeFilter(ChannelTypeFilter value) {
+    if (_channelsTypeFilter == value) return;
+    _channelsTypeFilter = value;
+    notifyListeners();
+    unawaited(
+      PrefsManager.instance.setString(_keyChannelsTypeFilter, value.name),
+    );
+  }
+
+  void setChannelsShowUnreadOnly(bool value) {
+    if (_channelsShowUnreadOnly == value) return;
+    _channelsShowUnreadOnly = value;
+    notifyListeners();
+    unawaited(PrefsManager.instance.setBool(_keyChannelsShowUnreadOnly, value));
   }
 }
