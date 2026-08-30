@@ -3895,6 +3895,69 @@ double nodeLabelBubbleWidth(
   );
 }
 
+/// The six candidate screen-space offsets a node-label bubble can be placed
+/// at, tried in this exact order by [resolveLabelCollisions] (2026-08-31,
+/// map label collision avoidance). Index 0 matches the bubble's original,
+/// always-above-the-pin position exactly (Offset(0,-20), the value
+/// `_buildNodeLabelMarker` used before this feature existed) so a node with
+/// no colliding neighbor renders identically to before.
+const List<Offset> labelCollisionOffsets = [
+  Offset(0, -20), // 0: above the pin (default/original position)
+  Offset(0, 24), // 1: below the pin
+  Offset(-24, -20), // 2: upper-left diagonal
+  Offset(24, -20), // 3: upper-right diagonal
+  Offset(0, -44), // 4: further above
+  Offset(0, 48), // 5: further below
+];
+
+/// One node's label, ready for collision resolution. [screenRect] is the
+/// label bubble's bounding rectangle in screen (pixel) coordinates AT
+/// [labelCollisionOffsets] index 0 (the default "above the pin" position) —
+/// [resolveLabelCollisions] derives every other candidate rect from it by
+/// translation, so callers only ever compute the one default rect.
+class LabelCandidate {
+  const LabelCandidate({
+    required this.nodeId,
+    required this.priority,
+    required this.screenRect,
+    this.preferredOffsetIndex,
+  });
+
+  /// Stable identifier for the node (contact.publicKeyHex) — used both to
+  /// key the [LabelPlacement] result and to look up/store the stability
+  /// cache in `_MapScreenState._lastOffsetForNode`.
+  final String nodeId;
+
+  /// Higher sorts first. See `_labelPriority` in `_buildNodeMarkers` for how
+  /// callers compute this (selected > recently-active > repeater/favorite >
+  /// everyone else); [resolveLabelCollisions] itself has no opinion on what
+  /// the number means, only that higher goes first.
+  final int priority;
+
+  /// The label bubble's rect at offset index 0.
+  final Rect screenRect;
+
+  /// If set and that offset is still collision-free, [resolveLabelCollisions]
+  /// keeps the node at this offset instead of re-running the candidate list
+  /// from scratch — this is what prevents labels from jumping between
+  /// positions on every frame during a pan/zoom (2026-08-31 design doc,
+  /// "Stabilność" section).
+  final int? preferredOffsetIndex;
+}
+
+/// The chosen placement for one [LabelCandidate], returned by
+/// [resolveLabelCollisions].
+class LabelPlacement {
+  const LabelPlacement({required this.nodeId, required this.offsetIndex});
+
+  final String nodeId;
+
+  /// Index into [labelCollisionOffsets], or -1 if no candidate offset was
+  /// collision-free — the caller must not build a label marker for this
+  /// node (the pin itself still renders, only the text bubble is skipped).
+  final int offsetIndex;
+}
+
 enum _NodeAge { online, recent, stale }
 
 enum _Freshness { all, online, recent, stale }
