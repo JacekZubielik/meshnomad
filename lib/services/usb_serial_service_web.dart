@@ -40,6 +40,8 @@ class UsbSerialService {
   final UsbSerialFrameDecoder _frameDecoder = UsbSerialFrameDecoder();
 
   UsbSerialStatus _status = UsbSerialStatus.disconnected;
+  bool _lastDtr = true;
+  bool _lastRts = false;
   JSObject? _port;
   JSObject? _reader;
   JSObject? _writer;
@@ -169,6 +171,34 @@ class UsbSerialService {
       packet.toJS,
     );
     await promise.toDart;
+  }
+
+  /// Sets the DTR line via the Web Serial API's `setSignals`. See the
+  /// native implementation's `setDtr` for the ESP32 bootloader-reset
+  /// rationale; browsers report unsupported signals by rejecting the
+  /// promise rather than throwing synchronously, so failures are logged
+  /// and swallowed like the connect-time `_openPort` call above.
+  Future<void> setDtr(bool value) => _setSignals(dtr: value, rts: _lastRts);
+
+  /// Sets the RTS line. See [setDtr].
+  Future<void> setRts(bool value) => _setSignals(dtr: _lastDtr, rts: value);
+
+  Future<void> _setSignals({required bool dtr, required bool rts}) async {
+    if (!isConnected || _port == null) {
+      throw StateError('USB serial port is not open');
+    }
+    _lastDtr = dtr;
+    _lastRts = rts;
+    try {
+      final signals = JSObject()
+        ..['dataTerminalReady'] = dtr.toJS
+        ..['requestToSend'] = rts.toJS;
+      await _port!
+          .callMethod<JSPromise<JSAny?>>('setSignals'.toJS, signals)
+          .toDart;
+    } catch (_) {
+      // setSignals may not be supported on all browsers/devices.
+    }
   }
 
   Future<void> disconnect() async {
