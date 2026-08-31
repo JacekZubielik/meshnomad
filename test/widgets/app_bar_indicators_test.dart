@@ -103,6 +103,24 @@ Widget _wrap(Widget child, {required MeshCoreConnector connector}) {
   );
 }
 
+Widget _wrapAppBar({
+  required String title,
+  required MeshCoreConnector connector,
+}) {
+  return _wrap(
+    Builder(
+      builder: (context) => Scaffold(
+        appBar: meshMainAppBar(
+          context,
+          title: title,
+          menuItemBuilder: (context) => const [],
+        ),
+      ),
+    ),
+    connector: connector,
+  );
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -212,6 +230,28 @@ void main() {
     final icon = tester.widget<Icon>(find.byIcon(Icons.more_vert));
     expect(icon.size, 18);
   });
+
+  testWidgets(
+    'meshMainAppBar\'s trailing menu uses the circular icon treatment, '
+    'not the flat dots (2026-09-01 — matches Flasher\'s _FlasherMenuButton)',
+    (tester) async {
+      await tester.pumpWidget(
+        _wrapAppBar(title: 'Kontakty', connector: connector),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppBarMenuIcon), findsNothing);
+      // MeshCircleIconButton renders a 32x32 circular DecoratedBox — assert
+      // on that shape directly rather than a private implementation detail.
+      final circleFinder = find.byWidgetPredicate(
+        (w) =>
+            w is DecoratedBox &&
+            w.decoration is ShapeDecoration &&
+            (w.decoration as ShapeDecoration).shape is CircleBorder,
+      );
+      expect(circleFinder, findsWidgets);
+    },
+  );
 
   group('TransportIndicator', () {
     testWidgets('BLE shows bluetooth icon with the link RSSI', (tester) async {

@@ -151,7 +151,22 @@ AppBar meshMainAppBar(
       trailing: PopupMenuButton<dynamic>(
         tooltip: menuTooltip,
         itemBuilder: menuItemBuilder,
-        child: const AppBarMenuIcon(),
+        // Circular MeshCircleIconButton treatment (2026-09-01) — matches
+        // Flasher's _FlasherMenuButton, supersedes the flat/circle split
+        // documented above on CircleQuickAccessMenuButton.
+        child: const SizedBox(
+          width: 48,
+          height: 48,
+          child: Center(
+            child: MeshCircleIconButton(
+              icon: Icons.more_vert,
+              onPressed: null,
+              decorative: true,
+              size: 32,
+              iconSize: 16,
+            ),
+          ),
+        ),
       ),
     ),
     centerTitle: false,
