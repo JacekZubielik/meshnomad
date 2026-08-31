@@ -117,6 +117,18 @@ void main() {
       );
     });
 
+    test('AppBar bottom border tracks the overridden outlineVariant, not '
+        'the frozen base theme value (2026-09-01 fix)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(colorOverrides: {'secondary': 0xFF00FFAA}),
+      );
+      final shape = style.theme.appBarTheme.shape;
+      expect(shape, isA<Border>());
+      final border = shape! as Border;
+      expect(border.bottom.color, style.theme.colorScheme.outlineVariant);
+      expect(border.bottom.color, const Color(0xFF00FFAA));
+    });
+
     test('overriding primary reshapes MeshTokens.primaryBg and '
         'ColorScheme.primary alike (C3)', () {
       final style = buildCustomStyle(

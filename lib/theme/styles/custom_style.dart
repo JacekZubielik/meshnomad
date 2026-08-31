@@ -361,6 +361,14 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
           base.appBarTheme.titleTextStyle,
           titleSmallSize + MeshTypeScale.appBarTitleIncrement,
         ),
+        // mesh_theme.dart bakes `shape`'s border color from the base
+        // ColorScheme at construction time; re-derive it here from the
+        // already-overridden `base.colorScheme.outlineVariant` so the line
+        // follows Custom Style like every other outlineVariant-driven
+        // border in the app (2026-09-01 fix).
+        shape: Border(
+          bottom: BorderSide(color: base.colorScheme.outlineVariant),
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: base.elevatedButtonTheme.style?.copyWith(
