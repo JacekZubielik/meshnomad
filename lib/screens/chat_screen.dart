@@ -39,7 +39,6 @@ import '../widgets/gif_picker.dart';
 import '../widgets/message_translation_button.dart';
 import '../widgets/routing_sheet.dart';
 import '../widgets/radio_stats_entry.dart';
-import '../widgets/sync_progress_overlay.dart';
 import '../widgets/translated_message_content.dart';
 import '../l10n/l10n.dart';
 import '../helpers/snack_bar_builder.dart';
@@ -227,7 +226,6 @@ class _ChatScreenState extends State<ChatScreen> {
           },
         ),
         centerTitle: false,
-        bottom: const SyncProgressAppBarBottom(),
         actions: [
           const RadioStatsIconButton(),
           Consumer<MeshCoreConnector>(

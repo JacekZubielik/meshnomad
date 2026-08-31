@@ -13,7 +13,6 @@ import 'quick_style_picker_dialog.dart';
 import 'radio_stats_entry.dart';
 import 'snr_indicator.dart';
 import 'stats_line_chart.dart';
-import 'sync_progress_overlay.dart';
 
 /// The two app-wide destinations every screen should be able to reach
 /// without backtracking to a main card first: Quick Style and Settings.
@@ -131,9 +130,9 @@ class CircleQuickAccessMenuButton extends StatelessWidget {
 }
 
 /// The shared app-bar pattern for main cards (Contacts / Channels / Map and
-/// any future card): identical title placement, sync progress strip and a
-/// ⋮ menu sized like the indicators. Build every card's app bar through
-/// this — never hand-roll an AppBar on a main card.
+/// any future card): identical title placement and a ⋮ menu sized like the
+/// indicators. Build every card's app bar through this — never hand-roll an
+/// AppBar on a main card.
 AppBar meshMainAppBar(
   BuildContext context, {
   required String title,
@@ -174,7 +173,6 @@ AppBar meshMainAppBar(
     automaticallyImplyLeading: false,
     backgroundColor: backgroundColor,
     foregroundColor: foregroundColor,
-    bottom: const SyncProgressAppBarBottom(),
   );
 }
 

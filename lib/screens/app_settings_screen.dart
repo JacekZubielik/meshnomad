@@ -18,7 +18,6 @@ import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/settings_value_stepper.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
-import '../widgets/sync_progress_overlay.dart';
 import '../widgets/theme_profile_selector.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'auto_route_rotation_screen.dart';
@@ -53,7 +52,6 @@ class AppSettingsScreen extends StatelessWidget {
         title: AdaptiveAppBarTitle(context.l10n.appSettings_title),
         centerTitle: true,
         actions: const [CircleQuickAccessMenuButton()],
-        bottom: const SyncProgressAppBarBottom(),
       ),
       body: SafeArea(
         top: false,

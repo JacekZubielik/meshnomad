@@ -18,7 +18,6 @@ import '../widgets/routing_sheet.dart';
 import '../helpers/cayenne_lpp.dart';
 import '../utils/battery_utils.dart';
 import '../helpers/snack_bar_builder.dart';
-import '../widgets/sync_progress_overlay.dart';
 import '../widgets/telemetry_location_map.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
@@ -359,7 +358,6 @@ class _TelemetryScreenState extends State<TelemetryScreen> {
           ],
         ),
         centerTitle: true,
-        bottom: const SyncProgressAppBarBottom(),
         actions: [
           IconButton(
             icon: Icon(isFloodMode ? Icons.waves : Icons.route),

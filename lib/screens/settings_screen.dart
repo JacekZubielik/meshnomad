@@ -16,7 +16,6 @@ import 'app_debug_log_screen.dart';
 import 'ble_debug_log_screen.dart';
 import 'location_settings_screen.dart';
 import 'node_settings_screen.dart';
-import '../widgets/sync_progress_overlay.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -76,7 +75,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: false,
         ),
         centerTitle: true,
-        bottom: const SyncProgressAppBarBottom(),
       ),
       body: SafeArea(
         top: false,

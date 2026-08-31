@@ -37,7 +37,6 @@ import '../widgets/gif_picker.dart';
 import '../widgets/message_translation_button.dart';
 import '../widgets/message_status_icon.dart';
 import '../widgets/radio_stats_entry.dart';
-import '../widgets/sync_progress_overlay.dart';
 import '../widgets/translated_message_content.dart';
 import '../widgets/unread_divider.dart';
 import '../theme/mesh_tokens.dart';
@@ -342,7 +341,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
           ),
         ),
         centerTitle: false,
-        bottom: const SyncProgressAppBarBottom(),
         actions: [
           IconButton(
             tooltip: context.l10n.channels_regionSelect_Title,
