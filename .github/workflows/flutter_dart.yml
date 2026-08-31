@@ -18,6 +18,8 @@ on:
       # CI-only changes can't break Dart code — analyzing and testing the
       # whole app for a workflow edit just burns minutes.
       - '.github/**'
+      # Renovate's own JSON config — same reasoning as .github/**.
+      - 'renovate.json'
 
 jobs:
   analyze:
