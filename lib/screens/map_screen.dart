@@ -61,10 +61,16 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  // Zoom level at which node labels start to appear
-  static const double _labelZoomThreshold = 14.0;
-  // Below this zoom, nearby nodes collapse into clusters.
-  static const double _clusterOffZoom = 12.5;
+  // Zoom level at which node labels start to appear — set just below
+  // _clusterOffZoom, so an isolated node that's already rendered as its own
+  // dot (not folded into a numbered cluster) shows its name right away,
+  // instead of needing to zoom in further just to read it (2026-08-31
+  // feedback).
+  static const double _labelZoomThreshold = 12.5;
+  // Below this zoom, nearby nodes collapse into clusters (2026-08-31
+  // feedback: tuned down from an earlier 14.5, which held clustering for
+  // too long).
+  static const double _clusterOffZoom = 13.0;
   // Guessed (estimated) locations only render at closer zooms to avoid a
   // carpet of approximate markers at city-wide scale.
   static const double _guessedZoomThreshold = 12.0;
@@ -1457,7 +1463,13 @@ class _MapScreenState extends State<MapScreen> {
       }
     }
 
-    if (_zoom >= _clusterOffZoom || overlapsMode || _isBuildingPathTrace) {
+    // overlapsMode intentionally does NOT bypass clustering (2026-08-31
+    // feedback: previously it forced every node individual regardless of
+    // zoom, which made the "Repeater Key Overlaps" toggle look like it did
+    // nothing but disable grouping — its actual job, highlighting a
+    // colliding repeater's pin/label, only shows when a real key collision
+    // exists, independent of whether nodes are currently clustered).
+    if (_zoom >= _clusterOffZoom || _isBuildingPathTrace) {
       for (final contact in items) {
         addNode(contact);
       }
