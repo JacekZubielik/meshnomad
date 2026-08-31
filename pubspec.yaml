@@ -79,7 +79,7 @@ dependencies:
   ml_algo: ^16.0.0
   ml_dataframe: ^1.0.0
   llamadart: ^0.8.0
-  flutter_langdetect: ^0.0.1
+  flutter_langdetect: ^0.0.2
   cryptography: ^2.9.0
   cryptography_flutter: ^2.3.4
   convert: ^3.1.2
