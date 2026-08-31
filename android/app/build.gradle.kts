@@ -15,17 +15,16 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.meshnomad.app"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_secure_storage 11 requires compileSdk 37+. Flutter's suggested
+    // Int.MAX_VALUE sentinel breaks the L8 desugaring task (tries to resolve
+    // a literal "platforms;android-2147483647.0" path), so pin the real value.
+    compileSdk = 37
     ndkVersion = "29.0.14206865"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     defaultConfig {
@@ -78,10 +77,16 @@ android {
     // }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
 flutter {
     source = "../.."
 }
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

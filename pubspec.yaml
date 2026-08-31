@@ -53,14 +53,14 @@ dependencies:
   uuid: ^4.3.3
   flutter_map: ^8.2.2
   latlong2: ^0.10.1
-  fl_chart: ^0.69.0
+  fl_chart: ^1.0.0
   flutter_local_notifications: ^22.0.0
   crypto: ^3.0.3
   pointycastle: ^4.0.0
   http: ^1.2.0
-  cached_network_image: ^3.4.1
+  cached_network_image: ^4.0.0
   flutter_cache_manager: ^3.4.1
-  flutter_foreground_task: ^10.0.0
+  flutter_foreground_task: ^11.0.0
   characters: ^1.4.0
   package_info_plus: ^10.1.0
   mobile_scanner: ^7.1.4  # QR/barcode scanning
@@ -79,12 +79,12 @@ dependencies:
   ml_algo: ^16.0.0
   ml_dataframe: ^1.0.0
   llamadart: ^0.8.0
-  flutter_langdetect: ^0.0.1
+  flutter_langdetect: ^0.0.2
   cryptography: ^2.9.0
   cryptography_flutter: ^2.3.4
   convert: ^3.1.2
   flutter_skill: ^0.9.36
-  flutter_secure_storage: ^10.0.0
+  flutter_secure_storage: ^11.0.0
 
 hooks:
   user_defines:
