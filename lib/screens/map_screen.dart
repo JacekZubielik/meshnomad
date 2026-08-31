@@ -25,6 +25,7 @@ import '../utils/contact_search.dart';
 import '../utils/battery_utils.dart';
 import '../utils/route_transitions.dart';
 import '../widgets/quick_switch_bar.dart';
+import '../widgets/dotted_separator.dart';
 import '../icons/los_icon.dart';
 import 'channels_screen.dart';
 import 'chat_screen.dart';
@@ -60,10 +61,16 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  // Zoom level at which node labels start to appear
-  static const double _labelZoomThreshold = 14.0;
-  // Below this zoom, nearby nodes collapse into clusters.
-  static const double _clusterOffZoom = 12.5;
+  // Zoom level at which node labels start to appear — set just below
+  // _clusterOffZoom, so an isolated node that's already rendered as its own
+  // dot (not folded into a numbered cluster) shows its name right away,
+  // instead of needing to zoom in further just to read it (2026-08-31
+  // feedback).
+  static const double _labelZoomThreshold = 12.5;
+  // Below this zoom, nearby nodes collapse into clusters (2026-08-31
+  // feedback: tuned down from an earlier 14.5, which held clustering for
+  // too long).
+  static const double _clusterOffZoom = 13.0;
   // Guessed (estimated) locations only render at closer zooms to avoid a
   // carpet of approximate markers at city-wide scale.
   static const double _guessedZoomThreshold = 12.0;
@@ -100,6 +107,17 @@ class _MapScreenState extends State<MapScreen> {
   _NodeMarkersCacheKey? _nodeMarkersCacheKey;
   List<Marker> _cachedNodeMarkers = const [];
 
+  /// Per-node last-chosen label offset index, keyed by `contact.publicKeyHex`
+  /// — read as `LabelCandidate.preferredOffsetIndex` and written back after
+  /// every `resolveLabelCollisions` call. Only takes effect when the default
+  /// (index 0) position is still genuinely occupied by something else, so a
+  /// label that was pushed aside snaps back to its default spot as soon as
+  /// nothing crowds it there anymore (fixed 2026-08-31 after device testing
+  /// showed a label staying displaced across zoom levels even once its
+  /// original neighbor was no longer nearby on screen). Intentionally never
+  /// cleared — see Global Constraints in this plan.
+  final Map<String, int> _lastOffsetForNode = {};
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -116,8 +134,21 @@ class _MapScreenState extends State<MapScreen> {
   // active style's scheme in BOTH brightnesses — user decision 2026-08-10;
   // previously dark mode read the fixed mapPanel*/mapText* palette, so a
   // custom background never reached these panels.
+  //
+  // Elevated-vs-bordered follows the app-wide Custom Style "Card shadow"
+  // toggle (MeshTokens.cardElevated), same rule as MeshCard
+  // (mesh_ui.dart:90-97): shadow on -> no border, fill bumped one surface
+  // level up; shadow off -> outlineVariant border, no shadow, lower fill.
+  // The map's overlay panels (control rail, stats card/pill) previously
+  // always drew a border AND a shadow regardless of this setting (2026-08-30
+  // feedback) — every panel below reads _overlayElevated instead.
+  bool get _overlayElevated => MeshTokens.of(context).cardElevated;
+
   Color get _overlayPanelColor =>
-      _overlayScheme.surfaceContainerLow.withValues(alpha: 0.96);
+      (_overlayElevated
+              ? _overlayScheme.surfaceContainerHigh
+              : _overlayScheme.surfaceContainerLow)
+          .withValues(alpha: 0.96);
 
   Color get _overlayPrimaryTextColor => _overlayScheme.onSurface;
 
@@ -129,6 +160,26 @@ class _MapScreenState extends State<MapScreen> {
 
   Color get _overlayShadowColor =>
       Colors.black.withValues(alpha: _useDarkOverlay ? 0.55 : 0.18);
+
+  Border? get _overlayCardBorder =>
+      _overlayElevated ? null : Border.all(color: _overlayBorderColor);
+
+  BorderSide get _overlayCardBorderSide => _overlayElevated
+      ? BorderSide.none
+      : BorderSide(color: _overlayBorderColor);
+
+  List<BoxShadow> _overlayCardShadow({
+    double blurRadius = 8,
+    Offset offset = const Offset(0, 3),
+  }) => _overlayElevated
+      ? [
+          BoxShadow(
+            color: _overlayShadowColor,
+            blurRadius: blurRadius,
+            offset: offset,
+          ),
+        ]
+      : const [];
 
   _NodeAge _ageOf(Contact contact) {
     final d = DateTime.now().difference(contact.lastSeen);
@@ -258,14 +309,8 @@ class _MapScreenState extends State<MapScreen> {
         decoration: BoxDecoration(
           color: _overlayPanelColor,
           borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
-          border: Border.all(color: _overlayBorderColor),
-          boxShadow: [
-            BoxShadow(
-              color: _overlayShadowColor,
-              blurRadius: 8,
-              offset: Offset(0, 3),
-            ),
-          ],
+          border: _overlayCardBorder,
+          boxShadow: _overlayCardShadow(),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
@@ -914,6 +959,7 @@ class _MapScreenState extends State<MapScreen> {
                               connector.selfLongitude!,
                             ),
                             label: context.l10n.pathTrace_you,
+                            labelOffset: labelCollisionOffsets[0],
                           ),
                       ],
                     ),
@@ -1286,6 +1332,7 @@ class _MapScreenState extends State<MapScreen> {
           _buildNodeLabelMarker(
             point: guess.position,
             label: guess.contact.name,
+            labelOffset: labelCollisionOffsets[0],
           ),
         );
       }
@@ -1333,6 +1380,21 @@ class _MapScreenState extends State<MapScreen> {
       }
     }
     return filtered;
+  }
+
+  /// Label placement priority (2026-08-31 design doc, "Priorytet i
+  /// fallback" section): higher sorts first in [resolveLabelCollisions].
+  /// Selected node always wins; then recently-active (heard in the last 5
+  /// minutes); then repeaters/favorites; everyone else ties at 0 and falls
+  /// through to [resolveLabelCollisions]'s alphabetical tiebreak.
+  int _labelPriority(Contact contact, {required bool isSelected}) {
+    if (isSelected) return 3;
+    if (DateTime.now().difference(contact.lastSeen) <=
+        const Duration(minutes: 5)) {
+      return 2;
+    }
+    if (contact.type == advTypeRepeater || contact.isFavorite) return 1;
+    return 0;
   }
 
   List<Marker> _buildNodeMarkers(
@@ -1384,22 +1446,30 @@ class _MapScreenState extends State<MapScreen> {
           ),
         );
 
+    // Pass 1: pins are built immediately (unaffected by label collisions);
+    // label-eligible contacts are collected here instead, so their screen
+    // rects can all be resolved together in one resolveLabelCollisions call
+    // after this loop (2026-08-31, map label collision avoidance).
+    final pendingLabels = <(Contact, String, bool)>[];
+
     void addNode(Contact contact, {bool dot = false}) {
       final overlap = isOverlap(contact);
       markers.add(_nodeMarker(contact, overlapsMode: overlap, dot: dot));
       if (showLabels) {
-        markers.add(
-          _buildNodeLabelMarker(
-            point: LatLng(contact.latitude!, contact.longitude!),
-            label: overlap
-                ? "${contact.publicKeyHex.substring(0, 2)}:${contact.name}"
-                : contact.name,
-          ),
-        );
+        final label = overlap
+            ? "${contact.publicKeyHex.substring(0, 2)}:${contact.name}"
+            : contact.name;
+        pendingLabels.add((contact, label, false));
       }
     }
 
-    if (_zoom >= _clusterOffZoom || overlapsMode || _isBuildingPathTrace) {
+    // overlapsMode intentionally does NOT bypass clustering (2026-08-31
+    // feedback: previously it forced every node individual regardless of
+    // zoom, which made the "Repeater Key Overlaps" toggle look like it did
+    // nothing but disable grouping — its actual job, highlighting a
+    // colliding repeater's pin/label, only shows when a real key collision
+    // exists, independent of whether nodes are currently clustered).
+    if (_zoom >= _clusterOffZoom || _isBuildingPathTrace) {
       for (final contact in items) {
         addNode(contact);
       }
@@ -1432,12 +1502,69 @@ class _MapScreenState extends State<MapScreen> {
           selected: true,
         ),
       );
-      markers.add(
-        _buildNodeLabelMarker(
-          point: LatLng(selectedContact.latitude!, selectedContact.longitude!),
-          label: selectedContact.name,
-        ),
-      );
+      if (showLabels) {
+        pendingLabels.add((selectedContact, selectedContact.name, true));
+      }
+    }
+
+    // Pass 2: resolve collisions across every pending label together, then
+    // build only the placed (non-hidden) label markers.
+    if (pendingLabels.isNotEmpty) {
+      final t = MeshTokens.of(context);
+      final labelStyle = MeshTokens.of(
+        context,
+      ).monoBody(fontWeight: FontWeight.w700, color: _overlayPrimaryTextColor);
+      final horizontalPadding = t.spacingXxs + 2;
+      final textScaler = MediaQuery.textScalerOf(context);
+      final camera = _mapController.camera;
+
+      final candidates = <LabelCandidate>[];
+      for (final (contact, label, isSelected) in pendingLabels) {
+        final anchor = camera.latLngToScreenOffset(
+          LatLng(contact.latitude!, contact.longitude!),
+        );
+        final width = nodeLabelBubbleWidth(
+          label,
+          labelStyle,
+          horizontalPadding: horizontalPadding * 2,
+          textScaler: textScaler,
+        );
+        const height = 24.0;
+        final defaultOffset = labelCollisionOffsets[0];
+        final rect = Rect.fromLTWH(
+          anchor.dx - width / 2 + defaultOffset.dx,
+          anchor.dy + defaultOffset.dy,
+          width,
+          height,
+        );
+        candidates.add(
+          LabelCandidate(
+            nodeId: contact.publicKeyHex,
+            priority: _labelPriority(contact, isSelected: isSelected),
+            screenRect: rect,
+            preferredOffsetIndex: _lastOffsetForNode[contact.publicKeyHex],
+          ),
+        );
+      }
+
+      final placements = resolveLabelCollisions(candidates);
+      final placementByNodeId = {for (final p in placements) p.nodeId: p};
+
+      for (final (contact, label, _) in pendingLabels) {
+        final placement = placementByNodeId[contact.publicKeyHex]!;
+        if (placement.offsetIndex == -1) {
+          _lastOffsetForNode.remove(contact.publicKeyHex);
+          continue;
+        }
+        _lastOffsetForNode[contact.publicKeyHex] = placement.offsetIndex;
+        markers.add(
+          _buildNodeLabelMarker(
+            point: LatLng(contact.latitude!, contact.longitude!),
+            label: label,
+            labelOffset: labelCollisionOffsets[placement.offsetIndex],
+          ),
+        );
+      }
     }
 
     return markers;
@@ -1604,42 +1731,79 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Marker _buildNodeLabelMarker({required LatLng point, required String label}) {
+  Marker _buildNodeLabelMarker({
+    required LatLng point,
+    required String label,
+    required Offset labelOffset,
+  }) {
     final t = MeshTokens.of(context);
+    final labelStyle = MeshTokens.of(
+      context,
+    ).monoBody(fontWeight: FontWeight.w700, color: _overlayPrimaryTextColor);
+    // flutter_map's Marker/Positioned constrains its child to exactly
+    // Marker.width/height (marker_layer.dart) — there is no intrinsic/
+    // content sizing inside a MarkerLayer, so a fixed width (previously
+    // 140) either clips longer names or leaves short names visually
+    // off-center in a too-wide box with mismatched left/right whitespace
+    // (2026-08-30 feedback). Measure the label itself and size the marker
+    // to it instead, clamped so one pathological name can't blow up the
+    // map view.
+    //
+    // spacingXxs (not spacingXs) — spacingXs read as excessive padding once
+    // the box actually wraps the text tightly instead of a fixed 140px box
+    // (2026-08-30 follow-up feedback); must match the Container's own
+    // padding below exactly.
+    final horizontalPadding = t.spacingXxs + 2;
+    final width = nodeLabelBubbleWidth(
+      label,
+      labelStyle,
+      horizontalPadding: horizontalPadding * 2,
+      // Real device text-scale, not the default — under-measuring here is
+      // what caused the persistent ellipsis-clipping Grok's adversarial
+      // review traced to (2026-08-30): this marker-list build is memoized
+      // by the caller, so a too-narrow first measurement never self-heals.
+      textScaler: MediaQuery.textScalerOf(context),
+    );
     return Marker(
       point: point,
-      width: 140,
+      width: width,
       height: 24,
       alignment: Alignment.topCenter,
       child: IgnorePointer(
         child: Transform.translate(
-          offset: const Offset(0, -20),
+          offset: labelOffset,
           // No FittedBox (06-map-bugs.md): it scaled the whole card to fill
           // a fixed box, so short names rendered LARGER than long ones
           // despite sharing the same monoBody role. A fixed font size +
-          // the Text's own maxLines/ellipsis handles long names instead.
+          // the Text's own maxLines/ellipsis (now only a safety net beyond
+          // [nodeLabelBubbleWidthMax]) handles long names instead.
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: t.spacingXs, vertical: 2),
+            // alignment: center (2026-08-30 feedback: text sat at the top
+            // of the box, not centered) — flutter_map's Positioned gives
+            // this Container a TIGHT height (Marker.height=24), and
+            // Container only centers its child when alignment is set;
+            // without it, a tightly-constrained Container places its
+            // (padded) child at the top rather than centering it.
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: 2,
+            ),
             decoration: BoxDecoration(
               color: _overlayPanelColor,
               borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
-              border: Border.all(color: _overlayBorderColor),
-              boxShadow: [
-                BoxShadow(
-                  color: _overlayShadowColor,
-                  blurRadius: 4,
-                  offset: Offset(0, 1),
-                ),
-              ],
+              border: _overlayCardBorder,
+              boxShadow: _overlayCardShadow(
+                blurRadius: 4,
+                offset: Offset(0, 1),
+              ),
             ),
             child: Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: MeshTokens.of(context).monoBody(
-                fontWeight: FontWeight.w700,
-                color: _overlayPrimaryTextColor,
-              ),
+              textAlign: TextAlign.center,
+              style: labelStyle,
             ),
           ),
         ),
@@ -1851,37 +2015,40 @@ class _MapScreenState extends State<MapScreen> {
     final hasQuery = _searchQuery.trim().isNotEmpty;
     final t = MeshTokens.of(context);
     return Positioned(
-      top: 8,
-      left: 12,
-      right: 12,
+      // Matches the Contacts/Channels search bar's inset exactly
+      // (Padding(EdgeInsets.all(t.spacingXs)) — contacts_screen.dart:806)
+      // instead of the previous hardcoded 8/12 that put this overlay a few
+      // px off from the same field on those screens (2026-08-30 feedback).
+      top: t.spacingXs,
+      left: t.spacingXs,
+      right: t.spacingXs,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Material(
-                  color: _overlayPanelColor,
-                  shape: StadiumBorder(
-                    side: BorderSide(color: _overlayBorderColor),
-                  ),
-                  clipBehavior: Clip.antiAlias,
+          // IntrinsicHeight + stretch (2026-08-30 feedback: the hub-count
+          // pill's height didn't match the search field's) forces both
+          // children to the taller one's intrinsic height instead of each
+          // sizing independently off their own padding.
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Plain TextField inheriting the app-wide InputDecorationTheme
+                // (mesh_theme.dart:472-492) — matches the Contacts/Channels
+                // search bar exactly (contacts_screen.dart:811-833) instead of
+                // the previous hand-built pill (StadiumBorder, custom
+                // _overlay* colors, 96%-alpha translucent fill).
+                Expanded(
                   child: TextField(
                     controller: _searchController,
                     focusNode: _searchFocus,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     decoration: InputDecoration(
                       hintText: context.l10n.map_searchHint,
-                      hintStyle: TextStyle(color: _overlaySecondaryTextColor),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        size: 20,
-                        color: _overlayPrimaryTextColor,
-                      ),
+                      prefixIcon: const Icon(Icons.search),
                       suffixIcon: hasQuery
                           ? IconButton(
-                              color: _overlayPrimaryTextColor,
-                              icon: const Icon(Icons.close, size: 18),
+                              icon: const Icon(Icons.clear),
                               onPressed: () {
                                 setState(() {
                                   _searchQuery = '';
@@ -1890,129 +2057,75 @@ class _MapScreenState extends State<MapScreen> {
                               },
                             )
                           : null,
-                      filled: false,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      isDense: true,
                       contentPadding: EdgeInsets.symmetric(
-                        horizontal: t.spacingXxs,
+                        horizontal: t.spacingMd,
                         vertical: t.spacingSm,
                       ),
                     ),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: _overlayPrimaryTextColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    cursorColor: MeshTokens.of(context).mapSelected,
                     onChanged: (value) {
                       setState(() => _searchQuery = value);
                     },
                   ),
                 ),
-              ),
-              SizedBox(width: t.spacingXs),
-              Material(
-                color: _overlayPanelColor,
-                shape: StadiumBorder(
-                  side: BorderSide(color: _overlayBorderColor),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: () => setState(() => _statsExpanded = !_statsExpanded),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: t.spacingSm,
-                      vertical: t.spacingSm,
+                SizedBox(width: t.spacingXs),
+                Material(
+                  color: _overlayPanelColor,
+                  // Rounded-rect (MeshRadii.md), matching the search field's
+                  // own shape (OutlineInputBorder, mesh_theme.dart:480-483) —
+                  // was a StadiumBorder, which read as a mismatched shape
+                  // family next to both the search field and the app's
+                  // buttons (2026-08-30 feedback). Widened (spacingMd instead
+                  // of spacingSm) at the same time, per the same feedback.
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      MeshTokens.of(context).md,
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.hub,
-                          size: 15,
-                          color: MeshTokens.of(context).mapSelected,
-                        ),
-                        SizedBox(width: t.spacingXs),
-                        Text(
-                          '$visibleCount',
-                          style: MeshTokens.of(context).monoBody(
-                            fontWeight: FontWeight.w700,
-                            color: _overlayPrimaryTextColor,
+                    side: _overlayCardBorderSide,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () =>
+                        setState(() => _statsExpanded = !_statsExpanded),
+                    child: Padding(
+                      // Widened further (2026-08-30 feedback: still too
+                      // narrow) — spacingMd + spacingXs instead of spacingMd.
+                      padding: EdgeInsets.symmetric(
+                        horizontal: t.spacingMd + t.spacingXs,
+                        vertical: t.spacingSm,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.hub,
+                            size: 15,
+                            color: MeshTokens.of(context).mapSelected,
                           ),
-                        ),
-                        const SizedBox(width: 2),
-                        AnimatedRotation(
-                          turns: _statsExpanded ? 0.5 : 0,
-                          duration: const Duration(milliseconds: 200),
-                          child: Icon(
-                            Icons.expand_more,
-                            size: 16,
-                            color: _overlayPrimaryTextColor,
+                          SizedBox(width: t.spacingXs),
+                          Text(
+                            '$visibleCount',
+                            style: MeshTokens.of(context).monoBody(
+                              fontWeight: FontWeight.w700,
+                              color: _overlayPrimaryTextColor,
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 2),
+                          AnimatedRotation(
+                            turns: _statsExpanded ? 0.5 : 0,
+                            duration: const Duration(milliseconds: 200),
+                            child: Icon(
+                              Icons.expand_more,
+                              size: 16,
+                              color: _overlayPrimaryTextColor,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: t.spacingXs),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final chips = <Widget>[
-                _mapChip(
-                  label: context.l10n.time_allTime,
-                  selected: _freshness == _Freshness.all,
-                  onTap: () => setState(() => _freshness = _Freshness.all),
-                ),
-                _mapChip(
-                  label: context.l10n.map_online,
-                  selected: _freshness == _Freshness.online,
-                  color: MeshTokens.of(context).mapOnline,
-                  onTap: () => setState(() => _freshness = _Freshness.online),
-                ),
-                _mapChip(
-                  label: context.l10n.map_recent,
-                  selected: _freshness == _Freshness.recent,
-                  color: MeshTokens.of(context).mapStale,
-                  onTap: () => setState(() => _freshness = _Freshness.recent),
-                ),
-                _mapChip(
-                  label: context.l10n.map_stale,
-                  selected: _freshness == _Freshness.stale,
-                  color: MeshTokens.of(context).mapOffline,
-                  onTap: () => setState(() => _freshness = _Freshness.stale),
-                ),
-                _mapChip(
-                  label: context.l10n.map_repeaters,
-                  selected: settings.mapShowRepeaters,
-                  color: MeshTokens.of(context).warn,
-                  onTap: () => settingsService.setMapShowRepeaters(
-                    !settings.mapShowRepeaters,
-                  ),
-                ),
-                _mapChip(
-                  label: context.l10n.map_chatNodes,
-                  selected: settings.mapShowChatNodes,
-                  color: MeshTokens.of(context).mapSelected,
-                  onTap: () => settingsService.setMapShowChatNodes(
-                    !settings.mapShowChatNodes,
-                  ),
-                ),
-              ];
-
-              if (constraints.maxWidth < 600) {
-                return Wrap(runSpacing: t.spacingXs, children: chips);
-              }
-
-              return SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(children: chips),
-              );
-            },
+              ],
+            ),
           ),
           if (hasQuery)
             _buildSearchResults(context, allContacts, guessedLocations)
@@ -2031,65 +2144,6 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _mapChip({
-    required String label,
-    required bool selected,
-    required VoidCallback onTap,
-    Color? color,
-  }) {
-    final accent = color ?? MeshTokens.of(context).mapSelected;
-    final t = MeshTokens.of(context);
-    return Padding(
-      padding: EdgeInsets.only(right: t.spacingXs),
-      child: Material(
-        color: selected
-            ? Color.alphaBlend(
-                accent.withValues(alpha: 0.34),
-                _overlayPanelColor,
-              )
-            : _overlayPanelColor,
-        shape: StadiumBorder(
-          side: BorderSide(
-            color: selected ? accent : _overlayBorderColor,
-            width: selected ? 1.5 : 1,
-          ),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () {
-            HapticFeedback.selectionClick();
-            onTap();
-          },
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: t.spacingSm,
-              vertical: t.spacingXs,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (selected) ...[
-                  Icon(Icons.check, size: 13, color: _overlayPrimaryTextColor),
-                  SizedBox(width: t.spacingXxs),
-                ],
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                    color: selected
-                        ? _overlayPrimaryTextColor
-                        : _overlaySecondaryTextColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -2255,14 +2309,11 @@ class _MapScreenState extends State<MapScreen> {
       decoration: BoxDecoration(
         color: _overlayPanelColor,
         borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
-        border: Border.all(color: _overlayBorderColor),
-        boxShadow: [
-          BoxShadow(
-            color: _overlayShadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: _overlayCardBorder,
+        boxShadow: _overlayCardShadow(
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2293,7 +2344,13 @@ class _MapScreenState extends State<MapScreen> {
             pinCount,
             MeshTokens.of(context).mapShared,
           ),
-          Divider(height: 16, color: _overlayBorderColor),
+          // Dotted section rule (2026-08-30 feedback), matching the app-wide
+          // dropdown-menu section separator convention
+          // (dropdown-menu-row-schema.md) instead of a solid Divider.
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: t.spacingXxs + 2),
+            child: DottedSeparator(color: _overlayBorderColor),
+          ),
           _buildLegendItem(
             Icons.person,
             context.l10n.map_chat,
@@ -3898,6 +3955,185 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
+}
+
+/// Max width a node-label marker bubble is allowed to grow to (2026-08-30) —
+/// a safety clamp against one pathological device name blowing up the map
+/// view; [Text.overflow] on the label still ellipsizes past this point.
+const double nodeLabelBubbleWidthMax = 220;
+
+/// Extra slack added on top of the measured text width (2026-08-30, Grok
+/// adversarial review) — `flutter_map`'s `Positioned` gives the bubble a
+/// TIGHT width from [Marker.width], computed once and then memoized by the
+/// caller's marker-list cache, so any small mismatch between what
+/// [TextPainter] measures here and what the real [Text] renders at (custom
+/// mono font metrics, device text-scale) shows up as permanent ellipsis
+/// clipping instead of self-correcting on a later frame. A few px of slack
+/// is cheap insurance against that class of drift.
+const double nodeLabelBubbleWidthSlack = 4;
+
+/// Measures [label] set in [style] and returns the marker bubble width that
+/// wraps it exactly (content-sized instead of a fixed box that either clips
+/// longer names or leaves short ones adrift in extra whitespace), clamped to
+/// [nodeLabelBubbleWidthMax]. [horizontalPadding] is the *total* left+right
+/// padding the bubble's own [Container] will apply around the text.
+/// [textScaler] should be the real [MediaQuery.textScalerOf] the label will
+/// actually render at — measuring at the default (unscaled) size under-sizes
+/// the bubble on any device with a larger system font-size setting.
+double nodeLabelBubbleWidth(
+  String label,
+  TextStyle style, {
+  required double horizontalPadding,
+  TextScaler textScaler = TextScaler.noScaling,
+}) {
+  final painter = TextPainter(
+    text: TextSpan(text: label, style: style),
+    textScaler: textScaler,
+    maxLines: 1,
+    textDirection: TextDirection.ltr,
+  )..layout();
+  return (painter.width + horizontalPadding + nodeLabelBubbleWidthSlack).clamp(
+    0,
+    nodeLabelBubbleWidthMax,
+  );
+}
+
+/// The six candidate screen-space offsets a node-label bubble can be placed
+/// at, tried in this exact order by [resolveLabelCollisions] (2026-08-31,
+/// map label collision avoidance). Index 0 matches the bubble's original,
+/// always-above-the-pin position exactly (Offset(0,-20), the value
+/// `_buildNodeLabelMarker` used before this feature existed) so a node with
+/// no colliding neighbor renders identically to before.
+const List<Offset> labelCollisionOffsets = [
+  Offset(0, -20), // 0: above the pin (default/original position)
+  Offset(0, 24), // 1: below the pin
+  Offset(-24, -20), // 2: upper-left diagonal
+  Offset(24, -20), // 3: upper-right diagonal
+  Offset(0, -44), // 4: further above
+  Offset(0, 48), // 5: further below
+];
+
+/// One node's label, ready for collision resolution. [screenRect] is the
+/// label bubble's bounding rectangle in screen (pixel) coordinates AT
+/// [labelCollisionOffsets] index 0 (the default "above the pin" position) —
+/// [resolveLabelCollisions] derives every other candidate rect from it by
+/// translation, so callers only ever compute the one default rect.
+class LabelCandidate {
+  const LabelCandidate({
+    required this.nodeId,
+    required this.priority,
+    required this.screenRect,
+    this.preferredOffsetIndex,
+  });
+
+  /// Stable identifier for the node (contact.publicKeyHex) — used both to
+  /// key the [LabelPlacement] result and to look up/store the stability
+  /// cache in `_MapScreenState._lastOffsetForNode`.
+  final String nodeId;
+
+  /// Higher sorts first. See `_labelPriority` in `_buildNodeMarkers` for how
+  /// callers compute this (selected > recently-active > repeater/favorite >
+  /// everyone else); [resolveLabelCollisions] itself has no opinion on what
+  /// the number means, only that higher goes first.
+  final int priority;
+
+  /// The label bubble's rect at offset index 0.
+  final Rect screenRect;
+
+  /// If the default (index 0) position is genuinely occupied by something
+  /// else and this offset is still collision-free, [resolveLabelCollisions]
+  /// keeps the node at this offset instead of scanning the candidate list
+  /// from scratch — this is what prevents labels from jumping between
+  /// positions on every frame during a pan/zoom (2026-08-31 design doc,
+  /// "Stabilność" section). The default position always wins first when it
+  /// is free, so a label snaps back to it as soon as nothing crowds it
+  /// there anymore, instead of staying displaced forever (fixed 2026-08-31
+  /// after device testing showed a label staying pushed aside across zoom
+  /// levels even once the neighbor that caused it was no longer nearby).
+  final int? preferredOffsetIndex;
+}
+
+/// The chosen placement for one [LabelCandidate], returned by
+/// [resolveLabelCollisions].
+class LabelPlacement {
+  const LabelPlacement({required this.nodeId, required this.offsetIndex});
+
+  final String nodeId;
+
+  /// Index into [labelCollisionOffsets], or -1 if no candidate offset was
+  /// collision-free — the caller must not build a label marker for this
+  /// node (the pin itself still renders, only the text bubble is skipped).
+  final int offsetIndex;
+}
+
+/// Greedy priority-sorted label placement (2026-08-31 design doc,
+/// "Rekomendowane podejście" section). Sorts [candidates] by descending
+/// priority (ties broken alphabetically by [LabelCandidate.nodeId] for
+/// determinism), then for each one in order: the default (index 0) position
+/// always wins first if it's collision-free; only when it's genuinely
+/// occupied does a still-free [LabelCandidate.preferredOffsetIndex] get
+/// honored (stability without getting stuck — see that field's doc);
+/// otherwise scan the remaining [labelCollisionOffsets] in order and accept
+/// the first collision-free one. A candidate with no collision-free offset
+/// gets `offsetIndex: -1` (hidden) instead of forcing an overlap.
+///
+/// Pure function: no widgets, no BuildContext, no map/camera access — every
+/// input is already in screen-space pixels. See
+/// `test/screens/map_label_collision_test.dart` for the full contract.
+List<LabelPlacement> resolveLabelCollisions(List<LabelCandidate> candidates) {
+  final sorted = [...candidates]
+    ..sort((a, b) {
+      final byPriority = b.priority.compareTo(a.priority);
+      if (byPriority != 0) return byPriority;
+      return a.nodeId.compareTo(b.nodeId);
+    });
+
+  final accepted = <Rect>[];
+
+  Rect rectForOffset(LabelCandidate candidate, int offsetIndex) {
+    final delta = labelCollisionOffsets[offsetIndex] - labelCollisionOffsets[0];
+    return candidate.screenRect.shift(delta);
+  }
+
+  bool collidesWithAccepted(Rect rect) =>
+      accepted.any((existing) => existing.overlaps(rect));
+
+  final placements = <LabelPlacement>[];
+  for (final candidate in sorted) {
+    var chosenIndex = -1;
+
+    final defaultRect = rectForOffset(candidate, 0);
+    if (!collidesWithAccepted(defaultRect)) {
+      chosenIndex = 0;
+      accepted.add(defaultRect);
+    } else {
+      final preferred = candidate.preferredOffsetIndex;
+      if (preferred != null && preferred != 0) {
+        final preferredRect = rectForOffset(candidate, preferred);
+        if (!collidesWithAccepted(preferredRect)) {
+          chosenIndex = preferred;
+          accepted.add(preferredRect);
+        }
+      }
+
+      if (chosenIndex == -1) {
+        for (var i = 1; i < labelCollisionOffsets.length; i++) {
+          final rect = rectForOffset(candidate, i);
+          if (!collidesWithAccepted(rect)) {
+            chosenIndex = i;
+            accepted.add(rect);
+            break;
+          }
+        }
+      }
+    }
+
+    placements.add(
+      LabelPlacement(nodeId: candidate.nodeId, offsetIndex: chosenIndex),
+    );
+  }
+
+  return placements;
 }
 
 enum _NodeAge { online, recent, stale }
