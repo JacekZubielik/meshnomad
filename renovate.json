@@ -7,6 +7,9 @@
   "labels": ["dependencies"],
   "dependencyDashboard": true,
   "prConcurrentLimit": 5,
+  "ignoreDeps": [
+    "dev.flutter.flutter-plugin-loader:dev.flutter.flutter-plugin-loader.gradle.plugin"
+  ],
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security"],
