@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.14.0 (2026-08-31)
+
+### Highlights
+
+- Map screen search and filter redesigned to match the Contacts/Channels pattern; overlapping node labels are now automatically pushed apart instead of stacking on top of each other (#116)
+
+### Features
+
+- Map: node-label collision resolver keeps clustered repeaters/contacts legible when several are close together (#116)
+
+### Fixes
+
+- Map: node-label bubbles size to their content with correct centering and clipping; zoom and clustering thresholds tuned (#116)
+
 ## v0.13.0 (2026-08-30)
 
 ### Highlights
