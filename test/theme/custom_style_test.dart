@@ -120,7 +120,10 @@ void main() {
     test('AppBar bottom border tracks the overridden outlineVariant, not '
         'the frozen base theme value (2026-09-01 fix)', () {
       final style = buildCustomStyle(
-        const CustomStyleOverrides(colorOverrides: {'secondary': 0xFF00FFAA}),
+        const CustomStyleOverrides(
+          colorOverrides: {'secondary': 0xFF00FFAA},
+          borderOverride: true,
+        ),
       );
       final shape = style.theme.appBarTheme.shape;
       expect(shape, isA<Border>());
@@ -128,6 +131,24 @@ void main() {
       expect(border.bottom.color, style.theme.colorScheme.outlineVariant);
       expect(border.bottom.color, const Color(0xFF00FFAA));
     });
+
+    test(
+      'AppBar bottom border is transparent/hidden when bordersVisible is false',
+      () {
+        final style = buildCustomStyle(
+          const CustomStyleOverrides(
+            colorOverrides: {'secondary': 0xFF00FFAA},
+            borderOverride: false,
+          ),
+        );
+        final shape = style.theme.appBarTheme.shape;
+        expect(shape, isA<Border>());
+        final border = shape! as Border;
+        // Border should be transparent/zero-width when bordersVisible is false
+        expect(border.bottom.color, Colors.transparent);
+        expect(border.bottom.width, 0);
+      },
+    );
 
     test('overriding primary reshapes MeshTokens.primaryBg and '
         'ColorScheme.primary alike (C3)', () {

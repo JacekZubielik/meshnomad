@@ -338,7 +338,7 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
   TextStyle? withFontSize(TextStyle? style, double fontSize) =>
       style?.copyWith(fontSize: fontSize);
 
-  ThemeData applyChromeFontSizes(ThemeData base) {
+  ThemeData applyChromeFontSizes(ThemeData base, MeshTokens tokens) {
     final text = base.textTheme;
     final bodyMediumSize = text.bodyMedium!.fontSize!;
     final bodySmallSize = text.bodySmall!.fontSize!;
@@ -365,10 +365,15 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
         // ColorScheme at construction time; re-derive it here from the
         // already-overridden `base.colorScheme.outlineVariant` so the line
         // follows Custom Style like every other outlineVariant-driven
-        // border in the app (2026-09-01 fix).
-        shape: Border(
-          bottom: BorderSide(color: base.colorScheme.outlineVariant),
-        ),
+        // border in the app (2026-09-01 fix). Gate on bordersVisible to
+        // match the pattern established by divider/card/input borders
+        // throughout this function (snackBar line 479, popupMenu line 493,
+        // card line 704, segment line 797).
+        shape: tokens.bordersVisible
+            ? Border(bottom: BorderSide(color: base.colorScheme.outlineVariant))
+            : const Border(
+                bottom: BorderSide(color: Colors.transparent, width: 0),
+              ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: base.elevatedButtonTheme.style?.copyWith(
@@ -801,7 +806,7 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
             ),
       ),
     );
-    return applyChromeRadii(applyChromeFontSizes(withScheme), tokens);
+    return applyChromeRadii(applyChromeFontSizes(withScheme, tokens), tokens);
   }
 
   // Resolve which base MeshTokens/ThemeData pair to start from: a profile
