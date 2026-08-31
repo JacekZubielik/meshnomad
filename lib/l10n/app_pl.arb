@@ -37,6 +37,9 @@
   "common_interval": "Interwał",
   "common_reboot": "Uruchom ponownie",
   "common_loading": "Ładowanie...",
+  "common_syncingContacts": "Synchronizowanie kontaktów",
+  "common_syncingChannels": "Synchronizowanie kanałów",
+  "common_sendingQueuedMessages": "Wysyłanie oczekujących wiadomości",
   "common_notAvailable": "—",
   "common_voltageValue": "{volts} V",
   "@common_voltageValue": {

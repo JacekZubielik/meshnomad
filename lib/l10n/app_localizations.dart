@@ -314,6 +314,24 @@ abstract class AppLocalizations {
   /// **'Loading...'**
   String get common_loading;
 
+  /// No description provided for @common_syncingContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing contacts'**
+  String get common_syncingContacts;
+
+  /// No description provided for @common_syncingChannels.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing channels'**
+  String get common_syncingChannels;
+
+  /// No description provided for @common_sendingQueuedMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending queued messages'**
+  String get common_sendingQueuedMessages;
+
   /// No description provided for @common_notAvailable.
   ///
   /// In en, this message translates to:

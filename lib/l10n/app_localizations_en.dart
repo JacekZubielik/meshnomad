@@ -117,6 +117,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_loading => 'Loading...';
 
   @override
+  String get common_syncingContacts => 'Syncing contacts';
+
+  @override
+  String get common_syncingChannels => 'Syncing channels';
+
+  @override
+  String get common_sendingQueuedMessages => 'Sending queued messages';
+
+  @override
   String get common_notAvailable => '—';
 
   @override

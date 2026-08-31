@@ -36,6 +36,9 @@
   "messageStatus_repeated": "Heard repeated",
   "common_reboot": "Reboot",
   "common_loading": "Loading...",
+  "common_syncingContacts": "Syncing contacts",
+  "common_syncingChannels": "Syncing channels",
+  "common_sendingQueuedMessages": "Sending queued messages",
   "common_notAvailable": "—",
   "common_voltageValue": "{volts} V",
   "@common_voltageValue": {

@@ -117,6 +117,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get common_loading => 'Ładowanie...';
 
   @override
+  String get common_syncingContacts => 'Synchronizowanie kontaktów';
+
+  @override
+  String get common_syncingChannels => 'Synchronizowanie kanałów';
+
+  @override
+  String get common_sendingQueuedMessages =>
+      'Wysyłanie oczekujących wiadomości';
+
+  @override
   String get common_notAvailable => '—';
 
   @override
