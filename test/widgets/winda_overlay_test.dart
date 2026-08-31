@@ -69,10 +69,16 @@ void main() {
 
   testWidgets('WindaProgress indeterminate (value: null) shows no percentage '
       'text', (tester) async {
+    // The indeterminate pill has a perpetually-repeating AnimationController
+    // (a real sliding-thumb loop, per the brief's contract), so it never
+    // "settles" — pumpAndSettle() would throw "pumpAndSettle timed out"
+    // against it. Pump a couple of fixed durations instead.
     await tester.pumpWidget(
       _wrap(const WindaProgress(label: 'Sending queued messages', value: null)),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Sending queued messages'), findsOneWidget);
     expect(find.textContaining('%'), findsNothing);
   });

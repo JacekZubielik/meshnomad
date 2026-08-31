@@ -132,22 +132,56 @@ class WindaProgress extends StatelessWidget {
 }
 
 /// The pill track: a determinate left-anchored fill when [value] is
-/// non-null, or a fixed centered thumb when [value] is `null`
-/// (indeterminate — no motion).
+/// non-null, or a sliding thumb loop when [value] is `null` (indeterminate)
+/// — per the brief's contract, this must actually slide, not sit static.
 ///
-/// Deliberately static rather than animated: a repeating [AnimationController]
-/// (or any self-perpetuating animation, including a [TweenAnimationBuilder]
-/// that re-triggers itself from `onEnd`) keeps scheduling frames forever and
-/// makes `tester.pumpAndSettle()` throw ("pumpAndSettle timed out") — a
-/// well-known Flutter testing pitfall shared with the built-in indeterminate
-/// `LinearProgressIndicator`. A static thumb still communicates "something is
-/// happening, no known duration" without fighting the test harness; a
-/// looping variant can be revisited later behind an explicit opt-out for
-/// tests if the animation is ever wanted.
-class _PillTrack extends StatelessWidget {
+/// Widget tests covering the indeterminate state must pump fixed durations
+/// (`tester.pump(const Duration(...))`) rather than `tester.pumpAndSettle()`
+/// — a perpetually-`repeat`ing [AnimationController] never lets
+/// `hasScheduledFrame` go false, so `pumpAndSettle()` always throws
+/// ("pumpAndSettle timed out") against it, the same well-known pitfall as
+/// the built-in indeterminate `LinearProgressIndicator`. That's a test-side
+/// concern, not a reason to drop the animation from production code.
+class _PillTrack extends StatefulWidget {
   final double? value;
 
   const _PillTrack({required this.value});
+
+  @override
+  State<_PillTrack> createState() => _PillTrackState();
+}
+
+class _PillTrackState extends State<_PillTrack>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1300),
+    );
+    if (widget.value == null) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _PillTrack oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value == null && !_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    } else if (widget.value != null && _controller.isAnimating) {
+      _controller.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,10 +193,10 @@ class _PillTrack extends StatelessWidget {
         border: Border.all(color: t.primary),
         borderRadius: BorderRadius.circular(t.pill),
       ),
-      child: value != null
+      child: widget.value != null
           ? FractionallySizedBox(
               alignment: Alignment.centerLeft,
-              widthFactor: value!.clamp(0.0, 1.0),
+              widthFactor: widget.value!.clamp(0.0, 1.0),
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: t.primary,
@@ -170,16 +204,22 @@ class _PillTrack extends StatelessWidget {
                 ),
               ),
             )
-          : Align(
-              child: FractionallySizedBox(
-                widthFactor: 0.3,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: t.primary,
-                    borderRadius: BorderRadius.circular(t.pill),
+          : AnimatedBuilder(
+              animation: _controller,
+              builder: (context, _) {
+                return Align(
+                  alignment: Alignment(_controller.value * 2 - 1, 0),
+                  child: FractionallySizedBox(
+                    widthFactor: 0.3,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: t.primary,
+                        borderRadius: BorderRadius.circular(t.pill),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
     );
   }
