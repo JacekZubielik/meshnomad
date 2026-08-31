@@ -15,7 +15,15 @@
     "labels": ["security"],
     "automerge": false
   },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"]
+  },
   "packageRules": [
+    {
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "automerge": false
+    },
     {
       "matchUpdateTypes": ["patch"],
       "automerge": true
