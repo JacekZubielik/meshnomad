@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <!-- MeshNomad app icon master — decision 2026-08-24: variant "negative-space M",
+       brand color forest #3F6212. White circle with a geometric M knocked out
+       (the cutout reveals the brand background). -->
+  <rect width="96" height="96" fill="#3F6212"/>
+  <mask id="m">
+    <circle cx="48" cy="48" r="40" fill="#fff"/>
+    <path fill="#000" transform="translate(48 48) scale(.6) translate(-48 -48)"
+      d="M16 74 V22 H33 L48 43 L63 22 H80 V74 H66 V44 L48 68 L30 44 V74 Z"/>
+  </mask>
+  <rect width="96" height="96" fill="#FFFFFF" mask="url(#m)"/>
+</svg>
