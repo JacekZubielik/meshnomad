@@ -16,6 +16,7 @@ import 'package:meshnomad/services/storage_service.dart';
 import 'package:meshnomad/services/timeout_prediction_service.dart';
 import 'package:meshnomad/services/translation_service.dart';
 import 'package:meshnomad/services/ui_view_state_service.dart';
+import 'package:meshnomad/services/winda_host_controller.dart';
 import 'package:meshnomad/storage/prefs_manager.dart';
 
 void main() {
@@ -53,6 +54,7 @@ void main() {
       final uiViewStateService = UiViewStateService();
       final timeoutPredictionService = TimeoutPredictionService(storage);
       final packetObservationService = PacketObservationService();
+      final windaHostController = WindaHostController();
       addTearDown(connector.dispose);
       addTearDown(retryService.dispose);
       addTearDown(pathHistoryService.dispose);
@@ -79,6 +81,7 @@ void main() {
           uiViewStateService: uiViewStateService,
           timeoutPredictionService: timeoutPredictionService,
           packetObservationService: packetObservationService,
+          windaHostController: windaHostController,
         ),
       );
       // Not pumpAndSettle(): the app legitimately runs indefinite timers

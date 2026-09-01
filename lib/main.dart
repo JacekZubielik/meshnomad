@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'screens/chrome_required_screen.dart';
 import 'screens/hub_screen.dart';
 import 'utils/platform_info.dart';
+import 'widgets/winda_host_overlay.dart';
 
 import 'connector/meshcore_connector.dart';
 import 'services/storage_service.dart';
@@ -25,6 +26,7 @@ import 'services/translation_service.dart';
 import 'services/ui_view_state_service.dart';
 import 'services/timeout_prediction_service.dart';
 import 'services/packet_observation_service.dart';
+import 'services/winda_host_controller.dart';
 import 'storage/prefs_manager.dart';
 import 'theme/style.dart';
 import 'theme/styles/custom_style.dart';
@@ -65,6 +67,7 @@ void main() async {
   final uiViewStateService = UiViewStateService();
   final timeoutPredictionService = TimeoutPredictionService(storage);
   final packetObservationService = PacketObservationService();
+  final windaHostController = WindaHostController();
 
   // Load settings
   await appSettingsService.loadSettings();
@@ -125,6 +128,7 @@ void main() async {
       uiViewStateService: uiViewStateService,
       timeoutPredictionService: timeoutPredictionService,
       packetObservationService: packetObservationService,
+      windaHostController: windaHostController,
     ),
   );
 }
@@ -164,6 +168,7 @@ class MeshCoreApp extends StatelessWidget {
   final UiViewStateService uiViewStateService;
   final TimeoutPredictionService timeoutPredictionService;
   final PacketObservationService packetObservationService;
+  final WindaHostController windaHostController;
 
   const MeshCoreApp({
     super.key,
@@ -180,6 +185,7 @@ class MeshCoreApp extends StatelessWidget {
     required this.uiViewStateService,
     required this.timeoutPredictionService,
     required this.packetObservationService,
+    required this.windaHostController,
   });
 
   @override
@@ -199,6 +205,7 @@ class MeshCoreApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: mapTileCacheService),
         ChangeNotifierProvider.value(value: timeoutPredictionService),
         ChangeNotifierProvider.value(value: packetObservationService),
+        ChangeNotifierProvider.value(value: windaHostController),
       ],
       child: Consumer<AppSettingsService>(
         builder: (context, settingsService, child) {
@@ -215,6 +222,7 @@ class MeshCoreApp extends StatelessWidget {
               settingsService.settings.languageOverride,
             ),
             theme: _activeStyle(settingsService).theme,
+            navigatorObservers: [windaRouteObserver],
             builder: (context, child) {
               // Update notification service with resolved locale
               final locale = Localizations.localeOf(context);
@@ -231,7 +239,12 @@ class MeshCoreApp extends StatelessWidget {
               // needed here anymore (see commit 80b358a for the old issue).
               return AnnotatedRegion<SystemUiOverlayStyle>(
                 value: _systemUiOverlayStyle(context),
-                child: child ?? const SizedBox.shrink(),
+                child: Stack(
+                  children: [
+                    child ?? const SizedBox.shrink(),
+                    const WindaHostOverlay(),
+                  ],
+                ),
               );
             },
             home: (PlatformInfo.isWeb && !PlatformInfo.isChrome)
