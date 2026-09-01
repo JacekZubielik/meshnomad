@@ -15,6 +15,10 @@ import '../theme/mesh_tokens.dart';
 /// a future message-mode widget (icon + text, replacing
 /// `showDismissibleSnackBar`) slots into the exact same shell later without
 /// changing this class.
+///
+/// Currently wired into Contacts only — see
+/// https://github.com/JacekZubielik/meshnomad/issues/143 for wiring it into
+/// the other screens that lost sync-progress feedback.
 class WindaOverlay extends StatelessWidget {
   final Widget? child;
 
