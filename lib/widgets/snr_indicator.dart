@@ -282,7 +282,7 @@ class _SNRIndicatorState extends State<SNRIndicator> {
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: MeshTokens.of(context).spacingXxs,
-            vertical: MeshTokens.of(context).spacingXs,
+            vertical: MeshTokens.of(context).spacingSm,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

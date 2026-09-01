@@ -255,7 +255,7 @@ class _TransportIndicatorState extends State<TransportIndicator> {
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: tokens.spacingXxs,
-          vertical: tokens.spacingXs,
+          vertical: tokens.spacingSm,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
