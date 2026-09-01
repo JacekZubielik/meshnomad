@@ -339,6 +339,9 @@ class MeshCoreConnector extends ChangeNotifier {
   int? _contactSyncTotal;
   int _contactSyncReceived = 0;
   bool _contactSyncUsesSinceFilter = false;
+  Timer? _contactSyncTimeout;
+  bool _contactSyncTimedOut = false;
+  static const int _contactSyncTimeoutMs = 5000; // 5 second idle timeout
   bool _isSyncingQueuedMessages = false;
   bool _deferQueuedContactMessagesUntilContacts = false;
   bool _isProcessingDeferredQueuedContactMessages = false;
@@ -499,6 +502,7 @@ class MeshCoreConnector extends ChangeNotifier {
   List<Channel> get channels => List.unmodifiable(_channels);
   bool get isConnected => _state == MeshCoreConnectionState.connected;
   bool get isLoadingContacts => _isLoadingContacts;
+  bool get contactSyncTimedOut => _contactSyncTimedOut;
   bool get hasLoadedContacts => _hasLoadedContacts;
   bool get isLoadingChannels => _isLoadingChannels;
   bool get hasLoadedChannels => _hasLoadedChannels;
@@ -2672,6 +2676,9 @@ class MeshCoreConnector extends ChangeNotifier {
     _pendingInitialQueuedMessageSync = false;
     _contactSyncTotal = null;
     _contactSyncReceived = 0;
+    _contactSyncTimeout?.cancel();
+    _contactSyncTimeout = null;
+    _contactSyncTimedOut = false;
     _contactSyncUsesSinceFilter = false;
     _isLoadingContacts = false;
     _hasLoadedContacts = false;
@@ -3225,13 +3232,39 @@ class MeshCoreConnector extends ChangeNotifier {
     );
   }
 
+  /// Resets contact-sync bookkeeping and (re)arms the idle timeout. Called
+  /// by `getContacts()` at the start of a sync, and again on every contact
+  /// received (`_handleContact`) to reset the idle clock — the timeout
+  /// fires only after `_contactSyncTimeoutMs` of silence, not from a fixed
+  /// point at sync start, so a legitimately large contact list doesn't
+  /// trip it just for taking a while.
+  void _beginContactSyncTracking() {
+    _contactSyncTotal = null;
+    _contactSyncReceived = 0;
+    _contactSyncTimedOut = false;
+    _armContactSyncTimeout();
+  }
+
+  void _armContactSyncTimeout() {
+    _contactSyncTimeout?.cancel();
+    _contactSyncTimeout = Timer(
+      Duration(milliseconds: _contactSyncTimeoutMs),
+      _handleContactSyncTimeout,
+    );
+  }
+
+  void _handleContactSyncTimeout() {
+    _contactSyncTimeout = null;
+    _contactSyncTimedOut = true;
+    notifyListeners();
+  }
+
   Future<void> getContacts({int? since, bool preserveExisting = false}) async {
     if (!isConnected) return;
 
     _isLoadingContacts = true;
     _preserveContactsOnRefresh = preserveExisting;
-    _contactSyncTotal = null;
-    _contactSyncReceived = 0;
+    _beginContactSyncTracking();
     _contactSyncUsesSinceFilter = since != null;
     if (!preserveExisting) {
       _hasLoadedContacts = false;
@@ -4505,6 +4538,8 @@ class MeshCoreConnector extends ChangeNotifier {
         debugPrint('Got END_OF_CONTACTS');
         _isLoadingContacts = false;
         _hasLoadedContacts = true;
+        _contactSyncTimeout?.cancel();
+        _contactSyncTimeout = null;
         _preserveContactsOnRefresh = false;
         _contactSyncUsesSinceFilter = false;
         unawaited(updateKnownDiscovered());
@@ -5245,6 +5280,7 @@ class MeshCoreConnector extends ChangeNotifier {
     if (contactTmp != null) {
       if (isContact && _isLoadingContacts) {
         _contactSyncReceived++;
+        _armContactSyncTimeout();
       }
       if (listEquals(contactTmp.publicKey, _selfPublicKey)) {
         appLogger.info(
@@ -7325,6 +7361,23 @@ class MeshCoreConnector extends ChangeNotifier {
 
   @visibleForTesting
   void debugHandleFrame(Uint8List frame) => _handleFrame(frame);
+
+  @visibleForTesting
+  bool get debugContactSyncTimeoutArmed => _contactSyncTimeout != null;
+
+  @visibleForTesting
+  void debugBeginContactSyncTracking() => _beginContactSyncTracking();
+
+  @visibleForTesting
+  void debugTriggerContactSyncTimeout() => _handleContactSyncTimeout();
+
+  /// Lets a test satisfy `getContacts()`'s `if (!isConnected) return;` guard
+  /// without a real transport, so tests can exercise the synchronous
+  /// state-reset (`_beginContactSyncTracking()`) that call performs before
+  /// it reaches `sendFrame` — which will still throw without a real
+  /// transport attached.
+  @visibleForTesting
+  set debugConnectionState(MeshCoreConnectionState state) => _state = state;
 
   @visibleForTesting
   void debugAddContact(Contact contact) => _contacts.add(contact);
