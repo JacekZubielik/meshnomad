@@ -822,7 +822,10 @@ class _ContactsScreenState extends State<ContactsScreen>
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.all(t.spacingXs),
+          padding: EdgeInsets.symmetric(
+            horizontal: t.spacingXs,
+            vertical: t.spacingSm,
+          ),
           // Full-width search field — the group selector moved to its own
           // FAB + bottom sheet (2026-08-23), so it no longer shares this row.
           child: TextField(
