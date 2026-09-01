@@ -9,6 +9,7 @@ import 'package:meshnomad/services/notification_service.dart';
 import 'package:meshnomad/utils/app_logger.dart';
 import 'package:meshnomad/utils/platform_info.dart';
 import 'package:meshnomad/widgets/app_bar.dart';
+import 'package:meshnomad/widgets/winda_overlay.dart';
 import 'package:provider/provider.dart';
 
 import '../connector/meshcore_connector.dart';
@@ -734,7 +735,21 @@ class _ContactsScreenState extends State<ContactsScreen>
         connector.isLoadingContacts && contacts.isEmpty;
 
     if (waitingForInitialContacts || waitingForFirstContact) {
-      return const Center(child: CircularProgressIndicator());
+      return Stack(
+        children: [
+          const Positioned.fill(
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: WindaOverlay(
+              child: WindaProgress.fromConnector(connector, context.l10n),
+            ),
+          ),
+        ],
+      );
     }
 
     if (contacts.isEmpty && _groups.isEmpty) {
@@ -849,57 +864,73 @@ class _ContactsScreenState extends State<ContactsScreen>
           ),
         ),
         Expanded(
-          child: RefreshIndicator(
-            onRefresh: () => connector.getContacts(),
-            child: filteredAndSorted.isEmpty
-                ? LayoutBuilder(
-                    builder: (context, constraints) => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: constraints.maxHeight,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: RefreshIndicator(
+                  onRefresh: () => connector.getContacts(),
+                  child: filteredAndSorted.isEmpty
+                      ? LayoutBuilder(
+                          builder: (context, constraints) => ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight: constraints.maxHeight,
+                                ),
+                                child: EmptyState(
+                                  icon: Icons.search_off,
+                                  title: viewState.contactsShowUnreadOnly
+                                      ? context.l10n.contacts_noUnreadContacts
+                                      : context.l10n.contacts_noContactsFound,
+                                ),
+                              ),
+                            ],
                           ),
-                          child: EmptyState(
-                            icon: Icons.search_off,
-                            title: viewState.contactsShowUnreadOnly
-                                ? context.l10n.contacts_noUnreadContacts
-                                : context.l10n.contacts_noContactsFound,
+                        )
+                      : ListView.builder(
+                          controller: _contactsScrollController,
+                          // Was a size-special literal (88) reserved as FAB
+                          // clearance — left a large dead gap between the last
+                          // card and QuickSwitchBar once scrolled to the end
+                          // (2026-08-29 on-device feedback: should read as a
+                          // normal small bottom inset, not FAB-sized).
+                          padding: EdgeInsets.only(
+                            bottom: MeshTokens.of(context).spacingMd,
                           ),
+                          itemCount: filteredAndSorted.length,
+                          itemBuilder: (context, index) {
+                            final contact = filteredAndSorted[index];
+                            final unreadCount = connector
+                                .getUnreadCountForContact(contact);
+                            return _ContactTileEntrance(
+                              index: index,
+                              contact: contact,
+                              pathHashByteWidth: connector.pathHashByteWidth,
+                              lastSeen: _resolveLastSeen(contact),
+                              unreadCount: unreadCount,
+                              isFavorite: contact.isFavorite,
+                              onTap: () => _openChat(context, contact),
+                              onLongPress: () => _showContactOptions(
+                                context,
+                                connector,
+                                contact,
+                              ),
+                              pushPreservingScroll: _pushPreservingScroll,
+                            );
+                          },
                         ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    controller: _contactsScrollController,
-                    // Was a size-special literal (88) reserved as FAB
-                    // clearance — left a large dead gap between the last
-                    // card and QuickSwitchBar once scrolled to the end
-                    // (2026-08-29 on-device feedback: should read as a
-                    // normal small bottom inset, not FAB-sized).
-                    padding: EdgeInsets.only(
-                      bottom: MeshTokens.of(context).spacingMd,
-                    ),
-                    itemCount: filteredAndSorted.length,
-                    itemBuilder: (context, index) {
-                      final contact = filteredAndSorted[index];
-                      final unreadCount = connector.getUnreadCountForContact(
-                        contact,
-                      );
-                      return _ContactTileEntrance(
-                        index: index,
-                        contact: contact,
-                        pathHashByteWidth: connector.pathHashByteWidth,
-                        lastSeen: _resolveLastSeen(contact),
-                        unreadCount: unreadCount,
-                        isFavorite: contact.isFavorite,
-                        onTap: () => _openChat(context, contact),
-                        onLongPress: () =>
-                            _showContactOptions(context, connector, contact),
-                        pushPreservingScroll: _pushPreservingScroll,
-                      );
-                    },
-                  ),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: WindaOverlay(
+                  child: WindaProgress.fromConnector(connector, context.l10n),
+                ),
+              ),
+            ],
           ),
         ),
       ],
