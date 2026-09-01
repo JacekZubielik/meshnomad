@@ -100,12 +100,7 @@ class WindaProgress extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = MeshTokens.of(context);
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        t.spacingXs,
-        t.spacingSm,
-        t.spacingXs,
-        t.spacingSm,
-      ),
+      padding: EdgeInsets.fromLTRB(t.spacingXs, 0, t.spacingXs, t.spacingSm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
