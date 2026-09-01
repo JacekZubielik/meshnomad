@@ -571,7 +571,11 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     final scheme = buildColorScheme(base.colorScheme, tokens);
     final withScheme = base.copyWith(
       colorScheme: scheme,
-      scaffoldBackgroundColor: scheme.surface,
+      // One step up the existing surfaceContainer ladder (= tokens.bg1,
+      // buildColorScheme below) than the app bar's own `scheme.surface` —
+      // gives the list area contrast against the app bar/bottom bar instead
+      // of everything reading as one flat color (2026-09-02 feedback).
+      scaffoldBackgroundColor: scheme.surfaceContainerLow,
       canvasColor: scheme.surface,
       appBarTheme: base.appBarTheme.copyWith(
         backgroundColor: scheme.surface,

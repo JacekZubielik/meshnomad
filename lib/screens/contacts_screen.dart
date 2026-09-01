@@ -81,6 +81,29 @@ class _ContactsScreenState extends State<ContactsScreen>
 
   StreamSubscription<Uint8List>? _frameSubscription;
 
+  // Lets the message winda (hosted above the Navigator, see
+  // MeshScreenScaffold.extraTopOffset) stack below this screen's own search
+  // field + floating progress winda, instead of overlapping them — measured
+  // dynamically rather than hardcoded, since either can change height with
+  // text-scaling/accessibility settings or a l10n string length change.
+  final GlobalKey _searchFieldKey = GlobalKey();
+  final GlobalKey _progressWindaKey = GlobalKey();
+  double _extraTopOffset = 0;
+
+  void _measureExtraTopOffset() {
+    double heightOf(GlobalKey key) {
+      final renderObject = key.currentContext?.findRenderObject();
+      return (renderObject is RenderBox && renderObject.hasSize)
+          ? renderObject.size.height
+          : 0;
+    }
+
+    final measured = heightOf(_searchFieldKey) + heightOf(_progressWindaKey);
+    if ((measured - _extraTopOffset).abs() > 0.5) {
+      setState(() => _extraTopOffset = measured);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -357,6 +380,9 @@ class _ContactsScreenState extends State<ContactsScreen>
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _measureExtraTopOffset();
+    });
     // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
     // above the Navigator) so "select all" can't sweep in text from other,
     // offstage routes still mounted via maintainState:true.
@@ -375,6 +401,7 @@ class _ContactsScreenState extends State<ContactsScreen>
     return PopScope(
       canPop: allowBack,
       child: MeshScreenScaffold(
+        extraTopOffset: _extraTopOffset,
         messages: connector.contactSyncTimedOut
             ? [
                 WindaMessage(
@@ -497,7 +524,28 @@ class _ContactsScreenState extends State<ContactsScreen>
             ),
           ],
         ),
-        body: _buildContactsBody(context, connector),
+        // NotificationListener, not just the post-frame measurement in
+        // build(): the progress winda's own AnimatedSize (winda_overlay.dart)
+        // animates internally without ever calling setState on this screen,
+        // so a re-measurement scheduled only from this screen's own build()
+        // would sit stale for however long it takes some UNRELATED
+        // connector notification to next rebuild this screen — observed as
+        // the message winda sitting several seconds too low after the
+        // progress winda finished collapsing (2026-09-02 feedback).
+        // SizeChangedLayoutNotifier (wrapping the measured content, added at
+        // the same two spots as _progressWindaKey/_searchFieldKey) fires
+        // this notification on every layout pass where the wrapped
+        // subtree's size changed, including ones driven purely by an
+        // internal animation.
+        body: NotificationListener<SizeChangedLayoutNotification>(
+          onNotification: (notification) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _measureExtraTopOffset();
+            });
+            return true;
+          },
+          child: _buildContactsBody(context, connector),
+        ),
         // Group management FAB stacked above the add-contact FAB (2026-08-23
         // — moved off the top bar, same visual treatment via the app-wide
         // floatingActionButtonTheme tint). Distinct heroTags: Flutter throws
@@ -756,8 +804,19 @@ class _ContactsScreenState extends State<ContactsScreen>
             top: 0,
             left: 0,
             right: 0,
-            child: WindaOverlay(
-              child: WindaProgress.fromConnector(connector, context.l10n),
+            child: KeyedSubtree(
+              key: _progressWindaKey,
+              child: SizeChangedLayoutNotifier(
+                child: MeshCard(
+                  margin: EdgeInsets.zero,
+                  padding: EdgeInsets.zero,
+                  radius: 0,
+                  color: Theme.of(context).colorScheme.surface,
+                  child: WindaOverlay(
+                    child: WindaProgress.fromConnector(connector, context.l10n),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -833,49 +892,63 @@ class _ContactsScreenState extends State<ContactsScreen>
 
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: t.spacingXs,
-            vertical: t.spacingSm,
-          ),
-          // Full-width search field — the group selector moved to its own
-          // FAB + bottom sheet (2026-08-23), so it no longer shares this row.
-          child: TextField(
-            controller: _searchController,
-            style: Theme.of(context).textTheme.bodyMedium,
-            decoration: InputDecoration(
-              hintText: hintText,
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (viewState.contactsSearchText.isNotEmpty)
-                    IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchDebounce?.cancel();
-                        _searchDebounce = null;
-                        _searchController.clear();
-                        context
-                            .read<UiViewStateService>()
-                            .setContactsSearchText('');
-                      },
-                    ),
-                  _buildFilterButton(context, viewState),
-                ],
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: t.spacingMd,
+        KeyedSubtree(
+          key: _searchFieldKey,
+          child: MeshCard(
+            margin: EdgeInsets.zero,
+            padding: EdgeInsets.zero,
+            radius: 0,
+            color: Theme.of(context).colorScheme.surface,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: t.spacingXs,
                 vertical: t.spacingSm,
               ),
+              // Full-width search field — the group selector moved to its own
+              // FAB + bottom sheet (2026-08-23), so it no longer shares this row.
+              child: TextField(
+                controller: _searchController,
+                style: Theme.of(context).textTheme.bodyMedium,
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (viewState.contactsSearchText.isNotEmpty)
+                        IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchDebounce?.cancel();
+                            _searchDebounce = null;
+                            _searchController.clear();
+                            context
+                                .read<UiViewStateService>()
+                                .setContactsSearchText('');
+                          },
+                        ),
+                      _buildFilterButton(context, viewState),
+                    ],
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: t.spacingMd,
+                    vertical: t.spacingSm,
+                  ),
+                ),
+                onChanged: (value) {
+                  _searchDebounce?.cancel();
+                  _searchDebounce = Timer(
+                    const Duration(milliseconds: 300),
+                    () {
+                      if (!mounted) return;
+                      context.read<UiViewStateService>().setContactsSearchText(
+                        value,
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-            onChanged: (value) {
-              _searchDebounce?.cancel();
-              _searchDebounce = Timer(const Duration(milliseconds: 300), () {
-                if (!mounted) return;
-                context.read<UiViewStateService>().setContactsSearchText(value);
-              });
-            },
           ),
         ),
         Expanded(
@@ -941,8 +1014,22 @@ class _ContactsScreenState extends State<ContactsScreen>
                 top: 0,
                 left: 0,
                 right: 0,
-                child: WindaOverlay(
-                  child: WindaProgress.fromConnector(connector, context.l10n),
+                child: KeyedSubtree(
+                  key: _progressWindaKey,
+                  child: SizeChangedLayoutNotifier(
+                    child: MeshCard(
+                      margin: EdgeInsets.zero,
+                      padding: EdgeInsets.zero,
+                      radius: 0,
+                      color: Theme.of(context).colorScheme.surface,
+                      child: WindaOverlay(
+                        child: WindaProgress.fromConnector(
+                          connector,
+                          context.l10n,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],

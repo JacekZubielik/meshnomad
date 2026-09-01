@@ -38,6 +38,16 @@ class MeshScreenScaffold extends StatefulWidget {
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
 
+  /// Additional vertical space, below the app bar, that the message winda
+  /// should be pushed down by — e.g. a screen's own search field and/or its
+  /// own floating progress winda, which live in the screen's normal body
+  /// content (not in this global mechanism) and would otherwise be covered
+  /// by the message winda rendering right under the app bar. The caller is
+  /// responsible for measuring this dynamically (e.g. via a `GlobalKey` on
+  /// that content) — a hardcoded constant would drift from the real layout
+  /// and break under text-scaling/accessibility settings.
+  final double extraTopOffset;
+
   const MeshScreenScaffold({
     super.key,
     this.appBar,
@@ -45,6 +55,7 @@ class MeshScreenScaffold extends StatefulWidget {
     this.messages = const [],
     this.floatingActionButton,
     this.bottomNavigationBar,
+    this.extraTopOffset = 0,
   });
 
   @override
@@ -136,7 +147,9 @@ class _MeshScreenScaffoldState extends State<MeshScreenScaffold>
       } else {
         controller.register(
           messages: widget.messages,
-          appBarHeight: widget.appBar?.preferredSize.height ?? 0,
+          appBarHeight:
+              (widget.appBar?.preferredSize.height ?? 0) +
+              widget.extraTopOffset,
         );
       }
     });

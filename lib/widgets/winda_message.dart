@@ -83,21 +83,50 @@ class WindaMessageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = MeshTokens.of(context);
     final color = _color(t);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Padding(
-      padding: EdgeInsets.fromLTRB(t.spacingXs, 0, t.spacingXs, t.spacingSm),
+      padding: EdgeInsets.fromLTRB(t.spacingSm, 0, t.spacingSm, t.spacingSm),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(_icon, color: color, size: 20),
-          SizedBox(width: t.spacingSm),
-          Expanded(
-            child: Text(
-              message.text,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: t.ink3),
+          // "LCD display" readout — matches SettingsValueStepper's valuePill
+          // (Settings screens) EXACTLY: fill = `scheme.primary` @ 20% alpha
+          // (not tone-tinted — only the icon carries the tone color, per
+          // 2026-09-02 feedback), `t.sm` (rectangular, NOT `t.pill`) radius,
+          // no border, centered mono text. Single-line + ellipsis by design —
+          // a compact status readout, not a wrapped paragraph. `Flexible`
+          // (loose fit), not `Expanded` (tight fit) — the pill hugs its own
+          // content width and centers within the remaining row space, rather
+          // than being forced to stretch across all of it (2026-09-02
+          // feedback: it read as far too wide against how compact valuePill
+          // actually looks in Settings).
+          Flexible(
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: t.spacingSm,
+                  vertical: t.spacingXxs,
+                ),
+                decoration: BoxDecoration(
+                  color: t.primary.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(t.sm),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(_icon, color: color, size: 16),
+                    SizedBox(width: t.spacingXxs),
+                    Flexible(
+                      child: Text(
+                        message.text,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: t.monoBody(color: onSurface),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           if (message.actionLabel case final label?) ...[

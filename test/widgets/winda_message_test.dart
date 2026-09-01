@@ -59,29 +59,31 @@ void main() {
     expect(icon.color, MeshTokens.defaultTokens.alert);
   });
 
-  testWidgets('text is clamped to 2 lines with ellipsis overflow', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      _wrap(
-        const WindaMessageContent(
-          message: WindaMessage(
-            text:
-                'A very long message that would need more than two lines '
-                'of text to fully display on a narrow phone screen width',
-            tone: WindaMessageTone.info,
+  testWidgets(
+    'text is clamped to 1 line with ellipsis overflow — a compact "LCD '
+    'readout" pill, not a wrapped paragraph (2026-09-02 restyle)',
+    (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const WindaMessageContent(
+            message: WindaMessage(
+              text:
+                  'A very long message that would need more than one line '
+                  'of text to fully display on a narrow phone screen width',
+              tone: WindaMessageTone.info,
+            ),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    final textWidget = tester.widget<Text>(
-      find.textContaining('A very long message'),
-    );
-    expect(textWidget.maxLines, 2);
-    expect(textWidget.overflow, TextOverflow.ellipsis);
-  });
+      final textWidget = tester.widget<Text>(
+        find.textContaining('A very long message'),
+      );
+      expect(textWidget.maxLines, 1);
+      expect(textWidget.overflow, TextOverflow.ellipsis);
+    },
+  );
 
   testWidgets(
     'an action renders a FilledButton with the label, tapping it calls '

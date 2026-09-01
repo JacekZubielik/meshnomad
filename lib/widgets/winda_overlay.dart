@@ -10,6 +10,15 @@ import '../theme/mesh_tokens.dart';
 /// (a `Stack`); this widget only owns its own open/close animation and
 /// chrome.
 ///
+/// No `boxShadow` of its own (removed 2026-09-02) — the "floating above
+/// content" drop shadow made sense for the original single-winda design, but
+/// once a screen stacks multiple windas (progress card, then a message winda
+/// glued below it), an unconditional shadow on every one of them reads as an
+/// unwanted line/seam between panels. A caller that wants elevation (e.g.
+/// Contacts' search field + progress card) wraps its content in `MeshCard`
+/// instead, which gates its shadow behind the app-wide `cardElevated` style
+/// toggle — the same mechanism every other card in the app uses.
+///
 /// Generic on purpose: [child] is `null` when there's nothing to show and
 /// any [Widget] otherwise. Today only [WindaProgress] is ever passed in —
 /// a future message-mode widget (icon + text, replacing
@@ -39,16 +48,7 @@ class WindaOverlay extends StatelessWidget {
                 child: Container(
                   key: ValueKey(child.runtimeType),
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: scheme.surface,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.28),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
+                  color: scheme.surface,
                   child: child,
                 ),
               ),

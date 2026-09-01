@@ -173,7 +173,10 @@ void main() {
       expect(style.theme.colorScheme.surface, tokens.bg);
       expect(style.theme.colorScheme.surfaceContainerLow, tokens.bg1);
       expect(style.theme.colorScheme.surfaceContainerHighest, tokens.bg3);
-      expect(style.theme.scaffoldBackgroundColor, tokens.bg);
+      // scaffoldBackgroundColor is one step up the surfaceContainer ladder
+      // from appBarTheme's own tokens.bg (2026-09-02: list content vs. app
+      // bar/bottom bar contrast) — the two are deliberately different now.
+      expect(style.theme.scaffoldBackgroundColor, tokens.bg1);
       expect(style.theme.appBarTheme.backgroundColor, tokens.bg);
 
       final bgLightness = HSLColor.fromColor(tokens.bg).lightness;
@@ -193,7 +196,10 @@ void main() {
       expect(style.theme.colorScheme.surface, tokens.bg);
       expect(style.theme.colorScheme.surfaceContainerLow, tokens.bg1);
       expect(style.theme.colorScheme.surfaceContainerHighest, tokens.bg3);
-      expect(style.theme.scaffoldBackgroundColor, tokens.bg);
+      // scaffoldBackgroundColor is one step up the surfaceContainer ladder
+      // from appBarTheme's own tokens.bg (2026-09-02: list content vs. app
+      // bar/bottom bar contrast) — the two are deliberately different now.
+      expect(style.theme.scaffoldBackgroundColor, tokens.bg1);
       expect(style.theme.appBarTheme.backgroundColor, tokens.bg);
     });
 

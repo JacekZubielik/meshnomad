@@ -344,7 +344,10 @@ class MeshTheme {
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
-      scaffoldBackgroundColor: scheme.surface,
+      // One step up the surfaceContainer ladder than the app bar's own
+      // `scheme.surface`, for contrast against the app bar/bottom bar
+      // (2026-09-02 feedback; mirrored in custom_style.dart).
+      scaffoldBackgroundColor: scheme.surfaceContainerLow,
       canvasColor: scheme.surface,
       fontFamily: MeshFonts.sans,
       fontFamilyFallback: MeshFonts.sansFallback,
