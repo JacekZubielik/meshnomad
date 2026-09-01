@@ -29,6 +29,7 @@
   "common_share": "Udostępnij",
   "common_copy": "Kopiuj",
   "common_retry": "Ponów",
+  "common_resync": "Synchronizuj ponownie",
   "common_hide": "Ukryj",
   "common_remove": "Usuń",
   "common_enable": "Włącz",
@@ -298,6 +299,7 @@
   },
   "contacts_noUnreadContacts": "Brak nieprzeczytanych kontaktów",
   "contacts_noContactsFound": "Brak znalezionych kontaktów ani grup.",
+  "contacts_syncStalled": "Synchronizacja kontaktów zawieszona — brak odpowiedzi z urządzenia",
   "contacts_deleteContact": "Usuń Kontakt",
   "contacts_removeConfirm": "Usunąć {contactName} z kontaktów?",
   "@contacts_removeConfirm": {

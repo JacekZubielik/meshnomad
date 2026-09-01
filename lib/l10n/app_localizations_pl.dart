@@ -81,6 +81,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get common_retry => 'Ponów';
 
   @override
+  String get common_resync => 'Synchronizuj ponownie';
+
+  @override
   String get common_hide => 'Ukryj';
 
   @override
@@ -1134,6 +1137,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get contacts_noContactsFound =>
       'Brak znalezionych kontaktów ani grup.';
+
+  @override
+  String get contacts_syncStalled =>
+      'Synchronizacja kontaktów zawieszona — brak odpowiedzi z urządzenia';
 
   @override
   String get contacts_deleteContact => 'Usuń Kontakt';

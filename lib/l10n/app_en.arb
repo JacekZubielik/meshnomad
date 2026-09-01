@@ -24,6 +24,7 @@
   "common_share": "Share",
   "common_copy": "Copy",
   "common_retry": "Retry",
+  "common_resync": "Resync",
   "common_hide": "Hide",
   "common_remove": "Remove",
   "common_enable": "Enable",
@@ -488,6 +489,7 @@
   },
   "contacts_noUnreadContacts": "No unread contacts",
   "contacts_noContactsFound": "No contacts or groups found",
+  "contacts_syncStalled": "Contact sync stalled — no response from the device",
   "contacts_deleteContact": "Delete Contact",
   "contacts_removeConfirm": "Remove {contactName} from contacts?",
   "@contacts_removeConfirm": {

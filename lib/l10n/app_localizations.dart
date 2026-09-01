@@ -242,6 +242,12 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get common_retry;
 
+  /// No description provided for @common_resync.
+  ///
+  /// In en, this message translates to:
+  /// **'Resync'**
+  String get common_resync;
+
   /// No description provided for @common_hide.
   ///
   /// In en, this message translates to:
@@ -2077,6 +2083,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No contacts or groups found'**
   String get contacts_noContactsFound;
+
+  /// No description provided for @contacts_syncStalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact sync stalled — no response from the device'**
+  String get contacts_syncStalled;
 
   /// No description provided for @contacts_deleteContact.
   ///
