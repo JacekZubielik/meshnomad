@@ -9,9 +9,11 @@ import 'package:meshnomad/models/contact.dart';
 import 'package:meshnomad/screens/contacts_screen.dart';
 import 'package:meshnomad/services/app_settings_service.dart';
 import 'package:meshnomad/services/ui_view_state_service.dart';
+import 'package:meshnomad/services/winda_host_controller.dart';
 import 'package:meshnomad/storage/prefs_manager.dart';
 import 'package:meshnomad/theme/mesh_theme.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/winda_host_overlay.dart';
 
 /// A cold-start fake: connected, but still loading the first batch of
 /// contacts (`hasLoadedContacts` is false and the list is still empty) —
@@ -49,6 +51,9 @@ Widget _wrap({
       ChangeNotifierProvider<UiViewStateService>(
         create: (_) => UiViewStateService(),
       ),
+      ChangeNotifierProvider<WindaHostController>(
+        create: (_) => WindaHostController(),
+      ),
     ],
     child: MaterialApp(
       theme: MeshTheme.light().copyWith(
@@ -56,6 +61,17 @@ Widget _wrap({
       ),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      // Required for MeshScreenScaffold's RouteAware subscription and to
+      // actually render the registered message, exactly as in main.dart.
+      navigatorObservers: [windaRouteObserver],
+      builder: (context, navigatorChild) {
+        return Stack(
+          children: [
+            navigatorChild ?? const SizedBox.shrink(),
+            const WindaHostOverlay(),
+          ],
+        );
+      },
       home: const ContactsScreen(),
     ),
   );

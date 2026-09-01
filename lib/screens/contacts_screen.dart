@@ -9,6 +9,8 @@ import 'package:meshnomad/services/notification_service.dart';
 import 'package:meshnomad/utils/app_logger.dart';
 import 'package:meshnomad/utils/platform_info.dart';
 import 'package:meshnomad/widgets/app_bar.dart';
+import 'package:meshnomad/widgets/mesh_screen_scaffold.dart';
+import 'package:meshnomad/widgets/winda_message.dart';
 import 'package:meshnomad/widgets/winda_overlay.dart';
 import 'package:provider/provider.dart';
 
@@ -372,7 +374,17 @@ class _ContactsScreenState extends State<ContactsScreen>
     final allowBack = !connector.isConnected;
     return PopScope(
       canPop: allowBack,
-      child: Scaffold(
+      child: MeshScreenScaffold(
+        messages: connector.contactSyncTimedOut
+            ? [
+                WindaMessage(
+                  text: context.l10n.contacts_syncStalled,
+                  tone: WindaMessageTone.error,
+                  actionLabel: context.l10n.common_resync,
+                  onAction: () => connector.getContacts(),
+                ),
+              ]
+            : const [],
         appBar: meshMainAppBar(
           context,
           title: context.l10n.contacts_title,

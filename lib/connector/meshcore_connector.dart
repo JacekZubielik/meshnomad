@@ -3254,6 +3254,13 @@ class MeshCoreConnector extends ChangeNotifier {
   }
 
   void _handleContactSyncTimeout() {
+    // Cancel before nulling: a no-op when the real Timer's own callback is
+    // what got us here (it has already fired), but load-bearing when this
+    // is invoked early via debugTriggerContactSyncTimeout() — without it,
+    // the still-armed real Timer is orphaned (unreachable via
+    // _contactSyncTimeout) rather than cancelled, tripping flutter_test's
+    // "no pending timers" invariant on dispose().
+    _contactSyncTimeout?.cancel();
     _contactSyncTimeout = null;
     _contactSyncTimedOut = true;
     notifyListeners();
@@ -7515,6 +7522,7 @@ class MeshCoreConnector extends ChangeNotifier {
     _usbFrameSubscription?.cancel();
     _notifySubscription?.cancel();
     _notifyListenersTimer?.cancel();
+    _contactSyncTimeout?.cancel();
     _reconnectTimer?.cancel();
     _batteryPollTimer?.cancel();
     _gpsLocationPollTimer?.cancel();

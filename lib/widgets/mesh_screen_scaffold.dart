@@ -36,6 +36,7 @@ class MeshScreenScaffold extends StatefulWidget {
   final Widget body;
   final List<WindaMessage> messages;
   final Widget? floatingActionButton;
+  final Widget? bottomNavigationBar;
 
   const MeshScreenScaffold({
     super.key,
@@ -43,6 +44,7 @@ class MeshScreenScaffold extends StatefulWidget {
     required this.body,
     this.messages = const [],
     this.floatingActionButton,
+    this.bottomNavigationBar,
   });
 
   @override
@@ -146,6 +148,7 @@ class _MeshScreenScaffoldState extends State<MeshScreenScaffold>
       appBar: widget.appBar,
       body: widget.body,
       floatingActionButton: widget.floatingActionButton,
+      bottomNavigationBar: widget.bottomNavigationBar,
     );
   }
 }
