@@ -32,6 +32,27 @@ class WindaMessage {
     this.onAction,
     this.duration = const Duration(seconds: 4),
   });
+
+  /// Deliberately excludes [onAction] from equality/hash: closures aren't
+  /// meaningfully comparable, and two different closure instances with
+  /// equivalent behavior shouldn't be treated as "changed" for
+  /// [WindaHostController.register]'s value-equality idempotency check —
+  /// otherwise a screen that rebuilds a fresh (non-const) `WindaMessage`
+  /// with the same text/tone/actionLabel/duration every frame (e.g. one
+  /// built from a runtime l10n string, as Task 5 does) but a new `onAction`
+  /// closure instance each time would defeat the no-op check entirely.
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is WindaMessage &&
+        other.text == text &&
+        other.tone == tone &&
+        other.actionLabel == actionLabel &&
+        other.duration == duration;
+  }
+
+  @override
+  int get hashCode => Object.hash(text, tone, actionLabel, duration);
 }
 
 /// Content widget for [WindaOverlay] — sibling to `WindaProgress`

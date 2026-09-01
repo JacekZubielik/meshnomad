@@ -49,6 +49,18 @@ class _HarnessState extends State<_Harness> {
           ),
           child: const Text('Add message'),
         ),
+        TextButton(
+          key: const Key('push-page'),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (context) => MeshScreenScaffold(
+                appBar: AppBar(title: const Text('Screen B')),
+                body: const Center(child: Text('Screen B body')),
+              ),
+            ),
+          ),
+          child: const Text('Push page'),
+        ),
         Expanded(
           child: MeshScreenScaffold(
             appBar: AppBar(title: const Text('Test Screen')),
@@ -61,8 +73,8 @@ class _HarnessState extends State<_Harness> {
   }
 }
 
-Widget _wrap(Widget child) {
-  final controller = WindaHostController();
+Widget _wrap(Widget child, {WindaHostController? controllerOverride}) {
+  final controller = controllerOverride ?? WindaHostController();
   return ChangeNotifierProvider<WindaHostController>.value(
     value: controller,
     child: MaterialApp(
@@ -138,6 +150,35 @@ void main() {
         find.text('Validation failed while dialog open').hitTestable(),
         findsOneWidget,
       );
+    },
+  );
+
+  testWidgets(
+    'pushing a real second PageRoute on top DOES unregister the message — '
+    'the mirror image of the dialog test, proving didPushNext genuinely '
+    'fires (and only) for a real page push, not for a dialog',
+    (tester) async {
+      final controller = WindaHostController();
+      await tester.pumpWidget(
+        _wrap(const _Harness(), controllerOverride: controller),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('add-message')));
+      await tester.pumpAndSettle();
+      expect(find.text('Something happened').hitTestable(), findsOneWidget);
+      expect(controller.messages, hasLength(1));
+
+      await tester.tap(find.byKey(const Key('push-page')));
+      await tester.pumpAndSettle();
+
+      // Screen B is now on top and is itself a MeshScreenScaffold, so it
+      // has no messages of its own — the original screen's message must be
+      // gone, not merely obscured, proving didPushNext unregistered it
+      // (unlike the dialog case, which must NOT unregister).
+      expect(find.text('Screen B body'), findsOneWidget);
+      expect(find.text('Something happened'), findsNothing);
+      expect(controller.messages, isEmpty);
     },
   );
 }

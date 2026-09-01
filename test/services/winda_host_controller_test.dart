@@ -30,12 +30,27 @@ void main() {
 
   test('register with identical values is a no-op — does not notify', () {
     final controller = WindaHostController();
-    const messages = [WindaMessage(text: 'Hello', tone: WindaMessageTone.info)];
-    controller.register(messages: messages, appBarHeight: 56);
+    // Deliberately two SEPARATE (non-const, non-identical) WindaMessage/list
+    // instances that are only value-equal — this is what a real screen does
+    // when it rebuilds a fresh WindaMessage from a runtime l10n string every
+    // frame (Task 5). Without WindaMessage.== this test would only pass by
+    // accident (identical() short-circuit / const canonicalization), not
+    // because listEquals actually did a value comparison.
+    controller.register(
+      messages: List<WindaMessage>.from([
+        WindaMessage(text: 'Hello', tone: WindaMessageTone.info),
+      ]),
+      appBarHeight: 56,
+    );
 
     var notified = 0;
     controller.addListener(() => notified++);
-    controller.register(messages: messages, appBarHeight: 56);
+    controller.register(
+      messages: List<WindaMessage>.from([
+        WindaMessage(text: 'Hello', tone: WindaMessageTone.info),
+      ]),
+      appBarHeight: 56,
+    );
 
     expect(notified, 0);
   });
