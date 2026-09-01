@@ -20,9 +20,11 @@ class WindaMessage {
   final String? actionLabel;
   final VoidCallback? onAction;
 
-  /// Auto-dismiss duration. No `persist` flag by design — every message
-  /// dismisses eventually, matching the `showDismissibleSnackBar` mechanism
-  /// this replaces (see docs/superpowers/specs/2026-09-01-winda-message-system-design.md).
+  /// Reserved for a future auto-dismiss feature — NOT YET IMPLEMENTED.
+  /// Neither `WindaHostController` nor `WindaHostOverlay` currently reads
+  /// this field or starts a timer from it; today a message persists until
+  /// the owning screen removes it from its `messages` list (e.g. Contacts
+  /// clears its stall message by resetting `contactSyncTimedOut`).
   final Duration duration;
 
   const WindaMessage({
