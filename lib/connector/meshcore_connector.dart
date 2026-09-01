@@ -3263,10 +3263,6 @@ class MeshCoreConnector extends ChangeNotifier {
     _contactSyncTimeout?.cancel();
     _contactSyncTimeout = null;
     _contactSyncTimedOut = true;
-    // A stalled sync is no longer "loading" — this keeps the frozen progress
-    // winda from claiming an active sync is still running alongside the
-    // stall message.
-    _isLoadingContacts = false;
     notifyListeners();
   }
 

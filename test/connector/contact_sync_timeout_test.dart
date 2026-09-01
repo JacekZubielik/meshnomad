@@ -119,14 +119,16 @@ void main() {
     },
   );
 
-  test('the idle timeout clears isLoadingContacts', () {
+  test('the idle timeout does NOT clear isLoadingContacts (repeat-stall '
+      'detection relies on it staying true, and hiding a partial contact '
+      'list behind a full-screen spinner would be a regression)', () {
     final connector = MeshCoreConnector();
     connector.debugHandleFrame(Uint8List.fromList([respCodeContactsStart]));
     expect(connector.isLoadingContacts, isTrue);
 
     connector.debugTriggerContactSyncTimeout();
 
-    expect(connector.isLoadingContacts, isFalse);
+    expect(connector.isLoadingContacts, isTrue);
   });
 
   testWidgets(

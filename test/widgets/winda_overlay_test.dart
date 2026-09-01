@@ -13,6 +13,8 @@ class _FakeConnector extends MeshCoreConnector {
   @override
   double? contactSyncProgress;
   @override
+  bool contactSyncTimedOut = false;
+  @override
   bool isSyncingChannels = false;
   @override
   int channelSyncProgress = 0;
@@ -127,4 +129,30 @@ void main() {
     );
     expect(WindaProgress.fromConnector(_FakeConnector(), l10n), isNull);
   });
+
+  testWidgets(
+    'fromConnector collapses the contacts progress winda once a stall is '
+    'detected, even though isLoadingContacts stays true (issue #142: the '
+    'frozen progress winda must not linger alongside the stall message)',
+    (tester) async {
+      final connector = _FakeConnector()
+        ..isLoadingContacts = true
+        ..contactSyncProgress = 0.5
+        ..contactSyncTimedOut = true;
+
+      late AppLocalizations l10n;
+      await tester.pumpWidget(
+        _wrap(
+          Builder(
+            builder: (context) {
+              l10n = AppLocalizations.of(context);
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+
+      expect(WindaProgress.fromConnector(connector, l10n), isNull);
+    },
+  );
 }

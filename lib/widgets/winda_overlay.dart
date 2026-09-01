@@ -75,7 +75,7 @@ class WindaProgress extends StatelessWidget {
     MeshCoreConnector connector,
     AppLocalizations l10n,
   ) {
-    if (connector.isLoadingContacts) {
+    if (connector.isLoadingContacts && !connector.contactSyncTimedOut) {
       return WindaProgress(
         label: l10n.common_syncingContacts,
         value: connector.contactSyncProgress,
