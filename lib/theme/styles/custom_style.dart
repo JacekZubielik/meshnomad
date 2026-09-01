@@ -576,15 +576,6 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       appBarTheme: base.appBarTheme.copyWith(
         backgroundColor: scheme.surface,
         foregroundColor: scheme.onSurface,
-        // mesh_theme.dart bakes `shape`'s bottom border from the ORIGINAL
-        // scheme.outlineVariant at ThemeData-construction time too — same
-        // "baked, not looked up lazily" trap this function's own doc
-        // comment describes, just missed for this field. Without this, the
-        // AppBar's bottom border stayed the old line-token blue on every
-        // screen no matter what outline/outlineVariant resolved to above.
-        shape: tokens.bordersVisible
-            ? Border(bottom: BorderSide(color: scheme.outlineVariant))
-            : null,
       ),
       listTileTheme: base.listTileTheme.copyWith(
         textColor: scheme.onSurface,

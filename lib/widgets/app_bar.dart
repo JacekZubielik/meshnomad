@@ -96,7 +96,7 @@ class AppBarMenuIcon extends StatelessWidget {
 /// (`_FlasherMenuButton`) use, "a deliberate, user-confirmed exception to
 /// the flat [AppBarMenuIcon] pattern used elsewhere" for sub-screens with
 /// their own back-navigation flow. Prefer [QuickAccessMenuButton] on
-/// screens that follow the flat pattern instead.
+/// screens that use the flat [AppBarMenuIcon] pattern instead.
 class CircleQuickAccessMenuButton extends StatelessWidget {
   const CircleQuickAccessMenuButton({super.key});
 
