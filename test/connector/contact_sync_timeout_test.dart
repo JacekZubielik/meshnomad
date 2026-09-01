@@ -29,6 +29,8 @@ Uint8List _buildContactFrame({Uint8List? pubKey}) {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await PrefsManager.initialize();
@@ -89,6 +91,68 @@ void main() {
 
       expect(connector.contactSyncTimedOut, isFalse);
       expect(connector.debugContactSyncTimeoutArmed, isTrue);
+    },
+  );
+
+  test('a late contact arriving after a stall clears contactSyncTimedOut', () {
+    final connector = MeshCoreConnector();
+    connector.debugBeginContactSyncTracking();
+    connector.debugTriggerContactSyncTimeout();
+    expect(connector.contactSyncTimedOut, isTrue);
+
+    connector.debugHandleFrame(_buildContactFrame());
+
+    expect(connector.contactSyncTimedOut, isFalse);
+  });
+
+  test(
+    'respCodeEndOfContacts arriving after a stall clears contactSyncTimedOut',
+    () {
+      final connector = MeshCoreConnector();
+      connector.debugBeginContactSyncTracking();
+      connector.debugTriggerContactSyncTimeout();
+      expect(connector.contactSyncTimedOut, isTrue);
+
+      connector.debugHandleFrame(Uint8List.fromList([respCodeEndOfContacts]));
+
+      expect(connector.contactSyncTimedOut, isFalse);
+    },
+  );
+
+  test('the idle timeout clears isLoadingContacts', () {
+    final connector = MeshCoreConnector();
+    connector.debugHandleFrame(Uint8List.fromList([respCodeContactsStart]));
+    expect(connector.isLoadingContacts, isTrue);
+
+    connector.debugTriggerContactSyncTimeout();
+
+    expect(connector.isLoadingContacts, isFalse);
+  });
+
+  testWidgets(
+    'triggering the idle timeout early cancels the real Timer instead of '
+    'orphaning it (regression for the Task 5 fix)',
+    (tester) async {
+      final connector = MeshCoreConnector();
+
+      connector.debugBeginContactSyncTracking();
+      expect(connector.debugContactSyncTimeoutArmed, isTrue);
+
+      // Trigger the timeout well before the real 5s Timer would fire on its
+      // own. If _handleContactSyncTimeout ever regresses to nulling
+      // _contactSyncTimeout without cancelling it first, the real Timer
+      // stays armed in the event queue — untracked, but still pending —
+      // and flutter_test's AutomatedTestWidgetsFlutterBinding fails this
+      // test at teardown with "A Timer is still pending" once dispose()
+      // runs and the field-based cancel becomes a no-op on an
+      // already-nulled field.
+      connector.debugTriggerContactSyncTimeout();
+      expect(connector.debugContactSyncTimeoutArmed, isFalse);
+
+      // Dispose synchronously, in-body, so any timer it doesn't reach stays
+      // observable by the pending-timer check below rather than depending
+      // on tearDown-ordering with the binding's invariant check.
+      connector.dispose();
     },
   );
 }

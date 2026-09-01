@@ -3263,6 +3263,10 @@ class MeshCoreConnector extends ChangeNotifier {
     _contactSyncTimeout?.cancel();
     _contactSyncTimeout = null;
     _contactSyncTimedOut = true;
+    // A stalled sync is no longer "loading" — this keeps the frozen progress
+    // winda from claiming an active sync is still running alongside the
+    // stall message.
+    _isLoadingContacts = false;
     notifyListeners();
   }
 
@@ -4545,6 +4549,7 @@ class MeshCoreConnector extends ChangeNotifier {
         debugPrint('Got END_OF_CONTACTS');
         _isLoadingContacts = false;
         _hasLoadedContacts = true;
+        _contactSyncTimedOut = false;
         _contactSyncTimeout?.cancel();
         _contactSyncTimeout = null;
         _preserveContactsOnRefresh = false;
@@ -5288,6 +5293,13 @@ class MeshCoreConnector extends ChangeNotifier {
       if (isContact && _isLoadingContacts) {
         _contactSyncReceived++;
         _armContactSyncTimeout();
+      }
+      // A real contact record proves the sync recovered, even if the app
+      // already flipped `_isLoadingContacts` to false when the idle timeout
+      // fired (see _handleContactSyncTimeout) — so this check is
+      // deliberately independent of _isLoadingContacts.
+      if (isContact && _contactSyncTimedOut) {
+        _contactSyncTimedOut = false;
       }
       if (listEquals(contactTmp.publicKey, _selfPublicKey)) {
         appLogger.info(
