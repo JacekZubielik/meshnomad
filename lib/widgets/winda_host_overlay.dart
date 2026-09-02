@@ -19,7 +19,13 @@ class WindaHostOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.watch<WindaHostController>();
     final topInset = MediaQuery.paddingOf(context).top;
-    final WindaMessage? message = controller.messages.isEmpty
+    // Collapse while a dropdown menu is open (WindaMenuRouteObserver) — the
+    // winda paints above the ENTIRE Navigator, so an open ⋮ menu would
+    // otherwise end up partially underneath it (2026-09-02 feedback: the
+    // menu must always be the topmost visible layer). Dialogs/sheets are
+    // unaffected — validation messages still show over them, per the spec.
+    final WindaMessage? message =
+        (controller.menuOpen || controller.messages.isEmpty)
         ? null
         : controller.messages.first;
 
@@ -27,8 +33,20 @@ class WindaHostOverlay extends StatelessWidget {
       top: topInset + controller.appBarHeight,
       left: 0,
       right: 0,
-      child: WindaOverlay(
-        child: message == null ? null : WindaMessageContent(message: message),
+      // This subtree lives ABOVE the Navigator (MaterialApp.builder's
+      // Stack), so it has NO Material ancestor — without one, Flutter
+      // renders every Text in its "you forgot Material" fallback style:
+      // yellow DOUBLE underline. That fallback was the "two stray lines in
+      // an off-palette color" under the winda text that resisted several
+      // wrong root-cause guesses (variable font, SelectionArea,
+      // monoBody's fontFeatures) before being identified on 2026-09-02.
+      // MaterialType.transparency contributes no visuals of its own — it
+      // only restores the proper DefaultTextStyle context.
+      child: Material(
+        type: MaterialType.transparency,
+        child: WindaOverlay(
+          child: message == null ? null : WindaMessageContent(message: message),
+        ),
       ),
     );
   }

@@ -82,6 +82,7 @@ void main() {
           timeoutPredictionService: timeoutPredictionService,
           packetObservationService: packetObservationService,
           windaHostController: windaHostController,
+          windaMenuRouteObserver: WindaMenuRouteObserver(windaHostController),
         ),
       );
       // Not pumpAndSettle(): the app legitimately runs indefinite timers

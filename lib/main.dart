@@ -68,6 +68,7 @@ void main() async {
   final timeoutPredictionService = TimeoutPredictionService(storage);
   final packetObservationService = PacketObservationService();
   final windaHostController = WindaHostController();
+  final windaMenuRouteObserver = WindaMenuRouteObserver(windaHostController);
 
   // Load settings
   await appSettingsService.loadSettings();
@@ -129,6 +130,7 @@ void main() async {
       timeoutPredictionService: timeoutPredictionService,
       packetObservationService: packetObservationService,
       windaHostController: windaHostController,
+      windaMenuRouteObserver: windaMenuRouteObserver,
     ),
   );
 }
@@ -169,6 +171,7 @@ class MeshCoreApp extends StatelessWidget {
   final TimeoutPredictionService timeoutPredictionService;
   final PacketObservationService packetObservationService;
   final WindaHostController windaHostController;
+  final WindaMenuRouteObserver windaMenuRouteObserver;
 
   const MeshCoreApp({
     super.key,
@@ -186,6 +189,7 @@ class MeshCoreApp extends StatelessWidget {
     required this.timeoutPredictionService,
     required this.packetObservationService,
     required this.windaHostController,
+    required this.windaMenuRouteObserver,
   });
 
   @override
@@ -222,7 +226,7 @@ class MeshCoreApp extends StatelessWidget {
               settingsService.settings.languageOverride,
             ),
             theme: _activeStyle(settingsService).theme,
-            navigatorObservers: [windaRouteObserver],
+            navigatorObservers: [windaRouteObserver, windaMenuRouteObserver],
             builder: (context, child) {
               // Update notification service with resolved locale
               final locale = Localizations.localeOf(context);

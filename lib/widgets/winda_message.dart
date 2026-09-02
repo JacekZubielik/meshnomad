@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/mesh_theme.dart' show MeshFonts;
 import '../theme/mesh_tokens.dart';
 import 'mesh_ui.dart';
 
@@ -141,26 +140,17 @@ class WindaMessageContent extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
-                        // Deliberately NOT `t.monoBody()` (2026-09-02,
-                        // root-caused on-device after several wrong guesses
-                        // — SelectionArea and the variable-font swap were
-                        // both ruled out first): `monoBody()`'s
-                        // `fontFeatures: [FontFeature.tabularFigures()]` +
-                        // `letterSpacing: 0.2` combination renders a stray
-                        // underline-shaped artifact under this text on this
-                        // font/Skia/Android combination. Bisected by
-                        // dropping both — text has no digits here anyway, so
-                        // tabular-figure alignment buys nothing — leaving
-                        // `monoBody()` itself untouched for every OTHER call
-                        // site (Settings' SettingsValueStepper included,
-                        // where digit alignment does matter and the bug
-                        // hasn't surfaced).
-                        style: TextStyle(
-                          fontFamily: MeshFonts.mono,
-                          fontFamilyFallback: MeshFonts.monoFallback,
-                          fontSize: t.monoBodySize,
-                          color: onSurface,
-                        ),
+                        // Plain monoBody, same as SettingsValueStepper's
+                        // valuePill. The stray yellow "underline" that
+                        // haunted this text for a whole session was NEVER
+                        // this style: this widget is hosted above the
+                        // Navigator (WindaHostOverlay) and had no Material
+                        // ancestor, so Flutter painted its "missing
+                        // Material" fallback — yellow double underline —
+                        // over whatever style was set here. Fixed at the
+                        // source with MaterialType.transparency in
+                        // winda_host_overlay.dart (2026-09-02).
+                        style: t.monoBody(color: onSurface),
                       ),
                     ),
                   ],
