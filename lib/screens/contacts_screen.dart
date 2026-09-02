@@ -512,12 +512,6 @@ class _ContactsScreenState extends State<ContactsScreen>
             ),
             meshMenuDivider(context),
             meshMenuActionItem(
-              icon: Icons.logout,
-              iconColor: Theme.of(context).colorScheme.error,
-              label: context.l10n.common_disconnect,
-              onTap: () => _disconnect(context, connector),
-            ),
-            meshMenuActionItem(
               icon: Icons.settings,
               label: context.l10n.settings_title,
               onTap: () => Navigator.push(
@@ -529,6 +523,12 @@ class _ContactsScreenState extends State<ContactsScreen>
               icon: Icons.palette_outlined,
               label: context.l10n.appSettings_quickStyleMenuItem,
               onTap: () => showQuickStylePickerDialog(context),
+            ),
+            meshMenuActionItem(
+              icon: Icons.logout,
+              iconColor: Theme.of(context).colorScheme.error,
+              label: context.l10n.common_disconnect,
+              onTap: () => _disconnect(context, connector),
             ),
             meshMenuActionItem(
               icon: Icons.info_outline,
