@@ -394,7 +394,6 @@ class _MapScreenState extends State<MapScreen> {
               _MapConnectorSnapshot.fromConnector,
             );
         final connector = connectorSnapshot.connector;
-        final t = MeshTokens.of(context);
         final settings = context.select<AppSettingsService, AppSettings>(
           (service) => service.settings,
         );
@@ -675,27 +674,20 @@ class _MapScreenState extends State<MapScreen> {
                 if (!_isBuildingPathTrace &&
                     connector.selfLatitude != null &&
                     connector.selfLongitude != null)
-                  PopupMenuItem(
-                    child: Row(
-                      children: [
-                        const Icon(Icons.radar),
-                        SizedBox(width: t.spacingXs),
-                        Text(context.l10n.contacts_pathTrace),
-                      ],
-                    ),
+                  meshMenuActionItem(
+                    icon: Icons.radar,
+                    label: context.l10n.contacts_pathTrace,
                     onTap: () => _startPath(
                       LatLng(connector.selfLatitude!, connector.selfLongitude!),
                     ),
                   ),
                 if (!_isBuildingPathTrace)
-                  PopupMenuItem(
-                    child: Row(
-                      children: [
-                        const LosIcon(),
-                        SizedBox(width: t.spacingXs),
-                        Text(context.l10n.map_lineOfSight),
-                      ],
+                  meshMenuActionItem(
+                    leadingWidget: LosIcon(
+                      size: 18,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
+                    label: context.l10n.map_lineOfSight,
                     onTap: () {
                       final candidates = <LineOfSightEndpoint>[];
                       if (connector.selfLatitude != null &&
@@ -733,27 +725,15 @@ class _MapScreenState extends State<MapScreen> {
                       );
                     },
                   ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.logout,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      SizedBox(width: t.spacingXs),
-                      Text(context.l10n.common_disconnect),
-                    ],
-                  ),
+                meshMenuActionItem(
+                  icon: Icons.logout,
+                  iconColor: Theme.of(context).colorScheme.error,
+                  label: context.l10n.common_disconnect,
                   onTap: () => _disconnect(context, connector),
                 ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.settings),
-                      SizedBox(width: t.spacingXs),
-                      Text(context.l10n.settings_title),
-                    ],
-                  ),
+                meshMenuActionItem(
+                  icon: Icons.settings,
+                  label: context.l10n.settings_title,
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -761,14 +741,9 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.palette_outlined),
-                      SizedBox(width: t.spacingXs),
-                      Text(context.l10n.appSettings_quickStyleMenuItem),
-                    ],
-                  ),
+                meshMenuActionItem(
+                  icon: Icons.palette_outlined,
+                  label: context.l10n.appSettings_quickStyleMenuItem,
                   onTap: () => showQuickStylePickerDialog(context),
                 ),
               ],

@@ -122,50 +122,28 @@ class _ChannelsScreenState extends State<ChannelsScreen>
           // capture the screen's context — not the itemBuilder's menu
           // context, which is deactivated by then.
           menuItemBuilder: (menuContext) => [
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.logout,
-                    color: Theme.of(menuContext).colorScheme.error,
-                  ),
-                  SizedBox(width: MeshTokens.of(menuContext).spacingXs),
-                  Text(menuContext.l10n.common_disconnect),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.logout,
+              iconColor: Theme.of(menuContext).colorScheme.error,
+              label: menuContext.l10n.common_disconnect,
               onTap: () => _disconnect(context),
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.groups),
-                  SizedBox(width: MeshTokens.of(menuContext).spacingXs),
-                  Text(menuContext.l10n.community_manageCommunities),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.groups,
+              label: menuContext.l10n.community_manageCommunities,
               onTap: () => _showManageCommunitiesDialog(context),
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.settings),
-                  SizedBox(width: MeshTokens.of(menuContext).spacingXs),
-                  Text(menuContext.l10n.settings_title),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.settings,
+              label: menuContext.l10n.settings_title,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
               ),
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.palette_outlined),
-                  SizedBox(width: MeshTokens.of(menuContext).spacingXs),
-                  Text(menuContext.l10n.appSettings_quickStyleMenuItem),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.palette_outlined,
+              label: menuContext.l10n.appSettings_quickStyleMenuItem,
               onTap: () => showQuickStylePickerDialog(context),
             ),
           ],

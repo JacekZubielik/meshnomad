@@ -42,7 +42,6 @@ import '../widgets/quick_switch_bar.dart';
 import '../widgets/repeater_login_dialog.dart';
 import '../widgets/room_login_dialog.dart';
 import '../widgets/unread_badge.dart';
-import '../helpers/snack_bar_builder.dart';
 import 'channels_screen.dart';
 import 'chat_screen.dart';
 import 'discovery_screen.dart';
@@ -80,6 +79,24 @@ class _ContactsScreenState extends State<ContactsScreen>
   final List<ContactOperationType> _pendingOperations = [];
 
   StreamSubscription<Uint8List>? _frameSubscription;
+
+  // Transient toast-style messages (confirmations/errors/validation) that
+  // used to go through `showDismissibleSnackBar` (2026-09-02 migration) —
+  // queued behind the persistent `contactSyncTimedOut` message (see
+  // `messages:` in `_screenBody`), which always takes priority when present.
+  // `WindaMessage.duration` has no built-in auto-dismiss timer yet (see its
+  // doc comment) — this screen implements its own, scoped to its own toast
+  // queue rather than the general mechanism.
+  final List<WindaMessage> _toastMessages = [];
+
+  void _pushToast(WindaMessage message) {
+    if (!mounted) return;
+    setState(() => _toastMessages.add(message));
+    Timer(message.duration, () {
+      if (!mounted) return;
+      setState(() => _toastMessages.remove(message));
+    });
+  }
 
   // Lets the message winda (hosted above the Navigator, see
   // MeshScreenScaffold.extraTopOffset) stack below this screen's own search
@@ -203,9 +220,11 @@ class _ContactsScreenState extends State<ContactsScreen>
   }
 
   void _showGroupsUnavailableMessage(BuildContext context) {
-    showDismissibleSnackBar(
-      context,
-      content: Text(context.l10n.common_loading),
+    _pushToast(
+      WindaMessage(
+        text: context.l10n.common_loading,
+        tone: WindaMessageTone.info,
+      ),
     );
   }
 
@@ -223,9 +242,11 @@ class _ContactsScreenState extends State<ContactsScreen>
           // Validate packet has expected minimum size (98+ bytes per protocol)
           if (advertPacket.length < 98) {
             if (mounted) {
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_invalidAdvertFormat),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_invalidAdvertFormat,
+                  tone: WindaMessageTone.error,
+                ),
               );
             }
             _pendingOperations.remove(ContactOperationType.export);
@@ -243,19 +264,25 @@ class _ContactsScreenState extends State<ContactsScreen>
           final op = _pendingOperations.removeAt(0);
           switch (op) {
             case ContactOperationType.import:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_contactImported),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_contactImported,
+                  tone: WindaMessageTone.success,
+                ),
               );
             case ContactOperationType.zeroHopShare:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_zeroHopContactAdvertSent),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_zeroHopContactAdvertSent,
+                  tone: WindaMessageTone.success,
+                ),
               );
             case ContactOperationType.export:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_contactAdvertCopied),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_contactAdvertCopied,
+                  tone: WindaMessageTone.success,
+                ),
               );
           }
         }
@@ -266,19 +293,25 @@ class _ContactsScreenState extends State<ContactsScreen>
           final op = _pendingOperations.removeAt(0);
           switch (op) {
             case ContactOperationType.import:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_contactImportFailed),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_contactImportFailed,
+                  tone: WindaMessageTone.error,
+                ),
               );
             case ContactOperationType.zeroHopShare:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_zeroHopContactAdvertFailed),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_zeroHopContactAdvertFailed,
+                  tone: WindaMessageTone.error,
+                ),
               );
             case ContactOperationType.export:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_contactAdvertCopyFailed),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_contactAdvertCopyFailed,
+                  tone: WindaMessageTone.error,
+                ),
               );
           }
         }
@@ -300,9 +333,11 @@ class _ContactsScreenState extends State<ContactsScreen>
     } catch (e) {
       _pendingOperations.remove(ContactOperationType.export);
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_contactAdvertCopyFailed),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_contactAdvertCopyFailed,
+            tone: WindaMessageTone.error,
+          ),
         );
       }
     }
@@ -320,9 +355,11 @@ class _ContactsScreenState extends State<ContactsScreen>
     } catch (e) {
       _pendingOperations.remove(ContactOperationType.zeroHopShare);
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_zeroHopContactAdvertFailed),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_zeroHopContactAdvertFailed,
+            tone: WindaMessageTone.error,
+          ),
         );
       }
     }
@@ -333,9 +370,11 @@ class _ContactsScreenState extends State<ContactsScreen>
     final clipboardData = await Clipboard.getData('text/plain');
     if (clipboardData == null || clipboardData.text == null) {
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_clipboardEmpty),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_clipboardEmpty,
+            tone: WindaMessageTone.warning,
+          ),
         );
       }
       return;
@@ -343,9 +382,11 @@ class _ContactsScreenState extends State<ContactsScreen>
     final text = clipboardData.text!.trim();
     if (!text.startsWith('meshcore://')) {
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_invalidAdvertFormat),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_invalidAdvertFormat,
+            tone: WindaMessageTone.error,
+          ),
         );
       }
       return;
@@ -357,9 +398,11 @@ class _ContactsScreenState extends State<ContactsScreen>
       importContactFrame = buildImportContactFrame(bytes);
     } catch (e) {
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_invalidAdvertFormat),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_invalidAdvertFormat,
+            tone: WindaMessageTone.error,
+          ),
         );
       }
       return;
@@ -370,9 +413,11 @@ class _ContactsScreenState extends State<ContactsScreen>
     } catch (e) {
       _pendingOperations.remove(ContactOperationType.import);
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_contactImportFailed),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_contactImportFailed,
+            tone: WindaMessageTone.error,
+          ),
         );
       }
     }
@@ -402,29 +447,24 @@ class _ContactsScreenState extends State<ContactsScreen>
       canPop: allowBack,
       child: MeshScreenScaffold(
         extraTopOffset: _extraTopOffset,
-        messages: connector.contactSyncTimedOut
-            ? [
-                WindaMessage(
-                  text: context.l10n.contacts_syncStalled,
-                  tone: WindaMessageTone.error,
-                  actionLabel: context.l10n.common_resync,
-                  onAction: () => connector.getContacts(),
-                ),
-              ]
-            : const [],
+        messages: [
+          if (connector.contactSyncTimedOut)
+            WindaMessage(
+              text: context.l10n.contacts_syncStalled,
+              tone: WindaMessageTone.error,
+              actionLabel: context.l10n.common_resync,
+              onAction: () => connector.getContacts(),
+            ),
+          ..._toastMessages,
+        ],
         appBar: meshMainAppBar(
           context,
           title: context.l10n.contacts_title,
           menuTooltip: context.l10n.contacts_moreOptions,
           menuItemBuilder: (context) => <PopupMenuEntry<dynamic>>[
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.person_add_rounded),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.discoveredContacts_Title),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.person_add_rounded,
+              label: context.l10n.discoveredContacts_Title,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -432,94 +472,61 @@ class _ContactsScreenState extends State<ContactsScreen>
                 ),
               ),
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.paste),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.contacts_addContactFromClipboard),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.paste,
+              label: context.l10n.contacts_addContactFromClipboard,
               onTap: () => _contactImport(),
             ),
-            const PopupMenuDivider(),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.connect_without_contact),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.contacts_zeroHopAdvert),
-                ],
-              ),
+            meshMenuDivider(context),
+            meshMenuActionItem(
+              icon: Icons.connect_without_contact,
+              label: context.l10n.contacts_zeroHopAdvert,
               onTap: () => {
                 connector.sendSelfAdvert(flood: false),
-                showDismissibleSnackBar(
-                  context,
-                  content: Text(context.l10n.settings_advertisementSent),
+                _pushToast(
+                  WindaMessage(
+                    text: context.l10n.settings_advertisementSent,
+                    tone: WindaMessageTone.success,
+                  ),
                 ),
               },
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.cell_tower),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.contacts_floodAdvert),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.cell_tower,
+              label: context.l10n.contacts_floodAdvert,
               onTap: () => {
                 connector.sendSelfAdvert(flood: true),
-                showDismissibleSnackBar(
-                  context,
-                  content: Text(context.l10n.settings_advertisementSent),
+                _pushToast(
+                  WindaMessage(
+                    text: context.l10n.settings_advertisementSent,
+                    tone: WindaMessageTone.success,
+                  ),
                 ),
               },
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.copy),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.contacts_copyAdvertToClipboard),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.copy,
+              label: context.l10n.contacts_copyAdvertToClipboard,
               onTap: () => _contactExport(Uint8List.fromList([])),
             ),
-            const PopupMenuDivider(),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.logout,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.common_disconnect),
-                ],
-              ),
+            meshMenuDivider(context),
+            meshMenuActionItem(
+              icon: Icons.logout,
+              iconColor: Theme.of(context).colorScheme.error,
+              label: context.l10n.common_disconnect,
               onTap: () => _disconnect(context, connector),
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.settings),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.settings_title),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.settings,
+              label: context.l10n.settings_title,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
               ),
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.palette_outlined),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.appSettings_quickStyleMenuItem),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.palette_outlined,
+              label: context.l10n.appSettings_quickStyleMenuItem,
               onTap: () => showQuickStylePickerDialog(context),
             ),
           ],
@@ -983,7 +990,18 @@ class _ContactsScreenState extends State<ContactsScreen>
                           // card and QuickSwitchBar once scrolled to the end
                           // (2026-08-29 on-device feedback: should read as a
                           // normal small bottom inset, not FAB-sized).
+                          //
+                          // `top: 4` (2026-09-02 feedback): every _ContactTile
+                          // is a MeshCard with the default `vertical: 4`
+                          // margin, so consecutive cards get an 8dp gap
+                          // (4 bottom + 4 top) — but the FIRST card had only
+                          // its own 4dp top margin and nothing above it to
+                          // contribute the other 4, reading as tighter than
+                          // every other inter-card gap. Matches the literal
+                          // in `mesh_ui.dart`'s `MeshCard.margin` default,
+                          // not a spacing token (none of them equal 4).
                           padding: EdgeInsets.only(
+                            top: 4,
                             bottom: MeshTokens.of(context).spacingMd,
                           ),
                           itemCount: filteredAndSorted.length,
@@ -1416,17 +1434,21 @@ class _ContactsScreenState extends State<ContactsScreen>
                 onPressed: () async {
                   final name = nameController.text.trim();
                   if (name.isEmpty) {
-                    showDismissibleSnackBar(
-                      context,
-                      content: Text(context.l10n.contacts_groupNameRequired),
+                    _pushToast(
+                      WindaMessage(
+                        text: context.l10n.contacts_groupNameRequired,
+                        tone: WindaMessageTone.warning,
+                      ),
                     );
                     return;
                   }
                   if (name.toLowerCase() ==
                       contactsAllGroupsValue.toLowerCase()) {
-                    showDismissibleSnackBar(
-                      context,
-                      content: Text(context.l10n.contacts_groupNameReserved),
+                    _pushToast(
+                      WindaMessage(
+                        text: context.l10n.contacts_groupNameReserved,
+                        tone: WindaMessageTone.warning,
+                      ),
                     );
                     return;
                   }
@@ -1435,10 +1457,10 @@ class _ContactsScreenState extends State<ContactsScreen>
                     return g.name.toLowerCase() == name.toLowerCase();
                   });
                   if (exists) {
-                    showDismissibleSnackBar(
-                      context,
-                      content: Text(
-                        context.l10n.contacts_groupAlreadyExists(name),
+                    _pushToast(
+                      WindaMessage(
+                        text: context.l10n.contacts_groupAlreadyExists(name),
+                        tone: WindaMessageTone.warning,
                       ),
                     );
                     return;
@@ -1642,10 +1664,12 @@ class _ContactsScreenState extends State<ContactsScreen>
                 final result = await connector.getAdvertPath(contact);
                 if (!context.mounted) return;
                 if (result == null) {
-                  showDismissibleSnackBar(
-                    context,
-                    content: Text(context.l10n.contacts_advertPathNotFound),
-                    duration: const Duration(seconds: 2),
+                  _pushToast(
+                    WindaMessage(
+                      text: context.l10n.contacts_advertPathNotFound,
+                      tone: WindaMessageTone.warning,
+                      duration: const Duration(seconds: 2),
+                    ),
                   );
                   return;
                 }

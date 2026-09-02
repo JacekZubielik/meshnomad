@@ -1,4 +1,5 @@
 import 'dart:ui' show lerpDouble;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -205,5 +206,159 @@ class DashedCircleBorder extends CircleBorder {
         distance += dash + gap;
       }
     }
+  }
+}
+
+/// A [RoundedRectangleBorder] that additionally paints a soft inner shadow
+/// along the top and left inner edges — the dropdown-menu surface
+/// (`popupMenuTheme`, shared by every `PopupMenuButton` in the app —
+/// `SortFilterMenu`'s search/filter dropdown AND `meshMainAppBar`'s ⋮ menu)
+/// (2026-09-02 feedback: give both the same "recessed panel" depth cue).
+/// Flutter's [BoxShadow] has no inset/inner variant — this fakes one with two
+/// edge-aligned linear gradients, clipped to the border's own rounded rect so
+/// they never bleed past it.
+///
+/// [shadowColor] plus the two gradient bands hardcoded in [paint] reproduce
+/// [MeshCard]'s own elevated-mode outer shadow LITERALLY
+/// (`mesh_ui.dart`'s two-layer `boxShadow`):
+///   layer 1: `alpha: 0.15`, `blurRadius: 2`
+///   layer 2: `alpha: 0.22`, `blurRadius: 3`
+/// — same color, same two alphas, same two distances, reused as fade-out
+/// lengths instead of Gaussian blur radii (the closest inner-gradient
+/// equivalent of a blur radius: 2026-09-02 feedback corrected an earlier,
+/// invented single `fade: 8`/`4` value that didn't match either layer).
+/// [showShadow] mirrors [MeshTokens.cardElevated] — the same app-wide
+/// "Card shadow" toggle gates this exactly like every other shadow in the
+/// app; both values must be resolved and passed in by the caller at
+/// theme-construction time, since [paint] has no [BuildContext] to read
+/// [MeshTokens.of] from (same constraint `DashedRoundedRectangleBorder`
+/// above works around).
+///
+/// `copyWith`/`lerpFrom`/`lerpTo` overridden for the same reason documented
+/// on [DashedRoundedRectangleBorder] above — required, not optional
+/// hardening, per this file's established pattern.
+class InnerShadowRoundedRectangleBorder extends RoundedRectangleBorder {
+  const InnerShadowRoundedRectangleBorder({
+    super.side,
+    super.borderRadius,
+    required this.shadowColor,
+    required this.showShadow,
+  });
+
+  final Color shadowColor;
+  final bool showShadow;
+
+  @override
+  InnerShadowRoundedRectangleBorder copyWith({
+    BorderSide? side,
+    BorderRadiusGeometry? borderRadius,
+  }) {
+    return InnerShadowRoundedRectangleBorder(
+      side: side ?? this.side,
+      borderRadius: borderRadius ?? this.borderRadius,
+      shadowColor: shadowColor,
+      showShadow: showShadow,
+    );
+  }
+
+  @override
+  ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
+    if (a is InnerShadowRoundedRectangleBorder) {
+      return InnerShadowRoundedRectangleBorder(
+        side: BorderSide.lerp(a.side, side, t),
+        borderRadius: BorderRadiusGeometry.lerp(
+          a.borderRadius,
+          borderRadius,
+          t,
+        )!,
+        shadowColor: Color.lerp(a.shadowColor, shadowColor, t) ?? shadowColor,
+        showShadow: t < 0.5 ? a.showShadow : showShadow,
+      );
+    }
+    if (a is RoundedRectangleBorder) {
+      return InnerShadowRoundedRectangleBorder(
+        side: BorderSide.lerp(a.side, side, t),
+        borderRadius: BorderRadiusGeometry.lerp(
+          a.borderRadius,
+          borderRadius,
+          t,
+        )!,
+        shadowColor: shadowColor,
+        showShadow: showShadow,
+      );
+    }
+    return super.lerpFrom(a, t);
+  }
+
+  @override
+  ShapeBorder? lerpTo(ShapeBorder? b, double t) {
+    if (b is InnerShadowRoundedRectangleBorder) {
+      return InnerShadowRoundedRectangleBorder(
+        side: BorderSide.lerp(side, b.side, t),
+        borderRadius: BorderRadiusGeometry.lerp(
+          borderRadius,
+          b.borderRadius,
+          t,
+        )!,
+        shadowColor: Color.lerp(shadowColor, b.shadowColor, t) ?? shadowColor,
+        showShadow: t < 0.5 ? showShadow : b.showShadow,
+      );
+    }
+    if (b is RoundedRectangleBorder) {
+      return InnerShadowRoundedRectangleBorder(
+        side: BorderSide.lerp(side, b.side, t),
+        borderRadius: BorderRadiusGeometry.lerp(
+          borderRadius,
+          b.borderRadius,
+          t,
+        )!,
+        shadowColor: shadowColor,
+        showShadow: showShadow,
+      );
+    }
+    return super.lerpTo(b, t);
+  }
+
+  void _paintEdgeGradient(
+    Canvas canvas,
+    Rect rect,
+    double alpha,
+    double distance,
+  ) {
+    final peak = shadowColor.withValues(alpha: alpha);
+    final clear = shadowColor.withValues(alpha: 0);
+    canvas.drawRect(
+      Rect.fromLTWH(rect.left, rect.top, rect.width, distance),
+      Paint()
+        ..shader = ui.Gradient.linear(
+          Offset(rect.left, rect.top),
+          Offset(rect.left, rect.top + distance),
+          [peak, clear],
+        ),
+    );
+    canvas.drawRect(
+      Rect.fromLTWH(rect.left, rect.top, distance, rect.height),
+      Paint()
+        ..shader = ui.Gradient.linear(
+          Offset(rect.left, rect.top),
+          Offset(rect.left + distance, rect.top),
+          [peak, clear],
+        ),
+    );
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    if (showShadow) {
+      final rrect = borderRadius.resolve(textDirection).toRRect(rect);
+      canvas.save();
+      canvas.clipRRect(rrect);
+      // MeshCard's own two literal boxShadow layers, mesh_ui.dart — smaller
+      // one first so the larger, more visible layer paints on top.
+      _paintEdgeGradient(canvas, rect, 0.15, 2);
+      _paintEdgeGradient(canvas, rect, 0.22, 3);
+      canvas.restore();
+    }
+    super.paint(canvas, rect, textDirection: textDirection);
   }
 }

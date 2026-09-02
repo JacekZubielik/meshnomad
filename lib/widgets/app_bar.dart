@@ -150,6 +150,15 @@ AppBar meshMainAppBar(
       trailing: PopupMenuButton<dynamic>(
         tooltip: menuTooltip,
         itemBuilder: menuItemBuilder,
+        // Menu chrome (2026-09-02 feedback) matches SortFilterMenu's dropdown
+        // exactly — [[dropdown-menu-row-schema]]: `under` + a small extra
+        // offset so it doesn't open ON the trigger (Flutter's `over` default)
+        // or sit flush against the app bar, and `menuPadding` synced to the
+        // rows' own horizontal gutter (Flutter's independent default here is
+        // `vertical: 8`, not 10 — the two must match by hand).
+        position: PopupMenuPosition.under,
+        offset: Offset(0, MeshTokens.of(context).spacingXxs),
+        menuPadding: const EdgeInsets.symmetric(vertical: 10),
         // Circular MeshCircleIconButton treatment (2026-09-01) — matches
         // Flasher's _FlasherMenuButton, supersedes the flat/circle split
         // documented above on CircleQuickAccessMenuButton.

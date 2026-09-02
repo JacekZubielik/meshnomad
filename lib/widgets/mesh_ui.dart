@@ -5,6 +5,7 @@ import '../connector/meshcore_protocol.dart';
 import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/emoji_utils.dart';
+import 'dotted_separator.dart';
 
 /// MeshCore shared design kit.
 ///
@@ -1409,4 +1410,99 @@ class SettingsTappableTile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Canonical dropdown-menu action row (2026-09-02) — the plain-icon "Mode B"
+/// row [[dropdown-menu-row-schema]] anticipated but no menu had used yet:
+/// same geometry as `SortFilterMenu`'s `_MenuOptionRow`/`_MenuOptionLeading`
+/// (fixed 20×20 leading slot, `bodyMedium` text, `t.spacingXxs + 4` gap), but
+/// for an action row that is never "selected" — no fill, no selector dot.
+/// Use via [meshMenuActionItem] rather than directly, so the surrounding
+/// `PopupMenuItem`'s padding/height also match the schema.
+class MeshMenuActionRow extends StatelessWidget {
+  final IconData? icon;
+  final String label;
+
+  /// Overrides the icon color for a destructive action (e.g. "Disconnect")
+  /// — the one deliberate exception to the schema's "always scheme.primary"
+  /// rule, predating this row's extraction. The label stays un-tinted.
+  final Color? iconColor;
+
+  /// Escape hatch for a leading visual that isn't a plain [IconData] (e.g.
+  /// Map's `LosIcon`, a custom Symbols-based glyph) — sized/colored by the
+  /// caller to match [icon]'s 18px/`scheme.primary` convention. Exactly one
+  /// of [icon]/[leadingWidget] should be set.
+  final Widget? leadingWidget;
+
+  const MeshMenuActionRow({
+    super.key,
+    this.icon,
+    required this.label,
+    this.iconColor,
+    this.leadingWidget,
+  }) : assert(
+         (icon == null) != (leadingWidget == null),
+         'pass exactly one of icon/leadingWidget',
+       );
+
+  @override
+  Widget build(BuildContext context) {
+    final t = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        SizedBox(
+          width: 20,
+          height: 20,
+          child:
+              leadingWidget ??
+              Icon(icon, size: 18, color: iconColor ?? scheme.primary),
+        ),
+        SizedBox(width: t.spacingXxs + 4),
+        Expanded(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: scheme.onSurface,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// One action row of a dropdown menu, wrapped in the schema's canonical
+/// `PopupMenuItem` geometry (horizontal gutter 10, row height 38) — pass the
+/// result straight into a `PopupMenuButton.itemBuilder` list.
+PopupMenuItem<T> meshMenuActionItem<T>({
+  IconData? icon,
+  required String label,
+  required VoidCallback onTap,
+  Color? iconColor,
+  Widget? leadingWidget,
+}) {
+  return PopupMenuItem<T>(
+    padding: const EdgeInsets.symmetric(horizontal: 10),
+    height: 38,
+    onTap: onTap,
+    child: MeshMenuActionRow(
+      icon: icon,
+      label: label,
+      iconColor: iconColor,
+      leadingWidget: leadingWidget,
+    ),
+  );
+}
+
+/// Section/group separator for a dropdown menu — [DottedSeparator], never
+/// the solid `PopupMenuDivider`, per the schema.
+PopupMenuItem<T> meshMenuDivider<T>(BuildContext context) {
+  return PopupMenuItem<T>(
+    enabled: false,
+    height: 13,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: DottedSeparator(color: Theme.of(context).colorScheme.outlineVariant),
+  );
 }

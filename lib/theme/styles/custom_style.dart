@@ -501,11 +501,17 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       // kick in everywhere else, like it does for Card/TextField/Chip/
       // SnackBar (found on-device 2026-08-29).
       popupMenuTheme: base.popupMenuTheme.copyWith(
-        shape: RoundedRectangleBorder(
+        // Inner shadow (2026-09-02 feedback), same shared theme entry as
+        // the base style — see InnerShadowRoundedRectangleBorder's doc
+        // comment. shadowColor/showShadow mirror this profile's own
+        // cardShadow/cardElevated, exactly like every other MeshCard shadow.
+        shape: InnerShadowRoundedRectangleBorder(
           borderRadius: BorderRadius.circular(t.md),
           side: t.bordersVisible
               ? BorderSide(color: base.colorScheme.outlineVariant)
               : BorderSide.none,
+          shadowColor: t.cardShadow,
+          showShadow: t.cardElevated,
         ),
       ),
       dialogTheme: base.dialogTheme.copyWith(shape: rrb(t.lg)),

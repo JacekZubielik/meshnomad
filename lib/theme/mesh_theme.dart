@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'dashed_rounded_border.dart';
+import 'mesh_tokens.dart';
+
 /// MeshCore palette — high-contrast slate surfaces with sky-primary accents.
 class MeshPalette {
   MeshPalette._();
@@ -579,8 +582,15 @@ class MeshTheme {
       popupMenuTheme: PopupMenuThemeData(
         color: scheme.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
+        // Inner shadow (2026-09-02 feedback) on both the search/filter
+        // dropdown and meshMainAppBar's ⋮ menu — same shared theme entry,
+        // one place styles both. Default style has no Custom Style editor
+        // to toggle shadows from, so it always shows one, mirroring
+        // MeshTokens.defaultTokens.cardElevated (true).
+        shape: InnerShadowRoundedRectangleBorder(
           borderRadius: BorderRadius.circular(MeshRadii.md),
+          shadowColor: MeshTokens.defaultTokens.cardShadow,
+          showShadow: MeshTokens.defaultTokens.cardElevated,
         ),
       ),
       iconTheme: IconThemeData(color: scheme.onSurfaceVariant, size: 22),
