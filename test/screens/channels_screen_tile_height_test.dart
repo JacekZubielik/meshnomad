@@ -12,9 +12,11 @@ import 'package:meshnomad/models/channel_message.dart';
 import 'package:meshnomad/screens/channels_screen.dart';
 import 'package:meshnomad/services/app_settings_service.dart';
 import 'package:meshnomad/services/ui_view_state_service.dart';
+import 'package:meshnomad/services/winda_host_controller.dart';
 import 'package:meshnomad/storage/prefs_manager.dart';
 import 'package:meshnomad/theme/mesh_theme.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/winda_host_overlay.dart';
 
 class _FakeConnector extends MeshCoreConnector {
   final List<Channel> _testChannels = [
@@ -77,6 +79,11 @@ void main() {
           ChangeNotifierProvider<UiViewStateService>(
             create: (_) => UiViewStateService(),
           ),
+          // ChannelsScreen now renders through MeshScreenScaffold
+          // (2026-09-02 winda migration), which reads WindaHostController.
+          ChangeNotifierProvider<WindaHostController>(
+            create: (_) => WindaHostController(),
+          ),
         ],
         child: MaterialApp(
           theme: MeshTheme.light().copyWith(
@@ -84,6 +91,17 @@ void main() {
           ),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          // Required for MeshScreenScaffold's RouteAware subscription, same
+          // as main.dart and contacts_screen_message_winda_test.dart.
+          navigatorObservers: [windaRouteObserver],
+          builder: (context, navigatorChild) {
+            return Stack(
+              children: [
+                navigatorChild ?? const SizedBox.shrink(),
+                const WindaHostOverlay(),
+              ],
+            );
+          },
           home: const ChannelsScreen(),
         ),
       ),

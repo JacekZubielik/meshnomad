@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:meshnomad/screens/about_screen.dart';
 import 'package:meshnomad/storage/channel_message_store.dart';
 import 'package:meshnomad/utils/keys.dart';
 import 'package:meshnomad/utils/platform_info.dart';
@@ -30,9 +31,11 @@ import '../widgets/mesh_ui.dart';
 import '../widgets/qr_code_display.dart';
 import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/quick_switch_bar.dart';
+import '../widgets/mesh_screen_scaffold.dart';
 import '../widgets/unread_badge.dart';
+import '../widgets/winda_message.dart';
+import '../widgets/winda_overlay.dart';
 import '../helpers/gif_helper.dart';
-import '../helpers/snack_bar_builder.dart';
 import 'channel_chat_screen.dart';
 import 'community_qr_scanner_screen.dart';
 import 'contacts_screen.dart';
@@ -52,10 +55,51 @@ class ChannelsScreen extends StatefulWidget {
 class _ChannelsScreenState extends State<ChannelsScreen>
     with DisconnectNavigationMixin {
   final TextEditingController _searchController = TextEditingController();
+  // Progress winda ("loader") shown right below the search field when a
+  // channel sync is in progress — matches Contacts' pattern exactly
+  // (contacts_screen.dart's _progressWindaKey).
+  final GlobalKey _progressWindaKey = GlobalKey();
   final CommunityStore _communityStore = CommunityStore();
   final CommunityPskIndex _communityIndex = CommunityPskIndex();
   List<Community> _communities = [];
   Timer? _searchDebounce;
+
+  // Transient toast-style messages (confirmations/errors/validation) that
+  // used to go through `showDismissibleSnackBar` (2026-09-02 migration,
+  // mirroring Contacts) — `WindaMessage.duration` has no built-in
+  // auto-dismiss timer of its own, so this screen implements one, scoped to
+  // its own toast queue.
+  final List<WindaMessage> _toastMessages = [];
+
+  void _pushToast(WindaMessage message) {
+    if (!mounted) return;
+    setState(() => _toastMessages.add(message));
+    Timer(message.duration, () {
+      if (!mounted) return;
+      setState(() => _toastMessages.remove(message));
+    });
+  }
+
+  // Lets the message winda (hosted above the Navigator, see
+  // MeshScreenScaffold.extraTopOffset) stack below this screen's own search
+  // field + floating progress winda, instead of overlapping them — measured
+  // dynamically, same mechanism as Contacts.
+  final GlobalKey _searchFieldKey = GlobalKey();
+  double _extraTopOffset = 0;
+
+  void _measureExtraTopOffset() {
+    double heightOf(GlobalKey key) {
+      final renderObject = key.currentContext?.findRenderObject();
+      return (renderObject is RenderBox && renderObject.hasSize)
+          ? renderObject.size.height
+          : 0;
+    }
+
+    final measured = heightOf(_searchFieldKey) + heightOf(_progressWindaKey);
+    if ((measured - _extraTopOffset).abs() > 0.5) {
+      setState(() => _extraTopOffset = measured);
+    }
+  }
 
   ChannelMessageStore get _channelMessageStore => ChannelMessageStore();
 
@@ -92,6 +136,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _measureExtraTopOffset();
+    });
     // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
     // above the Navigator) so "select all" can't sweep in text from other,
     // offstage routes still mounted via maintainState:true.
@@ -114,7 +161,9 @@ class _ChannelsScreenState extends State<ChannelsScreen>
 
     return PopScope(
       canPop: allowBack,
-      child: Scaffold(
+      child: MeshScreenScaffold(
+        extraTopOffset: _extraTopOffset,
+        messages: _toastMessages,
         appBar: meshMainAppBar(
           context,
           title: context.l10n.channels_title,
@@ -146,180 +195,279 @@ class _ChannelsScreenState extends State<ChannelsScreen>
               label: menuContext.l10n.appSettings_quickStyleMenuItem,
               onTap: () => showQuickStylePickerDialog(context),
             ),
+            meshMenuActionItem(
+              icon: Icons.info_outline,
+              label: menuContext.l10n.settings_about,
+              onTap: () => pushAboutScreen(context),
+            ),
           ],
         ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            await context.read<MeshCoreConnector>().getChannels(force: true);
+        // NotificationListener, not just the post-frame measurement in
+        // build(): the progress winda's own AnimatedSize can change height
+        // purely internally, without ever calling setState on this screen —
+        // same reasoning as Contacts (contacts_screen.dart).
+        body: NotificationListener<SizeChangedLayoutNotification>(
+          onNotification: (notification) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _measureExtraTopOffset();
+            });
+            return true;
           },
-          child: () {
-            final channels = connector.channels;
-            final waitingForFirstChannel =
-                connector.isLoadingChannels && channels.isEmpty;
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await context.read<MeshCoreConnector>().getChannels(force: true);
+            },
+            child: () {
+              final channels = connector.channels;
+              final waitingForFirstChannel =
+                  connector.isLoadingChannels && channels.isEmpty;
 
-            // Only block the list while the first channel is actively loading.
-            // If the initial sync aborts, show cached/partial channels instead
-            // of trapping the user behind an idle spinner.
-            if (waitingForFirstChannel) {
-              return const Center(child: CircularProgressIndicator());
-            }
+              // Only block the list while the first channel is actively loading.
+              // If the initial sync aborts, show cached/partial channels instead
+              // of trapping the user behind an idle spinner.
+              if (waitingForFirstChannel) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            if (channels.isEmpty) {
-              return ListView(
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height - 200,
-                    child: EmptyState(
-                      icon: Icons.tag,
-                      title: context.l10n.channels_noChannelsConfigured,
-                      action: FilledButton.icon(
-                        onPressed: () => _addPublicChannel(context, connector),
-                        icon: const Icon(Icons.public),
-                        label: Text(context.l10n.channels_addPublicChannel),
+              if (channels.isEmpty) {
+                return ListView(
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height - 200,
+                      child: EmptyState(
+                        icon: Icons.tag,
+                        title: context.l10n.channels_noChannelsConfigured,
+                        action: FilledButton.icon(
+                          onPressed: () =>
+                              _addPublicChannel(context, connector),
+                          icon: const Icon(Icons.public),
+                          label: Text(context.l10n.channels_addPublicChannel),
+                        ),
                       ),
+                    ),
+                  ],
+                );
+              }
+
+              final filteredChannels = _filterAndSortChannels(
+                channels,
+                connector,
+                viewState,
+              );
+
+              final t = MeshTokens.of(context);
+              return Column(
+                children: [
+                  // Flush, edge-to-edge search bar matching Contacts'
+                  // (contacts_screen.dart) — MeshCard with radius:0/margin:
+                  // zero instead of a bare Padding, same color/inset recipe,
+                  // so both main-card search bars read identically. Keyed so
+                  // _measureExtraTopOffset can read its height.
+                  KeyedSubtree(
+                    key: _searchFieldKey,
+                    child: MeshCard(
+                      margin: EdgeInsets.zero,
+                      padding: EdgeInsets.zero,
+                      radius: 0,
+                      color: Theme.of(context).colorScheme.surface,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: t.spacingXs,
+                          vertical: t.spacingSm,
+                        ),
+                        child: TextField(
+                          controller: _searchController,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          decoration: InputDecoration(
+                            hintText: context.l10n.channels_searchChannels,
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (viewState.channelsSearchText.isNotEmpty)
+                                  IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      _searchDebounce?.cancel();
+                                      _searchDebounce = null;
+                                      _searchController.clear();
+                                      context
+                                          .read<UiViewStateService>()
+                                          .setChannelsSearchText('');
+                                    },
+                                  ),
+                                _buildFilterButton(viewState),
+                              ],
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: MeshTokens.of(context).spacingMd,
+                              vertical: MeshTokens.of(context).spacingSm,
+                            ),
+                          ),
+                          onChanged: (value) {
+                            _searchDebounce?.cancel();
+                            _searchDebounce = Timer(
+                              const Duration(milliseconds: 300),
+                              () {
+                                if (!mounted) return;
+                                context
+                                    .read<UiViewStateService>()
+                                    .setChannelsSearchText(value);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Stack(
+                      // The progress card below paints a background sliver
+                      // above its own top edge (windaShadowOverlap) to cover
+                      // the search field's shadow bleed — Clip.hardEdge
+                      // (Stack's default) would cut that sliver off right
+                      // where it's needed. Same pattern as Contacts.
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned.fill(
+                          child: filteredChannels.isEmpty
+                              ? LayoutBuilder(
+                                  builder: (context, constraints) => ListView(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    children: [
+                                      ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          minHeight: constraints.maxHeight,
+                                        ),
+                                        child: EmptyState(
+                                          icon: Icons.search_off,
+                                          title: context
+                                              .l10n
+                                              .channels_noChannelsFound,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : (viewState.channelsSortOption ==
+                                        ChannelSortOption.manual &&
+                                    viewState.channelsSearchText.isEmpty &&
+                                    // Reordering a filtered subset would persist a
+                                    // partial order — drag mode needs the full list.
+                                    viewState.channelsTypeFilter ==
+                                        ChannelTypeFilter.all &&
+                                    !viewState.channelsShowUnreadOnly)
+                              ? ReorderableListView.builder(
+                                  // `top: 4` (2026-09-02 feedback, same fix
+                                  // as Contacts' list): every channel tile
+                                  // is a MeshCard with the default
+                                  // `vertical: 4` margin, so consecutive
+                                  // tiles get an 8dp gap (4 bottom + 4 top)
+                                  // — but the FIRST tile had only its own
+                                  // 4dp top margin, reading tighter than
+                                  // every other inter-tile gap. Must match
+                                  // Contacts' list padding exactly.
+                                  padding: EdgeInsets.only(
+                                    top: 4,
+                                    bottom: MeshTokens.of(context).spacingMd,
+                                  ),
+                                  buildDefaultDragHandles: false,
+                                  itemCount: filteredChannels.length,
+                                  onReorderItem: (oldIndex, newIndex) {
+                                    final reordered = List<Channel>.from(
+                                      filteredChannels,
+                                    );
+                                    final item = reordered.removeAt(oldIndex);
+                                    reordered.insert(newIndex, item);
+                                    unawaited(
+                                      connector.setChannelOrder(
+                                        reordered.map((c) => c.index).toList(),
+                                      ),
+                                    );
+                                  },
+                                  itemBuilder: (context, index) {
+                                    final channel = filteredChannels[index];
+                                    return _buildChannelTile(
+                                      context,
+                                      connector,
+                                      channelMessageStore,
+                                      channel,
+                                      showDragHandle: true,
+                                      dragIndex: index,
+                                      listIndex: index,
+                                    );
+                                  },
+                                )
+                              : ListView.builder(
+                                  // Same insets as above.
+                                  padding: EdgeInsets.only(
+                                    top: 4,
+                                    bottom: MeshTokens.of(context).spacingMd,
+                                  ),
+                                  itemCount: filteredChannels.length,
+                                  itemBuilder: (context, index) {
+                                    final channel = filteredChannels[index];
+                                    return _buildChannelTile(
+                                      context,
+                                      connector,
+                                      channelMessageStore,
+                                      channel,
+                                      listIndex: index,
+                                    );
+                                  },
+                                ),
+                        ),
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: KeyedSubtree(
+                            key: _progressWindaKey,
+                            child: SizeChangedLayoutNotifier(
+                              // The Stack's own size still tracks the
+                              // MeshCard alone (the background sliver is
+                              // Positioned, so it's excluded from sizing).
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Positioned(
+                                    top: -windaShadowOverlap,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    child: ColoredBox(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.surface,
+                                    ),
+                                  ),
+                                  MeshCard(
+                                    margin: EdgeInsets.zero,
+                                    padding: EdgeInsets.zero,
+                                    radius: 0,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surface,
+                                    child: WindaOverlay(
+                                      child: WindaProgress.fromConnector(
+                                        connector,
+                                        context.l10n,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               );
-            }
-
-            final filteredChannels = _filterAndSortChannels(
-              channels,
-              connector,
-              viewState,
-            );
-
-            return Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(MeshTokens.of(context).spacingXs),
-                  child: TextField(
-                    controller: _searchController,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    decoration: InputDecoration(
-                      hintText: context.l10n.channels_searchChannels,
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (viewState.channelsSearchText.isNotEmpty)
-                            IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchDebounce?.cancel();
-                                _searchDebounce = null;
-                                _searchController.clear();
-                                context
-                                    .read<UiViewStateService>()
-                                    .setChannelsSearchText('');
-                              },
-                            ),
-                          _buildFilterButton(viewState),
-                        ],
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: MeshTokens.of(context).spacingMd,
-                        vertical: MeshTokens.of(context).spacingSm,
-                      ),
-                    ),
-                    onChanged: (value) {
-                      _searchDebounce?.cancel();
-                      _searchDebounce = Timer(
-                        const Duration(milliseconds: 300),
-                        () {
-                          if (!mounted) return;
-                          context
-                              .read<UiViewStateService>()
-                              .setChannelsSearchText(value);
-                        },
-                      );
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: filteredChannels.isEmpty
-                      ? LayoutBuilder(
-                          builder: (context, constraints) => ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: [
-                              ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minHeight: constraints.maxHeight,
-                                ),
-                                child: EmptyState(
-                                  icon: Icons.search_off,
-                                  title: context.l10n.channels_noChannelsFound,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : (viewState.channelsSortOption ==
-                                ChannelSortOption.manual &&
-                            viewState.channelsSearchText.isEmpty &&
-                            // Reordering a filtered subset would persist a
-                            // partial order — drag mode needs the full list.
-                            viewState.channelsTypeFilter ==
-                                ChannelTypeFilter.all &&
-                            !viewState.channelsShowUnreadOnly)
-                      ? ReorderableListView.builder(
-                          // Insets match the contacts list exactly
-                          // (2026-08-29): no extra top padding (the search
-                          // field's own 16 inset provides the gap — the
-                          // first card must start at the same height as on
-                          // Contacts), small bottom inset instead of the
-                          // old FAB-sized 88 literal.
-                          padding: EdgeInsets.only(
-                            bottom: MeshTokens.of(context).spacingMd,
-                          ),
-                          buildDefaultDragHandles: false,
-                          itemCount: filteredChannels.length,
-                          onReorderItem: (oldIndex, newIndex) {
-                            final reordered = List<Channel>.from(
-                              filteredChannels,
-                            );
-                            final item = reordered.removeAt(oldIndex);
-                            reordered.insert(newIndex, item);
-                            unawaited(
-                              connector.setChannelOrder(
-                                reordered.map((c) => c.index).toList(),
-                              ),
-                            );
-                          },
-                          itemBuilder: (context, index) {
-                            final channel = filteredChannels[index];
-                            return _buildChannelTile(
-                              context,
-                              connector,
-                              channelMessageStore,
-                              channel,
-                              showDragHandle: true,
-                              dragIndex: index,
-                              listIndex: index,
-                            );
-                          },
-                        )
-                      : ListView.builder(
-                          // Same insets as above.
-                          padding: EdgeInsets.only(
-                            bottom: MeshTokens.of(context).spacingMd,
-                          ),
-                          itemCount: filteredChannels.length,
-                          itemBuilder: (context, index) {
-                            final channel = filteredChannels[index];
-                            return _buildChannelTile(
-                              context,
-                              connector,
-                              channelMessageStore,
-                              channel,
-                              listIndex: index,
-                            );
-                          },
-                        ),
-                ),
-              ],
-            );
-          }(),
+            }(),
+          ),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => _showAddChannelDialog(context),
@@ -1126,12 +1274,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                               onPressed: () async {
                                 final name = nameController.text.trim();
                                 if (name.isEmpty) {
-                                  showDismissibleSnackBar(
-                                    context,
-                                    content: Text(
-                                      sheetContext
+                                  _pushToast(
+                                    WindaMessage(
+                                      text: sheetContext
                                           .l10n
                                           .channels_enterChannelName,
+                                      tone: WindaMessageTone.warning,
                                     ),
                                   );
                                   return;
@@ -1147,10 +1295,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                   nextIndex,
                                 );
                                 if (context.mounted) {
-                                  showDismissibleSnackBar(
-                                    context,
-                                    content: Text(
-                                      context.l10n.channels_channelAdded(name),
+                                  _pushToast(
+                                    WindaMessage(
+                                      text: context.l10n.channels_channelAdded(
+                                        name,
+                                      ),
+                                      tone: WindaMessageTone.success,
                                     ),
                                   );
                                 }
@@ -1207,12 +1357,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                 final name = nameController.text.trim();
                                 final pskHex = pskController.text.trim();
                                 if (name.isEmpty) {
-                                  showDismissibleSnackBar(
-                                    context,
-                                    content: Text(
-                                      sheetContext
+                                  _pushToast(
+                                    WindaMessage(
+                                      text: sheetContext
                                           .l10n
                                           .channels_enterChannelName,
+                                      tone: WindaMessageTone.warning,
                                     ),
                                   );
                                   return;
@@ -1221,10 +1371,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                 try {
                                   psk = Channel.parsePskHex(pskHex);
                                 } on FormatException {
-                                  showDismissibleSnackBar(
-                                    context,
-                                    content: Text(
-                                      sheetContext.l10n.channels_pskMustBe32Hex,
+                                  _pushToast(
+                                    WindaMessage(
+                                      text: sheetContext
+                                          .l10n
+                                          .channels_pskMustBe32Hex,
+                                      tone: WindaMessageTone.warning,
                                     ),
                                   );
                                   return;
@@ -1232,10 +1384,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                 Navigator.pop(sheetContext);
                                 connector.setChannel(nextIndex, name, psk);
                                 if (context.mounted) {
-                                  showDismissibleSnackBar(
-                                    context,
-                                    content: Text(
-                                      context.l10n.channels_channelAdded(name),
+                                  _pushToast(
+                                    WindaMessage(
+                                      text: context.l10n.channels_channelAdded(
+                                        name,
+                                      ),
+                                      tone: WindaMessageTone.success,
                                     ),
                                   );
                                 }
@@ -1271,10 +1425,11 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                               psk,
                             );
                             if (context.mounted) {
-                              showDismissibleSnackBar(
-                                context,
-                                content: Text(
-                                  context.l10n.channels_publicChannelAdded,
+                              _pushToast(
+                                WindaMessage(
+                                  text:
+                                      context.l10n.channels_publicChannelAdded,
+                                  tone: WindaMessageTone.success,
                                 ),
                               );
                             }
@@ -1404,12 +1559,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                               onPressed: () async {
                                 var hashtag = hashtagController.text.trim();
                                 if (hashtag.isEmpty) {
-                                  showDismissibleSnackBar(
-                                    context,
-                                    content: Text(
-                                      sheetContext
+                                  _pushToast(
+                                    WindaMessage(
+                                      text: sheetContext
                                           .l10n
                                           .channels_enterChannelName,
+                                      tone: WindaMessageTone.warning,
                                     ),
                                   );
                                   return;
@@ -1429,12 +1584,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                 } else {
                                   // Community hashtag - HMAC derivation from community secret
                                   if (selectedCommunity == null) {
-                                    showDismissibleSnackBar(
-                                      sheetContext,
-                                      content: Text(
-                                        sheetContext
+                                    _pushToast(
+                                      WindaMessage(
+                                        text: sheetContext
                                             .l10n
                                             .community_selectCommunity,
+                                        tone: WindaMessageTone.warning,
                                       ),
                                     );
                                     return;
@@ -1460,12 +1615,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                   psk,
                                 );
                                 if (context.mounted) {
-                                  showDismissibleSnackBar(
-                                    context,
-                                    content: Text(
-                                      context.l10n.channels_channelAdded(
+                                  _pushToast(
+                                    WindaMessage(
+                                      text: context.l10n.channels_channelAdded(
                                         channelName,
                                       ),
+                                      tone: WindaMessageTone.success,
                                     ),
                                   );
                                 }
@@ -1561,10 +1716,11 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                 final publicLabel =
                                     context.l10n.channels_public;
                                 if (name.isEmpty) {
-                                  showDismissibleSnackBar(
-                                    context,
-                                    content: Text(
-                                      sheetContext.l10n.community_enterName,
+                                  _pushToast(
+                                    WindaMessage(
+                                      text:
+                                          sheetContext.l10n.community_enterName,
+                                      tone: WindaMessageTone.warning,
                                     ),
                                   );
                                   return;
@@ -1600,10 +1756,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                 _loadCommunities();
 
                                 if (context.mounted) {
-                                  showDismissibleSnackBar(
-                                    context,
-                                    content: Text(
-                                      context.l10n.community_created(name),
+                                  _pushToast(
+                                    WindaMessage(
+                                      text: context.l10n.community_created(
+                                        name,
+                                      ),
+                                      tone: WindaMessageTone.success,
                                     ),
                                   );
 
@@ -1873,10 +2031,10 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                           try {
                             psk = Channel.parsePskHex(pskHex);
                           } on FormatException {
-                            showDismissibleSnackBar(
-                              sheetContext,
-                              content: Text(
-                                sheetContext.l10n.channels_pskMustBe32Hex,
+                            _pushToast(
+                              WindaMessage(
+                                text: sheetContext.l10n.channels_pskMustBe32Hex,
+                                tone: WindaMessageTone.warning,
                               ),
                             );
                             return;
@@ -1902,19 +2060,23 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                               selectedCyr2LatProfileId,
                             );
                             if (!context.mounted) return;
-                            showDismissibleSnackBar(
-                              context,
-                              content: Text(
-                                context.l10n.channels_channelUpdated(name),
+                            _pushToast(
+                              WindaMessage(
+                                text: context.l10n.channels_channelUpdated(
+                                  name,
+                                ),
+                                tone: WindaMessageTone.success,
                               ),
                             );
                           } catch (e, st) {
                             debugPrint(st.toString());
                             if (!context.mounted) return;
-                            showDismissibleSnackBar(
-                              context,
-                              content: Text(
-                                context.l10n.channels_channelUpdateFailed('$e'),
+                            _pushToast(
+                              WindaMessage(
+                                text: context.l10n.channels_channelUpdateFailed(
+                                  '$e',
+                                ),
+                                tone: WindaMessageTone.error,
                               ),
                             );
                           }
@@ -1960,19 +2122,21 @@ class _ChannelsScreenState extends State<ChannelsScreen>
 
                 if (!context.mounted) return;
 
-                showDismissibleSnackBar(
-                  context,
-                  content: Text(
-                    context.l10n.channels_channelDeleted(channel.name),
+                _pushToast(
+                  WindaMessage(
+                    text: context.l10n.channels_channelDeleted(channel.name),
+                    tone: WindaMessageTone.success,
                   ),
                 );
               } catch (e, st) {
                 if (!context.mounted) return;
 
-                showDismissibleSnackBar(
-                  context,
-                  content: Text(
-                    context.l10n.channels_channelDeleteFailed(channel.name),
+                _pushToast(
+                  WindaMessage(
+                    text: context.l10n.channels_channelDeleteFailed(
+                      channel.name,
+                    ),
+                    tone: WindaMessageTone.error,
                   ),
                 );
 
@@ -1995,9 +2159,11 @@ class _ChannelsScreenState extends State<ChannelsScreen>
   void _addPublicChannel(BuildContext context, MeshCoreConnector connector) {
     final psk = Channel.parsePskHex(Channel.publicChannelPsk);
     connector.setChannel(0, context.l10n.channels_public, psk);
-    showDismissibleSnackBar(
-      context,
-      content: Text(context.l10n.channels_publicChannelAdded),
+    _pushToast(
+      WindaMessage(
+        text: context.l10n.channels_publicChannelAdded,
+        tone: WindaMessageTone.success,
+      ),
     );
   }
 
@@ -2227,9 +2393,11 @@ class _ChannelsScreenState extends State<ChannelsScreen>
               _loadCommunities();
 
               if (context.mounted) {
-                showDismissibleSnackBar(
-                  context,
-                  content: Text(context.l10n.community_deleted(community.name)),
+                _pushToast(
+                  WindaMessage(
+                    text: context.l10n.community_deleted(community.name),
+                    tone: WindaMessageTone.success,
+                  ),
                 );
               }
             },
