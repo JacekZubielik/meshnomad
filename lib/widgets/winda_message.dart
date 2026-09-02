@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/mesh_tokens.dart';
+import 'mesh_ui.dart';
 
 /// Tone of a [WindaMessage] — drives the icon and its color. Mapped to the
 /// app's existing three-color status vocabulary
@@ -15,9 +16,19 @@ class WindaMessage {
   final String text;
   final WindaMessageTone tone;
 
-  /// Null = no action slot rendered. Non-null with [onAction] renders a
-  /// `FilledButton` flush right of the text.
+  /// Null = no action slot rendered. Non-null with [actionIcon] and
+  /// [onAction] renders a small circular icon-only button
+  /// (`MeshCircleIconButton`) flush right of the text — [actionLabel] is
+  /// used as its tooltip/semantic label, not as visible button text (kept
+  /// as a required, always-legible label for screen readers even though
+  /// nothing on screen renders it as text).
   final String? actionLabel;
+
+  /// Icon shown in the action button. Required whenever [actionLabel] is
+  /// set — defaults to a refresh glyph, the only action shape built so far
+  /// (Contacts' "Resync"), but a future call site (e.g. Discovery's "Undo")
+  /// passes its own.
+  final IconData actionIcon;
   final VoidCallback? onAction;
 
   /// Reserved for a future auto-dismiss feature — NOT YET IMPLEMENTED.
@@ -31,6 +42,7 @@ class WindaMessage {
     required this.text,
     required this.tone,
     this.actionLabel,
+    this.actionIcon = Icons.refresh,
     this.onAction,
     this.duration = const Duration(seconds: 4),
   });
@@ -50,11 +62,13 @@ class WindaMessage {
         other.text == text &&
         other.tone == tone &&
         other.actionLabel == actionLabel &&
+        other.actionIcon == actionIcon &&
         other.duration == duration;
   }
 
   @override
-  int get hashCode => Object.hash(text, tone, actionLabel, duration);
+  int get hashCode =>
+      Object.hash(text, tone, actionLabel, actionIcon, duration);
 }
 
 /// Content widget for [WindaOverlay] — sibling to `WindaProgress`
@@ -85,7 +99,12 @@ class WindaMessageContent extends StatelessWidget {
     final color = _color(t);
     final onSurface = Theme.of(context).colorScheme.onSurface;
     return Padding(
-      padding: EdgeInsets.fromLTRB(t.spacingSm, 0, t.spacingSm, t.spacingSm),
+      // Right inset matches MeshCard's default horizontal margin (16,
+      // `t.spacingXs` — `mesh_ui.dart:79`), the same 16dp Flutter's Scaffold
+      // uses for the add-contact/add-group FABs' distance from the screen
+      // edge on this same screen — so the action button lines up with both
+      // (2026-09-02 feedback: `t.spacingSm` read as flush against the edge).
+      padding: EdgeInsets.fromLTRB(t.spacingSm, 0, t.spacingXs, t.spacingSm),
       child: Row(
         children: [
           // "LCD display" readout — matches SettingsValueStepper's valuePill
@@ -131,7 +150,30 @@ class WindaMessageContent extends StatelessWidget {
           ),
           if (message.actionLabel case final label?) ...[
             SizedBox(width: t.spacingSm),
-            FilledButton(onPressed: message.onAction, child: Text(label)),
+            // Icon-only, no visible text — matches the smaller circular
+            // treatment already used for meshMainAppBar's overflow icon
+            // (32/16, `app_bar.dart`), not a full-size FilledButton, so the
+            // action slot stays compact against the equally-compact LCD
+            // pill (2026-09-02 feedback). `label` is exposed to screen
+            // readers via `Semantics`, NOT `MeshCircleIconButton.tooltip` —
+            // this widget is hosted by `WindaHostOverlay` above the
+            // `Navigator` (root-overlay design, `winda_host_overlay.dart`),
+            // so there is deliberately no ancestor `Overlay` here, and
+            // `Tooltip` (which `MeshCircleIconButton.tooltip` wraps in)
+            // hard-requires one (`No Overlay widget found` — caught by
+            // `test/screens/contacts_screen_message_winda_test.dart`,
+            // debug-assertion-only so it would have stayed silent on a
+            // release build instead of ever being noticed).
+            Semantics(
+              label: label,
+              button: true,
+              child: MeshCircleIconButton(
+                icon: message.actionIcon,
+                onPressed: message.onAction,
+                size: 32,
+                iconSize: 16,
+              ),
+            ),
           ],
         ],
       ),

@@ -13,6 +13,7 @@ import 'package:meshnomad/services/winda_host_controller.dart';
 import 'package:meshnomad/storage/prefs_manager.dart';
 import 'package:meshnomad/theme/mesh_theme.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
+import 'package:meshnomad/widgets/mesh_ui.dart';
 import 'package:meshnomad/widgets/winda_host_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -89,11 +90,22 @@ void main() {
       );
       expect(find.text(l10n.contacts_syncStalled), findsOneWidget);
 
-      final resyncButton = find.widgetWithText(
-        FilledButton,
-        l10n.common_resync,
+      // Icon-only circular button (2026-09-02 restyle) — the label is now
+      // exposed via Semantics (not Tooltip: this widget is hosted by
+      // WindaHostOverlay above the Navigator, so there's no ancestor
+      // Overlay for Tooltip to attach to). meshMainAppBar's own overflow
+      // menu is ALSO a MeshCircleIconButton, so disambiguate by icon
+      // (refresh vs. more_vert) rather than by type alone.
+      final resyncButton = find.byWidgetPredicate(
+        (w) => w is MeshCircleIconButton && w.icon == Icons.refresh,
       );
       expect(resyncButton, findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Semantics && w.properties.label == l10n.common_resync,
+        ),
+        findsOneWidget,
+      );
 
       // Invoke the real button's callback directly rather than going
       // through tester.tap()'s full gesture/hit-test pipeline: this still
@@ -102,7 +114,9 @@ void main() {
       // not a stand-in), while sidestepping the winda's AnimatedSize/
       // AnimatedSwitcher entrance animation transiently shifting the
       // hit-test target underneath a coordinate-based tap.
-      final onPressed = tester.widget<FilledButton>(resyncButton).onPressed;
+      final onPressed = tester
+          .widget<MeshCircleIconButton>(resyncButton)
+          .onPressed;
       expect(onPressed, isNotNull);
 
       // getContacts() reaches sendFrame with no real transport attached in

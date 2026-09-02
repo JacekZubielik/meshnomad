@@ -1139,8 +1139,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Brak znalezionych kontaktów ani grup.';
 
   @override
-  String get contacts_syncStalled =>
-      'Synchronizacja kontaktów zawieszona — brak odpowiedzi z urządzenia';
+  String get contacts_syncStalled => 'Synchronizacja kontaktów zawieszona';
 
   @override
   String get contacts_deleteContact => 'Usuń Kontakt';

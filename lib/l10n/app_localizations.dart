@@ -2087,7 +2087,7 @@ abstract class AppLocalizations {
   /// No description provided for @contacts_syncStalled.
   ///
   /// In en, this message translates to:
-  /// **'Contact sync stalled — no response from the device'**
+  /// **'Contact sync stalled'**
   String get contacts_syncStalled;
 
   /// No description provided for @contacts_deleteContact.

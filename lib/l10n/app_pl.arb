@@ -299,7 +299,7 @@
   },
   "contacts_noUnreadContacts": "Brak nieprzeczytanych kontaktów",
   "contacts_noContactsFound": "Brak znalezionych kontaktów ani grup.",
-  "contacts_syncStalled": "Synchronizacja kontaktów zawieszona — brak odpowiedzi z urządzenia",
+  "contacts_syncStalled": "Synchronizacja kontaktów zawieszona",
   "contacts_deleteContact": "Usuń Kontakt",
   "contacts_removeConfirm": "Usunąć {contactName} z kontaktów?",
   "@contacts_removeConfirm": {

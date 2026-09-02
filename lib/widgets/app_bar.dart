@@ -153,16 +153,45 @@ AppBar meshMainAppBar(
         // Circular MeshCircleIconButton treatment (2026-09-01) — matches
         // Flasher's _FlasherMenuButton, supersedes the flat/circle split
         // documented above on CircleQuickAccessMenuButton.
-        child: const SizedBox(
-          width: 48,
-          height: 48,
-          child: Center(
-            child: MeshCircleIconButton(
-              icon: Icons.more_vert,
-              onPressed: null,
-              decorative: true,
-              size: 32,
-              iconSize: 16,
+        child: Transform.translate(
+          // This ⋮ lives in `title:`, not `actions:` (see the function doc
+          // above) — two stacked, easy-to-miss gaps push it in from the raw
+          // edge, measured on-device 2026-09-02 (a first attempt only
+          // accounted for the second one and was too small to be visible):
+          //  1. Flutter's own `NavigationToolbar._ToolbarLayout` always
+          //     computes the title's `maxWidth` as `size.width - leadingWidth
+          //     - trailingWidth - middleSpacing * 2` — `middleSpacing`
+          //     (= `titleSpacing`, 16 here) is subtracted TWICE regardless of
+          //     whether a real `trailing` (AppBar.actions) exists. Since our
+          //     ⋮ lives inside `title:` instead, AppBar's own
+          //     `trailing`/actions slot is empty (`trailingWidth == 0`), but
+          //     that second `middleSpacing` is still reserved and unusable —
+          //     a structural, always-on 16dp gap this widget cannot see or
+          //     control from inside `title:`.
+          //  2. The 48px box centers the 32px circle, an inherent
+          //     (48-32)/2 = 8dp gap on top of that.
+          // Net effect measured on-device: the circle's visible right edge
+          // sat 24dp from the raw edge with no adjustment — 8dp short of
+          // `spacingXs` (16, the edge inset the search field/contact
+          // cards/FABs on this screen all share). Closing that 8dp needs a
+          // *negative* right inset, which `Padding` refuses
+          // (`padding.isNonNegative` assertion) since it would ask the
+          // parent `Row` for more space than it has — `Transform.translate`
+          // shifts only paint/hit-test position, not layout constraints, so
+          // it can push into that reserved-but-empty 16dp toolbar gap
+          // safely (nothing else is ever painted there).
+          offset: const Offset(8, 0),
+          child: const SizedBox(
+            width: 48,
+            height: 48,
+            child: Center(
+              child: MeshCircleIconButton(
+                icon: Icons.more_vert,
+                onPressed: null,
+                decorative: true,
+                size: 32,
+                iconSize: 16,
+              ),
             ),
           ),
         ),

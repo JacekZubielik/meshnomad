@@ -1109,8 +1109,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contacts_noContactsFound => 'No contacts or groups found';
 
   @override
-  String get contacts_syncStalled =>
-      'Contact sync stalled — no response from the device';
+  String get contacts_syncStalled => 'Contact sync stalled';
 
   @override
   String get contacts_deleteContact => 'Delete Contact';
