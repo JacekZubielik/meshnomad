@@ -4,6 +4,19 @@ import '../connector/meshcore_connector.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/mesh_tokens.dart';
 
+/// How far `MeshCard`'s own two-layer drop shadow (`mesh_ui.dart`, offset
+/// (0,1)+blur 2 and offset (0,1)+blur 3) bleeds past its bottom edge —
+/// `1 + 3 = 4`. Whatever winda sits directly below a shadow-casting
+/// `MeshCard` (Contacts' search field, its progress card) must extend its
+/// own opaque background upward by this much so that shadow never shows
+/// through in front of it (2026-09-02 feedback: "the shadow must not float
+/// above the winda — the winda needs to be the higher layer"). The
+/// compensating widget must ALSO add this same amount as top padding
+/// around its real content so nothing visibly shifts — see
+/// `WindaHostOverlay` and `_ContactsScreenState._buildContactsBody` for the
+/// two call sites.
+const double windaShadowOverlap = 4;
+
 /// A drop-down overlay that floats directly below the search field (or
 /// directly below the app bar on screens with none) — it always sits ON TOP
 /// of list/map content, never pushes it down. Positioned by the caller

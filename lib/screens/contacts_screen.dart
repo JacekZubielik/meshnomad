@@ -960,6 +960,11 @@ class _ContactsScreenState extends State<ContactsScreen>
         ),
         Expanded(
           child: Stack(
+            // The progress card below paints a background sliver above its
+            // own top edge (see windaShadowOverlap) to cover the search
+            // field's shadow bleed — Clip.hardEdge (Stack's default) would
+            // cut that sliver off right where it's needed.
+            clipBehavior: Clip.none,
             children: [
               Positioned.fill(
                 child: RefreshIndicator(
@@ -1035,17 +1040,35 @@ class _ContactsScreenState extends State<ContactsScreen>
                 child: KeyedSubtree(
                   key: _progressWindaKey,
                   child: SizeChangedLayoutNotifier(
-                    child: MeshCard(
-                      margin: EdgeInsets.zero,
-                      padding: EdgeInsets.zero,
-                      radius: 0,
-                      color: Theme.of(context).colorScheme.surface,
-                      child: WindaOverlay(
-                        child: WindaProgress.fromConnector(
-                          connector,
-                          context.l10n,
+                    // The Stack's own size still tracks the MeshCard alone
+                    // (the background sliver is `Positioned`, so it's
+                    // excluded from sizing) — _measureExtraTopOffset keeps
+                    // reading the card's true, un-overlapped height.
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned(
+                          top: -windaShadowOverlap,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: ColoredBox(
+                            color: Theme.of(context).colorScheme.surface,
+                          ),
                         ),
-                      ),
+                        MeshCard(
+                          margin: EdgeInsets.zero,
+                          padding: EdgeInsets.zero,
+                          radius: 0,
+                          color: Theme.of(context).colorScheme.surface,
+                          child: WindaOverlay(
+                            child: WindaProgress.fromConnector(
+                              connector,
+                              context.l10n,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

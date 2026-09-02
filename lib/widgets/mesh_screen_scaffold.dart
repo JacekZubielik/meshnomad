@@ -15,9 +15,10 @@ import 'winda_message.dart';
 /// "Root overlay" section (revised) for the full account of why the first
 /// attempt didn't work.
 ///
-/// Only one message is shown at a time (`messages.first`); further entries
-/// queue and appear once the current one is removed from the list by the
-/// owning screen's state.
+/// Every entry in [messages] is shown at once, stacked top-to-bottom by
+/// [WindaHostOverlay] — a blocking entry (e.g. Contacts' stall error) stays
+/// at the top while later ones queue up below it, rather than being hidden
+/// behind it.
 ///
 /// **Coverage tracking uses `RouteAware`/[windaRouteObserver], NOT
 /// `ModalRoute.of(context)?.isCurrent`.** An earlier version of this widget

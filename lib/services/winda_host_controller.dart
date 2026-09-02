@@ -58,6 +58,9 @@ class WindaMenuRouteObserver extends NavigatorObserver {
 ///
 /// Exactly one screen's messages are shown at a time — whichever screen last
 /// called [register]. [MeshScreenScaffold] is the only expected caller.
+/// [WindaHostOverlay] renders every entry in [messages] stacked, not just
+/// the first (2026-09-02) — a blocking message no longer swallows later
+/// ones.
 class WindaHostController extends ChangeNotifier {
   List<WindaMessage> _messages = const [];
   double _appBarHeight = 0;
