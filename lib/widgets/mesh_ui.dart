@@ -122,21 +122,33 @@ class MeshCard extends StatelessWidget {
           ? DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: borderRadius,
-                // 0 1px 2px rgba(0,0,0,.15), 0 1px 3px rgba(0,0,0,.22) — mockup Wariant B.
+                // Bottom+right only, no top/left bleed (2026-09-02 feedback:
+                // a zero horizontal offset made blurRadius spread the shadow
+                // symmetrically around every edge, including top/left, which
+                // read as "surrounding" rather than a light-from-top-left
+                // cast). BoxShadow always blurs symmetrically around its own
+                // offset rect, so eliminating the top/left leak requires
+                // offset.dx/dy >= blurRadius — set equal to it here, which
+                // reduces to zero bleed on those two edges exactly. Solved
+                // for blurRadius == offset so the bottom edge keeps the same
+                // total reach as the original vertical-only mockup spec
+                // (`0 1px 2px .15, 0 1px 3px .22`: reach = blur+dy = 3, 4)
+                // — same values, mirrored onto the right edge too instead of
+                // being wasted above/left of the card.
                 boxShadow: [
                   BoxShadow(
                     color: MeshTokens.of(
                       context,
                     ).cardShadow.withValues(alpha: 0.15),
-                    offset: const Offset(0, 1),
-                    blurRadius: 2,
+                    offset: const Offset(1.5, 1.5),
+                    blurRadius: 1.5,
                   ),
                   BoxShadow(
                     color: MeshTokens.of(
                       context,
                     ).cardShadow.withValues(alpha: 0.22),
-                    offset: const Offset(0, 1),
-                    blurRadius: 3,
+                    offset: const Offset(2, 2),
+                    blurRadius: 2,
                   ),
                 ],
               ),
@@ -518,6 +530,7 @@ class AvatarCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = MeshTokens.of(context);
     final accent = color ?? _colorFor(context, name);
     final initials = _initials(name);
     final badgeSize = (size * 0.3).clamp(9.0, 14.0);
@@ -528,7 +541,13 @@ class AvatarCircle extends StatelessWidget {
           width: size,
           height: size,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
+            // Follows the Custom Style "pill" corner-radius slider
+            // (2026-09-02 feedback: pill = 0 should turn the contact avatar
+            // into a square, but a hardcoded BoxShape.circle ignored it
+            // entirely) — BorderRadius.circular clamps to half the box's
+            // own side, so this still renders fully round at pill's max
+            // exactly like BoxShape.circle did.
+            borderRadius: BorderRadius.circular(t.pill),
             color: accent.withValues(alpha: 0.14),
             border: Border.all(color: accent.withValues(alpha: 0.4)),
           ),
@@ -655,7 +674,10 @@ class RouteChip extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(tokens.xs),
+        // Was tokens.xs (2026-09-02 feedback, same fix as MeshStatusBadge
+        // above) — this chip is the same pill-shaped-label family, not a
+        // card/panel that should use the xs/sm/md/lg scale.
+        borderRadius: BorderRadius.circular(tokens.pill),
         border: Border.all(color: scheme.outlineVariant),
         boxShadow: tokens.labelShadow,
       ),
@@ -839,7 +861,12 @@ class MeshStatusBadge extends StatelessWidget {
         decoration: BoxDecoration(
           color: fillColor,
           border: Border.all(color: color, width: 1),
-          borderRadius: BorderRadius.circular(tokens.xs),
+          // Was tokens.xs (2026-09-02 feedback: didn't react to the Custom
+          // Style "pill" slider at all) — this is the same pill-chip family
+          // as MeshTypePill, which already correctly used tokens.pill; the
+          // xs/pill split between two visually-identical chip kinds was the
+          // actual bug the slider test surfaced.
+          borderRadius: BorderRadius.circular(tokens.pill),
           boxShadow: tokens.labelShadow,
         ),
         child: Text(
@@ -1113,12 +1140,21 @@ class MeshCircleIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
     final circle = SizedBox(
       width: size,
       height: size,
       child: DecoratedBox(
         decoration: ShapeDecoration(
-          shape: const CircleBorder(),
+          // Follows the Custom Style "pill" corner-radius slider (2026-09-02
+          // feedback: setting it to 0 left this circle untouched) — a
+          // hardcoded CircleBorder ignored it entirely. `BorderRadius.circular`
+          // clamps to half the box's own side automatically, so this still
+          // renders fully round at pill's max (40) exactly like CircleBorder
+          // did, and squares off toward pill = 0.
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(t.pill),
+          ),
           color: scheme.primary.withValues(alpha: 0.2),
         ),
         child: decorative
@@ -1449,26 +1485,38 @@ class MeshMenuActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = MeshTokens.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        SizedBox(
-          width: 20,
-          height: 20,
-          child:
-              leadingWidget ??
-              Icon(icon, size: 18, color: iconColor ?? scheme.primary),
-        ),
-        SizedBox(width: t.spacingXxs + 4),
-        Expanded(
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: scheme.onSurface,
-              fontWeight: FontWeight.w500,
+    // Same "pill" row container as SortFilterMenu's `_MenuOptionRow`
+    // (`list_filter_widget.dart:179-185`) — margin/padding/radius, just
+    // never filled (an action row is never "selected") — this row was
+    // missing it entirely (2026-09-02 feedback: read as an old, flatter
+    // style next to the search-filter dropdown's rounded rows).
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 1),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(t.buttonRadius),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 20,
+            height: 20,
+            child:
+                leadingWidget ??
+                Icon(icon, size: 18, color: iconColor ?? scheme.primary),
+          ),
+          SizedBox(width: t.spacingXxs + 4),
+          Expanded(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: scheme.onSurface,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

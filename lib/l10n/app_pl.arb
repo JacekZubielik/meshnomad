@@ -2996,6 +2996,8 @@
   "styleEditor_cardSection": "Styl karty",
   "styleEditor_cardShadow_label": "Cień karty",
   "styleEditor_cardShadow_subtitle": "Unoszący cień pod kartami",
+  "styleEditor_innerShadow_label": "Cień wewnętrzny",
+  "styleEditor_innerShadow_subtitle": "Efekt wgłębienia w menu rozwijanych",
   "appSettings_editCustomStyleTooltip": "Edytuj styl Custom",
   "protocol_contactsFullWarning": "Tabela kontaktów urządzenia pełna — najstarsze kontakty mogą być nadpisywane",
   "appSettings_borderOverride_label": "Border przycisków",

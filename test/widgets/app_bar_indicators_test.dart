@@ -241,13 +241,18 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(AppBarMenuIcon), findsNothing);
-      // MeshCircleIconButton renders a 32x32 circular DecoratedBox — assert
-      // on that shape directly rather than a private implementation detail.
+      // MeshCircleIconButton renders a 32x32 DecoratedBox shaped by
+      // RoundedRectangleBorder(borderRadius: t.pill) — a plain CircleBorder
+      // ignored the Custom Style "pill" slider entirely (2026-09-02 fix),
+      // so this now asserts on the pill-radius mechanism directly rather
+      // than a private implementation detail. At the default token value
+      // this still renders fully round (BorderRadius.circular clamps to
+      // half the box's own side).
       final circleFinder = find.byWidgetPredicate(
         (w) =>
             w is DecoratedBox &&
             w.decoration is ShapeDecoration &&
-            (w.decoration as ShapeDecoration).shape is CircleBorder,
+            (w.decoration as ShapeDecoration).shape is RoundedRectangleBorder,
       );
       expect(circleFinder, findsWidgets);
     },

@@ -5833,6 +5833,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_cardShadow_subtitle => 'Unoszący cień pod kartami';
 
   @override
+  String get styleEditor_innerShadow_label => 'Cień wewnętrzny';
+
+  @override
+  String get styleEditor_innerShadow_subtitle =>
+      'Efekt wgłębienia w menu rozwijanych';
+
+  @override
   String get appSettings_editCustomStyleTooltip => 'Edytuj styl Custom';
 
   @override

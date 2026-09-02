@@ -250,6 +250,28 @@ class AppSettingsScreen extends StatelessWidget {
           onChanged: (v) => settingsService.setCustomCardElevated(v),
         ),
         const MeshDashedDivider(indent: 16),
+        // Inner shadow toggle (2026-09-02) — independent of "Card shadow"
+        // above: that one now also gates dropdown menus' new outer
+        // bottom+right shadow (matching MeshCard), so a user who wants the
+        // "same shadow as cards" look on menus without the separate
+        // "recessed panel" top/left cue needs its own switch.
+        SwitchListTile(
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
+          ),
+          secondary: Icon(
+            Icons.filter_b_and_w_outlined,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
+          title: Text(context.l10n.styleEditor_innerShadow_label),
+          subtitle: Text(context.l10n.styleEditor_innerShadow_subtitle),
+          value:
+              settingsService.activeProfileOverrides.innerShadowEnabled ?? true,
+          onChanged: (v) => settingsService.setCustomInnerShadowEnabled(v),
+        ),
+        const MeshDashedDivider(indent: 16),
         // Same control, same field as Custom Style editor's Buttons section
         // (2026-08-23 correction: this is `buttonBorder` — none/solid/
         // dotted — NOT the separate `borderOverride` field. Both this and

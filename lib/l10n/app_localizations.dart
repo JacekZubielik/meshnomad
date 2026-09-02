@@ -9998,6 +9998,18 @@ abstract class AppLocalizations {
   /// **'Floating shadow under cards'**
   String get styleEditor_cardShadow_subtitle;
 
+  /// No description provided for @styleEditor_innerShadow_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Inner shadow'**
+  String get styleEditor_innerShadow_label;
+
+  /// No description provided for @styleEditor_innerShadow_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recessed panel effect on dropdown menus'**
+  String get styleEditor_innerShadow_subtitle;
+
   /// No description provided for @appSettings_editCustomStyleTooltip.
   ///
   /// In en, this message translates to:

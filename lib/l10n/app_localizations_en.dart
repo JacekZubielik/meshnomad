@@ -5723,6 +5723,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get styleEditor_cardShadow_subtitle => 'Floating shadow under cards';
 
   @override
+  String get styleEditor_innerShadow_label => 'Inner shadow';
+
+  @override
+  String get styleEditor_innerShadow_subtitle =>
+      'Recessed panel effect on dropdown menus';
+
+  @override
   String get appSettings_editCustomStyleTooltip => 'Edit custom style';
 
   @override

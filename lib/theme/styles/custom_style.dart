@@ -501,17 +501,27 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       // kick in everywhere else, like it does for Card/TextField/Chip/
       // SnackBar (found on-device 2026-08-29).
       popupMenuTheme: base.popupMenuTheme.copyWith(
+        // Off in favor of InnerShadowRoundedRectangleBorder's own outer
+        // shadow below — same reasoning as the base style
+        // (mesh_theme.dart).
+        elevation: 0,
         // Inner shadow (2026-09-02 feedback), same shared theme entry as
         // the base style — see InnerShadowRoundedRectangleBorder's doc
         // comment. shadowColor/showShadow mirror this profile's own
         // cardShadow/cardElevated, exactly like every other MeshCard shadow.
+        // Also now paints the outer bottom+right shadow matching MeshCard.
         shape: InnerShadowRoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(t.md),
+          // The editor's "Reduced (sm)" radius slider is labeled "Menus,
+          // list panels" (`styleEditor_radiusSm_subtitle`) — was t.md
+          // (2026-09-02 fix: promised by the editor's own copy but never
+          // actually wired to it).
+          borderRadius: BorderRadius.circular(t.sm),
           side: t.bordersVisible
               ? BorderSide(color: base.colorScheme.outlineVariant)
               : BorderSide.none,
           shadowColor: t.cardShadow,
           showShadow: t.cardElevated,
+          showInnerShadow: t.innerShadowEnabled,
         ),
       ),
       dialogTheme: base.dialogTheme.copyWith(shape: rrb(t.lg)),
@@ -840,6 +850,7 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     pill: radiusFor('pill', baseTokens.pill),
     buttonRadius: radiusFor('buttonRadius', baseTokens.buttonRadius),
     cardElevated: overrides.cardElevated ?? true,
+    innerShadowEnabled: overrides.innerShadowEnabled ?? true,
     // Independent override wins; otherwise borders show exactly when the
     // shadow is off (2026-08-23 border/shadow unification).
     bordersVisible:

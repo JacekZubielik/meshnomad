@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meshnomad/screens/about_screen.dart';
 import 'package:meshnomad/screens/contact_location_map_screen.dart';
 import 'package:meshnomad/screens/path_trace_map.dart';
 import 'package:meshnomad/services/notification_service.dart';
@@ -528,6 +529,11 @@ class _ContactsScreenState extends State<ContactsScreen>
               icon: Icons.palette_outlined,
               label: context.l10n.appSettings_quickStyleMenuItem,
               onTap: () => showQuickStylePickerDialog(context),
+            ),
+            meshMenuActionItem(
+              icon: Icons.info_outline,
+              label: context.l10n.settings_about,
+              onTap: () => pushAboutScreen(context),
             ),
           ],
         ),

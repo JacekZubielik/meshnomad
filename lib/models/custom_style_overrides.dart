@@ -14,6 +14,7 @@ class CustomStyleOverrides {
     this.spacingOverrides = const {},
     this.radiusOverrides = const {},
     this.cardElevated,
+    this.innerShadowEnabled,
     this.buttonBorder,
     this.borderOverride,
   });
@@ -111,6 +112,13 @@ class CustomStyleOverrides {
   /// never `copyWith` (its `??` pattern can't express "back to null").
   final bool? cardElevated;
 
+  /// Whether dropdown menus' "recessed panel" inner shadow (top/left inner
+  /// edges) paints — independent of [cardElevated], which now also gates
+  /// those same menus' outer bottom+right shadow (matching `MeshCard`,
+  /// 2026-09-02). `null` means "inherit the default" (`true`) — use
+  /// [withInnerShadowEnabled] to change or clear this, never `copyWith`.
+  final bool? innerShadowEnabled;
+
   /// Button border mode: 'none' | 'solid' | 'dotted'; `null` behaves like
   /// 'none' (no border) — use [withButtonBorder] to change or clear. This is
   /// a self-contained control independent of [borderOverride]/[cardElevated]
@@ -140,6 +148,7 @@ class CustomStyleOverrides {
       spacingOverrides: spacingOverrides ?? this.spacingOverrides,
       radiusOverrides: radiusOverrides ?? this.radiusOverrides,
       cardElevated: cardElevated,
+      innerShadowEnabled: innerShadowEnabled,
       buttonBorder: buttonBorder,
       borderOverride: borderOverride,
     );
@@ -154,6 +163,22 @@ class CustomStyleOverrides {
       spacingOverrides: spacingOverrides,
       radiusOverrides: radiusOverrides,
       cardElevated: value,
+      innerShadowEnabled: innerShadowEnabled,
+      buttonBorder: buttonBorder,
+      borderOverride: borderOverride,
+    );
+  }
+
+  /// Returns a copy with [innerShadowEnabled] replaced — including back to
+  /// `null` ("inherit"), which copyWith's `??` pattern cannot express.
+  CustomStyleOverrides withInnerShadowEnabled(bool? value) {
+    return CustomStyleOverrides(
+      colorOverrides: colorOverrides,
+      fontSizeOverrides: fontSizeOverrides,
+      spacingOverrides: spacingOverrides,
+      radiusOverrides: radiusOverrides,
+      cardElevated: cardElevated,
+      innerShadowEnabled: value,
       buttonBorder: buttonBorder,
       borderOverride: borderOverride,
     );
@@ -168,6 +193,7 @@ class CustomStyleOverrides {
       spacingOverrides: spacingOverrides,
       radiusOverrides: radiusOverrides,
       cardElevated: cardElevated,
+      innerShadowEnabled: innerShadowEnabled,
       buttonBorder: value,
       borderOverride: borderOverride,
     );
@@ -182,6 +208,7 @@ class CustomStyleOverrides {
       spacingOverrides: spacingOverrides,
       radiusOverrides: radiusOverrides,
       cardElevated: cardElevated,
+      innerShadowEnabled: innerShadowEnabled,
       buttonBorder: buttonBorder,
       borderOverride: value,
     );
@@ -194,6 +221,7 @@ class CustomStyleOverrides {
       'spacing': spacingOverrides,
       'radius': radiusOverrides,
       'card_elevated': cardElevated,
+      'inner_shadow_enabled': innerShadowEnabled,
       'button_border': buttonBorder,
       'border_override': borderOverride,
     };
@@ -221,6 +249,9 @@ class CustomStyleOverrides {
       radiusOverrides: _parseDoubleMap(json['radius']),
       cardElevated: json['card_elevated'] is bool
           ? json['card_elevated'] as bool
+          : null,
+      innerShadowEnabled: json['inner_shadow_enabled'] is bool
+          ? json['inner_shadow_enabled'] as bool
           : null,
       buttonBorder: json['button_border'] is String
           ? json['button_border'] as String
