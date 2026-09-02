@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../connector/meshcore_connector.dart';
+import '../connector/meshcore_protocol.dart';
 import '../l10n/l10n.dart';
 import '../services/app_settings_service.dart';
 import '../services/ui_view_state_service.dart';
@@ -78,6 +79,29 @@ class _ChannelsScreenState extends State<ChannelsScreen>
       if (!mounted) return;
       setState(() => _toastMessages.remove(message));
     });
+  }
+
+  // Self (device) advert export to clipboard — the device-level action
+  // behind the ⋮ menu's "Copy advert to clipboard" item, shared with
+  // Contacts' identical menu entry (contacts_screen.dart's _contactExport,
+  // called there with an empty pubKey for the same "export self" meaning).
+  // An empty pubKey tells the device to export its OWN contact rather than
+  // a specific one — nothing here is contact-specific.
+  Future<void> _selfAdvertExport() async {
+    final connector = Provider.of<MeshCoreConnector>(context, listen: false);
+    final exportSelfFrame = buildExportContactFrame(Uint8List.fromList([]));
+    try {
+      await connector.sendFrame(exportSelfFrame, expectsGenericAck: true);
+    } catch (e) {
+      if (mounted) {
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_contactAdvertCopyFailed,
+            tone: WindaMessageTone.error,
+          ),
+        );
+      }
+    }
   }
 
   // Lets the message winda (hosted above the Navigator, see
@@ -163,7 +187,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
       canPop: allowBack,
       child: MeshScreenScaffold(
         extraTopOffset: _extraTopOffset,
-        messages: _toastMessages,
+        messages: [..._toastMessages],
         appBar: meshMainAppBar(
           context,
           title: context.l10n.channels_title,
@@ -172,16 +196,43 @@ class _ChannelsScreenState extends State<ChannelsScreen>
           // context, which is deactivated by then.
           menuItemBuilder: (menuContext) => [
             meshMenuActionItem(
-              icon: Icons.logout,
-              iconColor: Theme.of(menuContext).colorScheme.error,
-              label: menuContext.l10n.common_disconnect,
-              onTap: () => _disconnect(context),
-            ),
-            meshMenuActionItem(
               icon: Icons.groups,
               label: menuContext.l10n.community_manageCommunities,
               onTap: () => _showManageCommunitiesDialog(context),
             ),
+            meshMenuDivider(menuContext),
+            meshMenuActionItem(
+              icon: Icons.connect_without_contact,
+              label: menuContext.l10n.contacts_zeroHopAdvert,
+              onTap: () => {
+                connector.sendSelfAdvert(flood: false),
+                _pushToast(
+                  WindaMessage(
+                    text: context.l10n.settings_advertisementSent,
+                    tone: WindaMessageTone.success,
+                  ),
+                ),
+              },
+            ),
+            meshMenuActionItem(
+              icon: Icons.cell_tower,
+              label: menuContext.l10n.contacts_floodAdvert,
+              onTap: () => {
+                connector.sendSelfAdvert(flood: true),
+                _pushToast(
+                  WindaMessage(
+                    text: context.l10n.settings_advertisementSent,
+                    tone: WindaMessageTone.success,
+                  ),
+                ),
+              },
+            ),
+            meshMenuActionItem(
+              icon: Icons.copy,
+              label: menuContext.l10n.contacts_copyAdvertToClipboard,
+              onTap: () => _selfAdvertExport(),
+            ),
+            meshMenuDivider(menuContext),
             meshMenuActionItem(
               icon: Icons.settings,
               label: menuContext.l10n.settings_title,
@@ -194,6 +245,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
               icon: Icons.palette_outlined,
               label: menuContext.l10n.appSettings_quickStyleMenuItem,
               onTap: () => showQuickStylePickerDialog(context),
+            ),
+            meshMenuActionItem(
+              icon: Icons.logout,
+              iconColor: Theme.of(menuContext).colorScheme.error,
+              label: menuContext.l10n.common_disconnect,
+              onTap: () => _disconnect(context),
             ),
             meshMenuActionItem(
               icon: Icons.info_outline,

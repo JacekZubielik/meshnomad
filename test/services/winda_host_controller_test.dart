@@ -55,6 +55,29 @@ void main() {
     expect(notified, 0);
   });
 
+  test('register does not alias the caller\'s list — an external mutation '
+      'followed by re-register still notifies', () {
+    // Regression for the Channels "frozen winda" bug (2026-09-03): a
+    // screen passed its own mutable field list, the controller stored that
+    // same reference, and the screen's later `remove()` mutated the
+    // controller's copy too — so the next register() compared the list
+    // with itself, saw "equal", and never notified the overlay.
+    final controller = WindaHostController();
+    final screenList = <WindaMessage>[
+      const WindaMessage(text: 'Hello', tone: WindaMessageTone.info),
+    ];
+    controller.register(messages: screenList, appBarHeight: 56);
+
+    var notified = 0;
+    controller.addListener(() => notified++);
+
+    screenList.clear();
+    controller.register(messages: screenList, appBarHeight: 56);
+
+    expect(notified, 1);
+    expect(controller.messages, isEmpty);
+  });
+
   test('unregister clears messages and notifies', () {
     final controller = WindaHostController();
     controller.register(

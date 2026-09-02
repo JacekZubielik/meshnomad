@@ -87,7 +87,11 @@ class WindaHostController extends ChangeNotifier {
     if (listEquals(_messages, messages) && _appBarHeight == appBarHeight) {
       return;
     }
-    _messages = messages;
+    // Defensive copy — never alias the caller's list. A screen that passes
+    // its own mutable field (Channels' `_toastMessages`, 2026-09-03) and
+    // later mutates it in place would otherwise mutate OUR list too, making
+    // the next listEquals compare the list with itself and skip the notify.
+    _messages = List.unmodifiable(messages);
     _appBarHeight = appBarHeight;
     notifyListeners();
   }
