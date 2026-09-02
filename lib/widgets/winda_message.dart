@@ -98,6 +98,17 @@ class WindaMessageContent extends StatelessWidget {
     final t = MeshTokens.of(context);
     final color = _color(t);
     final onSurface = Theme.of(context).colorScheme.onSurface;
+    // How much horizontal room the action button (when present) reserves
+    // on the right — MeshCircleIconButton's own `size` plus the gap that
+    // used to separate it from the pill in the old Row layout. Applied
+    // symmetrically below so the pill's centering axis stays the winda's
+    // true full width, not the row's remaining space after the button
+    // (2026-09-02 feedback: with the button in a trailing Row slot, the
+    // pill centered only within what was left over, reading visibly
+    // off-center against the winda as a whole).
+    final double actionReserve = message.actionLabel != null
+        ? 32 + t.spacingSm
+        : 0;
     return Padding(
       // Right inset matches MeshCard's default horizontal margin (16,
       // `t.spacingXs` — `mesh_ui.dart:79`), the same 16dp Flutter's Scaffold
@@ -105,20 +116,18 @@ class WindaMessageContent extends StatelessWidget {
       // edge on this same screen — so the action button lines up with both
       // (2026-09-02 feedback: `t.spacingSm` read as flush against the edge).
       padding: EdgeInsets.fromLTRB(t.spacingSm, 0, t.spacingXs, t.spacingSm),
-      child: Row(
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          // "LCD display" readout — matches SettingsValueStepper's valuePill
-          // (Settings screens) EXACTLY: fill = `scheme.primary` @ 20% alpha
-          // (not tone-tinted — only the icon carries the tone color, per
-          // 2026-09-02 feedback), `t.sm` (rectangular, NOT `t.pill`) radius,
-          // no border, centered mono text. Single-line + ellipsis by design —
-          // a compact status readout, not a wrapped paragraph. `Flexible`
-          // (loose fit), not `Expanded` (tight fit) — the pill hugs its own
-          // content width and centers within the remaining row space, rather
-          // than being forced to stretch across all of it (2026-09-02
-          // feedback: it read as far too wide against how compact valuePill
-          // actually looks in Settings).
-          Flexible(
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: actionReserve),
+            // "LCD display" readout — matches SettingsValueStepper's
+            // valuePill (Settings screens) EXACTLY: fill = `scheme.primary`
+            // @ 20% alpha (not tone-tinted — only the icon carries the tone
+            // color, per 2026-09-02 feedback), `t.sm` (rectangular, NOT
+            // `t.pill`) radius, no border, centered mono text. Single-line
+            // + ellipsis by design — a compact status readout, not a
+            // wrapped paragraph.
             child: Center(
               child: Container(
                 padding: EdgeInsets.symmetric(
@@ -158,33 +167,35 @@ class WindaMessageContent extends StatelessWidget {
               ),
             ),
           ),
-          if (message.actionLabel case final label?) ...[
-            SizedBox(width: t.spacingSm),
-            // Icon-only, no visible text — matches the smaller circular
-            // treatment already used for meshMainAppBar's overflow icon
-            // (32/16, `app_bar.dart`), not a full-size FilledButton, so the
-            // action slot stays compact against the equally-compact LCD
-            // pill (2026-09-02 feedback). `label` is exposed to screen
-            // readers via `Semantics`, NOT `MeshCircleIconButton.tooltip` —
-            // this widget is hosted by `WindaHostOverlay` above the
-            // `Navigator` (root-overlay design, `winda_host_overlay.dart`),
-            // so there is deliberately no ancestor `Overlay` here, and
-            // `Tooltip` (which `MeshCircleIconButton.tooltip` wraps in)
-            // hard-requires one (`No Overlay widget found` — caught by
-            // `test/screens/contacts_screen_message_winda_test.dart`,
-            // debug-assertion-only so it would have stayed silent on a
-            // release build instead of ever being noticed).
-            Semantics(
-              label: label,
-              button: true,
-              child: MeshCircleIconButton(
-                icon: message.actionIcon,
-                onPressed: message.onAction,
-                size: 32,
-                iconSize: 16,
+          if (message.actionLabel case final label?)
+            Align(
+              alignment: Alignment.centerRight,
+              // Icon-only, no visible text — matches the smaller circular
+              // treatment already used for meshMainAppBar's overflow icon
+              // (32/16, `app_bar.dart`), not a full-size FilledButton, so
+              // the action slot stays compact against the equally-compact
+              // LCD pill (2026-09-02 feedback). `label` is exposed to
+              // screen readers via `Semantics`, NOT
+              // `MeshCircleIconButton.tooltip` — this widget is hosted by
+              // `WindaHostOverlay` above the `Navigator` (root-overlay
+              // design, `winda_host_overlay.dart`), so there is
+              // deliberately no ancestor `Overlay` here, and `Tooltip`
+              // (which `MeshCircleIconButton.tooltip` wraps in)
+              // hard-requires one (`No Overlay widget found` — caught by
+              // `test/screens/contacts_screen_message_winda_test.dart`,
+              // debug-assertion-only so it would have stayed silent on a
+              // release build instead of ever being noticed).
+              child: Semantics(
+                label: label,
+                button: true,
+                child: MeshCircleIconButton(
+                  icon: message.actionIcon,
+                  onPressed: message.onAction,
+                  size: 32,
+                  iconSize: 16,
+                ),
               ),
             ),
-          ],
         ],
       ),
     );
