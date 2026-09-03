@@ -407,7 +407,10 @@ class _CommunityQrScannerScreenState extends State<CommunityQrScannerScreen> {
 
       if (nextIndex != null) {
         final psk = community.deriveCommunityPublicPsk();
-        final channelName = '${community.name} Public';
+        // Same naming as "create community" in channels_screen.dart — the
+        // suffix used to be hardcoded English here, so a QR-joined
+        // community's channel read differently from the creator's.
+        final channelName = '${community.name} ${context.l10n.channels_public}';
         connector.setChannel(nextIndex, channelName, psk);
       }
     }
