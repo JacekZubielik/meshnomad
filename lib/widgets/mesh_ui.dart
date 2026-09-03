@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../connector/meshcore_protocol.dart';
 import '../l10n/l10n.dart';
+import '../models/channel.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/emoji_utils.dart';
 import 'dotted_separator.dart';
@@ -976,6 +977,217 @@ class MeshStatusBadge extends StatelessWidget {
   }
 }
 
+/// Icon that stands for a [ChannelType] — shared by the channel card, the
+/// channel chat header/empty state and anything else that draws a channel.
+IconData channelTypeIcon(ChannelType type) => switch (type) {
+  ChannelType.communityPublic || ChannelType.communityHashtag => Icons.groups,
+  ChannelType.public => Icons.public,
+  ChannelType.hashtag => Icons.tag,
+  ChannelType.private => Icons.lock,
+};
+
+/// Accent tint of a [ChannelType] — community = secondary, public = signal,
+/// hashtag/private = primary (channel-card palette, 2026-08-29).
+Color channelTypeColor(ChannelType type, MeshTokens tokens) => switch (type) {
+  ChannelType.communityPublic ||
+  ChannelType.communityHashtag => tokens.secondary,
+  ChannelType.public => tokens.signal,
+  ChannelType.hashtag || ChannelType.private => tokens.primary,
+};
+
+/// The channel avatar of the channel card (`channels_screen.dart`, 2026-08-29
+/// parity redesign) as one widget: [AvatarCircle] tinted per type with the
+/// type's icon, plus the small "people" corner badge on community channels.
+/// The chat header renders the same widget smaller so the header and the
+/// card a user just tapped look like one thing.
+class ChannelAvatar extends StatelessWidget {
+  final ChannelType type;
+  final String label;
+  final double size;
+
+  /// Ring color around the community badge — the surface it sits on
+  /// (card fill by default; the app bar passes its own background).
+  final Color? borderColor;
+
+  const ChannelAvatar({
+    super.key,
+    required this.type,
+    required this.label,
+    this.size = 42,
+    this.borderColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    // 16px badge on the 42px card avatar; scales with the avatar, never
+    // smaller than 12 so the glyph inside stays legible.
+    final badgeSize = (16 * size / 42).clamp(12.0, 16.0);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        AvatarCircle(
+          name: label,
+          size: size,
+          color: channelTypeColor(type, t),
+          icon: channelTypeIcon(type),
+        ),
+        if (Channel.isCommunityChannel(type))
+          Positioned(
+            right: -2,
+            bottom: -2,
+            child: Container(
+              width: badgeSize,
+              height: badgeSize,
+              decoration: BoxDecoration(
+                color: t.secondary,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: borderColor ?? scheme.surfaceContainerLow,
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.people,
+                size: badgeSize / 2,
+                color: t.secondaryInk,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Fixed-order row of channel status badges — CH index, Region, Smaz, Lang,
+/// Time — plus right-aligned mute-bell and favorite-star icons; the
+/// channel-card row (`channels_screen.dart`, 2026-08-29 parity redesign)
+/// extracted so the channel chat header can render the exact same badges
+/// (badge-only, centered — see [showTrailingIcons]/[alignment]).
+class ChannelBadgeRow extends StatelessWidget {
+  final int channelIndex;
+
+  /// Null = no region set; renders the ghosted "REGION" placeholder.
+  final String? region;
+  final bool isSmazEnabled;
+
+  /// Per-channel translation target; null = inherits the app-wide setting
+  /// (ghost 'LANG' pill — not 'AUTO', which read as ambiguous, 2026-08-29).
+  final String? languageCode;
+
+  /// Null = no message yet; renders a ghosted '—'.
+  final String? timeLabel;
+  final bool isUnread;
+  final bool isMuted;
+  final bool isFavorite;
+
+  final VoidCallback? onRegionTap;
+  final VoidCallback? onLanguageTap;
+  final VoidCallback? onMuteTap;
+  final VoidCallback? onFavoriteTap;
+
+  final bool showTrailingIcons;
+  final WrapAlignment alignment;
+
+  const ChannelBadgeRow({
+    super.key,
+    required this.channelIndex,
+    required this.region,
+    required this.isSmazEnabled,
+    required this.timeLabel,
+    required this.isUnread,
+    this.languageCode,
+    this.isMuted = false,
+    this.isFavorite = false,
+    this.onRegionTap,
+    this.onLanguageTap,
+    this.onMuteTap,
+    this.onFavoriteTap,
+    this.showTrailingIcons = true,
+    this.alignment = WrapAlignment.start,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final neutral = scheme.onSurfaceVariant;
+    final hasRegion = region != null;
+    final timeColor = isUnread ? t.primary : neutral;
+    final badges = Wrap(
+      alignment: alignment,
+      spacing: t.spacingXxs,
+      runSpacing: t.spacingXxs,
+      children: [
+        MeshStatusBadge(
+          label: 'CH $channelIndex',
+          color: neutral,
+          active: true,
+        ),
+        MeshStatusBadge(
+          label: region ?? context.l10n.channels_badgeRegion,
+          color: t.routeActive,
+          active: hasRegion,
+          fillColor: hasRegion ? t.routeActive.withValues(alpha: 0.2) : null,
+          onTap: onRegionTap,
+        ),
+        MeshStatusBadge(label: 'Smaz', color: neutral, active: isSmazEnabled),
+        MeshStatusBadge(
+          label: languageCode?.toUpperCase() ?? 'LANG',
+          color: t.primary,
+          active: languageCode != null,
+          fillColor: languageCode != null
+              ? t.primary.withValues(alpha: 0.2)
+              : null,
+          onTap: onLanguageTap,
+        ),
+        MeshStatusBadge(
+          label: timeLabel ?? '—',
+          color: timeColor,
+          active: timeLabel != null,
+          fillColor: timeLabel != null
+              ? timeColor.withValues(alpha: 0.2)
+              : null,
+        ),
+      ],
+    );
+    if (!showTrailingIcons) return badges;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(child: badges),
+        SizedBox(width: t.spacingXxs),
+        GestureDetector(
+          onTap: onMuteTap,
+          behavior: HitTestBehavior.opaque,
+          child: Opacity(
+            opacity: isMuted ? 1.0 : 0.30,
+            child: Icon(
+              isMuted ? Icons.notifications_off : Icons.notifications,
+              size: 18,
+              color: t.warn,
+            ),
+          ),
+        ),
+        SizedBox(width: t.spacingXxs),
+        GestureDetector(
+          onTap: onFavoriteTap,
+          behavior: HitTestBehavior.opaque,
+          child: Opacity(
+            opacity: isFavorite ? 1.0 : 0.30,
+            child: Icon(
+              isFavorite ? Icons.star : Icons.star_border,
+              size: 18,
+              color: t.warn,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// Fixed-order row of contact status badges — GPS, Route, Smaz, Lang, Time
 /// (order per 2026-08-29 user spec), always in that order, every one always
 /// rendered (ghosted via [MeshStatusBadge] when inactive/unavailable so
@@ -1007,6 +1219,12 @@ class ContactBadgeRow extends StatelessWidget {
   final VoidCallback? onLanguageTap;
   final VoidCallback? onMuteTap;
 
+  /// Badge-only mode for the chat app-bar header (2026-09-03): the same five
+  /// badges, no mute/favorite icons, and [alignment] centers them under the
+  /// contact name instead of the card's left-aligned row.
+  final bool showTrailingIcons;
+  final WrapAlignment alignment;
+
   const ContactBadgeRow({
     super.key,
     required this.isFavorite,
@@ -1022,6 +1240,8 @@ class ContactBadgeRow extends StatelessWidget {
     this.onRouteTap,
     this.onLanguageTap,
     this.onMuteTap,
+    this.showTrailingIcons = true,
+    this.alignment = WrapAlignment.start,
   });
 
   @override
@@ -1029,57 +1249,52 @@ class ContactBadgeRow extends StatelessWidget {
     final tokens = MeshTokens.of(context);
     final scheme = Theme.of(context).colorScheme;
     final neutral = scheme.onSurfaceVariant;
+    final badges = Wrap(
+      alignment: alignment,
+      spacing: tokens.spacingXxs,
+      runSpacing: tokens.spacingXxs,
+      children: [
+        MeshStatusBadge(
+          label: 'GPS',
+          color: tokens.primary,
+          active: hasLocation,
+          fillColor: hasLocation ? tokens.primary.withValues(alpha: 0.2) : null,
+          onTap: hasLocation ? onGpsTap : null,
+        ),
+        MeshStatusBadge(
+          label: routeLabel ?? context.l10n.contacts_routeUnknown,
+          color: tokens.routeActive,
+          active: routeLabel != null,
+          fillColor: routeLabel != null
+              ? tokens.routeActive.withValues(alpha: 0.2)
+              : null,
+          onTap: routeLabel != null ? onRouteTap : null,
+        ),
+        MeshStatusBadge(label: 'Smaz', color: neutral, active: isSmazEnabled),
+        MeshStatusBadge(
+          label: languageCode?.toUpperCase() ?? 'LANG',
+          color: tokens.primary,
+          active: languageCode != null,
+          fillColor: languageCode != null
+              ? tokens.primary.withValues(alpha: 0.2)
+              : null,
+          onTap: onLanguageTap,
+        ),
+        MeshStatusBadge(
+          label: timeLabel,
+          color: isUnread ? tokens.primary : neutral,
+          active: true,
+          fillColor: (isUnread ? tokens.primary : neutral).withValues(
+            alpha: 0.2,
+          ),
+        ),
+      ],
+    );
+    if (!showTrailingIcons) return badges;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Expanded(
-          child: Wrap(
-            spacing: tokens.spacingXxs,
-            runSpacing: tokens.spacingXxs,
-            children: [
-              MeshStatusBadge(
-                label: 'GPS',
-                color: tokens.primary,
-                active: hasLocation,
-                fillColor: hasLocation
-                    ? tokens.primary.withValues(alpha: 0.2)
-                    : null,
-                onTap: hasLocation ? onGpsTap : null,
-              ),
-              MeshStatusBadge(
-                label: routeLabel ?? context.l10n.contacts_routeUnknown,
-                color: tokens.routeActive,
-                active: routeLabel != null,
-                fillColor: routeLabel != null
-                    ? tokens.routeActive.withValues(alpha: 0.2)
-                    : null,
-                onTap: routeLabel != null ? onRouteTap : null,
-              ),
-              MeshStatusBadge(
-                label: 'Smaz',
-                color: neutral,
-                active: isSmazEnabled,
-              ),
-              MeshStatusBadge(
-                label: languageCode?.toUpperCase() ?? 'LANG',
-                color: tokens.primary,
-                active: languageCode != null,
-                fillColor: languageCode != null
-                    ? tokens.primary.withValues(alpha: 0.2)
-                    : null,
-                onTap: onLanguageTap,
-              ),
-              MeshStatusBadge(
-                label: timeLabel,
-                color: isUnread ? tokens.primary : neutral,
-                active: true,
-                fillColor: (isUnread ? tokens.primary : neutral).withValues(
-                  alpha: 0.2,
-                ),
-              ),
-            ],
-          ),
-        ),
+        Expanded(child: badges),
         SizedBox(width: tokens.spacingXxs),
         GestureDetector(
           onTap: onMuteTap,
