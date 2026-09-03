@@ -1,7 +1,34 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../theme/mesh_tokens.dart';
 import 'mesh_ui.dart';
+
+/// Screen-local auto-dismissing toast queue for the message winda —
+/// `WindaMessage.duration` has no built-in timer (see its doc comment), so a
+/// screen that replaced `showDismissibleSnackBar` keeps its own: push a
+/// message, hand [toastMessages] to `MeshScreenScaffold.messages`, and the
+/// entry removes itself after its duration. Extracted from the copy the
+/// Contacts/Channels/Map screens each carry (`_toastMessages`/`_pushToast`)
+/// for the chat screens; migrating those three onto it is a follow-up.
+mixin WindaToastQueue<T extends StatefulWidget> on State<T> {
+  final List<WindaMessage> _toastMessages = [];
+
+  /// Snapshot for `MeshScreenScaffold.messages` — a copy, so the host
+  /// controller never aliases the live list (the exact bug fixed in
+  /// `WindaHostController` 2026-09-03).
+  List<WindaMessage> get toastMessages => List.unmodifiable(_toastMessages);
+
+  void pushToast(WindaMessage message) {
+    if (!mounted) return;
+    setState(() => _toastMessages.add(message));
+    Timer(message.duration, () {
+      if (!mounted) return;
+      setState(() => _toastMessages.remove(message));
+    });
+  }
+}
 
 /// Tone of a [WindaMessage] — drives the icon and its color. Mapped to the
 /// app's existing three-color status vocabulary
