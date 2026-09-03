@@ -70,6 +70,18 @@ class MeshCard extends StatelessWidget {
   /// `elevated: false` at a call site to keep the old flat bordered look.
   final bool? elevated;
 
+  /// Whether the elevated look also paints its drop shadow. `false` keeps
+  /// the elevated fill and borderless shape but casts no shadow — for a
+  /// bar whose shadow is cast by a [MeshCardEdgeShadow] elsewhere in the
+  /// tree instead (the three search bars), so it isn't drawn twice.
+  final bool castsShadow;
+
+  /// Whether the flat (non-elevated) look paints its outline border.
+  /// `false` for edge-to-edge bars (the search bars): with the app-wide
+  /// `cardElevated` style toggle off they'd otherwise get a 1 px outline
+  /// around a full-width bar, which reads as a stray frame, not a card.
+  final bool outlined;
+
   const MeshCard({
     super.key,
     required this.child,
@@ -82,6 +94,8 @@ class MeshCard extends StatelessWidget {
     this.borderColor,
     this.radius,
     this.elevated,
+    this.castsShadow = true,
+    this.outlined = true,
   });
 
   @override
@@ -92,7 +106,7 @@ class MeshCard extends StatelessWidget {
     final borderRadius = BorderRadius.circular(effectiveRadius);
     final shape = RoundedRectangleBorder(
       borderRadius: borderRadius,
-      side: effectiveElevated
+      side: effectiveElevated || !outlined
           ? BorderSide.none
           : BorderSide(color: borderColor ?? scheme.outlineVariant),
     );
@@ -118,43 +132,112 @@ class MeshCard extends StatelessWidget {
     );
     return Padding(
       padding: margin,
-      child: effectiveElevated
+      child: effectiveElevated && castsShadow
           ? DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: borderRadius,
-                // Bottom+right only, no top/left bleed (2026-09-02 feedback:
-                // a zero horizontal offset made blurRadius spread the shadow
-                // symmetrically around every edge, including top/left, which
-                // read as "surrounding" rather than a light-from-top-left
-                // cast). BoxShadow always blurs symmetrically around its own
-                // offset rect, so eliminating the top/left leak requires
-                // offset.dx/dy >= blurRadius — set equal to it here, which
-                // reduces to zero bleed on those two edges exactly. Solved
-                // for blurRadius == offset so the bottom edge keeps the same
-                // total reach as the original vertical-only mockup spec
-                // (`0 1px 2px .15, 0 1px 3px .22`: reach = blur+dy = 3, 4)
-                // — same values, mirrored onto the right edge too instead of
-                // being wasted above/left of the card.
-                boxShadow: [
-                  BoxShadow(
-                    color: MeshTokens.of(
-                      context,
-                    ).cardShadow.withValues(alpha: 0.15),
-                    offset: const Offset(1.5, 1.5),
-                    blurRadius: 1.5,
-                  ),
-                  BoxShadow(
-                    color: MeshTokens.of(
-                      context,
-                    ).cardShadow.withValues(alpha: 0.22),
-                    offset: const Offset(2, 2),
-                    blurRadius: 2,
-                  ),
-                ],
+                boxShadow: dropShadow(context),
               ),
               child: card,
             )
           : card,
+    );
+  }
+
+  /// [MeshCard]'s own drop shadow, factored out so [MeshCardEdgeShadow] can
+  /// cast the identical shadow from a different widget (see its doc
+  /// comment for why that's needed).
+  ///
+  /// Bottom+right only, no top/left bleed (2026-09-02 feedback: a zero
+  /// horizontal offset made blurRadius spread the shadow symmetrically
+  /// around every edge, including top/left, which read as "surrounding"
+  /// rather than a light-from-top-left cast). BoxShadow always blurs
+  /// symmetrically around its own offset rect, so eliminating the top/left
+  /// leak requires offset.dx/dy >= blurRadius — set equal to it here, which
+  /// reduces to zero bleed on those two edges exactly. Solved for
+  /// blurRadius == offset so the bottom edge keeps the same total reach as
+  /// the original vertical-only mockup spec (`0 1px 2px .15, 0 1px 3px
+  /// .22`: reach = blur+dy = 3, 4) — same values, mirrored onto the right
+  /// edge too instead of being wasted above/left of the card.
+  static List<BoxShadow> dropShadow(BuildContext context) => [
+    BoxShadow(
+      color: MeshTokens.of(context).cardShadow.withValues(alpha: 0.15),
+      offset: const Offset(1.5, 1.5),
+      blurRadius: 1.5,
+    ),
+    BoxShadow(
+      color: MeshTokens.of(context).cardShadow.withValues(alpha: 0.22),
+      offset: const Offset(2, 2),
+      blurRadius: 2,
+    ),
+  ];
+}
+
+/// A zero-height strip that paints only [MeshCard.dropShadow] — no fill, no
+/// size — for casting a search bar's own drop shadow across whatever is
+/// beneath it in a *different* Stack layer than the real bar.
+///
+/// Why this exists (2026-09-03): Contacts/Channels/Map all lay out as
+/// `Column[searchBar MeshCard, Expanded[Stack[scrollable content, winda]]]`.
+/// A `Column` paints children in order, so the search bar's real shadow
+/// (bleeding ~4px below its own box) gets bled into the Expanded's territory
+/// but is then unconditionally overpainted by whatever that Expanded's
+/// content renders at those same pixels — a scrolled-up card, or the map.
+/// Reserving a permanent gap can't fix this: the list scrolls arbitrary
+/// content through that exact strip forever, so no static padding keeps it
+/// clear.
+///
+/// The fix is to cast the *same* shadow again from inside that Expanded's
+/// own `Stack`, positioned as a Stack child painted *after* the scrollable
+/// content but *before* the winda's `Positioned` — so it draws on top of
+/// scrolled cards/map tiles (satisfying "content scrolls under the shadow"),
+/// while the winda — painted last, as it always was — keeps covering it
+/// exactly as it already covers the real bar's shadow (the `1b2f665b`
+/// fix, `windaShadowOverlap`), completely unaffected by this addition.
+class MeshCardEdgeShadow extends StatelessWidget {
+  const MeshCardEdgeShadow({super.key});
+
+  /// Height of the invisible source box the shadow is cast from. BoxShadow
+  /// blurs a filled rect of the *source's* geometry, so the source must be
+  /// tall like the real bar for its bottom-edge blur to reach full
+  /// intensity — a 1 px source spread its tiny area over the same blur and
+  /// came out ~3-4x fainter, effectively invisible (issue #149). Any value
+  /// comfortably larger than the blur reach works; it's clipped anyway.
+  static const double _sourceHeight = 40;
+
+  /// Visible window below the edge: [MeshCard.dropShadow]'s reach is
+  /// blur + dy = 4 px, plus slack for anti-aliasing.
+  static const double _reach = 6;
+
+  @override
+  Widget build(BuildContext context) {
+    // Same gate as MeshCard's own shadow: the app-wide "elevated cards"
+    // style toggle off means no card shadows anywhere, this one included.
+    if (!MeshTokens.of(context).cardElevated) return const SizedBox.shrink();
+    return SizedBox(
+      height: _reach,
+      width: double.infinity,
+      // Only the part of the shadow *below* the source's bottom edge may
+      // show — the source sits above this window, over the real bar, and
+      // painting its shadow there would darken the bar itself.
+      child: ClipRect(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              top: -_sourceHeight,
+              left: 0,
+              right: 0,
+              height: _sourceHeight,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  boxShadow: MeshCard.dropShadow(context),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

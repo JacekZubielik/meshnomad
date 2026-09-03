@@ -1094,6 +1094,17 @@ class _MapScreenState extends State<MapScreen> {
                             zoom: initialZoom,
                             connector: connector,
                           ),
+                        // Casts the search field's own shadow again on top
+                        // of the map/markers beneath it — see
+                        // MeshCardEdgeShadow's doc comment. Painted after
+                        // the map, before the winda below, so the winda
+                        // keeps covering it exactly as it always has.
+                        const Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: MeshCardEdgeShadow(),
+                        ),
                         // Progress winda ("loader") right below the search bar —
                         // same mechanism and shadow-overlap positioning as
                         // Contacts/Channels, driven by the same
@@ -2183,6 +2194,10 @@ class _MapScreenState extends State<MapScreen> {
         margin: EdgeInsets.zero,
         padding: EdgeInsets.zero,
         radius: 0,
+        // Shadow cast by the MeshCardEdgeShadow in the Stack below instead
+        // — see Contacts (issue #149).
+        castsShadow: false,
+        outlined: false,
         color: Theme.of(context).colorScheme.surface,
         child: Padding(
           padding: EdgeInsets.symmetric(

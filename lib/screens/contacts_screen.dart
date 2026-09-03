@@ -911,6 +911,11 @@ class _ContactsScreenState extends State<ContactsScreen>
             margin: EdgeInsets.zero,
             padding: EdgeInsets.zero,
             radius: 0,
+            // Its shadow is cast by the MeshCardEdgeShadow inside the Stack
+            // below instead, so it stays visible over scrolled-up cards —
+            // casting it here too drew it twice (issue #149).
+            castsShadow: false,
+            outlined: false,
             color: Theme.of(context).colorScheme.surface,
             child: Padding(
               padding: EdgeInsets.symmetric(
@@ -1038,6 +1043,16 @@ class _ContactsScreenState extends State<ContactsScreen>
                           },
                         ),
                 ),
+              ),
+              // Casts the search field's own shadow again on top of
+              // scrolled-up cards — see MeshCardEdgeShadow's doc comment.
+              // Painted after the list, before the winda below, so the
+              // winda keeps covering it exactly as it always has.
+              const Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: MeshCardEdgeShadow(),
               ),
               Positioned(
                 top: 0,
