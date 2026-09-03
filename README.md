@@ -1,6 +1,9 @@
 # MeshNomad
 
-Independent Flutter client for MeshCore-compatible LoRa mesh networking devices.
+[![Flutter and Dart](https://github.com/JacekZubielik/meshnomad/actions/workflows/flutter_dart.yml/badge.svg)](https://github.com/JacekZubielik/meshnomad/actions/workflows/flutter_dart.yml)
+[![Build](https://github.com/JacekZubielik/meshnomad/actions/workflows/build.yml/badge.svg)](https://github.com/JacekZubielik/meshnomad/actions/workflows/build.yml)
+
+Independent client for MeshCore-compatible LoRa mesh networking devices.
 
 > **Note on origins**: MeshNomad began as a fork of [MeshCore Open](https://github.com/zjs81/meshcore-open)
 > by [zjs81](https://github.com/zjs81), an MIT-licensed open-source client for MeshCore-compatible
@@ -11,19 +14,7 @@ Independent Flutter client for MeshCore-compatible LoRa mesh networking devices.
 
 ## Overview
 
-MeshNomad is a cross-platform mobile application for communicating with MeshCore-compatible LoRa mesh network devices via Bluetooth Low Energy (BLE). The app enables long-range, off-grid communication through peer-to-peer messaging, public channels, and mesh networking capabilities.
-
-## Screenshots
-
-<table>
-  <tr>
-    <td><img src="docs/screenshots/contacts.jpg" width="200"/><br/><p align="center"><b>Contacts</b></p></td>
-    <td><img src="docs/screenshots/chat1.jpg" width="200"/><br/><p align="center"><b>Chat</b></p></td>
-    <td><img src="docs/screenshots/chat2.jpg" width="200"/><br/><p align="center"><b>Reactions</b></p></td>
-    <td><img src="docs/screenshots/map.jpg" width="200"/><br/><p align="center"><b>Map</b></p></td>
-    <td><img src="docs/screenshots/channels.jpg" width="200"/><br/><p align="center"><b>Channels</b></p></td>
-  </tr>
-</table>
+MeshNomad is a cross-platform application for communicating with MeshCore-compatible LoRa mesh network devices over Bluetooth Low Energy (BLE), USB, or TCP. The app enables long-range, off-grid communication through peer-to-peer messaging, public channels, and mesh networking capabilities.
 
 ## Features
 
@@ -57,7 +48,7 @@ MeshNomad is a cross-platform mobile application for communicating with MeshCore
 - **BLE, USB, TCP Connection**: Scan and connect to MeshCore devices via Bluetooth, USB or TCP
 - **Device Settings**: Configure radio parameters, power settings, and network options
 - **Battery Monitoring**: Real-time battery status with chemistry-specific voltage curves
-- **Firmware Updates**: Over-the-air firmware updates via BLE (coming soon)
+- **Firmware Flashing**: Flash MeshCore firmware to a device over USB serial
 
 ### Repeater Hub
 
@@ -70,170 +61,8 @@ MeshNomad is a cross-platform mobile application for communicating with MeshCore
 
 ### Architecture
 
-- **Framework**: Flutter 3.38.5 / Dart 3.10.4
+- **Framework**: Flutter 3.44.9 / Dart 3.12.2
 - **State Management**: Provider pattern with ChangeNotifier
 - **BLE Protocol**: Nordic UART Service (NUS) over Bluetooth Low Energy
-- **Storage**: Local SQLite database for messages and contact data
+- **Storage**: SharedPreferences-backed key-value stores (PrefsManager singleton), scoped per connected device's public key
 - **Encryption**: End-to-end encryption for private messages using the MeshCore protocol
-
-### Platform Support
-
-| Feature            | Android (API 21+) | iOS (12+) | Linux | Windows | macOS |                Web                |
-|--------------------|:-----------------:|:---------:|:-----:|:-------:|:-----:|:---------------------------------:|
-| BLE companion      | ✅                | ✅        | ✅   | ✅      | ✅    | ✅                                |
-| USB companion      | ✅                | 🚧        | ✅   | ✅      | ✅    | ✅                                |
-| TCP companion      | ✅                | 🚧        | ✅   | ✅      | ✅    | ❌<br>(requires websocket bridge) |
-| Core Functionality | ✅                | ✅        | ✅   | ✅      | ✅    | ✅                                |
-| Mesh Network       | ✅                | ✅        | ✅   | ✅      | ✅    | ✅                                |
-| Map & Location     | ✅                | ✅        | ✅   | ✅      | ✅    | ✅                                |
-| Device Management  | ✅                | ✅        | ✅   | ✅      | ✅    | ✅                                |
-| Repeater Hub       | ✅                | ✅        | ✅   | ✅      | ✅    | ✅                                |
-
-### Dependencies
-
-| Package | Purpose |
-|---------|---------|
-| flutter_blue_plus | Bluetooth Low Energy communication |
-| provider | State management |
-| shared_preferences | Local key-value storage (scoped per device) |
-| flutter_map | Interactive map display |
-| latlong2 | Geographic coordinate handling |
-| flutter_local_notifications | Background notification support |
-| pointycastle | Cryptographic operations |
-| llamadart | On-device LLM message translation |
-| intl | Internationalization and date formatting |
-
-## Getting Started
-
-### Prerequisites
-
-- Flutter SDK 3.38.5 or later
-- Android Studio / Xcode (for mobile development)
-- A MeshCore-compatible LoRa device
-
-### Installation
-
-1. **Install dependencies**
-
-   ```bash
-   flutter pub get
-   ```
-
-2. **Run the app**
-
-   ```bash
-   flutter run
-   ```
-
-### Building for Release
-
-**Android APK:**
-
-```bash
-flutter build apk --release
-```
-
-**iOS:**
-
-```bash
-flutter build ios --release
-```
-
-## Project Structure
-
-```
-lib/
-├── main.dart                    # App entry point
-├── connector/
-│   ├── meshcore_connector.dart  # BLE communication & state management
-│   ├── meshcore_protocol.dart   # Protocol definitions & frame parsing
-│   └── meshcore_uuids.dart      # Device names and IDs (add prefixes here!)
-├── screens/
-│   ├── scanner_screen.dart      # Device scanning (home screen)
-│   ├── contacts_screen.dart     # Contact list
-│   ├── chat_screen.dart         # Direct messaging
-│   ├── channels_screen.dart     # Public channels
-│   ├── map_screen.dart          # Network visualization map
-│   ├── settings_screen.dart     # Device settings
-│   └── repeater_hub_screen.dart # Repeater management
-├── models/
-│   ├── contact.dart             # Contact data model
-│   ├── message.dart             # Message data structure
-│   └── channel.dart             # Channel definitions
-├── services/
-│   ├── notification_service.dart      # Push notifications
-│   ├── message_retry_service.dart     # Automatic message retry
-│   ├── background_service.dart        # Background BLE connection
-│   └── map_tile_cache_service.dart    # Offline map storage
-└── storage/
-    ├── message_store.dart       # Message persistence
-    ├── contact_store.dart       # Contact database
-    └── unread_store.dart        # Unread message tracking
-```
-
-## BLE Protocol
-
-### Nordic UART Service (NUS)
-
-- **Service UUID**: `6e400001-b5a3-f393-e0a9-e50e24dcca9e`
-- **RX Characteristic**: `6e400002-b5a3-f393-e0a9-e50e24dcca9e` (Write to device)
-- **TX Characteristic**: `6e400003-b5a3-f393-e0a9-e50e24dcca9e` (Notify from device)
-
-### Device Discovery
-
-Devices are discovered by scanning for BLE advertisements with known MeshCore device name prefixes. These are currently:
-    - `MeshCore-`
-    - `Whisper-`
-    - `WisCore-`
-    - `HT-`
-    - `LowMesh_MC_`
-    - `NRF52`
-
-New device prefixes can be added in `lib/connector/meshcore_uuids.dart`.
-
-
-### Message Format
-
-Messages are transmitted as binary frames using a custom protocol optimized for LoRa transmission. See `meshcore_protocol.dart` for frame structure definitions.
-
-## Configuration
-
-### App Settings
-
-- **Theme**: System default, light, or dark mode
-- **Language**: Use one of 15 languages (English, Chinese, French, Spanish, Portuguese, German, Dutch, Polish, Swedish, Italian, Slovak, Slovene, Bulgarian, Russian, Ukrainian)
-- **Notifications**: Configurable for messages, channels, and node advertisements
-- **Battery Chemistry**: Support for NMC, LiFePO4, and LiPo battery types
-- **Message Retry**: Automatic retry with configurable path clearing
-
-### Device Settings
-
-- **Radio Power**: Transmit power adjustment (10-30 dBm)
-- **Frequency**: LoRa frequency configuration
-- **Bandwidth**: Channel bandwidth selection
-- **Spreading Factor**: Range vs. speed trade-off
-- **Network ID**: Mesh network identifier
-
-## Contributing
-
-This is an open-source project. Contributions are welcome!
-
-### Development Guidelines
-
-- Follow the Flutter style guide
-- Use Material 3 design components
-- Write clear commit messages
-- Test on both Android and iOS before submitting PRs
-
-### Code Style
-
-- Prefer `StatelessWidget` with `Consumer` for reactive UI
-- Use `const` constructors where possible
-- Keep functions small and focused
-- Avoid premature abstractions
-- Run dart format on all changes before submitting
-
-## Acknowledgments
-
-- Built with [Flutter](https://flutter.dev/)
-- Map tiles from [OpenStreetMap](https://www.openstreetmap.org/)

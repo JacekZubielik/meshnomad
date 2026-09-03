@@ -1,6 +1,6 @@
 site_name: MeshNomad
 site_url: https://meshnomad.org
-site_description: Independent Flutter client for MeshCore-compatible LoRa mesh networking devices.
+site_description: Independent client for MeshCore-compatible LoRa mesh networking devices.
 repo_url: https://github.com/JacekZubielik/meshnomad
 repo_name: JacekZubielik/meshnomad
 docs_dir: docs
