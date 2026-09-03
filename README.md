@@ -5,12 +5,10 @@
 
 Independent client for MeshCore-compatible LoRa mesh networking devices.
 
-> **Note on origins**: MeshNomad began as a fork of [MeshCore Open](https://github.com/zjs81/meshcore-open)
-> by [zjs81](https://github.com/zjs81), an MIT-licensed open-source client for MeshCore-compatible
-> LoRa mesh devices. It has since diverged into an independent project with its own name, branding,
-> and roadmap. MeshNomad is not affiliated with, endorsed by, or sponsored by zjs81, Sylvester Corp,
-> MeshCore Technologies Limited, Cloudsto Electronics Ltd, or the MeshCore protocol maintainers.
-> See [LICENSE](LICENSE) for the original and current copyright notices.
+> **Note on origins**: independent fork of [MeshCore Open](https://github.com/zjs81/meshcore-open) by
+> [zjs81](https://github.com/zjs81) (MIT). Not affiliated with, endorsed by, or sponsored by zjs81,
+> Sylvester Corp, MeshCore Technologies Limited, Cloudsto Electronics Ltd, or the MeshCore protocol
+> maintainers. See [LICENSE](LICENSE).
 
 ## Overview
 
