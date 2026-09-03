@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.15.0 (2026-09-03)
+
+### Highlights
+
+- New "winda" message/progress overlay system: a single root-level overlay (above the Navigator) now hosts sync-progress and toast messages consistently across Contacts, Channels, and Map (#141, #146, #147)
+- README rewritten short and accurate, dropping stale sections and fixing several outdated technical claims (#147)
+
+### Features
+
+- Winda message/progress overlay: `MeshScreenScaffold` + `WindaHostController` host stall/toast messages above the Navigator, replacing the old app-bar-bottom progress bar and per-screen snackbars (#141)
+- Contact-sync stall detection with an idle timeout and a Resync action, mirroring the existing channel-sync pattern (#141)
+- Map and Channels brought to full visual/behavioral parity with Contacts' winda UI; search/filter bars restyled to match (#146, #147)
+- Dropdown/overflow menus unified to the search-filter row style; main-card app bars get the circular accent menu icon, matching Flasher (#146)
+
+### Fixes
+
+- Channels' toast messages never auto-dismissed — `WindaHostController.register` aliased the caller's list, so mutating it in place suppressed change notifications; now stores a defensive copy (#147)
+- Contacts overflow menu reordered: Settings, Quick Style, Disconnect, About (#147)
+- Winda LCD-pill centering, shadow bleed, Material ancestor, JetBrains Mono font artifact, and various padding/rhythm fixes (#146)
+- AppBar divider color now follows the Custom Style `outlineVariant` override (#146)
+
+### Docs
+
+- README trimmed from 239 to ~65 lines: dropped Screenshots, Platform Support, Dependencies, Getting Started, Project Structure, Device Discovery, BLE Protocol, Configuration, and Contributing sections; corrected outdated Flutter/Dart version, storage backend, language support, and firmware-flashing claims; added CI status badges (#147)
+- CI: `flutter_dart.yml` now skips docs-only PRs that touch `mkdocs.yml` (#147)
+
 ## v0.14.0 (2026-08-31)
 
 ### Highlights
