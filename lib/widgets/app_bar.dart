@@ -13,7 +13,6 @@ import 'quick_style_picker_dialog.dart';
 import 'radio_stats_entry.dart';
 import 'snr_indicator.dart';
 import 'stats_line_chart.dart';
-import 'sync_progress_overlay.dart';
 
 /// The two app-wide destinations every screen should be able to reach
 /// without backtracking to a main card first: Quick Style and Settings.
@@ -97,7 +96,7 @@ class AppBarMenuIcon extends StatelessWidget {
 /// (`_FlasherMenuButton`) use, "a deliberate, user-confirmed exception to
 /// the flat [AppBarMenuIcon] pattern used elsewhere" for sub-screens with
 /// their own back-navigation flow. Prefer [QuickAccessMenuButton] on
-/// screens that follow the flat pattern instead.
+/// screens that use the flat [AppBarMenuIcon] pattern instead.
 class CircleQuickAccessMenuButton extends StatelessWidget {
   const CircleQuickAccessMenuButton({super.key});
 
@@ -131,9 +130,9 @@ class CircleQuickAccessMenuButton extends StatelessWidget {
 }
 
 /// The shared app-bar pattern for main cards (Contacts / Channels / Map and
-/// any future card): identical title placement, sync progress strip and a
-/// ⋮ menu sized like the indicators. Build every card's app bar through
-/// this — never hand-roll an AppBar on a main card.
+/// any future card): identical title placement and a ⋮ menu sized like the
+/// indicators. Build every card's app bar through this — never hand-roll an
+/// AppBar on a main card.
 AppBar meshMainAppBar(
   BuildContext context, {
   required String title,
@@ -151,7 +150,60 @@ AppBar meshMainAppBar(
       trailing: PopupMenuButton<dynamic>(
         tooltip: menuTooltip,
         itemBuilder: menuItemBuilder,
-        child: const AppBarMenuIcon(),
+        // Menu chrome (2026-09-02 feedback) matches SortFilterMenu's dropdown
+        // exactly — [[dropdown-menu-row-schema]]: `under` + a small extra
+        // offset so it doesn't open ON the trigger (Flutter's `over` default)
+        // or sit flush against the app bar, and `menuPadding` synced to the
+        // rows' own horizontal gutter (Flutter's independent default here is
+        // `vertical: 8`, not 10 — the two must match by hand).
+        position: PopupMenuPosition.under,
+        offset: Offset(0, MeshTokens.of(context).spacingXxs),
+        menuPadding: const EdgeInsets.symmetric(vertical: 10),
+        // Circular MeshCircleIconButton treatment (2026-09-01) — matches
+        // Flasher's _FlasherMenuButton, supersedes the flat/circle split
+        // documented above on CircleQuickAccessMenuButton.
+        child: Transform.translate(
+          // This ⋮ lives in `title:`, not `actions:` (see the function doc
+          // above) — two stacked, easy-to-miss gaps push it in from the raw
+          // edge, measured on-device 2026-09-02 (a first attempt only
+          // accounted for the second one and was too small to be visible):
+          //  1. Flutter's own `NavigationToolbar._ToolbarLayout` always
+          //     computes the title's `maxWidth` as `size.width - leadingWidth
+          //     - trailingWidth - middleSpacing * 2` — `middleSpacing`
+          //     (= `titleSpacing`, 16 here) is subtracted TWICE regardless of
+          //     whether a real `trailing` (AppBar.actions) exists. Since our
+          //     ⋮ lives inside `title:` instead, AppBar's own
+          //     `trailing`/actions slot is empty (`trailingWidth == 0`), but
+          //     that second `middleSpacing` is still reserved and unusable —
+          //     a structural, always-on 16dp gap this widget cannot see or
+          //     control from inside `title:`.
+          //  2. The 48px box centers the 32px circle, an inherent
+          //     (48-32)/2 = 8dp gap on top of that.
+          // Net effect measured on-device: the circle's visible right edge
+          // sat 24dp from the raw edge with no adjustment — 8dp short of
+          // `spacingXs` (16, the edge inset the search field/contact
+          // cards/FABs on this screen all share). Closing that 8dp needs a
+          // *negative* right inset, which `Padding` refuses
+          // (`padding.isNonNegative` assertion) since it would ask the
+          // parent `Row` for more space than it has — `Transform.translate`
+          // shifts only paint/hit-test position, not layout constraints, so
+          // it can push into that reserved-but-empty 16dp toolbar gap
+          // safely (nothing else is ever painted there).
+          offset: const Offset(8, 0),
+          child: const SizedBox(
+            width: 48,
+            height: 48,
+            child: Center(
+              child: MeshCircleIconButton(
+                icon: Icons.more_vert,
+                onPressed: null,
+                decorative: true,
+                size: 32,
+                iconSize: 16,
+              ),
+            ),
+          ),
+        ),
       ),
     ),
     centerTitle: false,
@@ -159,7 +211,6 @@ AppBar meshMainAppBar(
     automaticallyImplyLeading: false,
     backgroundColor: backgroundColor,
     foregroundColor: foregroundColor,
-    bottom: const SyncProgressAppBarBottom(),
   );
 }
 
@@ -242,7 +293,7 @@ class _TransportIndicatorState extends State<TransportIndicator> {
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: tokens.spacingXxs,
-          vertical: tokens.spacingXs,
+          vertical: tokens.spacingSm,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

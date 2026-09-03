@@ -117,6 +117,39 @@ void main() {
       );
     });
 
+    test('AppBar bottom border tracks the overridden outlineVariant, not '
+        'the frozen base theme value (2026-09-01 fix)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(
+          colorOverrides: {'secondary': 0xFF00FFAA},
+          borderOverride: true,
+        ),
+      );
+      final shape = style.theme.appBarTheme.shape;
+      expect(shape, isA<Border>());
+      final border = shape! as Border;
+      expect(border.bottom.color, style.theme.colorScheme.outlineVariant);
+      expect(border.bottom.color, const Color(0xFF00FFAA));
+    });
+
+    test(
+      'AppBar bottom border is transparent/hidden when bordersVisible is false',
+      () {
+        final style = buildCustomStyle(
+          const CustomStyleOverrides(
+            colorOverrides: {'secondary': 0xFF00FFAA},
+            borderOverride: false,
+          ),
+        );
+        final shape = style.theme.appBarTheme.shape;
+        expect(shape, isA<Border>());
+        final border = shape! as Border;
+        // Border should be transparent/zero-width when bordersVisible is false
+        expect(border.bottom.color, Colors.transparent);
+        expect(border.bottom.width, 0);
+      },
+    );
+
     test('overriding primary reshapes MeshTokens.primaryBg and '
         'ColorScheme.primary alike (C3)', () {
       final style = buildCustomStyle(
@@ -140,7 +173,10 @@ void main() {
       expect(style.theme.colorScheme.surface, tokens.bg);
       expect(style.theme.colorScheme.surfaceContainerLow, tokens.bg1);
       expect(style.theme.colorScheme.surfaceContainerHighest, tokens.bg3);
-      expect(style.theme.scaffoldBackgroundColor, tokens.bg);
+      // scaffoldBackgroundColor is one step up the surfaceContainer ladder
+      // from appBarTheme's own tokens.bg (2026-09-02: list content vs. app
+      // bar/bottom bar contrast) — the two are deliberately different now.
+      expect(style.theme.scaffoldBackgroundColor, tokens.bg1);
       expect(style.theme.appBarTheme.backgroundColor, tokens.bg);
 
       final bgLightness = HSLColor.fromColor(tokens.bg).lightness;
@@ -160,7 +196,10 @@ void main() {
       expect(style.theme.colorScheme.surface, tokens.bg);
       expect(style.theme.colorScheme.surfaceContainerLow, tokens.bg1);
       expect(style.theme.colorScheme.surfaceContainerHighest, tokens.bg3);
-      expect(style.theme.scaffoldBackgroundColor, tokens.bg);
+      // scaffoldBackgroundColor is one step up the surfaceContainer ladder
+      // from appBarTheme's own tokens.bg (2026-09-02: list content vs. app
+      // bar/bottom bar contrast) — the two are deliberately different now.
+      expect(style.theme.scaffoldBackgroundColor, tokens.bg1);
       expect(style.theme.appBarTheme.backgroundColor, tokens.bg);
     });
 

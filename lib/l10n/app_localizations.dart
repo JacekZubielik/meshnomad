@@ -242,6 +242,12 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get common_retry;
 
+  /// No description provided for @common_resync.
+  ///
+  /// In en, this message translates to:
+  /// **'Resync'**
+  String get common_resync;
+
   /// No description provided for @common_hide.
   ///
   /// In en, this message translates to:
@@ -313,6 +319,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading...'**
   String get common_loading;
+
+  /// No description provided for @common_syncingContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing contacts'**
+  String get common_syncingContacts;
+
+  /// No description provided for @common_syncingChannels.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing channels'**
+  String get common_syncingChannels;
+
+  /// No description provided for @common_sendingQueuedMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending queued messages'**
+  String get common_sendingQueuedMessages;
 
   /// No description provided for @common_notAvailable.
   ///
@@ -2059,6 +2083,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No contacts or groups found'**
   String get contacts_noContactsFound;
+
+  /// No description provided for @contacts_syncStalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact sync stalled'**
+  String get contacts_syncStalled;
 
   /// No description provided for @contacts_deleteContact.
   ///
@@ -9967,6 +9997,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Floating shadow under cards'**
   String get styleEditor_cardShadow_subtitle;
+
+  /// No description provided for @styleEditor_innerShadow_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Inner shadow'**
+  String get styleEditor_innerShadow_label;
+
+  /// No description provided for @styleEditor_innerShadow_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recessed panel effect on dropdown menus'**
+  String get styleEditor_innerShadow_subtitle;
 
   /// No description provided for @appSettings_editCustomStyleTooltip.
   ///

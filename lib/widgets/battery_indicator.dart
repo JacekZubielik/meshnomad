@@ -71,7 +71,7 @@ class _BatteryIndicatorState extends State<BatteryIndicator> {
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: tokens.spacingXxs,
-          vertical: tokens.spacingXs,
+          vertical: tokens.spacingSm,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

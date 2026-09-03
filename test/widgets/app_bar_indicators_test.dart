@@ -103,6 +103,24 @@ Widget _wrap(Widget child, {required MeshCoreConnector connector}) {
   );
 }
 
+Widget _wrapAppBar({
+  required String title,
+  required MeshCoreConnector connector,
+}) {
+  return _wrap(
+    Builder(
+      builder: (context) => Scaffold(
+        appBar: meshMainAppBar(
+          context,
+          title: title,
+          menuItemBuilder: (context) => const [],
+        ),
+      ),
+    ),
+    connector: connector,
+  );
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -212,6 +230,33 @@ void main() {
     final icon = tester.widget<Icon>(find.byIcon(Icons.more_vert));
     expect(icon.size, 18);
   });
+
+  testWidgets(
+    'meshMainAppBar\'s trailing menu uses the circular icon treatment, '
+    'not the flat dots (2026-09-01 — matches Flasher\'s _FlasherMenuButton)',
+    (tester) async {
+      await tester.pumpWidget(
+        _wrapAppBar(title: 'Kontakty', connector: connector),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppBarMenuIcon), findsNothing);
+      // MeshCircleIconButton renders a 32x32 DecoratedBox shaped by
+      // RoundedRectangleBorder(borderRadius: t.pill) — a plain CircleBorder
+      // ignored the Custom Style "pill" slider entirely (2026-09-02 fix),
+      // so this now asserts on the pill-radius mechanism directly rather
+      // than a private implementation detail. At the default token value
+      // this still renders fully round (BorderRadius.circular clamps to
+      // half the box's own side).
+      final circleFinder = find.byWidgetPredicate(
+        (w) =>
+            w is DecoratedBox &&
+            w.decoration is ShapeDecoration &&
+            (w.decoration as ShapeDecoration).shape is RoundedRectangleBorder,
+      );
+      expect(circleFinder, findsWidgets);
+    },
+  );
 
   group('TransportIndicator', () {
     testWidgets('BLE shows bluetooth icon with the link RSSI', (tester) async {

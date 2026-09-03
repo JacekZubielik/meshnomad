@@ -81,6 +81,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get common_retry => 'Ponów';
 
   @override
+  String get common_resync => 'Synchronizuj ponownie';
+
+  @override
   String get common_hide => 'Ukryj';
 
   @override
@@ -115,6 +118,16 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get common_loading => 'Ładowanie...';
+
+  @override
+  String get common_syncingContacts => 'Synchronizowanie kontaktów';
+
+  @override
+  String get common_syncingChannels => 'Synchronizowanie kanałów';
+
+  @override
+  String get common_sendingQueuedMessages =>
+      'Wysyłanie oczekujących wiadomości';
 
   @override
   String get common_notAvailable => '—';
@@ -1124,6 +1137,9 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get contacts_noContactsFound =>
       'Brak znalezionych kontaktów ani grup.';
+
+  @override
+  String get contacts_syncStalled => 'Synchronizacja kontaktów zawieszona';
 
   @override
   String get contacts_deleteContact => 'Usuń Kontakt';
@@ -5815,6 +5831,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get styleEditor_cardShadow_subtitle => 'Unoszący cień pod kartami';
+
+  @override
+  String get styleEditor_innerShadow_label => 'Cień wewnętrzny';
+
+  @override
+  String get styleEditor_innerShadow_subtitle =>
+      'Efekt wgłębienia w menu rozwijanych';
 
   @override
   String get appSettings_editCustomStyleTooltip => 'Edytuj styl Custom';

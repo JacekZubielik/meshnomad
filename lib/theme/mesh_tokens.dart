@@ -95,6 +95,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.bodySize,
     required this.titleSize,
     required this.cardElevated,
+    required this.innerShadowEnabled,
     required this.cardShadow,
     required this.bordersVisible,
     required this.buttonRadius,
@@ -240,6 +241,17 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   /// Whether MeshCard draws its floating shadow by default (issue #23).
   final bool cardElevated;
 
+  /// Whether the "recessed panel" inner shadow (top/left inner edges,
+  /// `InnerShadowRoundedRectangleBorder` — dropdown menus' `popupMenuTheme`)
+  /// paints. Independent of [cardElevated]: that switch now also gates
+  /// dropdown menus' NEW outer bottom+right shadow (`_paintOuterShadow`,
+  /// matching `MeshCard`), added 2026-09-02 the same day this field was —
+  /// a user who likes the outer "same as cards" shadow but not the inner
+  /// "recessed" cue (or vice versa) can turn either off independently. App
+  /// Settings > Appearance exposes this directly under the "Card shadow"
+  /// toggle.
+  final bool innerShadowEnabled;
+
   /// Base shadow color for MeshCard's elevated `boxShadow` layers — call
   /// sites derive their own alpha per layer (see MeshCard).
   final Color cardShadow;
@@ -261,12 +273,17 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   /// style-wide shadow switch ([cardElevated], the Custom Style "Card
   /// shadow" toggle): null when shadows are off. Calibrated for ~16dp-tall
   /// chips (the map markers' blur 8 would read as smear at this size).
+  ///
+  /// Bottom+right only (2026-09-02, matching [MeshCard]'s own shadow —
+  /// `mesh_ui.dart` — same reasoning: offset.dx/dy == blurRadius keeps the
+  /// same bottom-edge reach as the original `offset(0,1), blur 3` value
+  /// while eliminating the top/left bleed a zero horizontal offset caused).
   List<BoxShadow>? get labelShadow => cardElevated
       ? [
           BoxShadow(
             color: cardShadow.withValues(alpha: 0.22),
-            blurRadius: 3,
-            offset: const Offset(0, 1),
+            blurRadius: 2,
+            offset: const Offset(2, 2),
           ),
         ]
       : null;
@@ -274,12 +291,14 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   /// Shared drop shadow for larger standalone marks (About screen's app
   /// lockup icon+wordmark). Same [cardElevated] switch as [labelShadow],
   /// scaled up for a ~64dp element instead of a 16dp chip.
+  ///
+  /// Bottom+right only (2026-09-02) — same reasoning as [labelShadow].
   List<BoxShadow>? get logoShadow => cardElevated
       ? [
           BoxShadow(
             color: cardShadow.withValues(alpha: 0.22),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            blurRadius: 4,
+            offset: const Offset(4, 4),
           ),
         ]
       : null;
@@ -384,6 +403,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     bodySize: 14,
     titleSize: 16,
     cardElevated: true,
+    innerShadowEnabled: true,
     cardShadow: Color(0xFF000000),
     bordersVisible: false,
     buttonRadius: MeshRadii.pill,
@@ -486,6 +506,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     bodySize: 14,
     titleSize: 16,
     cardElevated: true,
+    innerShadowEnabled: true,
     cardShadow: Color(0xFF000000),
     bordersVisible: false,
     buttonRadius: MeshRadii.pill,
@@ -683,6 +704,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     double? bodySize,
     double? titleSize,
     bool? cardElevated,
+    bool? innerShadowEnabled,
     Color? cardShadow,
     bool? bordersVisible,
     double? buttonRadius,
@@ -777,6 +799,7 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       bodySize: bodySize ?? this.bodySize,
       titleSize: titleSize ?? this.titleSize,
       cardElevated: cardElevated ?? this.cardElevated,
+      innerShadowEnabled: innerShadowEnabled ?? this.innerShadowEnabled,
       cardShadow: cardShadow ?? this.cardShadow,
       bordersVisible: bordersVisible ?? this.bordersVisible,
       buttonRadius: buttonRadius ?? this.buttonRadius,

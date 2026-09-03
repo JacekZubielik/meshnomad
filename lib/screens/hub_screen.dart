@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
+import '../theme/mesh_tokens.dart';
+import '../widgets/mesh_ui.dart';
 import 'flasher_screen.dart';
 import 'scanner_screen.dart';
 import 'usb_screen.dart';
@@ -70,12 +72,25 @@ class _HubTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Icon(icon, size: 32),
-        title: Text(title, style: Theme.of(context).textTheme.titleMedium),
-        subtitle: Text(subtitle),
-        onTap: onTap,
+    final t = MeshTokens.of(context);
+    return MeshCard(
+      margin: EdgeInsets.zero,
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(icon, size: 32, color: t.primary),
+          SizedBox(width: t.spacingSm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title, style: Theme.of(context).textTheme.titleMedium),
+                Text(subtitle),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

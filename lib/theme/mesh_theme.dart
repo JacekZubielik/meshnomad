@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'dashed_rounded_border.dart';
+import 'mesh_tokens.dart';
+
 /// MeshCore palette — high-contrast slate surfaces with sky-primary accents.
 class MeshPalette {
   MeshPalette._();
@@ -344,7 +347,10 @@ class MeshTheme {
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
-      scaffoldBackgroundColor: scheme.surface,
+      // One step up the surfaceContainer ladder than the app bar's own
+      // `scheme.surface`, for contrast against the app bar/bottom bar
+      // (2026-09-02 feedback; mirrored in custom_style.dart).
+      scaffoldBackgroundColor: scheme.surfaceContainerLow,
       canvasColor: scheme.surface,
       fontFamily: MeshFonts.sans,
       fontFamilyFallback: MeshFonts.sansFallback,
@@ -576,8 +582,29 @@ class MeshTheme {
       popupMenuTheme: PopupMenuThemeData(
         color: scheme.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(MeshRadii.md),
+        // Material's own built-in elevation shadow is a symmetric,
+        // non-alpha-tunable rendering model that can't match MeshCard's
+        // bottom+right BoxShadow recipe — replaced entirely (2026-09-02) by
+        // InnerShadowRoundedRectangleBorder's own outer-shadow painting
+        // below, so the engine's shadow must be off or the two would
+        // double up.
+        elevation: 0,
+        // Inner shadow (2026-09-02 feedback) on both the search/filter
+        // dropdown and meshMainAppBar's ⋮ menu — same shared theme entry,
+        // one place styles both. Default style has no Custom Style editor
+        // to toggle shadows from, so it always shows one, mirroring
+        // MeshTokens.defaultTokens.cardElevated (true). Also now paints the
+        // outer bottom+right shadow matching MeshCard, see its own doc
+        // comment.
+        shape: InnerShadowRoundedRectangleBorder(
+          // The editor's "Reduced (sm)" radius slider is labeled "Menus,
+          // list panels" (`styleEditor_radiusSm_subtitle`) — was MeshRadii.md
+          // (2026-09-02 fix: promised by the editor's own copy but never
+          // actually wired to it).
+          borderRadius: BorderRadius.circular(MeshRadii.sm),
+          shadowColor: MeshTokens.defaultTokens.cardShadow,
+          showShadow: MeshTokens.defaultTokens.cardElevated,
+          showInnerShadow: MeshTokens.defaultTokens.innerShadowEnabled,
         ),
       ),
       iconTheme: IconThemeData(color: scheme.onSurfaceVariant, size: 22),

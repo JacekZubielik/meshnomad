@@ -37,6 +37,7 @@ class AppSettingsService extends ChangeNotifier {
       spacingOverrides: {...seed.spacingOverrides, ...saved.spacingOverrides},
       radiusOverrides: {...seed.radiusOverrides, ...saved.radiusOverrides},
       cardElevated: saved.cardElevated ?? seed.cardElevated,
+      innerShadowEnabled: saved.innerShadowEnabled ?? seed.innerShadowEnabled,
       // buttonBorder/borderOverride were missing from this merge entirely
       // (root cause, 2026-08-23): both fields always resolved to null here
       // regardless of what the user saved, so the Buttons-section line-style
@@ -353,6 +354,18 @@ class AppSettingsService extends ChangeNotifier {
   Future<void> resetCustomCardElevated() async {
     await _updateActiveProfile(
       activeProfileSavedOverrides.withCardElevated(null),
+    );
+  }
+
+  Future<void> setCustomInnerShadowEnabled(bool value) async {
+    await _updateActiveProfile(
+      activeProfileSavedOverrides.withInnerShadowEnabled(value),
+    );
+  }
+
+  Future<void> resetCustomInnerShadowEnabled() async {
+    await _updateActiveProfile(
+      activeProfileSavedOverrides.withInnerShadowEnabled(null),
     );
   }
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meshnomad/helpers/path_helper.dart';
+import 'package:meshnomad/screens/about_screen.dart';
 import 'package:meshnomad/screens/path_trace_map.dart';
 import 'package:meshnomad/widgets/app_bar.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +28,9 @@ import '../utils/battery_utils.dart';
 import '../utils/route_transitions.dart';
 import '../widgets/quick_switch_bar.dart';
 import '../widgets/dotted_separator.dart';
+import '../widgets/mesh_screen_scaffold.dart';
+import '../widgets/winda_message.dart';
+import '../widgets/winda_overlay.dart';
 import '../icons/los_icon.dart';
 import 'channels_screen.dart';
 import 'chat_screen.dart';
@@ -35,7 +40,6 @@ import '../widgets/mesh_ui.dart';
 import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/repeater_login_dialog.dart';
 import '../widgets/room_login_dialog.dart';
-import '../helpers/snack_bar_builder.dart';
 import 'repeater_hub_screen.dart';
 import 'settings_screen.dart';
 import 'line_of_sight_map_screen.dart';
@@ -99,6 +103,57 @@ class _MapScreenState extends State<MapScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocus = FocusNode();
   String _searchQuery = '';
+
+  // Winda plumbing (2026-09-03), mirroring Contacts/Channels exactly.
+  final List<WindaMessage> _toastMessages = [];
+
+  void _pushToast(WindaMessage message) {
+    if (!mounted) return;
+    setState(() => _toastMessages.add(message));
+    Timer(message.duration, () {
+      if (!mounted) return;
+      setState(() => _toastMessages.remove(message));
+    });
+  }
+
+  final GlobalKey _searchFieldKey = GlobalKey();
+  final GlobalKey _progressWindaKey = GlobalKey();
+  double _extraTopOffset = 0;
+
+  void _measureExtraTopOffset() {
+    double heightOf(GlobalKey key) {
+      final renderObject = key.currentContext?.findRenderObject();
+      return (renderObject is RenderBox && renderObject.hasSize)
+          ? renderObject.size.height
+          : 0;
+    }
+
+    final measured = heightOf(_searchFieldKey) + heightOf(_progressWindaKey);
+    if ((measured - _extraTopOffset).abs() > 0.5) {
+      setState(() => _extraTopOffset = measured);
+    }
+  }
+
+  // Self (device) advert export to clipboard — the ⋮ menu's "Copy advert to
+  // clipboard" item, same device-level action as Contacts/Channels (an
+  // empty pubKey tells the device to export its OWN contact).
+  Future<void> _selfAdvertExport(BuildContext context) async {
+    final connector = Provider.of<MeshCoreConnector>(context, listen: false);
+    final exportSelfFrame = buildExportContactFrame(Uint8List.fromList([]));
+    try {
+      await connector.sendFrame(exportSelfFrame, expectsGenericAck: true);
+    } catch (e) {
+      if (context.mounted) {
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_contactAdvertCopyFailed,
+            tone: WindaMessageTone.error,
+          ),
+        );
+      }
+    }
+  }
+
   List<_GuessedLocation> _cachedGuessedLocations = [];
   String _guessedLocationsCacheKey = '';
   int? _sharedMarkersCacheSignature;
@@ -380,6 +435,9 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _measureExtraTopOffset();
+    });
     // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
     // above the Navigator) so "select all" can't sweep in text from other,
     // offstage routes still mounted via maintainState:true.
@@ -394,7 +452,6 @@ class _MapScreenState extends State<MapScreen> {
               _MapConnectorSnapshot.fromConnector,
             );
         final connector = connectorSnapshot.connector;
-        final t = MeshTokens.of(context);
         final settings = context.select<AppSettingsService, AppSettings>(
           (service) => service.settings,
         );
@@ -665,7 +722,9 @@ class _MapScreenState extends State<MapScreen> {
 
         return PopScope(
           canPop: allowBack,
-          child: Scaffold(
+          child: MeshScreenScaffold(
+            extraTopOffset: _extraTopOffset,
+            messages: _toastMessages,
             appBar: meshMainAppBar(
               context,
               title: context.l10n.map_title,
@@ -675,27 +734,20 @@ class _MapScreenState extends State<MapScreen> {
                 if (!_isBuildingPathTrace &&
                     connector.selfLatitude != null &&
                     connector.selfLongitude != null)
-                  PopupMenuItem(
-                    child: Row(
-                      children: [
-                        const Icon(Icons.radar),
-                        SizedBox(width: t.spacingXs),
-                        Text(context.l10n.contacts_pathTrace),
-                      ],
-                    ),
+                  meshMenuActionItem(
+                    icon: Icons.radar,
+                    label: context.l10n.contacts_pathTrace,
                     onTap: () => _startPath(
                       LatLng(connector.selfLatitude!, connector.selfLongitude!),
                     ),
                   ),
                 if (!_isBuildingPathTrace)
-                  PopupMenuItem(
-                    child: Row(
-                      children: [
-                        const LosIcon(),
-                        SizedBox(width: t.spacingXs),
-                        Text(context.l10n.map_lineOfSight),
-                      ],
+                  meshMenuActionItem(
+                    leadingWidget: LosIcon(
+                      size: 18,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
+                    label: context.l10n.map_lineOfSight,
                     onTap: () {
                       final candidates = <LineOfSightEndpoint>[];
                       if (connector.selfLatitude != null &&
@@ -733,27 +785,47 @@ class _MapScreenState extends State<MapScreen> {
                       );
                     },
                   ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.logout,
-                        color: Theme.of(context).colorScheme.error,
+                meshMenuDivider(context),
+                // Self-advert group — same device-level actions/labels as
+                // Contacts' and Channels' identical group (2026-09-03).
+                meshMenuActionItem(
+                  icon: Icons.connect_without_contact,
+                  label: context.l10n.contacts_zeroHopAdvert,
+                  onTap: () => {
+                    connector.sendSelfAdvert(flood: false),
+                    _pushToast(
+                      WindaMessage(
+                        text: context.l10n.settings_advertisementSent,
+                        tone: WindaMessageTone.success,
                       ),
-                      SizedBox(width: t.spacingXs),
-                      Text(context.l10n.common_disconnect),
-                    ],
-                  ),
-                  onTap: () => _disconnect(context, connector),
+                    ),
+                  },
                 ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.settings),
-                      SizedBox(width: t.spacingXs),
-                      Text(context.l10n.settings_title),
-                    ],
-                  ),
+                meshMenuActionItem(
+                  icon: Icons.cell_tower,
+                  label: context.l10n.contacts_floodAdvert,
+                  onTap: () => {
+                    connector.sendSelfAdvert(flood: true),
+                    _pushToast(
+                      WindaMessage(
+                        text: context.l10n.settings_advertisementSent,
+                        tone: WindaMessageTone.success,
+                      ),
+                    ),
+                  },
+                ),
+                meshMenuActionItem(
+                  icon: Icons.copy,
+                  label: context.l10n.contacts_copyAdvertToClipboard,
+                  onTap: () => _selfAdvertExport(context),
+                ),
+                meshMenuDivider(context),
+                // Settings block — matches Contacts' identical trailing
+                // block exactly (contacts_screen.dart), so this menu reads
+                // as the same two-group shape on every main-card screen.
+                meshMenuActionItem(
+                  icon: Icons.settings,
+                  label: context.l10n.settings_title,
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -761,238 +833,333 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-                PopupMenuItem(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.palette_outlined),
-                      SizedBox(width: t.spacingXs),
-                      Text(context.l10n.appSettings_quickStyleMenuItem),
-                    ],
-                  ),
+                meshMenuActionItem(
+                  icon: Icons.palette_outlined,
+                  label: context.l10n.appSettings_quickStyleMenuItem,
                   onTap: () => showQuickStylePickerDialog(context),
+                ),
+                meshMenuActionItem(
+                  icon: Icons.logout,
+                  iconColor: Theme.of(context).colorScheme.error,
+                  label: context.l10n.common_disconnect,
+                  onTap: () => _disconnect(context, connector),
+                ),
+                meshMenuActionItem(
+                  icon: Icons.info_outline,
+                  label: context.l10n.settings_about,
+                  onTap: () => pushAboutScreen(context),
                 ),
               ],
             ),
-            body: Stack(
+            // Flush search bar (2026-09-03, full structural parity with
+            // Contacts/Channels) lives outside the map's own Stack now — the
+            // map permanently loses this vertical space instead of the bar
+            // floating over it. NotificationListener mirrors Contacts:
+            // the progress winda's own AnimatedSize can change height purely
+            // internally, without ever calling setState on this screen.
+            body: Column(
               children: [
-                FlutterMap(
-                  mapController: _mapController,
-                  options: MapOptions(
-                    initialCenter: center,
-                    initialZoom: initialZoom,
-                    minZoom: _mapMinZoom,
-                    maxZoom: _mapMaxZoom,
-                    interactionOptions: InteractionOptions(
-                      flags: ~InteractiveFlag.rotate,
-                      scrollWheelVelocity: isDesktop ? 0.012 : 0.005,
-                      cursorKeyboardRotationOptions:
-                          CursorKeyboardRotationOptions.disabled(),
-                      keyboardOptions: isDesktop
-                          ? const KeyboardOptions(
-                              enableArrowKeysPanning: true,
-                              enableWASDPanning: true,
-                              enableRFZooming: true,
-                            )
-                          : const KeyboardOptions.disabled(),
-                    ),
-                    onTap: (_, latLng) {
-                      if (_isSelectingPoi) {
-                        setState(() {
-                          _isSelectingPoi = false;
-                        });
-                        _shareMarker(
-                          context: context,
-                          connector: connector,
-                          position: latLng,
-                          defaultLabel: context.l10n.map_pointOfInterest,
-                          flags: 'poi',
-                        );
-                        return;
-                      }
-                      // Tapping empty map dismisses selection + search.
-                      if (_selectedKey != null || _searchQuery.isNotEmpty) {
-                        setState(() {
-                          _selectedKey = null;
-                          _selectedGuessPos = null;
-                          _searchQuery = '';
-                          _searchController.clear();
-                          _searchFocus.unfocus();
-                        });
-                      }
+                _buildSearchBar(context, visibleCount: visibleContacts.length),
+                Expanded(
+                  child: NotificationListener<SizeChangedLayoutNotification>(
+                    onNotification: (notification) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) _measureExtraTopOffset();
+                      });
+                      return true;
                     },
-                    onLongPress: (_, latLng) {
-                      _handleMapContextPress(context, connector, latLng);
-                    },
-                    onSecondaryTap: (_, latLng) {
-                      _handleMapContextPress(context, connector, latLng);
-                    },
-                    onPositionChanged: (camera, hasGesture) {
-                      // Track zoom in half-step buckets so cluster/marker
-                      // detail levels update without rebuilding every frame.
-                      final bucket = (camera.zoom * 2).roundToDouble() / 2;
-                      final shouldShow = camera.zoom >= _labelZoomThreshold;
-                      if ((bucket != _zoom || shouldShow != _showNodeLabels) &&
-                          mounted) {
-                        setState(() {
-                          _zoom = bucket;
-                          _showNodeLabels = shouldShow;
-                        });
-                      }
-                    },
-                  ),
-                  children: [
-                    tileCache.buildTileLayer(context),
-                    if (_polylines.isNotEmpty && _isBuildingPathTrace)
-                      PolylineLayer(polylines: _polylines),
-                    if (sharedMarkerPolylines.isNotEmpty)
-                      PolylineLayer(polylines: sharedMarkerPolylines),
-                    MarkerLayer(
-                      markers: [
-                        if (highlightPosition != null)
-                          Marker(
-                            point: highlightPosition,
-                            width: 44,
-                            height: 44,
-                            child: IgnorePointer(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: MeshTokens.of(context).mapBatteryLow,
-                                  border: Border.all(
-                                    color: MeshTokens.of(
-                                      context,
-                                    ).mapMarkerOutline,
-                                    width: 3,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: MeshTokens.of(
-                                        context,
-                                      ).mapMarkerShadow,
-                                      blurRadius: 8,
-                                      offset: Offset(0, 3),
+                    child: Stack(
+                      children: [
+                        FlutterMap(
+                          mapController: _mapController,
+                          options: MapOptions(
+                            initialCenter: center,
+                            initialZoom: initialZoom,
+                            minZoom: _mapMinZoom,
+                            maxZoom: _mapMaxZoom,
+                            interactionOptions: InteractionOptions(
+                              flags: ~InteractiveFlag.rotate,
+                              scrollWheelVelocity: isDesktop ? 0.012 : 0.005,
+                              cursorKeyboardRotationOptions:
+                                  CursorKeyboardRotationOptions.disabled(),
+                              keyboardOptions: isDesktop
+                                  ? const KeyboardOptions(
+                                      enableArrowKeysPanning: true,
+                                      enableWASDPanning: true,
+                                      enableRFZooming: true,
+                                    )
+                                  : const KeyboardOptions.disabled(),
+                            ),
+                            onTap: (_, latLng) {
+                              if (_isSelectingPoi) {
+                                setState(() {
+                                  _isSelectingPoi = false;
+                                });
+                                _shareMarker(
+                                  context: context,
+                                  connector: connector,
+                                  position: latLng,
+                                  defaultLabel:
+                                      context.l10n.map_pointOfInterest,
+                                  flags: 'poi',
+                                );
+                                return;
+                              }
+                              // Tapping empty map dismisses selection + search.
+                              if (_selectedKey != null ||
+                                  _searchQuery.isNotEmpty) {
+                                setState(() {
+                                  _selectedKey = null;
+                                  _selectedGuessPos = null;
+                                  _searchQuery = '';
+                                  _searchController.clear();
+                                  _searchFocus.unfocus();
+                                });
+                              }
+                            },
+                            onLongPress: (_, latLng) {
+                              _handleMapContextPress(
+                                context,
+                                connector,
+                                latLng,
+                              );
+                            },
+                            onSecondaryTap: (_, latLng) {
+                              _handleMapContextPress(
+                                context,
+                                connector,
+                                latLng,
+                              );
+                            },
+                            onPositionChanged: (camera, hasGesture) {
+                              // Track zoom in half-step buckets so cluster/marker
+                              // detail levels update without rebuilding every frame.
+                              final bucket =
+                                  (camera.zoom * 2).roundToDouble() / 2;
+                              final shouldShow =
+                                  camera.zoom >= _labelZoomThreshold;
+                              if ((bucket != _zoom ||
+                                      shouldShow != _showNodeLabels) &&
+                                  mounted) {
+                                setState(() {
+                                  _zoom = bucket;
+                                  _showNodeLabels = shouldShow;
+                                });
+                              }
+                            },
+                          ),
+                          children: [
+                            tileCache.buildTileLayer(context),
+                            if (_polylines.isNotEmpty && _isBuildingPathTrace)
+                              PolylineLayer(polylines: _polylines),
+                            if (sharedMarkerPolylines.isNotEmpty)
+                              PolylineLayer(polylines: sharedMarkerPolylines),
+                            MarkerLayer(
+                              markers: [
+                                if (highlightPosition != null)
+                                  Marker(
+                                    point: highlightPosition,
+                                    width: 44,
+                                    height: 44,
+                                    child: IgnorePointer(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: MeshTokens.of(
+                                            context,
+                                          ).mapBatteryLow,
+                                          border: Border.all(
+                                            color: MeshTokens.of(
+                                              context,
+                                            ).mapMarkerOutline,
+                                            width: 3,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: MeshTokens.of(
+                                                context,
+                                              ).mapMarkerShadow,
+                                              blurRadius: 8,
+                                              offset: Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          Icons.location_on,
+                                          color: MeshTokens.of(
+                                            context,
+                                          ).mapMarkerInk,
+                                          size: 25,
+                                        ),
+                                      ),
                                     ),
-                                  ],
+                                  ),
+                                if (!settings.mapShowOverlaps &&
+                                    (_zoom >= _guessedZoomThreshold ||
+                                        _isBuildingPathTrace))
+                                  ..._buildGuessedMarker(
+                                    guessedLocations,
+                                    showLabels: _showNodeLabels,
+                                  ),
+                                ..._buildNodeMarkersCached(
+                                  visibleContacts,
+                                  settings,
+                                  connectorSnapshot.contactsSignature,
+                                  connectorSnapshot.batterySignature,
+                                  _freshness,
+                                  settings.mapTimeFilterHours,
+                                  settings.mapKeyPrefixEnabled,
+                                  settings.mapKeyPrefix,
+                                  settings.mapShowDiscoveryContacts,
+                                  Object.hashAllUnordered(
+                                    settings
+                                        .batteryChemistryByRepeaterId
+                                        .entries
+                                        .map(
+                                          (entry) => Object.hash(
+                                            entry.key,
+                                            entry.value,
+                                          ),
+                                        ),
+                                  ),
+                                  showLabels: _showNodeLabels,
+                                  selectedContact: selectedContact,
                                 ),
-                                child: Icon(
-                                  Icons.location_on,
-                                  color: MeshTokens.of(context).mapMarkerInk,
-                                  size: 25,
-                                ),
-                              ),
+                                ...sharedMarkers.map(_buildSharedMarker),
+                                if (connector.selfLatitude != null &&
+                                    connector.selfLongitude != null)
+                                  Marker(
+                                    point: LatLng(
+                                      connector.selfLatitude!,
+                                      connector.selfLongitude!,
+                                    ),
+                                    width: 40,
+                                    height: 40,
+                                    child: IgnorePointer(
+                                      ignoring: true,
+                                      child: Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: MeshTokens.of(
+                                            context,
+                                          ).mapPanelDark,
+                                          border: Border.all(
+                                            color: MeshTokens.of(
+                                              context,
+                                            ).mapMarkerOutline,
+                                            width: 2.5,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: MeshTokens.of(
+                                                context,
+                                              ).mapMarkerShadow,
+                                              blurRadius: 8,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Icon(
+                                          Icons.person_pin_circle,
+                                          color: MeshTokens.of(
+                                            context,
+                                          ).mapSelected,
+                                          size: 22,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                if (_showNodeLabels &&
+                                    connector.selfLatitude != null &&
+                                    connector.selfLongitude != null)
+                                  _buildNodeLabelMarker(
+                                    point: LatLng(
+                                      connector.selfLatitude!,
+                                      connector.selfLongitude!,
+                                    ),
+                                    label: context.l10n.pathTrace_you,
+                                    labelOffset: labelCollisionOffsets[0],
+                                  ),
+                              ],
                             ),
-                          ),
-                        if (!settings.mapShowOverlaps &&
-                            (_zoom >= _guessedZoomThreshold ||
-                                _isBuildingPathTrace))
-                          ..._buildGuessedMarker(
-                            guessedLocations,
-                            showLabels: _showNodeLabels,
-                          ),
-                        ..._buildNodeMarkersCached(
-                          visibleContacts,
-                          settings,
-                          connectorSnapshot.contactsSignature,
-                          connectorSnapshot.batterySignature,
-                          _freshness,
-                          settings.mapTimeFilterHours,
-                          settings.mapKeyPrefixEnabled,
-                          settings.mapKeyPrefix,
-                          settings.mapShowDiscoveryContacts,
-                          Object.hashAllUnordered(
-                            settings.batteryChemistryByRepeaterId.entries.map(
-                              (entry) => Object.hash(entry.key, entry.value),
-                            ),
-                          ),
-                          showLabels: _showNodeLabels,
-                          selectedContact: selectedContact,
+                          ],
                         ),
-                        ...sharedMarkers.map(_buildSharedMarker),
-                        if (connector.selfLatitude != null &&
-                            connector.selfLongitude != null)
-                          Marker(
-                            point: LatLng(
-                              connector.selfLatitude!,
-                              connector.selfLongitude!,
-                            ),
-                            width: 40,
-                            height: 40,
-                            child: IgnorePointer(
-                              ignoring: true,
-                              child: Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: MeshTokens.of(context).mapPanelDark,
-                                  border: Border.all(
-                                    color: MeshTokens.of(
-                                      context,
-                                    ).mapMarkerOutline,
-                                    width: 2.5,
+                        if (selectedContact == null)
+                          _buildControlRail(
+                            context,
+                            center: center,
+                            zoom: initialZoom,
+                            connector: connector,
+                          ),
+                        // Progress winda ("loader") right below the search bar —
+                        // same mechanism and shadow-overlap positioning as
+                        // Contacts/Channels, driven by the same
+                        // WindaProgress.fromConnector priority chain.
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: KeyedSubtree(
+                            key: _progressWindaKey,
+                            child: SizeChangedLayoutNotifier(
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Positioned(
+                                    top: -windaShadowOverlap,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    child: ColoredBox(color: scheme.surface),
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: MeshTokens.of(
-                                        context,
-                                      ).mapMarkerShadow,
-                                      blurRadius: 8,
-                                      offset: Offset(0, 2),
+                                  MeshCard(
+                                    margin: EdgeInsets.zero,
+                                    padding: EdgeInsets.zero,
+                                    radius: 0,
+                                    color: scheme.surface,
+                                    child: WindaOverlay(
+                                      child: WindaProgress.fromConnector(
+                                        connector,
+                                        context.l10n,
+                                      ),
                                     ),
-                                  ],
-                                ),
-                                alignment: Alignment.center,
-                                child: Icon(
-                                  Icons.person_pin_circle,
-                                  color: MeshTokens.of(context).mapSelected,
-                                  size: 22,
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        if (_showNodeLabels &&
-                            connector.selfLatitude != null &&
-                            connector.selfLongitude != null)
-                          _buildNodeLabelMarker(
-                            point: LatLng(
-                              connector.selfLatitude!,
-                              connector.selfLongitude!,
-                            ),
-                            label: context.l10n.pathTrace_you,
-                            labelOffset: labelCollisionOffsets[0],
+                        ),
+                        if (!_isBuildingPathTrace)
+                          ?_buildSearchDropdownOverlay(
+                            context,
+                            settingsService: settingsService,
+                            allContacts: allContacts,
+                            guessedLocations: guessedLocations,
+                            visibleCount:
+                                visibleContacts.length +
+                                ((settings.mapShowGuessedLocations &&
+                                        _zoom >= _guessedZoomThreshold)
+                                    ? guessedLocations.length
+                                    : 0),
+                            onlineCount: onlineCount,
+                            repeaterCount: repeaterCount,
+                            hiddenCount: hiddenCount,
+                            pinCount: sharedMarkers.length,
+                          ),
+                        if (_isBuildingPathTrace) _buildPathTraceOverlay(),
+                        if (selectedContact != null && !_isBuildingPathTrace)
+                          _buildSelectedNodeCard(
+                            context,
+                            selectedContact,
+                            connector,
                           ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-                if (selectedContact == null)
-                  _buildControlRail(
-                    context,
-                    center: center,
-                    zoom: initialZoom,
-                    connector: connector,
-                  ),
-                if (!_isBuildingPathTrace)
-                  _buildTopOverlay(
-                    context,
-                    connector: connector,
-                    settingsService: settingsService,
-                    allContacts: allContacts,
-                    guessedLocations: guessedLocations,
-                    visibleCount:
-                        visibleContacts.length +
-                        ((settings.mapShowGuessedLocations &&
-                                _zoom >= _guessedZoomThreshold)
-                            ? guessedLocations.length
-                            : 0),
-                    onlineCount: onlineCount,
-                    repeaterCount: repeaterCount,
-                    hiddenCount: hiddenCount,
-                    pinCount: sharedMarkers.length,
-                  ),
-                if (_isBuildingPathTrace) _buildPathTraceOverlay(),
-                if (selectedContact != null && !_isBuildingPathTrace)
-                  _buildSelectedNodeCard(context, selectedContact, connector),
               ],
             ),
             bottomNavigationBar: SafeArea(
@@ -1999,37 +2166,34 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  Widget _buildTopOverlay(
-    BuildContext context, {
-    required MeshCoreConnector connector,
-    required AppSettingsService settingsService,
-    required List<Contact> allContacts,
-    required List<_GuessedLocation> guessedLocations,
-    required int visibleCount,
-    required int onlineCount,
-    required int repeaterCount,
-    required int hiddenCount,
-    required int pinCount,
-  }) {
-    final settings = settingsService.settings;
+  // Flush, edge-to-edge search bar — matches Contacts/Channels exactly
+  // (contacts_screen.dart: MeshCard radius:0/margin:zero, color:
+  // scheme.surface, Padding(horizontal: spacingXs, vertical: spacingSm))
+  // instead of the previous floating Positioned pill over the map
+  // (2026-09-03 feedback: full structural parity, not just colors — the map
+  // now permanently loses this vertical space instead of the bar floating
+  // over it). Keyed so _measureExtraTopOffset can read its height, same
+  // mechanism as Contacts/Channels.
+  Widget _buildSearchBar(BuildContext context, {required int visibleCount}) {
     final hasQuery = _searchQuery.trim().isNotEmpty;
     final t = MeshTokens.of(context);
-    return Positioned(
-      // Matches the Contacts/Channels search bar's inset exactly
-      // (Padding(EdgeInsets.all(t.spacingXs)) — contacts_screen.dart:806)
-      // instead of the previous hardcoded 8/12 that put this overlay a few
-      // px off from the same field on those screens (2026-08-30 feedback).
-      top: t.spacingXs,
-      left: t.spacingXs,
-      right: t.spacingXs,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+    return KeyedSubtree(
+      key: _searchFieldKey,
+      child: MeshCard(
+        margin: EdgeInsets.zero,
+        padding: EdgeInsets.zero,
+        radius: 0,
+        color: Theme.of(context).colorScheme.surface,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: t.spacingXs,
+            vertical: t.spacingSm,
+          ),
           // IntrinsicHeight + stretch (2026-08-30 feedback: the hub-count
           // pill's height didn't match the search field's) forces both
           // children to the taller one's intrinsic height instead of each
           // sizing independently off their own padding.
-          IntrinsicHeight(
+          child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -2127,25 +2291,54 @@ class _MapScreenState extends State<MapScreen> {
               ],
             ),
           ),
-          if (hasQuery)
-            _buildSearchResults(context, allContacts, guessedLocations)
-          else if (_statsExpanded)
-            Align(
-              alignment: Alignment.centerRight,
-              child: _buildStatsCard(
-                context,
-                settings: settings,
-                visibleCount: visibleCount,
-                onlineCount: onlineCount,
-                repeaterCount: repeaterCount,
-                hiddenCount: hiddenCount,
-                pinCount: pinCount,
-                guessedCount: guessedLocations.length,
-              ),
-            ),
-        ],
+        ),
       ),
     );
+  }
+
+  // Search results dropdown / stats card — previously part of the same
+  // floating Column as the search bar (grew downward, hovering over the
+  // map); now the search bar lives OUTSIDE the map's Stack (flush, pushes
+  // it down), so this is positioned at top:0 of that Stack instead — the
+  // Stack's own top edge is exactly where the search bar ends, giving the
+  // same "hangs right below the search bar, floating over the map" result.
+  Widget? _buildSearchDropdownOverlay(
+    BuildContext context, {
+    required AppSettingsService settingsService,
+    required List<Contact> allContacts,
+    required List<_GuessedLocation> guessedLocations,
+    required int visibleCount,
+    required int onlineCount,
+    required int repeaterCount,
+    required int hiddenCount,
+    required int pinCount,
+  }) {
+    final hasQuery = _searchQuery.trim().isNotEmpty;
+    if (hasQuery) {
+      return Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        child: _buildSearchResults(context, allContacts, guessedLocations),
+      );
+    }
+    if (_statsExpanded) {
+      return Positioned(
+        top: 0,
+        right: 0,
+        child: _buildStatsCard(
+          context,
+          settings: settingsService.settings,
+          visibleCount: visibleCount,
+          onlineCount: onlineCount,
+          repeaterCount: repeaterCount,
+          hiddenCount: hiddenCount,
+          pinCount: pinCount,
+          guessedCount: guessedLocations.length,
+        ),
+      );
+    }
+    return null;
   }
 
   Widget _buildSearchResults(
@@ -3215,9 +3408,11 @@ class _MapScreenState extends State<MapScreen> {
     required String flags,
   }) async {
     if (!connector.isConnected) {
-      showDismissibleSnackBar(
-        context,
-        content: Text(context.l10n.map_connectToShareMarkers),
+      _pushToast(
+        WindaMessage(
+          text: context.l10n.map_connectToShareMarkers,
+          tone: WindaMessageTone.warning,
+        ),
       );
       return;
     }
@@ -3938,9 +4133,11 @@ class _MapScreenState extends State<MapScreen> {
                             _points.clear();
                             _polylines.clear();
                           });
-                          showDismissibleSnackBar(
-                            context,
-                            content: Text(l10n.map_pathTraceCancelled),
+                          _pushToast(
+                            WindaMessage(
+                              text: l10n.map_pathTraceCancelled,
+                              tone: WindaMessageTone.info,
+                            ),
                           );
                         },
                         tooltip: l10n.common_cancel,

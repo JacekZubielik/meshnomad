@@ -18,7 +18,6 @@ import '../widgets/adaptive_app_bar_title.dart';
 import '../widgets/settings_value_stepper.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/mesh_ui.dart';
-import '../widgets/sync_progress_overlay.dart';
 import '../widgets/theme_profile_selector.dart';
 import '../helpers/snack_bar_builder.dart';
 import 'auto_route_rotation_screen.dart';
@@ -53,7 +52,6 @@ class AppSettingsScreen extends StatelessWidget {
         title: AdaptiveAppBarTitle(context.l10n.appSettings_title),
         centerTitle: true,
         actions: const [CircleQuickAccessMenuButton()],
-        bottom: const SyncProgressAppBarBottom(),
       ),
       body: SafeArea(
         top: false,
@@ -250,6 +248,28 @@ class AppSettingsScreen extends StatelessWidget {
           subtitle: Text(context.l10n.styleEditor_cardShadow_subtitle),
           value: settingsService.activeProfileOverrides.cardElevated ?? true,
           onChanged: (v) => settingsService.setCustomCardElevated(v),
+        ),
+        const MeshDashedDivider(indent: 16),
+        // Inner shadow toggle (2026-09-02) — independent of "Card shadow"
+        // above: that one now also gates dropdown menus' new outer
+        // bottom+right shadow (matching MeshCard), so a user who wants the
+        // "same shadow as cards" look on menus without the separate
+        // "recessed panel" top/left cue needs its own switch.
+        SwitchListTile(
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: t.spacingMd,
+            vertical: t.spacingXxs,
+          ),
+          secondary: Icon(
+            Icons.filter_b_and_w_outlined,
+            size: 20,
+            color: MeshTokens.of(context).primary,
+          ),
+          title: Text(context.l10n.styleEditor_innerShadow_label),
+          subtitle: Text(context.l10n.styleEditor_innerShadow_subtitle),
+          value:
+              settingsService.activeProfileOverrides.innerShadowEnabled ?? true,
+          onChanged: (v) => settingsService.setCustomInnerShadowEnabled(v),
         ),
         const MeshDashedDivider(indent: 16),
         // Same control, same field as Custom Style editor's Buttons section

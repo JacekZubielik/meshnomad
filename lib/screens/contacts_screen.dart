@@ -3,12 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meshnomad/screens/about_screen.dart';
 import 'package:meshnomad/screens/contact_location_map_screen.dart';
 import 'package:meshnomad/screens/path_trace_map.dart';
 import 'package:meshnomad/services/notification_service.dart';
 import 'package:meshnomad/utils/app_logger.dart';
 import 'package:meshnomad/utils/platform_info.dart';
 import 'package:meshnomad/widgets/app_bar.dart';
+import 'package:meshnomad/widgets/mesh_screen_scaffold.dart';
+import 'package:meshnomad/widgets/winda_message.dart';
+import 'package:meshnomad/widgets/winda_overlay.dart';
 import 'package:provider/provider.dart';
 
 import '../connector/meshcore_connector.dart';
@@ -39,7 +43,6 @@ import '../widgets/quick_switch_bar.dart';
 import '../widgets/repeater_login_dialog.dart';
 import '../widgets/room_login_dialog.dart';
 import '../widgets/unread_badge.dart';
-import '../helpers/snack_bar_builder.dart';
 import 'channels_screen.dart';
 import 'chat_screen.dart';
 import 'discovery_screen.dart';
@@ -77,6 +80,47 @@ class _ContactsScreenState extends State<ContactsScreen>
   final List<ContactOperationType> _pendingOperations = [];
 
   StreamSubscription<Uint8List>? _frameSubscription;
+
+  // Transient toast-style messages (confirmations/errors/validation) that
+  // used to go through `showDismissibleSnackBar` (2026-09-02 migration) —
+  // queued behind the persistent `contactSyncTimedOut` message (see
+  // `messages:` in `_screenBody`), which always takes priority when present.
+  // `WindaMessage.duration` has no built-in auto-dismiss timer yet (see its
+  // doc comment) — this screen implements its own, scoped to its own toast
+  // queue rather than the general mechanism.
+  final List<WindaMessage> _toastMessages = [];
+
+  void _pushToast(WindaMessage message) {
+    if (!mounted) return;
+    setState(() => _toastMessages.add(message));
+    Timer(message.duration, () {
+      if (!mounted) return;
+      setState(() => _toastMessages.remove(message));
+    });
+  }
+
+  // Lets the message winda (hosted above the Navigator, see
+  // MeshScreenScaffold.extraTopOffset) stack below this screen's own search
+  // field + floating progress winda, instead of overlapping them — measured
+  // dynamically rather than hardcoded, since either can change height with
+  // text-scaling/accessibility settings or a l10n string length change.
+  final GlobalKey _searchFieldKey = GlobalKey();
+  final GlobalKey _progressWindaKey = GlobalKey();
+  double _extraTopOffset = 0;
+
+  void _measureExtraTopOffset() {
+    double heightOf(GlobalKey key) {
+      final renderObject = key.currentContext?.findRenderObject();
+      return (renderObject is RenderBox && renderObject.hasSize)
+          ? renderObject.size.height
+          : 0;
+    }
+
+    final measured = heightOf(_searchFieldKey) + heightOf(_progressWindaKey);
+    if ((measured - _extraTopOffset).abs() > 0.5) {
+      setState(() => _extraTopOffset = measured);
+    }
+  }
 
   @override
   void initState() {
@@ -177,9 +221,11 @@ class _ContactsScreenState extends State<ContactsScreen>
   }
 
   void _showGroupsUnavailableMessage(BuildContext context) {
-    showDismissibleSnackBar(
-      context,
-      content: Text(context.l10n.common_loading),
+    _pushToast(
+      WindaMessage(
+        text: context.l10n.common_loading,
+        tone: WindaMessageTone.info,
+      ),
     );
   }
 
@@ -197,9 +243,11 @@ class _ContactsScreenState extends State<ContactsScreen>
           // Validate packet has expected minimum size (98+ bytes per protocol)
           if (advertPacket.length < 98) {
             if (mounted) {
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_invalidAdvertFormat),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_invalidAdvertFormat,
+                  tone: WindaMessageTone.error,
+                ),
               );
             }
             _pendingOperations.remove(ContactOperationType.export);
@@ -217,19 +265,25 @@ class _ContactsScreenState extends State<ContactsScreen>
           final op = _pendingOperations.removeAt(0);
           switch (op) {
             case ContactOperationType.import:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_contactImported),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_contactImported,
+                  tone: WindaMessageTone.success,
+                ),
               );
             case ContactOperationType.zeroHopShare:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_zeroHopContactAdvertSent),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_zeroHopContactAdvertSent,
+                  tone: WindaMessageTone.success,
+                ),
               );
             case ContactOperationType.export:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_contactAdvertCopied),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_contactAdvertCopied,
+                  tone: WindaMessageTone.success,
+                ),
               );
           }
         }
@@ -240,19 +294,25 @@ class _ContactsScreenState extends State<ContactsScreen>
           final op = _pendingOperations.removeAt(0);
           switch (op) {
             case ContactOperationType.import:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_contactImportFailed),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_contactImportFailed,
+                  tone: WindaMessageTone.error,
+                ),
               );
             case ContactOperationType.zeroHopShare:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_zeroHopContactAdvertFailed),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_zeroHopContactAdvertFailed,
+                  tone: WindaMessageTone.error,
+                ),
               );
             case ContactOperationType.export:
-              showDismissibleSnackBar(
-                context,
-                content: Text(context.l10n.contacts_contactAdvertCopyFailed),
+              _pushToast(
+                WindaMessage(
+                  text: context.l10n.contacts_contactAdvertCopyFailed,
+                  tone: WindaMessageTone.error,
+                ),
               );
           }
         }
@@ -274,9 +334,11 @@ class _ContactsScreenState extends State<ContactsScreen>
     } catch (e) {
       _pendingOperations.remove(ContactOperationType.export);
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_contactAdvertCopyFailed),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_contactAdvertCopyFailed,
+            tone: WindaMessageTone.error,
+          ),
         );
       }
     }
@@ -294,9 +356,11 @@ class _ContactsScreenState extends State<ContactsScreen>
     } catch (e) {
       _pendingOperations.remove(ContactOperationType.zeroHopShare);
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_zeroHopContactAdvertFailed),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_zeroHopContactAdvertFailed,
+            tone: WindaMessageTone.error,
+          ),
         );
       }
     }
@@ -307,9 +371,11 @@ class _ContactsScreenState extends State<ContactsScreen>
     final clipboardData = await Clipboard.getData('text/plain');
     if (clipboardData == null || clipboardData.text == null) {
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_clipboardEmpty),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_clipboardEmpty,
+            tone: WindaMessageTone.warning,
+          ),
         );
       }
       return;
@@ -317,9 +383,11 @@ class _ContactsScreenState extends State<ContactsScreen>
     final text = clipboardData.text!.trim();
     if (!text.startsWith('meshcore://')) {
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_invalidAdvertFormat),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_invalidAdvertFormat,
+            tone: WindaMessageTone.error,
+          ),
         );
       }
       return;
@@ -331,9 +399,11 @@ class _ContactsScreenState extends State<ContactsScreen>
       importContactFrame = buildImportContactFrame(bytes);
     } catch (e) {
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_invalidAdvertFormat),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_invalidAdvertFormat,
+            tone: WindaMessageTone.error,
+          ),
         );
       }
       return;
@@ -344,9 +414,11 @@ class _ContactsScreenState extends State<ContactsScreen>
     } catch (e) {
       _pendingOperations.remove(ContactOperationType.import);
       if (mounted) {
-        showDismissibleSnackBar(
-          context,
-          content: Text(context.l10n.contacts_contactImportFailed),
+        _pushToast(
+          WindaMessage(
+            text: context.l10n.contacts_contactImportFailed,
+            tone: WindaMessageTone.error,
+          ),
         );
       }
     }
@@ -354,6 +426,9 @@ class _ContactsScreenState extends State<ContactsScreen>
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _measureExtraTopOffset();
+    });
     // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
     // above the Navigator) so "select all" can't sweep in text from other,
     // offstage routes still mounted via maintainState:true.
@@ -371,20 +446,26 @@ class _ContactsScreenState extends State<ContactsScreen>
     final allowBack = !connector.isConnected;
     return PopScope(
       canPop: allowBack,
-      child: Scaffold(
+      child: MeshScreenScaffold(
+        extraTopOffset: _extraTopOffset,
+        messages: [
+          if (connector.contactSyncTimedOut)
+            WindaMessage(
+              text: context.l10n.contacts_syncStalled,
+              tone: WindaMessageTone.error,
+              actionLabel: context.l10n.common_resync,
+              onAction: () => connector.getContacts(),
+            ),
+          ..._toastMessages,
+        ],
         appBar: meshMainAppBar(
           context,
           title: context.l10n.contacts_title,
           menuTooltip: context.l10n.contacts_moreOptions,
           menuItemBuilder: (context) => <PopupMenuEntry<dynamic>>[
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.person_add_rounded),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.discoveredContacts_Title),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.person_add_rounded,
+              label: context.l10n.discoveredContacts_Title,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -392,99 +473,92 @@ class _ContactsScreenState extends State<ContactsScreen>
                 ),
               ),
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.paste),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.contacts_addContactFromClipboard),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.paste,
+              label: context.l10n.contacts_addContactFromClipboard,
               onTap: () => _contactImport(),
             ),
-            const PopupMenuDivider(),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.connect_without_contact),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.contacts_zeroHopAdvert),
-                ],
-              ),
+            meshMenuDivider(context),
+            meshMenuActionItem(
+              icon: Icons.connect_without_contact,
+              label: context.l10n.contacts_zeroHopAdvert,
               onTap: () => {
                 connector.sendSelfAdvert(flood: false),
-                showDismissibleSnackBar(
-                  context,
-                  content: Text(context.l10n.settings_advertisementSent),
+                _pushToast(
+                  WindaMessage(
+                    text: context.l10n.settings_advertisementSent,
+                    tone: WindaMessageTone.success,
+                  ),
                 ),
               },
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.cell_tower),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.contacts_floodAdvert),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.cell_tower,
+              label: context.l10n.contacts_floodAdvert,
               onTap: () => {
                 connector.sendSelfAdvert(flood: true),
-                showDismissibleSnackBar(
-                  context,
-                  content: Text(context.l10n.settings_advertisementSent),
+                _pushToast(
+                  WindaMessage(
+                    text: context.l10n.settings_advertisementSent,
+                    tone: WindaMessageTone.success,
+                  ),
                 ),
               },
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.copy),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.contacts_copyAdvertToClipboard),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.copy,
+              label: context.l10n.contacts_copyAdvertToClipboard,
               onTap: () => _contactExport(Uint8List.fromList([])),
             ),
-            const PopupMenuDivider(),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.logout,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.common_disconnect),
-                ],
-              ),
-              onTap: () => _disconnect(context, connector),
-            ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.settings),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.settings_title),
-                ],
-              ),
+            meshMenuDivider(context),
+            meshMenuActionItem(
+              icon: Icons.settings,
+              label: context.l10n.settings_title,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
               ),
             ),
-            PopupMenuItem(
-              child: Row(
-                children: [
-                  const Icon(Icons.palette_outlined),
-                  SizedBox(width: MeshTokens.of(context).spacingXs),
-                  Text(context.l10n.appSettings_quickStyleMenuItem),
-                ],
-              ),
+            meshMenuActionItem(
+              icon: Icons.palette_outlined,
+              label: context.l10n.appSettings_quickStyleMenuItem,
               onTap: () => showQuickStylePickerDialog(context),
+            ),
+            meshMenuActionItem(
+              icon: Icons.logout,
+              iconColor: Theme.of(context).colorScheme.error,
+              label: context.l10n.common_disconnect,
+              onTap: () => _disconnect(context, connector),
+            ),
+            meshMenuActionItem(
+              icon: Icons.info_outline,
+              label: context.l10n.settings_about,
+              onTap: () => pushAboutScreen(context),
             ),
           ],
         ),
-        body: _buildContactsBody(context, connector),
+        // NotificationListener, not just the post-frame measurement in
+        // build(): the progress winda's own AnimatedSize (winda_overlay.dart)
+        // animates internally without ever calling setState on this screen,
+        // so a re-measurement scheduled only from this screen's own build()
+        // would sit stale for however long it takes some UNRELATED
+        // connector notification to next rebuild this screen — observed as
+        // the message winda sitting several seconds too low after the
+        // progress winda finished collapsing (2026-09-02 feedback).
+        // SizeChangedLayoutNotifier (wrapping the measured content, added at
+        // the same two spots as _progressWindaKey/_searchFieldKey) fires
+        // this notification on every layout pass where the wrapped
+        // subtree's size changed, including ones driven purely by an
+        // internal animation.
+        body: NotificationListener<SizeChangedLayoutNotification>(
+          onNotification: (notification) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _measureExtraTopOffset();
+            });
+            return true;
+          },
+          child: _buildContactsBody(context, connector),
+        ),
         // Group management FAB stacked above the add-contact FAB (2026-08-23
         // — moved off the top bar, same visual treatment via the app-wide
         // floatingActionButtonTheme tint). Distinct heroTags: Flutter throws
@@ -734,7 +808,32 @@ class _ContactsScreenState extends State<ContactsScreen>
         connector.isLoadingContacts && contacts.isEmpty;
 
     if (waitingForInitialContacts || waitingForFirstContact) {
-      return const Center(child: CircularProgressIndicator());
+      return Stack(
+        children: [
+          const Positioned.fill(
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: KeyedSubtree(
+              key: _progressWindaKey,
+              child: SizeChangedLayoutNotifier(
+                child: MeshCard(
+                  margin: EdgeInsets.zero,
+                  padding: EdgeInsets.zero,
+                  radius: 0,
+                  color: Theme.of(context).colorScheme.surface,
+                  child: WindaOverlay(
+                    child: WindaProgress.fromConnector(connector, context.l10n),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
     }
 
     if (contacts.isEmpty && _groups.isEmpty) {
@@ -806,100 +905,181 @@ class _ContactsScreenState extends State<ContactsScreen>
 
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.all(t.spacingXs),
-          // Full-width search field — the group selector moved to its own
-          // FAB + bottom sheet (2026-08-23), so it no longer shares this row.
-          child: TextField(
-            controller: _searchController,
-            style: Theme.of(context).textTheme.bodyMedium,
-            decoration: InputDecoration(
-              hintText: hintText,
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (viewState.contactsSearchText.isNotEmpty)
-                    IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchDebounce?.cancel();
-                        _searchDebounce = null;
-                        _searchController.clear();
-                        context
-                            .read<UiViewStateService>()
-                            .setContactsSearchText('');
-                      },
-                    ),
-                  _buildFilterButton(context, viewState),
-                ],
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: t.spacingMd,
+        KeyedSubtree(
+          key: _searchFieldKey,
+          child: MeshCard(
+            margin: EdgeInsets.zero,
+            padding: EdgeInsets.zero,
+            radius: 0,
+            color: Theme.of(context).colorScheme.surface,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: t.spacingXs,
                 vertical: t.spacingSm,
               ),
+              // Full-width search field — the group selector moved to its own
+              // FAB + bottom sheet (2026-08-23), so it no longer shares this row.
+              child: TextField(
+                controller: _searchController,
+                style: Theme.of(context).textTheme.bodyMedium,
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (viewState.contactsSearchText.isNotEmpty)
+                        IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchDebounce?.cancel();
+                            _searchDebounce = null;
+                            _searchController.clear();
+                            context
+                                .read<UiViewStateService>()
+                                .setContactsSearchText('');
+                          },
+                        ),
+                      _buildFilterButton(context, viewState),
+                    ],
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: t.spacingMd,
+                    vertical: t.spacingSm,
+                  ),
+                ),
+                onChanged: (value) {
+                  _searchDebounce?.cancel();
+                  _searchDebounce = Timer(
+                    const Duration(milliseconds: 300),
+                    () {
+                      if (!mounted) return;
+                      context.read<UiViewStateService>().setContactsSearchText(
+                        value,
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-            onChanged: (value) {
-              _searchDebounce?.cancel();
-              _searchDebounce = Timer(const Duration(milliseconds: 300), () {
-                if (!mounted) return;
-                context.read<UiViewStateService>().setContactsSearchText(value);
-              });
-            },
           ),
         ),
         Expanded(
-          child: RefreshIndicator(
-            onRefresh: () => connector.getContacts(),
-            child: filteredAndSorted.isEmpty
-                ? LayoutBuilder(
-                    builder: (context, constraints) => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: constraints.maxHeight,
+          child: Stack(
+            // The progress card below paints a background sliver above its
+            // own top edge (see windaShadowOverlap) to cover the search
+            // field's shadow bleed — Clip.hardEdge (Stack's default) would
+            // cut that sliver off right where it's needed.
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                child: RefreshIndicator(
+                  onRefresh: () => connector.getContacts(),
+                  child: filteredAndSorted.isEmpty
+                      ? LayoutBuilder(
+                          builder: (context, constraints) => ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight: constraints.maxHeight,
+                                ),
+                                child: EmptyState(
+                                  icon: Icons.search_off,
+                                  title: viewState.contactsShowUnreadOnly
+                                      ? context.l10n.contacts_noUnreadContacts
+                                      : context.l10n.contacts_noContactsFound,
+                                ),
+                              ),
+                            ],
                           ),
-                          child: EmptyState(
-                            icon: Icons.search_off,
-                            title: viewState.contactsShowUnreadOnly
-                                ? context.l10n.contacts_noUnreadContacts
-                                : context.l10n.contacts_noContactsFound,
+                        )
+                      : ListView.builder(
+                          controller: _contactsScrollController,
+                          // Was a size-special literal (88) reserved as FAB
+                          // clearance — left a large dead gap between the last
+                          // card and QuickSwitchBar once scrolled to the end
+                          // (2026-08-29 on-device feedback: should read as a
+                          // normal small bottom inset, not FAB-sized).
+                          //
+                          // `top: 4` (2026-09-02 feedback): every _ContactTile
+                          // is a MeshCard with the default `vertical: 4`
+                          // margin, so consecutive cards get an 8dp gap
+                          // (4 bottom + 4 top) — but the FIRST card had only
+                          // its own 4dp top margin and nothing above it to
+                          // contribute the other 4, reading as tighter than
+                          // every other inter-card gap. Matches the literal
+                          // in `mesh_ui.dart`'s `MeshCard.margin` default,
+                          // not a spacing token (none of them equal 4).
+                          padding: EdgeInsets.only(
+                            top: 4,
+                            bottom: MeshTokens.of(context).spacingMd,
+                          ),
+                          itemCount: filteredAndSorted.length,
+                          itemBuilder: (context, index) {
+                            final contact = filteredAndSorted[index];
+                            final unreadCount = connector
+                                .getUnreadCountForContact(contact);
+                            return _ContactTileEntrance(
+                              index: index,
+                              contact: contact,
+                              pathHashByteWidth: connector.pathHashByteWidth,
+                              lastSeen: _resolveLastSeen(contact),
+                              unreadCount: unreadCount,
+                              isFavorite: contact.isFavorite,
+                              onTap: () => _openChat(context, contact),
+                              onLongPress: () => _showContactOptions(
+                                context,
+                                connector,
+                                contact,
+                              ),
+                              pushPreservingScroll: _pushPreservingScroll,
+                            );
+                          },
+                        ),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: KeyedSubtree(
+                  key: _progressWindaKey,
+                  child: SizeChangedLayoutNotifier(
+                    // The Stack's own size still tracks the MeshCard alone
+                    // (the background sliver is `Positioned`, so it's
+                    // excluded from sizing) — _measureExtraTopOffset keeps
+                    // reading the card's true, un-overlapped height.
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned(
+                          top: -windaShadowOverlap,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: ColoredBox(
+                            color: Theme.of(context).colorScheme.surface,
+                          ),
+                        ),
+                        MeshCard(
+                          margin: EdgeInsets.zero,
+                          padding: EdgeInsets.zero,
+                          radius: 0,
+                          color: Theme.of(context).colorScheme.surface,
+                          child: WindaOverlay(
+                            child: WindaProgress.fromConnector(
+                              connector,
+                              context.l10n,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  )
-                : ListView.builder(
-                    controller: _contactsScrollController,
-                    // Was a size-special literal (88) reserved as FAB
-                    // clearance — left a large dead gap between the last
-                    // card and QuickSwitchBar once scrolled to the end
-                    // (2026-08-29 on-device feedback: should read as a
-                    // normal small bottom inset, not FAB-sized).
-                    padding: EdgeInsets.only(
-                      bottom: MeshTokens.of(context).spacingMd,
-                    ),
-                    itemCount: filteredAndSorted.length,
-                    itemBuilder: (context, index) {
-                      final contact = filteredAndSorted[index];
-                      final unreadCount = connector.getUnreadCountForContact(
-                        contact,
-                      );
-                      return _ContactTileEntrance(
-                        index: index,
-                        contact: contact,
-                        pathHashByteWidth: connector.pathHashByteWidth,
-                        lastSeen: _resolveLastSeen(contact),
-                        unreadCount: unreadCount,
-                        isFavorite: contact.isFavorite,
-                        onTap: () => _openChat(context, contact),
-                        onLongPress: () =>
-                            _showContactOptions(context, connector, contact),
-                        pushPreservingScroll: _pushPreservingScroll,
-                      );
-                    },
                   ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -1283,17 +1463,21 @@ class _ContactsScreenState extends State<ContactsScreen>
                 onPressed: () async {
                   final name = nameController.text.trim();
                   if (name.isEmpty) {
-                    showDismissibleSnackBar(
-                      context,
-                      content: Text(context.l10n.contacts_groupNameRequired),
+                    _pushToast(
+                      WindaMessage(
+                        text: context.l10n.contacts_groupNameRequired,
+                        tone: WindaMessageTone.warning,
+                      ),
                     );
                     return;
                   }
                   if (name.toLowerCase() ==
                       contactsAllGroupsValue.toLowerCase()) {
-                    showDismissibleSnackBar(
-                      context,
-                      content: Text(context.l10n.contacts_groupNameReserved),
+                    _pushToast(
+                      WindaMessage(
+                        text: context.l10n.contacts_groupNameReserved,
+                        tone: WindaMessageTone.warning,
+                      ),
                     );
                     return;
                   }
@@ -1302,10 +1486,10 @@ class _ContactsScreenState extends State<ContactsScreen>
                     return g.name.toLowerCase() == name.toLowerCase();
                   });
                   if (exists) {
-                    showDismissibleSnackBar(
-                      context,
-                      content: Text(
-                        context.l10n.contacts_groupAlreadyExists(name),
+                    _pushToast(
+                      WindaMessage(
+                        text: context.l10n.contacts_groupAlreadyExists(name),
+                        tone: WindaMessageTone.warning,
                       ),
                     );
                     return;
@@ -1509,10 +1693,12 @@ class _ContactsScreenState extends State<ContactsScreen>
                 final result = await connector.getAdvertPath(contact);
                 if (!context.mounted) return;
                 if (result == null) {
-                  showDismissibleSnackBar(
-                    context,
-                    content: Text(context.l10n.contacts_advertPathNotFound),
-                    duration: const Duration(seconds: 2),
+                  _pushToast(
+                    WindaMessage(
+                      text: context.l10n.contacts_advertPathNotFound,
+                      tone: WindaMessageTone.warning,
+                      duration: const Duration(seconds: 2),
+                    ),
                   );
                   return;
                 }

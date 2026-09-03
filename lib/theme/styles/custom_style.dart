@@ -338,7 +338,7 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
   TextStyle? withFontSize(TextStyle? style, double fontSize) =>
       style?.copyWith(fontSize: fontSize);
 
-  ThemeData applyChromeFontSizes(ThemeData base) {
+  ThemeData applyChromeFontSizes(ThemeData base, MeshTokens tokens) {
     final text = base.textTheme;
     final bodyMediumSize = text.bodyMedium!.fontSize!;
     final bodySmallSize = text.bodySmall!.fontSize!;
@@ -361,6 +361,19 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
           base.appBarTheme.titleTextStyle,
           titleSmallSize + MeshTypeScale.appBarTitleIncrement,
         ),
+        // mesh_theme.dart bakes `shape`'s border color from the base
+        // ColorScheme at construction time; re-derive it here from the
+        // already-overridden `base.colorScheme.outlineVariant` so the line
+        // follows Custom Style like every other outlineVariant-driven
+        // border in the app (2026-09-01 fix). Gate on bordersVisible to
+        // match the pattern established by divider/card/input borders
+        // throughout this function (snackBar line 479, popupMenu line 493,
+        // card line 704, segment line 797).
+        shape: tokens.bordersVisible
+            ? Border(bottom: BorderSide(color: base.colorScheme.outlineVariant))
+            : const Border(
+                bottom: BorderSide(color: Colors.transparent, width: 0),
+              ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: base.elevatedButtonTheme.style?.copyWith(
@@ -488,11 +501,27 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       // kick in everywhere else, like it does for Card/TextField/Chip/
       // SnackBar (found on-device 2026-08-29).
       popupMenuTheme: base.popupMenuTheme.copyWith(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(t.md),
+        // Off in favor of InnerShadowRoundedRectangleBorder's own outer
+        // shadow below — same reasoning as the base style
+        // (mesh_theme.dart).
+        elevation: 0,
+        // Inner shadow (2026-09-02 feedback), same shared theme entry as
+        // the base style — see InnerShadowRoundedRectangleBorder's doc
+        // comment. shadowColor/showShadow mirror this profile's own
+        // cardShadow/cardElevated, exactly like every other MeshCard shadow.
+        // Also now paints the outer bottom+right shadow matching MeshCard.
+        shape: InnerShadowRoundedRectangleBorder(
+          // The editor's "Reduced (sm)" radius slider is labeled "Menus,
+          // list panels" (`styleEditor_radiusSm_subtitle`) — was t.md
+          // (2026-09-02 fix: promised by the editor's own copy but never
+          // actually wired to it).
+          borderRadius: BorderRadius.circular(t.sm),
           side: t.bordersVisible
               ? BorderSide(color: base.colorScheme.outlineVariant)
               : BorderSide.none,
+          shadowColor: t.cardShadow,
+          showShadow: t.cardElevated,
+          showInnerShadow: t.innerShadowEnabled,
         ),
       ),
       dialogTheme: base.dialogTheme.copyWith(shape: rrb(t.lg)),
@@ -558,20 +587,15 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     final scheme = buildColorScheme(base.colorScheme, tokens);
     final withScheme = base.copyWith(
       colorScheme: scheme,
-      scaffoldBackgroundColor: scheme.surface,
+      // One step up the existing surfaceContainer ladder (= tokens.bg1,
+      // buildColorScheme below) than the app bar's own `scheme.surface` —
+      // gives the list area contrast against the app bar/bottom bar instead
+      // of everything reading as one flat color (2026-09-02 feedback).
+      scaffoldBackgroundColor: scheme.surfaceContainerLow,
       canvasColor: scheme.surface,
       appBarTheme: base.appBarTheme.copyWith(
         backgroundColor: scheme.surface,
         foregroundColor: scheme.onSurface,
-        // mesh_theme.dart bakes `shape`'s bottom border from the ORIGINAL
-        // scheme.outlineVariant at ThemeData-construction time too — same
-        // "baked, not looked up lazily" trap this function's own doc
-        // comment describes, just missed for this field. Without this, the
-        // AppBar's bottom border stayed the old line-token blue on every
-        // screen no matter what outline/outlineVariant resolved to above.
-        shape: tokens.bordersVisible
-            ? Border(bottom: BorderSide(color: scheme.outlineVariant))
-            : null,
       ),
       listTileTheme: base.listTileTheme.copyWith(
         textColor: scheme.onSurface,
@@ -793,7 +817,7 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
             ),
       ),
     );
-    return applyChromeRadii(applyChromeFontSizes(withScheme), tokens);
+    return applyChromeRadii(applyChromeFontSizes(withScheme, tokens), tokens);
   }
 
   // Resolve which base MeshTokens/ThemeData pair to start from: a profile
@@ -826,6 +850,7 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     pill: radiusFor('pill', baseTokens.pill),
     buttonRadius: radiusFor('buttonRadius', baseTokens.buttonRadius),
     cardElevated: overrides.cardElevated ?? true,
+    innerShadowEnabled: overrides.innerShadowEnabled ?? true,
     // Independent override wins; otherwise borders show exactly when the
     // shadow is off (2026-08-23 border/shadow unification).
     bordersVisible:

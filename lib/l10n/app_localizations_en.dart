@@ -81,6 +81,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_retry => 'Retry';
 
   @override
+  String get common_resync => 'Resync';
+
+  @override
   String get common_hide => 'Hide';
 
   @override
@@ -115,6 +118,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get common_loading => 'Loading...';
+
+  @override
+  String get common_syncingContacts => 'Syncing contacts';
+
+  @override
+  String get common_syncingChannels => 'Syncing channels';
+
+  @override
+  String get common_sendingQueuedMessages => 'Sending queued messages';
 
   @override
   String get common_notAvailable => '—';
@@ -1095,6 +1107,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contacts_noContactsFound => 'No contacts or groups found';
+
+  @override
+  String get contacts_syncStalled => 'Contact sync stalled';
 
   @override
   String get contacts_deleteContact => 'Delete Contact';
@@ -5706,6 +5721,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get styleEditor_cardShadow_subtitle => 'Floating shadow under cards';
+
+  @override
+  String get styleEditor_innerShadow_label => 'Inner shadow';
+
+  @override
+  String get styleEditor_innerShadow_subtitle =>
+      'Recessed panel effect on dropdown menus';
 
   @override
   String get appSettings_editCustomStyleTooltip => 'Edit custom style';
