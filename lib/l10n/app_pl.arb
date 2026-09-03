@@ -1703,7 +1703,7 @@
   "community_created": "Społeczność \"{name}\" została utworzona",
   "community_joined": "Dołączył do społeczności \"{name}\"",
   "community_qrTitle": "Dziel się Społecznością",
-  "community_qrInstructions": "Skanuj ten kod QR, aby dołączyć {name}",
+  "community_qrInstructions": "Skanuj ten kod QR, aby dołączyć do {name}.",
   "community_hashtagPrivacyHint": "Kanały hashtagowe społeczności są dostępne tylko dla członków społeczności",
   "community_invalidQrCode": "Nieprawidłowy kod QR społeczności.",
   "community_alreadyMember": "Już jesteś członkiem.",
