@@ -20,6 +20,9 @@ on:
       - '.github/**'
       # Renovate's own JSON config — same reasoning as .github/**.
       - 'renovate.json'
+      # mkdocs site config — content-only, can't break Dart code. It lives
+      # at repo root (not under docs/), so it needs its own entry here.
+      - 'mkdocs.yml'
 
 jobs:
   analyze:
