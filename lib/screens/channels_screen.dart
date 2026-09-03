@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:meshnomad/screens/about_screen.dart';
 import 'package:meshnomad/storage/channel_message_store.dart';
 import 'package:meshnomad/utils/keys.dart';
@@ -1829,10 +1830,8 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                     title: context.l10n.community_qrTitle,
                                     instructions: context.l10n
                                         .community_qrInstructions(name),
-                                    embeddedImage: Image.asset(
-                                      'assets/images/mesh-icon.png',
-                                      width: 40,
-                                      height: 40,
+                                    embeddedImage: SvgPicture.asset(
+                                      'assets/icons/qr_embed_mark.svg',
                                     ),
                                   );
                                 }
@@ -2384,11 +2383,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
       data: community.toQrJson(),
       title: context.l10n.community_qrTitle,
       instructions: context.l10n.community_qrInstructions(community.name),
-      embeddedImage: Image.asset(
-        'assets/images/mesh-icon.png',
-        width: 40,
-        height: 40,
-      ),
+      embeddedImage: SvgPicture.asset('assets/icons/qr_embed_mark.svg'),
     );
   }
 
