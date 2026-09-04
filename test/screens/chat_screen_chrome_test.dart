@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:meshnomad/connector/meshcore_connector.dart';
+import 'package:meshnomad/connector/meshcore_protocol.dart';
 import 'package:meshnomad/l10n/app_localizations.dart';
 import 'package:meshnomad/models/contact.dart';
 import 'package:meshnomad/models/path_history.dart';
@@ -43,6 +44,9 @@ class _FakeStorageService extends StorageService {
 
 class _FakeConnector extends MeshCoreConnector {
   bool loadingContacts = false;
+  final List<Uint8List> sentFrames = [];
+  final List<Contact> removedContacts = [];
+  final List<bool?> favoriteFlags = [];
 
   @override
   bool get isConnected => true;
@@ -52,6 +56,32 @@ class _FakeConnector extends MeshCoreConnector {
 
   @override
   double? get contactSyncProgress => loadingContacts ? 0.5 : null;
+
+  @override
+  Future<void> sendFrame(
+    Uint8List data, {
+    String? channelSendQueueId,
+    bool expectsGenericAck = false,
+    bool waitForGenericAck = false,
+  }) async {
+    sentFrames.add(data);
+  }
+
+  @override
+  Future<void> removeContact(Contact contact) async {
+    removedContacts.add(contact);
+  }
+
+  @override
+  Future<void> setContactFlags(
+    Contact contact, {
+    bool? isFavorite,
+    bool? teleBase,
+    bool? teleLoc,
+    bool? teleEnv,
+  }) async {
+    favoriteFlags.add(isFavorite);
+  }
 }
 
 final _contact = Contact(
@@ -63,9 +93,32 @@ final _contact = Contact(
   lastSeen: DateTime(2026, 9, 1, 12),
 );
 
+const _openChatLabel = 'open chat';
+
+/// Home route that pushes the chat on tap — for tests that need the chat to
+/// be a popped-off route (delete contact leaves the chat).
+class _Launcher extends StatelessWidget {
+  const _Launcher();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: TextButton(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => ChatScreen(contact: _contact),
+          ),
+        ),
+        child: const Text(_openChatLabel),
+      ),
+    );
+  }
+}
+
 Future<_FakeConnector> _pump(
   WidgetTester tester, {
   bool loadingContacts = false,
+  bool pushed = false,
 }) async {
   SharedPreferences.setMockInitialValues({});
   PrefsManager.reset();
@@ -105,13 +158,22 @@ Future<_FakeConnector> _pump(
             const WindaHostOverlay(),
           ],
         ),
-        home: ChatScreen(contact: _contact),
+        home: pushed ? const _Launcher() : ChatScreen(contact: _contact),
       ),
     ),
   );
   await tester.pump();
   await tester.pump();
+  if (pushed) {
+    await tester.tap(find.text(_openChatLabel));
+    await tester.pumpAndSettle();
+  }
   return connector;
+}
+
+Future<void> _openMenu(WidgetTester tester) async {
+  await tester.tap(find.byType(PopupMenuButton<dynamic>));
+  await tester.pumpAndSettle();
 }
 
 AppLocalizations _l10n(WidgetTester tester) =>
@@ -201,47 +263,142 @@ void main() {
     await _finish(tester, connector);
   });
 
-  testWidgets('menu: contact group, clear chat, then the app-wide group', (
+  testWidgets(
+    'menu: contact group + card winda actions, clear/delete, app-wide group',
+    (tester) async {
+      final connector = await _pump(tester);
+      final l10n = _l10n(tester);
+
+      await _openMenu(tester);
+
+      final ordered = [
+        l10n.routing_title,
+        l10n.contact_info,
+        l10n.contact_telemetry,
+        l10n.contact_settings,
+        l10n.contacts_showAdvertPath,
+        l10n.listFilter_addToFavorites,
+        l10n.contacts_ShareContact,
+        l10n.contacts_ShareContactZeroHop,
+        l10n.contact_clearChat,
+        l10n.contacts_deleteContact,
+        l10n.settings_title,
+        l10n.appSettings_quickStyleMenuItem,
+        l10n.common_disconnect,
+        l10n.settings_about,
+      ].map(find.text).toList();
+      for (final f in ordered) {
+        expect(f, findsOneWidget);
+      }
+      for (var i = 1; i < ordered.length; i++) {
+        expect(
+          tester.getTopLeft(ordered[i - 1]).dy,
+          lessThan(tester.getTopLeft(ordered[i]).dy),
+        );
+      }
+      expect(find.byType(MeshMenuActionRow), findsNWidgets(14));
+      // No path known (pathLength 0) → no path-trace row, like the card winda.
+      expect(find.text(l10n.contacts_chatTraceRoute), findsNothing);
+      expect(find.text(l10n.listFilter_removeFromFavorites), findsNothing);
+
+      final deleteRow = tester.widget<MeshMenuActionRow>(
+        find.ancestor(
+          of: find.text(l10n.contacts_deleteContact),
+          matching: find.byType(MeshMenuActionRow),
+        ),
+      );
+      final scheme = Theme.of(
+        tester.element(find.byType(ChatScreen)),
+      ).colorScheme;
+      expect(deleteRow.iconColor, scheme.error);
+
+      await tester.tapAt(Offset.zero);
+      await tester.pumpAndSettle();
+      await _finish(tester, connector);
+    },
+  );
+
+  testWidgets('menu: add to favorites sets the favorite flag', (tester) async {
+    final connector = await _pump(tester);
+    final l10n = _l10n(tester);
+
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.listFilter_addToFavorites));
+    await tester.pumpAndSettle();
+    expect(connector.favoriteFlags, [true]);
+    await _finish(tester, connector);
+  });
+
+  testWidgets('menu: share by advert sends the zero-hop share frame', (
     tester,
   ) async {
     final connector = await _pump(tester);
     final l10n = _l10n(tester);
 
-    await tester.tap(find.byType(PopupMenuButton<dynamic>));
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.contacts_ShareContactZeroHop));
+    await tester.pumpAndSettle();
+    expect(connector.sentFrames, hasLength(1));
+    expect(connector.sentFrames.single.first, cmdShareContact);
+    expect(find.text(l10n.contacts_zeroHopContactAdvertSent), findsOneWidget);
+    // Let the toast expire before the pending-timer check.
+    await tester.pump(const Duration(seconds: 5));
+    await _finish(tester, connector);
+  });
+
+  testWidgets('menu: copy contact sends the export frame', (tester) async {
+    final connector = await _pump(tester);
+    final l10n = _l10n(tester);
+
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.contacts_ShareContact));
+    await tester.pumpAndSettle();
+    expect(connector.sentFrames, hasLength(1));
+    expect(connector.sentFrames.single.first, cmdExportContact);
+    // The fake never answers with the advert payload → the helper gives up
+    // and reports the failure instead of hanging.
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text(l10n.contacts_contactAdvertCopyFailed), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await _finish(tester, connector);
+  });
+
+  testWidgets('menu: delete contact confirms, removes and leaves the chat', (
+    tester,
+  ) async {
+    final connector = await _pump(tester, pushed: true);
+    final l10n = _l10n(tester);
+
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.contacts_deleteContact));
     await tester.pumpAndSettle();
 
-    final routing = find.text(l10n.routing_title);
-    final info = find.text(l10n.contact_info);
-    final telemetry = find.text(l10n.contact_telemetry);
-    final contactSettings = find.text(l10n.contact_settings);
-    final clear = find.text(l10n.contact_clearChat);
-    final settings = find.text(l10n.settings_title);
-    final quickStyle = find.text(l10n.appSettings_quickStyleMenuItem);
-    final disconnect = find.text(l10n.common_disconnect);
-    final about = find.text(l10n.settings_about);
-    final ordered = [
-      routing,
-      info,
-      telemetry,
-      contactSettings,
-      clear,
-      settings,
-      quickStyle,
-      disconnect,
-      about,
-    ];
-    for (final f in ordered) {
-      expect(f, findsOneWidget);
-    }
-    for (var i = 1; i < ordered.length; i++) {
-      expect(
-        tester.getTopLeft(ordered[i - 1]).dy,
-        lessThan(tester.getTopLeft(ordered[i]).dy),
-      );
-    }
-    expect(find.byType(MeshMenuActionRow), findsNWidgets(9));
-    await tester.tapAt(Offset.zero);
+    expect(find.text(l10n.contacts_removeConfirm('Alice')), findsOneWidget);
+    expect(connector.removedContacts, isEmpty);
+
+    await tester.tap(find.text(l10n.common_delete));
     await tester.pumpAndSettle();
+
+    expect(connector.removedContacts.map((c) => c.name), ['Alice']);
+    expect(find.byType(ChatScreen), findsNothing);
+    expect(find.text(_openChatLabel), findsOneWidget);
+    await _finish(tester, connector);
+  });
+
+  testWidgets('menu: cancelling delete keeps the chat open', (tester) async {
+    final connector = await _pump(tester, pushed: true);
+    final l10n = _l10n(tester);
+
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.contacts_deleteContact));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.common_cancel));
+    await tester.pumpAndSettle();
+
+    expect(connector.removedContacts, isEmpty);
+    expect(find.byType(ChatScreen), findsOneWidget);
     await _finish(tester, connector);
   });
 

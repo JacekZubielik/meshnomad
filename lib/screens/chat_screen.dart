@@ -21,6 +21,7 @@ import '../widgets/mesh_screen_scaffold.dart';
 import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/winda_message.dart';
 import '../widgets/winda_overlay.dart';
+import '../utils/contact_actions.dart';
 import '../utils/dialog_utils.dart';
 import '../utils/last_seen_label.dart';
 import 'package:meshnomad/screens/about_screen.dart';
@@ -216,6 +217,7 @@ class _ChatScreenState extends State<ChatScreen> with WindaToastQueue {
         : contact.lastSeen;
     final messages = connector.getMessages(widget.contact);
     final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
 
     // First-layout measurement (SizeChangedLayoutNotifier below only fires
     // on later changes) — matters when a sync is already running as the
@@ -265,12 +267,73 @@ class _ChatScreenState extends State<ChatScreen> with WindaToastQueue {
             label: menuContext.l10n.contact_settings,
             onTap: () => _showContactSettings(context),
           ),
+          // Same actions as the Contacts card's long-press winda (path
+          // trace / advert path / favorite / share / delete), reachable
+          // without leaving the chat.
+          if (contact.pathLength > 0)
+            meshMenuActionItem(
+              icon: Icons.radar,
+              iconColor: t.signal,
+              label: menuContext.l10n.contacts_chatTraceRoute,
+              onTap: () => showContactPathTrace(
+                context,
+                connector: connector,
+                contact: contact,
+              ),
+            ),
+          meshMenuActionItem(
+            icon: Icons.route_outlined,
+            label: menuContext.l10n.contacts_showAdvertPath,
+            onTap: () => showContactAdvertPath(
+              context,
+              connector: connector,
+              contact: contact,
+              pushToast: pushToast,
+            ),
+          ),
+          meshMenuActionItem(
+            icon: contact.isFavorite ? Icons.star : Icons.star_border,
+            iconColor: t.warn,
+            label: contact.isFavorite
+                ? menuContext.l10n.listFilter_removeFromFavorites
+                : menuContext.l10n.listFilter_addToFavorites,
+            onTap: () => connector.setContactFlags(
+              contact,
+              isFavorite: !contact.isFavorite,
+            ),
+          ),
+          meshMenuActionItem(
+            icon: Icons.copy,
+            label: menuContext.l10n.contacts_ShareContact,
+            onTap: () => copyContactToClipboard(
+              context,
+              connector: connector,
+              pubKey: contact.publicKey,
+              pushToast: pushToast,
+            ),
+          ),
+          meshMenuActionItem(
+            icon: Icons.connect_without_contact,
+            label: menuContext.l10n.contacts_ShareContactZeroHop,
+            onTap: () => shareContactZeroHop(
+              context,
+              connector: connector,
+              pubKey: contact.publicKey,
+              pushToast: pushToast,
+            ),
+          ),
           meshMenuDivider(menuContext),
           meshMenuActionItem(
             icon: Icons.delete,
             iconColor: scheme.error,
             label: menuContext.l10n.contact_clearChat,
             onTap: () => _confirmClearChat(context, connector),
+          ),
+          meshMenuActionItem(
+            icon: Icons.delete_outline,
+            iconColor: scheme.error,
+            label: menuContext.l10n.contacts_deleteContact,
+            onTap: () => _deleteContact(connector, contact),
           ),
           meshMenuDivider(menuContext),
           meshMenuActionItem(
@@ -808,6 +871,20 @@ class _ChatScreenState extends State<ChatScreen> with WindaToastQueue {
     if (confirmed == true) {
       connector.clearMessagesForContact(widget.contact);
     }
+  }
+
+  /// Delete the contact (⋮ menu). On success the conversation no longer
+  /// exists, so leave the chat.
+  Future<void> _deleteContact(
+    MeshCoreConnector connector,
+    Contact contact,
+  ) async {
+    final deleted = await confirmDeleteContact(
+      context,
+      connector: connector,
+      contact: contact,
+    );
+    if (deleted && mounted) Navigator.of(context).pop();
   }
 
   int _resolveContactIndex = -1;
