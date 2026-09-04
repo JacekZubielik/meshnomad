@@ -27,6 +27,7 @@ import 'package:meshnomad/widgets/winda_overlay.dart';
 
 class _FakeConnector extends MeshCoreConnector {
   bool syncingChannels = false;
+  final List<int> deletedChannelIndices = [];
 
   @override
   bool get isConnected => true;
@@ -36,13 +37,41 @@ class _FakeConnector extends MeshCoreConnector {
 
   @override
   int get channelSyncProgress => syncingChannels ? 40 : 0;
+
+  @override
+  Future<void> deleteChannel(int index) async {
+    deletedChannelIndices.add(index);
+  }
 }
 
 final _channel = Channel(index: 1, name: '#test', psk: Uint8List(16));
 
+const _openChatLabel = 'open chat';
+
+/// Home route that pushes the chat on tap — for tests that need the chat to
+/// be a popped-off route (delete channel leaves the chat).
+class _Launcher extends StatelessWidget {
+  const _Launcher();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: TextButton(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => ChannelChatScreen(channel: _channel),
+          ),
+        ),
+        child: const Text(_openChatLabel),
+      ),
+    );
+  }
+}
+
 Future<({_FakeConnector connector, AppSettingsService settings})> _pump(
   WidgetTester tester, {
   bool syncingChannels = false,
+  bool pushed = false,
 }) async {
   SharedPreferences.setMockInitialValues({});
   PrefsManager.reset();
@@ -79,13 +108,22 @@ Future<({_FakeConnector connector, AppSettingsService settings})> _pump(
             const WindaHostOverlay(),
           ],
         ),
-        home: ChannelChatScreen(channel: _channel),
+        home: pushed ? const _Launcher() : ChannelChatScreen(channel: _channel),
       ),
     ),
   );
   await tester.pump();
   await tester.pump();
+  if (pushed) {
+    await tester.tap(find.text(_openChatLabel));
+    await tester.pumpAndSettle();
+  }
   return (connector: connector, settings: settings);
+}
+
+Future<void> _openMenu(WidgetTester tester) async {
+  await tester.tap(find.byType(PopupMenuButton<dynamic>));
+  await tester.pumpAndSettle();
 }
 
 AppLocalizations _l10n(WidgetTester tester) =>
@@ -185,33 +223,127 @@ void main() {
     await _finish(tester, env.connector);
   });
 
-  testWidgets('menu: region on top, clear chat, then the app-wide group', (
+  testWidgets(
+    'menu: region, edit, mute; clear chat, delete channel; app-wide group',
+    (tester) async {
+      final env = await _pump(tester);
+      final l10n = _l10n(tester);
+
+      await _openMenu(tester);
+
+      final ordered = [
+        l10n.channels_regionSelect_Title,
+        l10n.channels_editChannel,
+        l10n.channels_muteChannel,
+        l10n.contact_clearChat,
+        l10n.channels_deleteChannel,
+        l10n.settings_title,
+        l10n.appSettings_quickStyleMenuItem,
+        l10n.common_disconnect,
+        l10n.settings_about,
+      ].map(find.text).toList();
+      for (final f in ordered) {
+        expect(f, findsOneWidget);
+      }
+      double y(Finder f) => tester.getTopLeft(f).dy;
+      for (var i = 1; i < ordered.length; i++) {
+        expect(y(ordered[i - 1]), lessThan(y(ordered[i])));
+      }
+      expect(find.byType(MeshMenuActionRow), findsNWidgets(9));
+      expect(find.text(l10n.channels_unmuteChannel), findsNothing);
+
+      // Delete channel is destructive → error-tinted icon, like Clear chat.
+      final deleteRow = tester.widget<MeshMenuActionRow>(
+        find.ancestor(
+          of: find.text(l10n.channels_deleteChannel),
+          matching: find.byType(MeshMenuActionRow),
+        ),
+      );
+      final scheme = Theme.of(
+        tester.element(find.byType(ChannelChatScreen)),
+      ).colorScheme;
+      expect(deleteRow.iconColor, scheme.error);
+
+      await tester.tapAt(Offset.zero);
+      await tester.pumpAndSettle();
+      await _finish(tester, env.connector);
+    },
+  );
+
+  testWidgets('menu: mute toggles the channel and flips to unmute', (
     tester,
   ) async {
     final env = await _pump(tester);
     final l10n = _l10n(tester);
 
-    await tester.tap(find.byType(PopupMenuButton<dynamic>));
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.channels_muteChannel));
+    await tester.pumpAndSettle();
+    expect(env.settings.isChannelMuted('#test'), isTrue);
+
+    await _openMenu(tester);
+    expect(find.text(l10n.channels_unmuteChannel), findsOneWidget);
+    expect(find.text(l10n.channels_muteChannel), findsNothing);
+    await tester.tap(find.text(l10n.channels_unmuteChannel));
+    await tester.pumpAndSettle();
+    expect(env.settings.isChannelMuted('#test'), isFalse);
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('menu: edit channel opens the edit sheet', (tester) async {
+    final env = await _pump(tester);
+    final l10n = _l10n(tester);
+
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.channels_editChannel));
     await tester.pumpAndSettle();
 
-    final region = find.text(l10n.channels_regionSelect_Title);
-    final clear = find.text(l10n.contact_clearChat);
-    final settings = find.text(l10n.settings_title);
-    final quickStyle = find.text(l10n.appSettings_quickStyleMenuItem);
-    final disconnect = find.text(l10n.common_disconnect);
-    final about = find.text(l10n.settings_about);
-    for (final f in [region, clear, settings, quickStyle, disconnect, about]) {
-      expect(f, findsOneWidget);
-    }
-    double y(Finder f) => tester.getTopLeft(f).dy;
-    expect(y(region), lessThan(y(clear)));
-    expect(y(clear), lessThan(y(settings)));
-    expect(y(settings), lessThan(y(quickStyle)));
-    expect(y(quickStyle), lessThan(y(disconnect)));
-    expect(y(disconnect), lessThan(y(about)));
-    expect(find.byType(MeshMenuActionRow), findsNWidgets(6));
-    await tester.tapAt(Offset.zero);
+    expect(find.text(l10n.channels_editChannelTitle(1)), findsOneWidget);
+    expect(find.text(l10n.common_save), findsOneWidget);
+
+    await tester.tap(find.text(l10n.common_cancel));
     await tester.pumpAndSettle();
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('menu: delete channel confirms, deletes and leaves the chat', (
+    tester,
+  ) async {
+    final env = await _pump(tester, pushed: true);
+    final l10n = _l10n(tester);
+
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.channels_deleteChannel));
+    await tester.pumpAndSettle();
+
+    // Confirmation first — nothing deleted yet.
+    expect(
+      find.text(l10n.channels_deleteChannelConfirm('#test')),
+      findsOneWidget,
+    );
+    expect(env.connector.deletedChannelIndices, isEmpty);
+
+    await tester.tap(find.text(l10n.common_delete));
+    await tester.pumpAndSettle();
+
+    expect(env.connector.deletedChannelIndices, [1]);
+    expect(find.byType(ChannelChatScreen), findsNothing);
+    expect(find.text(_openChatLabel), findsOneWidget);
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('menu: cancelling delete keeps the chat open', (tester) async {
+    final env = await _pump(tester, pushed: true);
+    final l10n = _l10n(tester);
+
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.channels_deleteChannel));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.common_cancel));
+    await tester.pumpAndSettle();
+
+    expect(env.connector.deletedChannelIndices, isEmpty);
+    expect(find.byType(ChannelChatScreen), findsOneWidget);
     await _finish(tester, env.connector);
   });
 

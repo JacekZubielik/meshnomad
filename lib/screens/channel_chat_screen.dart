@@ -33,6 +33,8 @@ import '../widgets/mesh_screen_scaffold.dart';
 import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/winda_message.dart';
 import '../widgets/winda_overlay.dart';
+import '../storage/channel_message_store.dart';
+import '../utils/channel_dialogs.dart';
 import '../utils/dialog_utils.dart';
 import '../utils/last_seen_label.dart';
 import 'package:meshnomad/screens/about_screen.dart';
@@ -273,6 +275,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
         : null;
     final unreadCount = connector.getUnreadCountForChannelIndex(idx);
     final theme = Theme.of(context);
+    // Watched, so the ⋮ menu's mute row flips after a toggle.
+    final settings = context.watch<AppSettingsService>();
+    final isMuted = settings.isChannelMuted(channel.name);
 
     // First-layout measurement (SizeChangedLayoutNotifier below only fires
     // on later changes) — matters when a sync is already running as the
@@ -304,12 +309,41 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
             label: menuContext.l10n.channels_regionSelect_Title,
             onTap: () => openRegionSelectDialog(channel),
           ),
+          // Same channel actions as the Channels card's long-press winda
+          // (edit / mute / delete), reachable without leaving the chat.
+          meshMenuActionItem(
+            icon: Icons.edit_outlined,
+            label: menuContext.l10n.channels_editChannel,
+            onTap: () => showEditChannelSheet(
+              context,
+              connector: connector,
+              channel: channel,
+              pushToast: pushToast,
+            ),
+          ),
+          meshMenuActionItem(
+            icon: isMuted
+                ? Icons.notifications_outlined
+                : Icons.notifications_off_outlined,
+            label: isMuted
+                ? menuContext.l10n.channels_unmuteChannel
+                : menuContext.l10n.channels_muteChannel,
+            onTap: () => isMuted
+                ? settings.unmuteChannel(channel.name)
+                : settings.muteChannel(channel.name),
+          ),
           meshMenuDivider(menuContext),
           meshMenuActionItem(
             icon: Icons.delete,
             iconColor: theme.colorScheme.error,
             label: menuContext.l10n.contact_clearChat,
             onTap: _confirmClearChat,
+          ),
+          meshMenuActionItem(
+            icon: Icons.delete_outline,
+            iconColor: theme.colorScheme.error,
+            label: menuContext.l10n.channels_deleteChannel,
+            onTap: _deleteChannel,
           ),
           meshMenuDivider(menuContext),
           meshMenuActionItem(
@@ -1809,6 +1843,21 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
         widget.channel.index,
       );
     }
+  }
+
+  /// Delete the whole channel (⋮ menu). On success the conversation no
+  /// longer exists, so leave the chat and hand `true` to the screen below
+  /// (Channels), which shows the "deleted" toast — one pushed here would
+  /// die with this screen.
+  Future<void> _deleteChannel() async {
+    final deleted = await confirmDeleteChannel(
+      context,
+      connector: context.read<MeshCoreConnector>(),
+      channelMessageStore: ChannelMessageStore(),
+      channel: widget.channel,
+      pushToast: pushToast,
+    );
+    if (deleted && mounted) Navigator.of(context).pop(true);
   }
 
   Future<void> _deleteMessage(ChannelMessage message) async {
