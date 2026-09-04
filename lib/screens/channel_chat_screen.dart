@@ -287,6 +287,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
       appBar: meshChatAppBar(
         context,
         menuTooltip: context.l10n.contacts_moreOptions,
+        // This screen draws its own accent dashed divider directly below —
+        // suppress the theme's default bottom line so it doesn't peek
+        // through in the divider's own left/right padding.
+        showBottomDivider: false,
         title: ChatAppBarTitle(
           name: label,
           onTap: () => openRegionSelectDialog(channel),
@@ -348,25 +352,32 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
               KeyedSubtree(
                 key: _badgeBarKey,
                 child: SizeChangedLayoutNotifier(
-                  child: ChatBadgeBar(
-                    badges: ChannelBadgeRow(
-                      alignment: WrapAlignment.center,
-                      showTrailingIcons: false,
-                      channelIndex: idx,
-                      region: connector.hasChannelRegion(idx)
-                          ? connector.getChannelRegion(idx)
-                          : null,
-                      isSmazEnabled: connector.isChannelSmazEnabled(idx),
-                      languageCode: connector.getChannelTranslationLanguage(
-                        idx,
+                  child: Column(
+                    children: [
+                      // Accent dashed rule under the app bar's bottom edge,
+                      // full width (2026-09-04).
+                      const MeshDashedDivider(),
+                      ChatBadgeBar(
+                        badges: ChannelBadgeRow(
+                          alignment: WrapAlignment.center,
+                          showTrailingIcons: false,
+                          channelIndex: idx,
+                          region: connector.hasChannelRegion(idx)
+                              ? connector.getChannelRegion(idx)
+                              : null,
+                          isSmazEnabled: connector.isChannelSmazEnabled(idx),
+                          languageCode: connector.getChannelTranslationLanguage(
+                            idx,
+                          ),
+                          timeLabel: lastTime != null
+                              ? formatLastSeenLabel(context, lastTime)
+                              : null,
+                          isUnread: unreadCount > 0,
+                          onRegionTap: () => openRegionSelectDialog(channel),
+                          onLanguageTap: _showTranslationOptions,
+                        ),
                       ),
-                      timeLabel: lastTime != null
-                          ? formatLastSeenLabel(context, lastTime)
-                          : null,
-                      isUnread: unreadCount > 0,
-                      onRegionTap: () => openRegionSelectDialog(channel),
-                      onLanguageTap: _showTranslationOptions,
-                    ),
+                    ],
                   ),
                 ),
               ),
