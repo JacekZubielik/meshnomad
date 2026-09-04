@@ -619,10 +619,16 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
       message.pathLength,
     );
 
-    // Bubble colors — outgoing uses MeshTokens.me / meBorder / meInk.
+    // Bubble surface follows the style-wide shadow toggle exactly like
+    // MeshCard (Contacts/Channels cards): shadow on → no outline, incoming
+    // fill bumped one surface level up + drop shadow; shadow off → flat
+    // fill with the 1 px outline (2026-09-04: bubbles were always outlined
+    // and never shadowed, the one surface in the app ignoring the toggle).
+    final elevated = MeshTokens.of(context).cardElevated;
+    // Outgoing uses MeshTokens.me / meBorder / meInk.
     final bubbleColor = isOutgoing
         ? MeshTokens.of(context).me
-        : scheme.surfaceContainerLow;
+        : (elevated ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow);
     final bubbleBorder = isOutgoing
         ? MeshTokens.of(context).meBorder
         : scheme.outlineVariant;
@@ -734,7 +740,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                     decoration: BoxDecoration(
                       color: bubbleColor,
                       borderRadius: borderRadius,
-                      border: Border.all(color: bubbleBorder, width: 1),
+                      border: elevated
+                          ? null
+                          : Border.all(color: bubbleBorder, width: 1),
+                      boxShadow: elevated ? MeshCard.dropShadow(context) : null,
                     ),
                     // IntrinsicWidth lets the dotted separator stretch to the
                     // bubble's natural width without inflating the bubble.
@@ -1122,10 +1131,15 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
             horizontal: MeshTokens.of(context).spacingXs,
             vertical: MeshTokens.of(context).spacingXxs,
           ),
+          // Same shadow-toggle rule as the bubbles: label-sized chip shadow
+          // (t.labelShadow, null when shadows are off) instead of an outline.
           decoration: BoxDecoration(
             color: scheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(MeshTokens.of(context).pill),
-            border: Border.all(color: scheme.outlineVariant, width: 1),
+            border: MeshTokens.of(context).cardElevated
+                ? null
+                : Border.all(color: scheme.outlineVariant, width: 1),
+            boxShadow: MeshTokens.of(context).labelShadow,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

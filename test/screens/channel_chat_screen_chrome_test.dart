@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:meshnomad/connector/meshcore_connector.dart';
 import 'package:meshnomad/l10n/app_localizations.dart';
 import 'package:meshnomad/models/channel.dart';
+import 'package:meshnomad/models/channel_message.dart';
 import 'package:meshnomad/screens/channel_chat_screen.dart';
 import 'package:meshnomad/services/app_settings_service.dart';
 import 'package:meshnomad/services/chat_text_scale_service.dart';
@@ -28,6 +29,10 @@ import 'package:meshnomad/widgets/winda_overlay.dart';
 class _FakeConnector extends MeshCoreConnector {
   bool syncingChannels = false;
   final List<int> deletedChannelIndices = [];
+  List<ChannelMessage> messages = [];
+
+  @override
+  List<ChannelMessage> getChannelMessages(Channel channel) => messages;
 
   @override
   bool get isConnected => true;
@@ -68,15 +73,33 @@ class _Launcher extends StatelessWidget {
   }
 }
 
+final _incoming = ChannelMessage(
+  senderName: 'Bob',
+  text: 'hello from bob',
+  timestamp: DateTime(2026, 9, 4, 12),
+  isOutgoing: false,
+  reactions: {'👍': 2},
+);
+final _outgoing = ChannelMessage(
+  senderName: 'Me',
+  text: 'hi bob',
+  timestamp: DateTime(2026, 9, 4, 12, 1),
+  isOutgoing: true,
+);
+
 Future<({_FakeConnector connector, AppSettingsService settings})> _pump(
   WidgetTester tester, {
   bool syncingChannels = false,
   bool pushed = false,
+  List<ChannelMessage> messages = const [],
+  MeshTokens tokens = MeshTokens.defaultTokens,
 }) async {
   SharedPreferences.setMockInitialValues({});
   PrefsManager.reset();
   await PrefsManager.initialize();
-  final connector = _FakeConnector()..syncingChannels = syncingChannels;
+  final connector = _FakeConnector()
+    ..syncingChannels = syncingChannels
+    ..messages = messages;
   final settings = AppSettingsService();
   await settings.loadSettings();
   final translation = TranslationService(settings);
@@ -96,9 +119,7 @@ Future<({_FakeConnector connector, AppSettingsService settings})> _pump(
         ),
       ],
       child: MaterialApp(
-        theme: MeshTheme.light().copyWith(
-          extensions: const [MeshTokens.defaultTokens],
-        ),
+        theme: MeshTheme.light().copyWith(extensions: [tokens]),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         navigatorObservers: [windaRouteObserver],
@@ -344,6 +365,79 @@ void main() {
 
     expect(env.connector.deletedChannelIndices, isEmpty);
     expect(find.byType(ChannelChatScreen), findsOneWidget);
+    await _finish(tester, env.connector);
+  });
+
+  /// The bubble is the first Container above the message text that carries
+  /// a BoxDecoration with a border radius (the text's own wrappers don't).
+  BoxDecoration bubbleDecoration(WidgetTester tester, String text) {
+    final containers = find.ancestor(
+      of: find.text(text),
+      matching: find.byType(Container),
+    );
+    for (final element in containers.evaluate()) {
+      final decoration = (element.widget as Container).decoration;
+      if (decoration is BoxDecoration && decoration.borderRadius != null) {
+        return decoration;
+      }
+    }
+    throw StateError('no bubble around "$text"');
+  }
+
+  BoxDecoration reactionChipDecoration(WidgetTester tester) =>
+      bubbleDecoration(tester, '👍');
+
+  testWidgets(
+    'bubbles: shadow on → drop shadow, no outline, fill bumped like MeshCard',
+    (tester) async {
+      final env = await _pump(tester, messages: [_incoming, _outgoing]);
+      final context = tester.element(find.byType(ChannelChatScreen));
+      final scheme = Theme.of(context).colorScheme;
+      final t = MeshTokens.of(context);
+      expect(t.cardElevated, isTrue);
+
+      final incoming = bubbleDecoration(tester, 'hello from bob');
+      expect(incoming.border, isNull);
+      expect(incoming.boxShadow, MeshCard.dropShadow(context));
+      expect(incoming.color, scheme.surfaceContainerHigh);
+
+      final outgoing = bubbleDecoration(tester, 'hi bob');
+      expect(outgoing.border, isNull);
+      expect(outgoing.boxShadow, MeshCard.dropShadow(context));
+      expect(outgoing.color, t.me);
+
+      final chip = reactionChipDecoration(tester);
+      expect(chip.border, isNull);
+      expect(chip.boxShadow, t.labelShadow);
+      await _finish(tester, env.connector);
+    },
+  );
+
+  testWidgets('bubbles: shadow off → outline, no shadow, flat fill', (
+    tester,
+  ) async {
+    final env = await _pump(
+      tester,
+      messages: [_incoming, _outgoing],
+      tokens: MeshTokens.defaultTokens.copyWith(cardElevated: false),
+    );
+    final context = tester.element(find.byType(ChannelChatScreen));
+    final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
+
+    final incoming = bubbleDecoration(tester, 'hello from bob');
+    expect(incoming.boxShadow, isNull);
+    expect((incoming.border! as Border).top.color, scheme.outlineVariant);
+    expect(incoming.color, scheme.surfaceContainerLow);
+
+    final outgoing = bubbleDecoration(tester, 'hi bob');
+    expect(outgoing.boxShadow, isNull);
+    expect((outgoing.border! as Border).top.color, t.meBorder);
+    expect(outgoing.color, t.me);
+
+    final chip = reactionChipDecoration(tester);
+    expect(chip.boxShadow, isNull);
+    expect((chip.border! as Border).top.color, scheme.outlineVariant);
     await _finish(tester, env.connector);
   });
 
