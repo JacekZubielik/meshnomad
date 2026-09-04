@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.15.1 (2026-09-04)
+
+### Highlights
+
+- Chat screens (direct and channel) brought to app-bar/badge-strip/winda parity with the main cards: accent back arrow, single overflow menu, and a centered status-badge strip below the bar instead of the old subtitle (#150)
+
+### Fixes
+
+- Chat app bars unified with the main-card chrome: neutral RadioStats button and the extra flat overflow icon removed, region-select moved into the channel menu, Settings/Quick Style/Disconnect/About appended to both menus (#150)
+- Channel chat subtitle and empty-state icon no longer mislabel every community/hashtag channel "Private" — they tested the protocol's single well-known public PSK instead of the card's actual channel type (#150)
+- Both chat screens route through `MeshScreenScaffold`, gaining the same background sync-progress winda and auto-dismissing toast queue Contacts already had, replacing ten ad-hoc snackbar call sites (#150)
+- Channel card's type avatar and status badges extracted into shared `ChannelAvatar`/`ChannelBadgeRow` widgets so the chat header renders the identical avatar and badges as the card (#150)
+- QR-joined community channels now get the same localized "Public" name suffix a locally-created community's channel gets, instead of a hardcoded English one (#150)
+- Search bar shadow on Contacts, Channels and Map stays above scrolled-up cards instead of sitting behind them (#149)
+
 ## v0.15.0 (2026-09-03)
 
 ### Highlights
