@@ -21,6 +21,8 @@ import 'package:meshnomad/theme/mesh_theme.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
 import 'package:meshnomad/widgets/app_bar.dart';
 import 'package:meshnomad/widgets/chat_app_bar.dart';
+import 'package:meshnomad/widgets/dotted_separator.dart';
+import 'package:meshnomad/widgets/mesh_dashed_divider.dart';
 import 'package:meshnomad/widgets/mesh_ui.dart';
 import 'package:meshnomad/widgets/radio_stats_entry.dart';
 import 'package:meshnomad/widgets/winda_host_overlay.dart';
@@ -149,6 +151,34 @@ void main() {
       await _finish(tester, connector);
     },
   );
+
+  testWidgets('accent dashed rule sits under the app bar, full width', (
+    tester,
+  ) async {
+    final connector = await _pump(tester);
+
+    final divider = find.byType(MeshDashedDivider);
+    expect(divider, findsOneWidget);
+    final t = MeshTokens.of(tester.element(divider));
+    final widget = tester.widget<MeshDashedDivider>(divider);
+    expect(widget.indent, 0);
+    expect(widget.endIndent, 0);
+    expect(
+      tester.getSize(divider).width,
+      tester.getSize(find.byType(MaterialApp)).width,
+    );
+    // Directly under the app bar (top of body), not just anywhere.
+    expect(tester.getTopLeft(divider).dy, closeTo(kToolbarHeight, 0.5));
+    final dottedLine = find.descendant(
+      of: divider,
+      matching: find.byType(DottedSeparator),
+    );
+    expect(tester.widget<DottedSeparator>(dottedLine).color, t.secondary);
+    // The theme's own solid bottom border is off — no double line.
+    final shape = tester.widget<AppBar>(find.byType(AppBar)).shape;
+    expect((shape! as Border).bottom.width, 0);
+    await _finish(tester, connector);
+  });
 
   testWidgets('header: contact-card badges replace the unread subtitle', (
     tester,

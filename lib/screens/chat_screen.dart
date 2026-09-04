@@ -232,6 +232,9 @@ class _ChatScreenState extends State<ChatScreen> with WindaToastQueue {
       appBar: meshChatAppBar(
         context,
         menuTooltip: context.l10n.contacts_moreOptions,
+        // This screen draws its own accent dashed rule directly below —
+        // suppress the theme's default bottom line (channel chat parity).
+        showBottomDivider: false,
         title: ChatAppBarTitle(name: contact.name, onTap: openRouting),
         // onTap handlers run after the menu route pops, so they must
         // capture the screen's context — not the itemBuilder's menu
@@ -308,22 +311,29 @@ class _ChatScreenState extends State<ChatScreen> with WindaToastQueue {
             KeyedSubtree(
               key: _badgeBarKey,
               child: SizeChangedLayoutNotifier(
-                child: ChatBadgeBar(
-                  badges: ContactBadgeRow(
-                    alignment: WrapAlignment.center,
-                    showTrailingIcons: false,
-                    isFavorite: false,
-                    hasLocation: contact.hasLocation,
-                    isSmazEnabled: connector.isContactSmazEnabled(keyHex),
-                    routeLabel: _currentPathLabel(contact),
-                    languageCode: connector.getContactTranslationLanguage(
-                      keyHex,
+                child: Column(
+                  children: [
+                    // Accent dashed rule under the app bar's bottom edge,
+                    // full width — channel chat parity (2026-09-04).
+                    const MeshDashedDivider(),
+                    ChatBadgeBar(
+                      badges: ContactBadgeRow(
+                        alignment: WrapAlignment.center,
+                        showTrailingIcons: false,
+                        isFavorite: false,
+                        hasLocation: contact.hasLocation,
+                        isSmazEnabled: connector.isContactSmazEnabled(keyHex),
+                        routeLabel: _currentPathLabel(contact),
+                        languageCode: connector.getContactTranslationLanguage(
+                          keyHex,
+                        ),
+                        timeLabel: formatLastSeenLabel(context, lastSeen),
+                        isUnread: unreadCount > 0,
+                        onRouteTap: openRouting,
+                        onLanguageTap: _showTranslationOptions,
+                      ),
                     ),
-                    timeLabel: formatLastSeenLabel(context, lastSeen),
-                    isUnread: unreadCount > 0,
-                    onRouteTap: openRouting,
-                    onLanguageTap: _showTranslationOptions,
-                  ),
+                  ],
                 ),
               ),
             ),
