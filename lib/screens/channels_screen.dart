@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:meshnomad/screens/about_screen.dart';
 import 'package:meshnomad/storage/channel_message_store.dart';
 import 'package:meshnomad/utils/keys.dart';
@@ -326,6 +327,10 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                       margin: EdgeInsets.zero,
                       padding: EdgeInsets.zero,
                       radius: 0,
+                      // Shadow cast by the MeshCardEdgeShadow in the Stack
+                      // below instead — see Contacts (issue #149).
+                      castsShadow: false,
+                      outlined: false,
                       color: Theme.of(context).colorScheme.surface,
                       child: Padding(
                         padding: EdgeInsets.symmetric(
@@ -475,6 +480,17 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                   },
                                 ),
                         ),
+                        // Casts the search field's own shadow again on top
+                        // of scrolled-up cards — see MeshCardEdgeShadow's
+                        // doc comment. Painted after the list, before the
+                        // winda below, so the winda keeps covering it
+                        // exactly as it always has.
+                        const Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: MeshCardEdgeShadow(),
+                        ),
                         Positioned(
                           top: 0,
                           left: 0,
@@ -561,34 +577,20 @@ class _ChannelsScreenState extends State<ChannelsScreen>
     final scheme = Theme.of(context).colorScheme;
     final t = MeshTokens.of(context);
 
-    // Determine icon, colors and the header type-pill label per channel type
-    IconData icon;
-    Color iconColor;
-    String typeLabel;
+    // Icon + tint come from the shared ChannelAvatar/channelTypeColor
+    // (mesh_ui.dart) so the chat header renders the identical avatar.
     final ChannelType channelType = Channel.getChannelType(
       channel,
       _communityIndex,
     );
-    final bool isCommunityChannel = Channel.isCommunityChannel(channelType);
-    switch (channelType) {
-      case ChannelType.communityPublic:
-      case ChannelType.communityHashtag:
-        icon = Icons.groups;
-        iconColor = t.secondary;
-        typeLabel = context.l10n.channelType_community;
-      case ChannelType.public:
-        icon = Icons.public;
-        iconColor = t.signal;
-        typeLabel = context.l10n.channelType_public;
-      case ChannelType.hashtag:
-        icon = Icons.tag;
-        iconColor = t.primary;
-        typeLabel = context.l10n.channelType_hashtag;
-      case ChannelType.private:
-        icon = Icons.lock;
-        iconColor = t.primary;
-        typeLabel = context.l10n.channelType_private;
-    }
+    final iconColor = channelTypeColor(channelType, t);
+    final typeLabel = switch (channelType) {
+      ChannelType.communityPublic ||
+      ChannelType.communityHashtag => context.l10n.channelType_community,
+      ChannelType.public => context.l10n.channelType_public,
+      ChannelType.hashtag => context.l10n.channelType_hashtag,
+      ChannelType.private => context.l10n.channelType_private,
+    };
 
     // Last message preview
     final messages = connector.getChannelMessages(channel);
@@ -657,39 +659,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    AvatarCircle(
-                      name: channelLabel,
-                      size: 42,
-                      color: iconColor,
-                      icon: icon,
-                    ),
-                    if (isCommunityChannel)
-                      Positioned(
-                        right: -2,
-                        bottom: -2,
-                        child: Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: t.secondary,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: scheme.surfaceContainerLow,
-                              width: 2,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.people,
-                            size: 8,
-                            color: t.secondaryInk,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                ChannelAvatar(type: channelType, label: channelLabel),
                 SizedBox(width: t.spacingSm),
                 Expanded(
                   child: Text(
@@ -740,110 +710,40 @@ class _ChannelsScreenState extends State<ChannelsScreen>
             // Same token as the card's own padding — gap above the badge row
             // equals the card padding below it (contact-card rule).
             SizedBox(height: t.spacingMd),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Wrap(
-                    spacing: t.spacingXxs,
-                    runSpacing: t.spacingXxs,
-                    children: [
-                      MeshStatusBadge(
-                        label: 'CH ${channel.index}',
-                        color: scheme.onSurfaceVariant,
-                        active: true,
-                      ),
-                      MeshStatusBadge(
-                        label: hasRegion
-                            ? connector.getChannelRegion(channel.index)
-                            : context.l10n.channels_badgeRegion,
-                        color: t.routeActive,
-                        active: hasRegion,
-                        fillColor: hasRegion
-                            ? t.routeActive.withValues(alpha: 0.2)
-                            : null,
-                      ),
-                      MeshStatusBadge(
-                        label: 'Smaz',
-                        color: scheme.onSurfaceVariant,
-                        active: connector.isChannelSmazEnabled(channel.index),
-                      ),
-                      // Per-channel translation language (2026-08-29,
-                      // replaces the translate icon; moved into the pill row
-                      // between SMAZ and TIME per user feedback): the
-                      // channel's assigned 2-letter code, ghosted "AUTO"
-                      // when inheriting the app-wide setting; always
-                      // tappable — shortcut to the language selection sheet
-                      // for THIS channel only.
-                      MeshStatusBadge(
-                        // Ghost label 'LANG', not 'AUTO' — "auto" read as
-                        // ambiguous (2026-08-29 user feedback).
-                        label: channelLang?.toUpperCase() ?? 'LANG',
-                        color: t.primary,
-                        active: channelLang != null,
-                        fillColor: channelLang != null
-                            ? t.primary.withValues(alpha: 0.2)
-                            : null,
-                        onTap: () => _showChannelTranslationSheet(
-                          this.context,
-                          connector,
-                          channel,
-                          channelLabel,
-                        ),
-                      ),
-                      MeshStatusBadge(
-                        label: lastTime != null
-                            ? formatLastSeenLabel(context, lastTime)
-                            : '—',
-                        color: unreadCount > 0
-                            ? t.primary
-                            : scheme.onSurfaceVariant,
-                        active: lastTime != null,
-                        fillColor: lastTime != null
-                            ? (unreadCount > 0
-                                      ? t.primary
-                                      : scheme.onSurfaceVariant)
-                                  .withValues(alpha: 0.2)
-                            : null,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: t.spacingXxs),
-                GestureDetector(
-                  onTap: () {
-                    final settings = context.read<AppSettingsService>();
-                    if (isMuted) {
-                      settings.unmuteChannel(channel.name);
-                    } else {
-                      settings.muteChannel(channel.name);
-                    }
-                  },
-                  behavior: HitTestBehavior.opaque,
-                  child: Opacity(
-                    opacity: isMuted ? 1.0 : 0.30,
-                    child: Icon(
-                      isMuted ? Icons.notifications_off : Icons.notifications,
-                      size: 18,
-                      color: t.warn,
-                    ),
-                  ),
-                ),
-                SizedBox(width: t.spacingXxs),
-                GestureDetector(
-                  onTap: () =>
-                      connector.setChannelFavorite(channel.index, !isFavorite),
-                  behavior: HitTestBehavior.opaque,
-                  child: Opacity(
-                    opacity: isFavorite ? 1.0 : 0.30,
-                    child: Icon(
-                      isFavorite ? Icons.star : Icons.star_border,
-                      size: 18,
-                      color: t.warn,
-                    ),
-                  ),
-                ),
-              ],
+            // The same ChannelBadgeRow the channel chat header renders
+            // (badge-only there) — one widget, so the two can't drift.
+            // LANG (2026-08-29): the channel's assigned 2-letter code,
+            // ghosted "LANG" when inheriting the app-wide setting; always
+            // tappable — shortcut to the language sheet for THIS channel.
+            ChannelBadgeRow(
+              channelIndex: channel.index,
+              region: hasRegion
+                  ? connector.getChannelRegion(channel.index)
+                  : null,
+              isSmazEnabled: connector.isChannelSmazEnabled(channel.index),
+              languageCode: channelLang,
+              timeLabel: lastTime != null
+                  ? formatLastSeenLabel(context, lastTime)
+                  : null,
+              isUnread: unreadCount > 0,
+              isMuted: isMuted,
+              isFavorite: isFavorite,
+              onLanguageTap: () => _showChannelTranslationSheet(
+                this.context,
+                connector,
+                channel,
+                channelLabel,
+              ),
+              onMuteTap: () {
+                final settings = context.read<AppSettingsService>();
+                if (isMuted) {
+                  settings.unmuteChannel(channel.name);
+                } else {
+                  settings.muteChannel(channel.name);
+                }
+              },
+              onFavoriteTap: () =>
+                  connector.setChannelFavorite(channel.index, !isFavorite),
             ),
             if (lastPreview.isNotEmpty) ...[
               SizedBox(height: t.spacingSm),
@@ -1829,10 +1729,8 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                                     title: context.l10n.community_qrTitle,
                                     instructions: context.l10n
                                         .community_qrInstructions(name),
-                                    embeddedImage: Image.asset(
-                                      'assets/images/mesh-icon.png',
-                                      width: 40,
-                                      height: 40,
+                                    embeddedImage: SvgPicture.asset(
+                                      'assets/icons/qr_embed_mark.svg',
                                     ),
                                   );
                                 }
@@ -2384,11 +2282,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
       data: community.toQrJson(),
       title: context.l10n.community_qrTitle,
       instructions: context.l10n.community_qrInstructions(community.name),
-      embeddedImage: Image.asset(
-        'assets/images/mesh-icon.png',
-        width: 40,
-        height: 40,
-      ),
+      embeddedImage: SvgPicture.asset('assets/icons/qr_embed_mark.svg'),
     );
   }
 

@@ -15,8 +15,16 @@ import '../helpers/cyr2lat.dart';
 import '../helpers/path_helper.dart';
 import '../helpers/reaction_helper.dart';
 import '../widgets/message_status_icon.dart';
-import '../widgets/app_bar.dart';
+import '../widgets/chat_app_bar.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/mesh_screen_scaffold.dart';
+import '../widgets/quick_style_picker_dialog.dart';
+import '../widgets/winda_message.dart';
+import '../widgets/winda_overlay.dart';
+import '../utils/dialog_utils.dart';
+import '../utils/last_seen_label.dart';
+import 'package:meshnomad/screens/about_screen.dart';
+import 'settings_screen.dart';
 import '../helpers/chat_scroll_controller.dart';
 import '../helpers/gif_helper.dart';
 import '../models/channel_message.dart';
@@ -38,10 +46,8 @@ import '../widgets/jump_to_bottom_button.dart';
 import '../widgets/gif_picker.dart';
 import '../widgets/message_translation_button.dart';
 import '../widgets/routing_sheet.dart';
-import '../widgets/radio_stats_entry.dart';
 import '../widgets/translated_message_content.dart';
 import '../l10n/l10n.dart';
-import '../helpers/snack_bar_builder.dart';
 import '../widgets/unread_divider.dart';
 import '../theme/mesh_tokens.dart';
 import '../widgets/mesh_ui.dart';
@@ -62,12 +68,28 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with WindaToastQueue {
   final _textController = TextEditingController();
   final _scrollController = ChatScrollController();
   final _textFieldFocusNode = FocusNode();
   final GlobalKey _unreadScrollKey = GlobalKey();
   bool _isLoadingOlder = false;
+
+  // Lets the message winda (hosted above the Navigator, see
+  // MeshScreenScaffold.extraTopOffset) stack below this screen's own
+  // floating progress winda — measured, not hardcoded (Contacts pattern).
+  final GlobalKey _badgeBarKey = GlobalKey();
+  final GlobalKey _progressWindaKey = GlobalKey();
+  double _extraTopOffset = 0;
+
+  void _measureExtraTopOffset() {
+    final measured =
+        measuredHeightOf(_badgeBarKey) + measuredHeightOf(_progressWindaKey);
+    if ((measured - _extraTopOffset).abs() > 0.5) {
+      setState(() => _extraTopOffset = measured);
+    }
+  }
+
   MeshCoreConnector? _connector;
   Message? _pendingUnreadScrollTarget;
   String? _unreadDividerMessageId;
@@ -182,167 +204,152 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _screenBody(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Consumer2<PathHistoryService, MeshCoreConnector>(
-          builder: (context, pathService, connector, _) {
-            final contact = _resolveContact(connector);
-            final unreadCount = connector.getUnreadCountForContactKey(
-              widget.contact.publicKeyHex,
-            );
-            final unreadLabel = context.l10n.chat_unread(unreadCount);
-            final pathLabel = _currentPathLabel(contact);
+    final connector = context.watch<MeshCoreConnector>();
+    // Path-history changes re-render the header's route badge.
+    context.watch<PathHistoryService>();
+    final contact = _resolveContact(connector);
+    final keyHex = widget.contact.publicKeyHex;
+    final unreadCount = connector.getUnreadCountForContactKey(keyHex);
+    // Same rule as the contact card's TIME badge (_resolveLastSeen).
+    final lastSeen = contact.lastMessageAt.isAfter(contact.lastSeen)
+        ? contact.lastMessageAt
+        : contact.lastSeen;
+    final messages = connector.getMessages(widget.contact);
+    final scheme = Theme.of(context).colorScheme;
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  contact.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () =>
-                      ContactRoutingSheet.show(context, contact: contact),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: MeshTokens.of(context).spacingXs,
-                    ),
-                    child: Text(
-                      '$pathLabel • $unreadLabel',
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.normal,
-                        decoration: TextDecoration.underline,
-                        decorationStyle: TextDecorationStyle.dotted,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-        centerTitle: false,
-        actions: [
-          const RadioStatsIconButton(),
-          Consumer<MeshCoreConnector>(
-            builder: (context, connector, _) {
-              final contact = _resolveContact(connector);
+    // First-layout measurement (SizeChangedLayoutNotifier below only fires
+    // on later changes) — matters when a sync is already running as the
+    // screen opens.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _measureExtraTopOffset();
+    });
 
-              return PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert),
-                onSelected: (value) {
-                  switch (value) {
-                    case 'routing':
-                      ContactRoutingSheet.show(context, contact: contact);
-                    case 'info':
-                      _showContactInfo(context);
-                    case 'settings':
-                      _showContactSettings(context);
-                    case 'telemetry':
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              TelemetryScreen(contact: widget.contact),
-                        ),
-                      );
-                    case 'clearChat':
-                      _confirmClearChat(context, connector);
-                  }
-                },
-                itemBuilder: (context) {
-                  final t = MeshTokens.of(context);
-                  return [
-                    PopupMenuItem(
-                      value: 'routing',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.route, size: 20),
-                          SizedBox(width: t.spacingSm),
-                          Text(context.l10n.routing_title),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'info',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.info_outline, size: 20),
-                          SizedBox(width: t.spacingSm),
-                          Text(context.l10n.contact_info),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'telemetry',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.bar_chart, size: 20),
-                          SizedBox(width: t.spacingSm),
-                          Text(context.l10n.contact_telemetry),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'settings',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.settings, size: 20),
-                          SizedBox(width: t.spacingSm),
-                          Text(context.l10n.contact_settings),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'clearChat',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.delete,
-                            size: 20,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          SizedBox(width: t.spacingSm),
-                          Text(
-                            context.l10n.contact_clearChat,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ];
-                },
-              );
-            },
+    void openRouting() => ContactRoutingSheet.show(context, contact: contact);
+
+    return MeshScreenScaffold(
+      extraTopOffset: _extraTopOffset,
+      messages: toastMessages,
+      appBar: meshChatAppBar(
+        context,
+        menuTooltip: context.l10n.contacts_moreOptions,
+        title: ChatAppBarTitle(name: contact.name, onTap: openRouting),
+        // onTap handlers run after the menu route pops, so they must
+        // capture the screen's context — not the itemBuilder's menu
+        // context, which is deactivated by then.
+        menuItemBuilder: (menuContext) => [
+          meshMenuActionItem(
+            icon: Icons.route,
+            label: menuContext.l10n.routing_title,
+            onTap: openRouting,
           ),
-          const QuickAccessMenuButton(),
+          meshMenuActionItem(
+            icon: Icons.info_outline,
+            label: menuContext.l10n.contact_info,
+            onTap: () => _showContactInfo(context),
+          ),
+          meshMenuActionItem(
+            icon: Icons.bar_chart,
+            label: menuContext.l10n.contact_telemetry,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TelemetryScreen(contact: widget.contact),
+              ),
+            ),
+          ),
+          meshMenuActionItem(
+            icon: Icons.manage_accounts,
+            label: menuContext.l10n.contact_settings,
+            onTap: () => _showContactSettings(context),
+          ),
+          meshMenuDivider(menuContext),
+          meshMenuActionItem(
+            icon: Icons.delete,
+            iconColor: scheme.error,
+            label: menuContext.l10n.contact_clearChat,
+            onTap: () => _confirmClearChat(context, connector),
+          ),
+          meshMenuDivider(menuContext),
+          meshMenuActionItem(
+            icon: Icons.settings,
+            label: menuContext.l10n.settings_title,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsScreen()),
+            ),
+          ),
+          meshMenuActionItem(
+            icon: Icons.palette_outlined,
+            label: menuContext.l10n.appSettings_quickStyleMenuItem,
+            onTap: () => showQuickStylePickerDialog(context),
+          ),
+          meshMenuActionItem(
+            icon: Icons.logout,
+            iconColor: scheme.error,
+            label: menuContext.l10n.common_disconnect,
+            onTap: () => showDisconnectDialog(context, connector),
+          ),
+          meshMenuActionItem(
+            icon: Icons.info_outline,
+            label: menuContext.l10n.settings_about,
+            onTap: () => pushAboutScreen(context),
+          ),
         ],
       ),
-      body: Consumer<MeshCoreConnector>(
-        builder: (context, connector, child) {
-          final messages = connector.getMessages(widget.contact);
-          return Column(
-            children: [
-              Expanded(
-                child: Stack(
-                  children: [
-                    messages.isEmpty
-                        ? _buildEmptyState()
-                        : _buildMessageList(messages, connector),
-                    JumpToBottomButton(scrollController: _scrollController),
-                  ],
+      body: NotificationListener<SizeChangedLayoutNotification>(
+        onNotification: (notification) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _measureExtraTopOffset();
+          });
+          return true;
+        },
+        child: Column(
+          children: [
+            KeyedSubtree(
+              key: _badgeBarKey,
+              child: SizeChangedLayoutNotifier(
+                child: ChatBadgeBar(
+                  badges: ContactBadgeRow(
+                    alignment: WrapAlignment.center,
+                    showTrailingIcons: false,
+                    isFavorite: false,
+                    hasLocation: contact.hasLocation,
+                    isSmazEnabled: connector.isContactSmazEnabled(keyHex),
+                    routeLabel: _currentPathLabel(contact),
+                    languageCode: connector.getContactTranslationLanguage(
+                      keyHex,
+                    ),
+                    timeLabel: formatLastSeenLabel(context, lastSeen),
+                    isUnread: unreadCount > 0,
+                    onRouteTap: openRouting,
+                    onLanguageTap: _showTranslationOptions,
+                  ),
                 ),
               ),
-              _buildInputBar(connector),
-            ],
-          );
-        },
+            ),
+            Expanded(
+              child: Stack(
+                children: [
+                  messages.isEmpty
+                      ? _buildEmptyState()
+                      : _buildMessageList(messages, connector),
+                  JumpToBottomButton(scrollController: _scrollController),
+                  // Casts the badge bar's shadow on top of scrolled-up
+                  // bubbles — see MeshCardEdgeShadow's doc comment. Painted
+                  // after the list, before the winda, exactly as Contacts.
+                  const Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: MeshCardEdgeShadow(),
+                  ),
+                  SyncProgressWinda(key: _progressWindaKey),
+                ],
+              ),
+            ),
+            _buildInputBar(connector),
+          ],
+        ),
       ),
     );
   }
@@ -675,9 +682,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final now = DateTime.now();
     if (_lastTextSendAt != null &&
         now.difference(_lastTextSendAt!) < const Duration(seconds: 1)) {
-      showDismissibleSnackBar(
-        context,
-        content: Text(context.l10n.chat_sendCooldown),
+      pushToast(
+        WindaMessage(
+          text: context.l10n.chat_sendCooldown,
+          tone: WindaMessageTone.warning,
+        ),
       );
       return;
     }
@@ -731,9 +740,11 @@ class _ChatScreenState extends State<ChatScreen> {
       outgoingText,
     );
     if (utf8.encode(outboundText).length > maxBytes) {
-      showDismissibleSnackBar(
-        context,
-        content: Text(context.l10n.chat_messageTooLong(maxBytes)),
+      pushToast(
+        WindaMessage(
+          text: context.l10n.chat_messageTooLong(maxBytes),
+          tone: WindaMessageTone.error,
+        ),
       );
       return;
     }
@@ -1274,27 +1285,33 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _copyMessageText(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    showDismissibleSnackBar(
-      context,
-      content: Text(context.l10n.chat_messageCopied),
+    pushToast(
+      WindaMessage(
+        text: context.l10n.chat_messageCopied,
+        tone: WindaMessageTone.success,
+      ),
     );
   }
 
   Future<void> _deleteMessage(Message message) async {
     await context.read<MeshCoreConnector>().deleteMessage(message);
     if (!mounted) return;
-    showDismissibleSnackBar(
-      context,
-      content: Text(context.l10n.chat_messageDeleted),
+    pushToast(
+      WindaMessage(
+        text: context.l10n.chat_messageDeleted,
+        tone: WindaMessageTone.success,
+      ),
     );
   }
 
   void _retryMessage(Message message) {
     final connector = Provider.of<MeshCoreConnector>(context, listen: false);
     connector.resendMessage(_resolveContact(connector), message);
-    showDismissibleSnackBar(
-      context,
-      content: Text(context.l10n.chat_retryingMessage),
+    pushToast(
+      WindaMessage(
+        text: context.l10n.chat_retryingMessage,
+        tone: WindaMessageTone.info,
+      ),
     );
   }
 

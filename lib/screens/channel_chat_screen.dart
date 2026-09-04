@@ -18,7 +18,6 @@ import '../helpers/cyr2lat.dart';
 import '../helpers/gif_helper.dart';
 import '../helpers/path_helper.dart';
 import '../helpers/reaction_helper.dart';
-import '../helpers/snack_bar_builder.dart';
 import '../l10n/l10n.dart';
 import '../models/channel.dart';
 import '../models/channel_message.dart';
@@ -26,17 +25,24 @@ import '../models/translation_support.dart';
 import '../services/app_settings_service.dart';
 import '../services/chat_text_scale_service.dart';
 import '../services/translation_service.dart';
-import '../widgets/app_bar.dart';
 import '../widgets/byte_count_input.dart';
+import '../widgets/chat_app_bar.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/chat_zoom_wrapper.dart';
+import '../widgets/mesh_screen_scaffold.dart';
+import '../widgets/quick_style_picker_dialog.dart';
+import '../widgets/winda_message.dart';
+import '../widgets/winda_overlay.dart';
+import '../utils/dialog_utils.dart';
+import '../utils/last_seen_label.dart';
+import 'package:meshnomad/screens/about_screen.dart';
+import 'settings_screen.dart';
 import '../widgets/emoji_picker.dart';
 import '../widgets/gif_message.dart';
 import '../widgets/jump_to_bottom_button.dart';
 import '../widgets/gif_picker.dart';
 import '../widgets/message_translation_button.dart';
 import '../widgets/message_status_icon.dart';
-import '../widgets/radio_stats_entry.dart';
 import '../widgets/translated_message_content.dart';
 import '../widgets/unread_divider.dart';
 import '../theme/mesh_tokens.dart';
@@ -62,16 +68,32 @@ class ChannelChatScreen extends StatefulWidget {
   State<ChannelChatScreen> createState() => _ChannelChatScreenState();
 }
 
-class _ChannelChatScreenState extends State<ChannelChatScreen> {
+class _ChannelChatScreenState extends State<ChannelChatScreen>
+    with WindaToastQueue {
   final TextEditingController _textController = TextEditingController();
   final ChatScrollController _scrollController = ChatScrollController();
   final FocusNode _textFieldFocusNode = FocusNode();
+
+  // Lets the message winda (hosted above the Navigator, see
+  // MeshScreenScaffold.extraTopOffset) stack below this screen's own
+  // floating progress winda — measured, not hardcoded (Contacts pattern).
+  final GlobalKey _badgeBarKey = GlobalKey();
+  final GlobalKey _progressWindaKey = GlobalKey();
+  double _extraTopOffset = 0;
+
+  void _measureExtraTopOffset() {
+    final measured =
+        measuredHeightOf(_badgeBarKey) + measuredHeightOf(_progressWindaKey);
+    if ((measured - _extraTopOffset).abs() > 0.5) {
+      setState(() => _extraTopOffset = measured);
+    }
+  }
+
   ChannelMessage? _replyingToMessage;
   final CommunityStore _communityStore = CommunityStore();
   final CommunityPskIndex _communityIndex = CommunityPskIndex();
   final Map<String, GlobalKey> _messageKeys = {};
   bool _isLoadingOlder = false;
-  bool _communitiesLoaded = false;
 
   MeshCoreConnector? _connector;
   DateTime? _lastChannelSendAt;
@@ -130,7 +152,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     if (mounted) {
       setState(() {
         _communityIndex.initialize(communities);
-        _communitiesLoaded = true;
       });
     }
   }
@@ -205,10 +226,12 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       // The auto unread-jump can resolve a frame after navigating away;
       // a deactivated context can't host a snackbar.
       if (quiet || !mounted || !context.mounted) return;
-      showDismissibleSnackBar(
-        context,
-        content: Text(context.l10n.chat_originalMessageNotFound),
-        duration: const Duration(seconds: 2),
+      pushToast(
+        WindaMessage(
+          text: context.l10n.chat_originalMessageNotFound,
+          tone: WindaMessageTone.warning,
+          duration: const Duration(seconds: 2),
+        ),
       );
       return;
     }
@@ -224,62 +247,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     );
   }
 
-  Widget _channelIcon(Channel channel) {
-    // Determine icon based on channel type
-    final ChannelType channelType = Channel.getChannelType(
-      channel,
-      _communityIndex,
-    );
-    final bool isCommunityChannel = Channel.isCommunityChannel(channelType);
-    IconData icon;
-    switch (channelType) {
-      case ChannelType.communityPublic:
-        icon = Icons.groups;
-      case ChannelType.communityHashtag:
-        icon = Icons.tag;
-      case ChannelType.public:
-        icon = Icons.public;
-      case ChannelType.hashtag:
-        icon = Icons.tag;
-      case ChannelType.private:
-        icon = Icons.lock;
-    }
-    return Stack(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: MeshTokens.of(context).spacingXxs,
-          ),
-          child: _communitiesLoaded
-              ? Icon(icon, size: 20)
-              : SizedBox.square(dimension: 20),
-        ),
-        if (isCommunityChannel)
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: MeshTokens.of(context).secondary,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Theme.of(context).cardColor,
-                  width: 2,
-                ),
-              ),
-              child: Icon(
-                Icons.people,
-                size: 8,
-                color: MeshTokens.of(context).secondaryInk,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
@@ -289,230 +256,278 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   }
 
   Widget _screenBody(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => openRegionSelectDialog(widget.channel),
-          child: Row(
+    final connector = context.watch<MeshCoreConnector>();
+    final channel = widget.channel;
+    final idx = channel.index;
+    // The card's 5-way type (community/public/hashtag/private), NOT the
+    // protocol-level `isPublicChannel` (== the one well-known public PSK)
+    // the old subtitle used — that labelled every community and hashtag
+    // channel "Private".
+    final channelType = Channel.getChannelType(channel, _communityIndex);
+    final label = channel.name.isEmpty
+        ? context.l10n.channels_channelIndex(idx)
+        : channel.name;
+    final channelMessages = connector.getChannelMessages(channel);
+    final lastTime = channelMessages.isNotEmpty
+        ? channelMessages.last.timestamp
+        : null;
+    final unreadCount = connector.getUnreadCountForChannelIndex(idx);
+    final theme = Theme.of(context);
+
+    // First-layout measurement (SizeChangedLayoutNotifier below only fires
+    // on later changes) — matters when a sync is already running as the
+    // screen opens.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _measureExtraTopOffset();
+    });
+
+    return MeshScreenScaffold(
+      extraTopOffset: _extraTopOffset,
+      messages: toastMessages,
+      appBar: meshChatAppBar(
+        context,
+        menuTooltip: context.l10n.contacts_moreOptions,
+        title: ChatAppBarTitle(
+          name: label,
+          onTap: () => openRegionSelectDialog(channel),
+        ),
+        // onTap handlers run after the menu route pops, so they must
+        // capture the screen's context — not the itemBuilder's menu
+        // context, which is deactivated by then.
+        menuItemBuilder: (menuContext) => [
+          meshMenuActionItem(
+            icon: Icons.landscape,
+            label: menuContext.l10n.channels_regionSelect_Title,
+            onTap: () => openRegionSelectDialog(channel),
+          ),
+          meshMenuDivider(menuContext),
+          meshMenuActionItem(
+            icon: Icons.delete,
+            iconColor: theme.colorScheme.error,
+            label: menuContext.l10n.contact_clearChat,
+            onTap: _confirmClearChat,
+          ),
+          meshMenuDivider(menuContext),
+          meshMenuActionItem(
+            icon: Icons.settings,
+            label: menuContext.l10n.settings_title,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsScreen()),
+            ),
+          ),
+          meshMenuActionItem(
+            icon: Icons.palette_outlined,
+            label: menuContext.l10n.appSettings_quickStyleMenuItem,
+            onTap: () => showQuickStylePickerDialog(context),
+          ),
+          meshMenuActionItem(
+            icon: Icons.logout,
+            iconColor: theme.colorScheme.error,
+            label: menuContext.l10n.common_disconnect,
+            onTap: () => showDisconnectDialog(context, connector),
+          ),
+          meshMenuActionItem(
+            icon: Icons.info_outline,
+            label: menuContext.l10n.settings_about,
+            onTap: () => pushAboutScreen(context),
+          ),
+        ],
+      ),
+      body: NotificationListener<SizeChangedLayoutNotification>(
+        onNotification: (notification) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _measureExtraTopOffset();
+          });
+          return true;
+        },
+        child: SafeArea(
+          top: false,
+          child: Column(
             children: [
-              _channelIcon(widget.channel),
-              SizedBox(width: MeshTokens.of(context).spacingXs),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.channel.name.isEmpty
-                          ? context.l10n.channels_channelIndex(
-                              widget.channel.index,
-                            )
-                          : widget.channel.name,
-                      style: Theme.of(context).textTheme.titleMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+              KeyedSubtree(
+                key: _badgeBarKey,
+                child: SizeChangedLayoutNotifier(
+                  child: ChatBadgeBar(
+                    badges: ChannelBadgeRow(
+                      alignment: WrapAlignment.center,
+                      showTrailingIcons: false,
+                      channelIndex: idx,
+                      region: connector.hasChannelRegion(idx)
+                          ? connector.getChannelRegion(idx)
+                          : null,
+                      isSmazEnabled: connector.isChannelSmazEnabled(idx),
+                      languageCode: connector.getChannelTranslationLanguage(
+                        idx,
+                      ),
+                      timeLabel: lastTime != null
+                          ? formatLastSeenLabel(context, lastTime)
+                          : null,
+                      isUnread: unreadCount > 0,
+                      onRegionTap: () => openRegionSelectDialog(channel),
+                      onLanguageTap: _showTranslationOptions,
                     ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Stack(
+                  children: [
                     Consumer<MeshCoreConnector>(
-                      builder: (context, connector, _) {
-                        final unreadCount = connector
-                            .getUnreadCountForChannelIndex(
-                              widget.channel.index,
-                            );
-                        final privacy = widget.channel.isPublicChannel
-                            ? context.l10n.channels_public
-                            : context.l10n.channels_private;
-                        final region = connector.getChannelRegion(
-                          widget.channel.index,
+                      builder: (context, connector, child) {
+                        final messages = connector.getChannelMessages(
+                          widget.channel,
                         );
-                        final regionText = region.isNotEmpty
-                            ? ' • ${context.l10n.channels_regionSetTo(region)}'
-                            : '';
-                        return Text(
-                          '$privacy • ${context.l10n.chat_unread(unreadCount)}$regionText',
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyMedium,
+
+                        if (messages.isEmpty) {
+                          return EmptyState(
+                            icon: channelTypeIcon(channelType),
+                            title: context.l10n.chat_noMessages,
+                            subtitle: context.l10n.chat_sendMessageTo(
+                              widget.channel.name.isEmpty
+                                  ? context.l10n.channels_channelIndex(
+                                      widget.channel.index,
+                                    )
+                                  : widget.channel.name,
+                            ),
+                          );
+                        }
+
+                        // Reverse messages so newest appear at bottom with reverse: true
+                        final reversedMessages = messages.reversed.toList();
+                        final itemCount =
+                            reversedMessages.length + (_isLoadingOlder ? 1 : 0);
+
+                        // Prune stale keys (deleted/cleared messages) to avoid
+                        // unbounded growth.
+                        final liveIds = reversedMessages
+                            .map((m) => m.messageId)
+                            .toSet();
+                        _messageKeys.removeWhere(
+                          (id, _) => !liveIds.contains(id),
+                        );
+
+                        // Two messages can collide on messageId (same ms + name/text
+                        // hash). Only the first occurrence owns the shared GlobalKey
+                        // used for scroll-to-message; duplicates get a local key so
+                        // no two widgets share one GlobalKey.
+                        final seenIds = <String>{};
+                        final keyedIndices = <int>{};
+                        for (var i = 0; i < reversedMessages.length; i++) {
+                          if (seenIds.add(reversedMessages[i].messageId)) {
+                            keyedIndices.add(i);
+                          }
+                        }
+
+                        // Auto-scroll to bottom if user is already at bottom
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (_channelSkipNextBottomSnap) {
+                            _channelSkipNextBottomSnap = false;
+                            return;
+                          }
+                          _scrollController.scrollToBottomIfAtBottom();
+                        });
+
+                        return Stack(
+                          children: [
+                            ChatZoomWrapper(
+                              child: ListView.builder(
+                                reverse: true, // List grows from bottom up
+                                controller: _scrollController,
+                                padding: EdgeInsets.all(
+                                  MeshTokens.of(context).spacingXs,
+                                ),
+                                itemCount: itemCount,
+                                itemBuilder: (context, index) {
+                                  // Loading indicator now appears at end (bottom) of reversed list
+                                  if (_isLoadingOlder &&
+                                      index == itemCount - 1) {
+                                    return Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: MeshTokens.of(
+                                          context,
+                                        ).spacingMd,
+                                      ),
+                                      child: Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  final messageIndex = index;
+                                  final message =
+                                      reversedMessages[messageIndex];
+                                  final GlobalKey messageKey;
+                                  if (keyedIndices.contains(messageIndex)) {
+                                    messageKey = _messageKeys.putIfAbsent(
+                                      message.messageId,
+                                      GlobalKey.new,
+                                    );
+                                  } else {
+                                    messageKey = GlobalKey();
+                                  }
+                                  final isUnreadAnchor =
+                                      _unreadDividerMessageId != null &&
+                                      message.messageId ==
+                                          _unreadDividerMessageId;
+                                  return Container(
+                                    key: messageKey,
+                                    child: Builder(
+                                      builder: (context) {
+                                        final textScale = context
+                                            .select<
+                                              ChatTextScaleService,
+                                              double
+                                            >((service) => service.scale);
+                                        final bubble = _buildMessageBubble(
+                                          message,
+                                          textScale,
+                                        );
+                                        if (isUnreadAnchor) {
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const UnreadDivider(),
+                                              bubble,
+                                            ],
+                                          );
+                                        }
+                                        return bubble;
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            JumpToBottomButton(
+                              scrollController: _scrollController,
+                            ),
+                          ],
                         );
                       },
                     ),
+                    // Casts the badge bar's shadow on top of scrolled-up
+                    // bubbles — see MeshCardEdgeShadow's doc comment.
+                    // Painted after the list, before the winda, exactly as
+                    // Contacts.
+                    const Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: MeshCardEdgeShadow(),
+                    ),
+                    SyncProgressWinda(key: _progressWindaKey),
                   ],
                 ),
               ),
+              _buildMessageComposer(),
             ],
           ),
-        ),
-        centerTitle: false,
-        actions: [
-          IconButton(
-            tooltip: context.l10n.channels_regionSelect_Title,
-            icon: const Icon(Icons.landscape),
-            onPressed: () => openRegionSelectDialog(widget.channel),
-          ),
-          const RadioStatsIconButton(),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 'clearChat') {
-                _confirmClearChat();
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'clearChat',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.delete,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    SizedBox(width: MeshTokens.of(context).spacingSm),
-                    Text(
-                      context.l10n.contact_clearChat,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const QuickAccessMenuButton(),
-        ],
-      ),
-      body: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            Expanded(
-              child: Consumer<MeshCoreConnector>(
-                builder: (context, connector, child) {
-                  final messages = connector.getChannelMessages(widget.channel);
-
-                  if (messages.isEmpty) {
-                    return EmptyState(
-                      icon: widget.channel.isPublicChannel
-                          ? Icons.public
-                          : Icons.tag,
-                      title: context.l10n.chat_noMessages,
-                      subtitle: context.l10n.chat_sendMessageTo(
-                        widget.channel.name.isEmpty
-                            ? context.l10n.channels_channelIndex(
-                                widget.channel.index,
-                              )
-                            : widget.channel.name,
-                      ),
-                    );
-                  }
-
-                  // Reverse messages so newest appear at bottom with reverse: true
-                  final reversedMessages = messages.reversed.toList();
-                  final itemCount =
-                      reversedMessages.length + (_isLoadingOlder ? 1 : 0);
-
-                  // Prune stale keys (deleted/cleared messages) to avoid
-                  // unbounded growth.
-                  final liveIds = reversedMessages
-                      .map((m) => m.messageId)
-                      .toSet();
-                  _messageKeys.removeWhere((id, _) => !liveIds.contains(id));
-
-                  // Two messages can collide on messageId (same ms + name/text
-                  // hash). Only the first occurrence owns the shared GlobalKey
-                  // used for scroll-to-message; duplicates get a local key so
-                  // no two widgets share one GlobalKey.
-                  final seenIds = <String>{};
-                  final keyedIndices = <int>{};
-                  for (var i = 0; i < reversedMessages.length; i++) {
-                    if (seenIds.add(reversedMessages[i].messageId)) {
-                      keyedIndices.add(i);
-                    }
-                  }
-
-                  // Auto-scroll to bottom if user is already at bottom
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (_channelSkipNextBottomSnap) {
-                      _channelSkipNextBottomSnap = false;
-                      return;
-                    }
-                    _scrollController.scrollToBottomIfAtBottom();
-                  });
-
-                  return Stack(
-                    children: [
-                      ChatZoomWrapper(
-                        child: ListView.builder(
-                          reverse: true, // List grows from bottom up
-                          controller: _scrollController,
-                          padding: EdgeInsets.all(
-                            MeshTokens.of(context).spacingXs,
-                          ),
-                          itemCount: itemCount,
-                          itemBuilder: (context, index) {
-                            // Loading indicator now appears at end (bottom) of reversed list
-                            if (_isLoadingOlder && index == itemCount - 1) {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: MeshTokens.of(context).spacingMd,
-                                ),
-                                child: Center(
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                            final messageIndex = index;
-                            final message = reversedMessages[messageIndex];
-                            final GlobalKey messageKey;
-                            if (keyedIndices.contains(messageIndex)) {
-                              messageKey = _messageKeys.putIfAbsent(
-                                message.messageId,
-                                GlobalKey.new,
-                              );
-                            } else {
-                              messageKey = GlobalKey();
-                            }
-                            final isUnreadAnchor =
-                                _unreadDividerMessageId != null &&
-                                message.messageId == _unreadDividerMessageId;
-                            return Container(
-                              key: messageKey,
-                              child: Builder(
-                                builder: (context) {
-                                  final textScale = context
-                                      .select<ChatTextScaleService, double>(
-                                        (service) => service.scale,
-                                      );
-                                  final bubble = _buildMessageBubble(
-                                    message,
-                                    textScale,
-                                  );
-                                  if (isUnreadAnchor) {
-                                    return Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [const UnreadDivider(), bubble],
-                                    );
-                                  }
-                                  return bubble;
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      JumpToBottomButton(scrollController: _scrollController),
-                    ],
-                  );
-                },
-              ),
-            ),
-            _buildMessageComposer(),
-          ],
         ),
       ),
     );
@@ -1483,9 +1498,11 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
     final now = DateTime.now();
     if (_lastChannelSendAt != null &&
         now.difference(_lastChannelSendAt!) < const Duration(seconds: 1)) {
-      showDismissibleSnackBar(
-        context,
-        content: Text(context.l10n.chat_sendCooldown),
+      pushToast(
+        WindaMessage(
+          text: context.l10n.chat_sendCooldown,
+          tone: WindaMessageTone.warning,
+        ),
       );
       return;
     }
@@ -1545,9 +1562,11 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
       messageText,
     );
     if (utf8.encode(outboundText).length > maxBytes) {
-      showDismissibleSnackBar(
-        context,
-        content: Text(context.l10n.chat_messageTooLong(maxBytes)),
+      pushToast(
+        WindaMessage(
+          text: context.l10n.chat_messageTooLong(maxBytes),
+          tone: WindaMessageTone.error,
+        ),
       );
       return;
     }
@@ -1745,9 +1764,11 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
 
   void _copyMessageText(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    showDismissibleSnackBar(
-      context,
-      content: Text(context.l10n.chat_messageCopied),
+    pushToast(
+      WindaMessage(
+        text: context.l10n.chat_messageCopied,
+        tone: WindaMessageTone.success,
+      ),
     );
   }
 
@@ -1782,9 +1803,11 @@ class _ChannelChatScreenState extends State<ChannelChatScreen> {
   Future<void> _deleteMessage(ChannelMessage message) async {
     await context.read<MeshCoreConnector>().deleteChannelMessage(message);
     if (!mounted) return;
-    showDismissibleSnackBar(
-      context,
-      content: Text(context.l10n.chat_messageDeleted),
+    pushToast(
+      WindaMessage(
+        text: context.l10n.chat_messageDeleted,
+        tone: WindaMessageTone.success,
+      ),
     );
   }
 

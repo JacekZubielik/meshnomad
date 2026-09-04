@@ -1,8 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../connector/meshcore_connector.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
+import 'mesh_ui.dart';
+
+/// Height of the render box under [key], or 0 while it has no size yet —
+/// for `MeshScreenScaffold.extraTopOffset` measurements of a screen's own
+/// in-body windas (progress card, search field).
+double measuredHeightOf(GlobalKey key) {
+  final renderObject = key.currentContext?.findRenderObject();
+  return (renderObject is RenderBox && renderObject.hasSize)
+      ? renderObject.size.height
+      : 0;
+}
+
+/// Top-anchored sync-progress winda for a screen body `Stack` — the exact
+/// `MeshCard` shell + [WindaOverlay] + [WindaProgress.fromConnector] block
+/// Contacts renders (`contacts_screen.dart`, `_buildContactsBody`), so a
+/// contact/channel/queue sync in the background shows the same loader on
+/// whatever screen is open. Give it the screen's measuring `GlobalKey` as
+/// [key]; the `SizeChangedLayoutNotifier` inside fires the screen's
+/// re-measure whenever the winda opens or collapses.
+class SyncProgressWinda extends StatelessWidget {
+  const SyncProgressWinda({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final connector = context.watch<MeshCoreConnector>();
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: SizeChangedLayoutNotifier(
+        child: MeshCard(
+          margin: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
+          radius: 0,
+          color: Theme.of(context).colorScheme.surface,
+          child: WindaOverlay(
+            child: WindaProgress.fromConnector(connector, context.l10n),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 /// How far `MeshCard`'s own two-layer drop shadow (`mesh_ui.dart`, offset
 /// (0,1)+blur 2 and offset (0,1)+blur 3) bleeds past its bottom edge —

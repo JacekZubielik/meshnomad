@@ -21,7 +21,9 @@ class QrCodeDisplay extends StatelessWidget {
   /// Optional widget to display in the center (e.g., app logo)
   final Widget? embeddedImage;
 
-  /// Size of the embedded image (if provided)
+  /// Size of the embedded image (if provided). Default is ~25% of the
+  /// dialog's 250px QR — the upper bound that error-correction level H
+  /// (used whenever an image is embedded) still recovers reliably.
   final double embeddedImageSize;
 
   /// Title displayed above the QR code
@@ -48,7 +50,7 @@ class QrCodeDisplay extends StatelessWidget {
     required this.data,
     this.size = 200,
     this.embeddedImage,
-    this.embeddedImageSize = 50,
+    this.embeddedImageSize = 64,
     this.title,
     this.instructions,
     this.backgroundColor,
@@ -155,14 +157,15 @@ class QrCodeDisplay extends StatelessWidget {
             color: fgColor,
           ),
         ),
+        // Circular quiet zone: a thin ring of QR background around the
+        // logo so no data module touches it. Kept at 2dp (not a spacing
+        // token) — anything wider shrank the mark to a dot inside its own
+        // box (2026-09-03 feedback).
         Container(
           width: embeddedImageSize,
           height: embeddedImageSize,
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
-          ),
-          padding: EdgeInsets.all(MeshTokens.of(context).spacingXxs),
+          decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+          padding: const EdgeInsets.all(2),
           child: embeddedImage,
         ),
       ],

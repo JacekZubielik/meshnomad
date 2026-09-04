@@ -4032,7 +4032,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String community_qrInstructions(String name) {
-    return 'Skanuj ten kod QR, aby dołączyć $name';
+    return 'Skanuj ten kod QR, aby dołączyć do $name.';
   }
 
   @override

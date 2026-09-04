@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <!-- QR-embedded MeshNomad mark (replaces assets/images/mesh-icon.png):
+       brand-green disc (#3F6212, same as app_icon.svg's background) with the
+       white M from app_mark.svg — inverted from the app icon on purpose so
+       the chip reads as a solid green dot on the QR's white field. Plain
+       shapes only (no <mask>, no <text>), the flutter_svg-safe variant. -->
+  <circle cx="48" cy="48" r="48" fill="#3F6212"/>
+  <path fill="#FFFFFF" transform="translate(48 48) scale(1.25) translate(-48 -48)"
+    d="M28.8 63.6 V32.4 H39 L48 45 L57 32.4 H67.2 V63.6 H58.8 V45.6 L48 60 L37.2 45.6 V63.6 Z"/>
+</svg>

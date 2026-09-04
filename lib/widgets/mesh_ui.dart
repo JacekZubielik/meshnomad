@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../connector/meshcore_protocol.dart';
 import '../l10n/l10n.dart';
+import '../models/channel.dart';
 import '../theme/mesh_tokens.dart';
 import '../utils/emoji_utils.dart';
 import 'dotted_separator.dart';
@@ -70,6 +71,18 @@ class MeshCard extends StatelessWidget {
   /// `elevated: false` at a call site to keep the old flat bordered look.
   final bool? elevated;
 
+  /// Whether the elevated look also paints its drop shadow. `false` keeps
+  /// the elevated fill and borderless shape but casts no shadow — for a
+  /// bar whose shadow is cast by a [MeshCardEdgeShadow] elsewhere in the
+  /// tree instead (the three search bars), so it isn't drawn twice.
+  final bool castsShadow;
+
+  /// Whether the flat (non-elevated) look paints its outline border.
+  /// `false` for edge-to-edge bars (the search bars): with the app-wide
+  /// `cardElevated` style toggle off they'd otherwise get a 1 px outline
+  /// around a full-width bar, which reads as a stray frame, not a card.
+  final bool outlined;
+
   const MeshCard({
     super.key,
     required this.child,
@@ -82,6 +95,8 @@ class MeshCard extends StatelessWidget {
     this.borderColor,
     this.radius,
     this.elevated,
+    this.castsShadow = true,
+    this.outlined = true,
   });
 
   @override
@@ -92,7 +107,7 @@ class MeshCard extends StatelessWidget {
     final borderRadius = BorderRadius.circular(effectiveRadius);
     final shape = RoundedRectangleBorder(
       borderRadius: borderRadius,
-      side: effectiveElevated
+      side: effectiveElevated || !outlined
           ? BorderSide.none
           : BorderSide(color: borderColor ?? scheme.outlineVariant),
     );
@@ -118,43 +133,112 @@ class MeshCard extends StatelessWidget {
     );
     return Padding(
       padding: margin,
-      child: effectiveElevated
+      child: effectiveElevated && castsShadow
           ? DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: borderRadius,
-                // Bottom+right only, no top/left bleed (2026-09-02 feedback:
-                // a zero horizontal offset made blurRadius spread the shadow
-                // symmetrically around every edge, including top/left, which
-                // read as "surrounding" rather than a light-from-top-left
-                // cast). BoxShadow always blurs symmetrically around its own
-                // offset rect, so eliminating the top/left leak requires
-                // offset.dx/dy >= blurRadius — set equal to it here, which
-                // reduces to zero bleed on those two edges exactly. Solved
-                // for blurRadius == offset so the bottom edge keeps the same
-                // total reach as the original vertical-only mockup spec
-                // (`0 1px 2px .15, 0 1px 3px .22`: reach = blur+dy = 3, 4)
-                // — same values, mirrored onto the right edge too instead of
-                // being wasted above/left of the card.
-                boxShadow: [
-                  BoxShadow(
-                    color: MeshTokens.of(
-                      context,
-                    ).cardShadow.withValues(alpha: 0.15),
-                    offset: const Offset(1.5, 1.5),
-                    blurRadius: 1.5,
-                  ),
-                  BoxShadow(
-                    color: MeshTokens.of(
-                      context,
-                    ).cardShadow.withValues(alpha: 0.22),
-                    offset: const Offset(2, 2),
-                    blurRadius: 2,
-                  ),
-                ],
+                boxShadow: dropShadow(context),
               ),
               child: card,
             )
           : card,
+    );
+  }
+
+  /// [MeshCard]'s own drop shadow, factored out so [MeshCardEdgeShadow] can
+  /// cast the identical shadow from a different widget (see its doc
+  /// comment for why that's needed).
+  ///
+  /// Bottom+right only, no top/left bleed (2026-09-02 feedback: a zero
+  /// horizontal offset made blurRadius spread the shadow symmetrically
+  /// around every edge, including top/left, which read as "surrounding"
+  /// rather than a light-from-top-left cast). BoxShadow always blurs
+  /// symmetrically around its own offset rect, so eliminating the top/left
+  /// leak requires offset.dx/dy >= blurRadius — set equal to it here, which
+  /// reduces to zero bleed on those two edges exactly. Solved for
+  /// blurRadius == offset so the bottom edge keeps the same total reach as
+  /// the original vertical-only mockup spec (`0 1px 2px .15, 0 1px 3px
+  /// .22`: reach = blur+dy = 3, 4) — same values, mirrored onto the right
+  /// edge too instead of being wasted above/left of the card.
+  static List<BoxShadow> dropShadow(BuildContext context) => [
+    BoxShadow(
+      color: MeshTokens.of(context).cardShadow.withValues(alpha: 0.15),
+      offset: const Offset(1.5, 1.5),
+      blurRadius: 1.5,
+    ),
+    BoxShadow(
+      color: MeshTokens.of(context).cardShadow.withValues(alpha: 0.22),
+      offset: const Offset(2, 2),
+      blurRadius: 2,
+    ),
+  ];
+}
+
+/// A zero-height strip that paints only [MeshCard.dropShadow] — no fill, no
+/// size — for casting a search bar's own drop shadow across whatever is
+/// beneath it in a *different* Stack layer than the real bar.
+///
+/// Why this exists (2026-09-03): Contacts/Channels/Map all lay out as
+/// `Column[searchBar MeshCard, Expanded[Stack[scrollable content, winda]]]`.
+/// A `Column` paints children in order, so the search bar's real shadow
+/// (bleeding ~4px below its own box) gets bled into the Expanded's territory
+/// but is then unconditionally overpainted by whatever that Expanded's
+/// content renders at those same pixels — a scrolled-up card, or the map.
+/// Reserving a permanent gap can't fix this: the list scrolls arbitrary
+/// content through that exact strip forever, so no static padding keeps it
+/// clear.
+///
+/// The fix is to cast the *same* shadow again from inside that Expanded's
+/// own `Stack`, positioned as a Stack child painted *after* the scrollable
+/// content but *before* the winda's `Positioned` — so it draws on top of
+/// scrolled cards/map tiles (satisfying "content scrolls under the shadow"),
+/// while the winda — painted last, as it always was — keeps covering it
+/// exactly as it already covers the real bar's shadow (the `1b2f665b`
+/// fix, `windaShadowOverlap`), completely unaffected by this addition.
+class MeshCardEdgeShadow extends StatelessWidget {
+  const MeshCardEdgeShadow({super.key});
+
+  /// Height of the invisible source box the shadow is cast from. BoxShadow
+  /// blurs a filled rect of the *source's* geometry, so the source must be
+  /// tall like the real bar for its bottom-edge blur to reach full
+  /// intensity — a 1 px source spread its tiny area over the same blur and
+  /// came out ~3-4x fainter, effectively invisible (issue #149). Any value
+  /// comfortably larger than the blur reach works; it's clipped anyway.
+  static const double _sourceHeight = 40;
+
+  /// Visible window below the edge: [MeshCard.dropShadow]'s reach is
+  /// blur + dy = 4 px, plus slack for anti-aliasing.
+  static const double _reach = 6;
+
+  @override
+  Widget build(BuildContext context) {
+    // Same gate as MeshCard's own shadow: the app-wide "elevated cards"
+    // style toggle off means no card shadows anywhere, this one included.
+    if (!MeshTokens.of(context).cardElevated) return const SizedBox.shrink();
+    return SizedBox(
+      height: _reach,
+      width: double.infinity,
+      // Only the part of the shadow *below* the source's bottom edge may
+      // show — the source sits above this window, over the real bar, and
+      // painting its shadow there would darken the bar itself.
+      child: ClipRect(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              top: -_sourceHeight,
+              left: 0,
+              right: 0,
+              height: _sourceHeight,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  boxShadow: MeshCard.dropShadow(context),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -893,6 +977,217 @@ class MeshStatusBadge extends StatelessWidget {
   }
 }
 
+/// Icon that stands for a [ChannelType] — shared by the channel card, the
+/// channel chat header/empty state and anything else that draws a channel.
+IconData channelTypeIcon(ChannelType type) => switch (type) {
+  ChannelType.communityPublic || ChannelType.communityHashtag => Icons.groups,
+  ChannelType.public => Icons.public,
+  ChannelType.hashtag => Icons.tag,
+  ChannelType.private => Icons.lock,
+};
+
+/// Accent tint of a [ChannelType] — community = secondary, public = signal,
+/// hashtag/private = primary (channel-card palette, 2026-08-29).
+Color channelTypeColor(ChannelType type, MeshTokens tokens) => switch (type) {
+  ChannelType.communityPublic ||
+  ChannelType.communityHashtag => tokens.secondary,
+  ChannelType.public => tokens.signal,
+  ChannelType.hashtag || ChannelType.private => tokens.primary,
+};
+
+/// The channel avatar of the channel card (`channels_screen.dart`, 2026-08-29
+/// parity redesign) as one widget: [AvatarCircle] tinted per type with the
+/// type's icon, plus the small "people" corner badge on community channels.
+/// The chat header renders the same widget smaller so the header and the
+/// card a user just tapped look like one thing.
+class ChannelAvatar extends StatelessWidget {
+  final ChannelType type;
+  final String label;
+  final double size;
+
+  /// Ring color around the community badge — the surface it sits on
+  /// (card fill by default; the app bar passes its own background).
+  final Color? borderColor;
+
+  const ChannelAvatar({
+    super.key,
+    required this.type,
+    required this.label,
+    this.size = 42,
+    this.borderColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    // 16px badge on the 42px card avatar; scales with the avatar, never
+    // smaller than 12 so the glyph inside stays legible.
+    final badgeSize = (16 * size / 42).clamp(12.0, 16.0);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        AvatarCircle(
+          name: label,
+          size: size,
+          color: channelTypeColor(type, t),
+          icon: channelTypeIcon(type),
+        ),
+        if (Channel.isCommunityChannel(type))
+          Positioned(
+            right: -2,
+            bottom: -2,
+            child: Container(
+              width: badgeSize,
+              height: badgeSize,
+              decoration: BoxDecoration(
+                color: t.secondary,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: borderColor ?? scheme.surfaceContainerLow,
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.people,
+                size: badgeSize / 2,
+                color: t.secondaryInk,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Fixed-order row of channel status badges — CH index, Region, Smaz, Lang,
+/// Time — plus right-aligned mute-bell and favorite-star icons; the
+/// channel-card row (`channels_screen.dart`, 2026-08-29 parity redesign)
+/// extracted so the channel chat header can render the exact same badges
+/// (badge-only, centered — see [showTrailingIcons]/[alignment]).
+class ChannelBadgeRow extends StatelessWidget {
+  final int channelIndex;
+
+  /// Null = no region set; renders the ghosted "REGION" placeholder.
+  final String? region;
+  final bool isSmazEnabled;
+
+  /// Per-channel translation target; null = inherits the app-wide setting
+  /// (ghost 'LANG' pill — not 'AUTO', which read as ambiguous, 2026-08-29).
+  final String? languageCode;
+
+  /// Null = no message yet; renders a ghosted '—'.
+  final String? timeLabel;
+  final bool isUnread;
+  final bool isMuted;
+  final bool isFavorite;
+
+  final VoidCallback? onRegionTap;
+  final VoidCallback? onLanguageTap;
+  final VoidCallback? onMuteTap;
+  final VoidCallback? onFavoriteTap;
+
+  final bool showTrailingIcons;
+  final WrapAlignment alignment;
+
+  const ChannelBadgeRow({
+    super.key,
+    required this.channelIndex,
+    required this.region,
+    required this.isSmazEnabled,
+    required this.timeLabel,
+    required this.isUnread,
+    this.languageCode,
+    this.isMuted = false,
+    this.isFavorite = false,
+    this.onRegionTap,
+    this.onLanguageTap,
+    this.onMuteTap,
+    this.onFavoriteTap,
+    this.showTrailingIcons = true,
+    this.alignment = WrapAlignment.start,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final neutral = scheme.onSurfaceVariant;
+    final hasRegion = region != null;
+    final timeColor = isUnread ? t.primary : neutral;
+    final badges = Wrap(
+      alignment: alignment,
+      spacing: t.spacingXxs,
+      runSpacing: t.spacingXxs,
+      children: [
+        MeshStatusBadge(
+          label: 'CH $channelIndex',
+          color: neutral,
+          active: true,
+        ),
+        MeshStatusBadge(
+          label: region ?? context.l10n.channels_badgeRegion,
+          color: t.routeActive,
+          active: hasRegion,
+          fillColor: hasRegion ? t.routeActive.withValues(alpha: 0.2) : null,
+          onTap: onRegionTap,
+        ),
+        MeshStatusBadge(label: 'Smaz', color: neutral, active: isSmazEnabled),
+        MeshStatusBadge(
+          label: languageCode?.toUpperCase() ?? 'LANG',
+          color: t.primary,
+          active: languageCode != null,
+          fillColor: languageCode != null
+              ? t.primary.withValues(alpha: 0.2)
+              : null,
+          onTap: onLanguageTap,
+        ),
+        MeshStatusBadge(
+          label: timeLabel ?? '—',
+          color: timeColor,
+          active: timeLabel != null,
+          fillColor: timeLabel != null
+              ? timeColor.withValues(alpha: 0.2)
+              : null,
+        ),
+      ],
+    );
+    if (!showTrailingIcons) return badges;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(child: badges),
+        SizedBox(width: t.spacingXxs),
+        GestureDetector(
+          onTap: onMuteTap,
+          behavior: HitTestBehavior.opaque,
+          child: Opacity(
+            opacity: isMuted ? 1.0 : 0.30,
+            child: Icon(
+              isMuted ? Icons.notifications_off : Icons.notifications,
+              size: 18,
+              color: t.warn,
+            ),
+          ),
+        ),
+        SizedBox(width: t.spacingXxs),
+        GestureDetector(
+          onTap: onFavoriteTap,
+          behavior: HitTestBehavior.opaque,
+          child: Opacity(
+            opacity: isFavorite ? 1.0 : 0.30,
+            child: Icon(
+              isFavorite ? Icons.star : Icons.star_border,
+              size: 18,
+              color: t.warn,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// Fixed-order row of contact status badges — GPS, Route, Smaz, Lang, Time
 /// (order per 2026-08-29 user spec), always in that order, every one always
 /// rendered (ghosted via [MeshStatusBadge] when inactive/unavailable so
@@ -924,6 +1219,12 @@ class ContactBadgeRow extends StatelessWidget {
   final VoidCallback? onLanguageTap;
   final VoidCallback? onMuteTap;
 
+  /// Badge-only mode for the chat app-bar header (2026-09-03): the same five
+  /// badges, no mute/favorite icons, and [alignment] centers them under the
+  /// contact name instead of the card's left-aligned row.
+  final bool showTrailingIcons;
+  final WrapAlignment alignment;
+
   const ContactBadgeRow({
     super.key,
     required this.isFavorite,
@@ -939,6 +1240,8 @@ class ContactBadgeRow extends StatelessWidget {
     this.onRouteTap,
     this.onLanguageTap,
     this.onMuteTap,
+    this.showTrailingIcons = true,
+    this.alignment = WrapAlignment.start,
   });
 
   @override
@@ -946,57 +1249,52 @@ class ContactBadgeRow extends StatelessWidget {
     final tokens = MeshTokens.of(context);
     final scheme = Theme.of(context).colorScheme;
     final neutral = scheme.onSurfaceVariant;
+    final badges = Wrap(
+      alignment: alignment,
+      spacing: tokens.spacingXxs,
+      runSpacing: tokens.spacingXxs,
+      children: [
+        MeshStatusBadge(
+          label: 'GPS',
+          color: tokens.primary,
+          active: hasLocation,
+          fillColor: hasLocation ? tokens.primary.withValues(alpha: 0.2) : null,
+          onTap: hasLocation ? onGpsTap : null,
+        ),
+        MeshStatusBadge(
+          label: routeLabel ?? context.l10n.contacts_routeUnknown,
+          color: tokens.routeActive,
+          active: routeLabel != null,
+          fillColor: routeLabel != null
+              ? tokens.routeActive.withValues(alpha: 0.2)
+              : null,
+          onTap: routeLabel != null ? onRouteTap : null,
+        ),
+        MeshStatusBadge(label: 'Smaz', color: neutral, active: isSmazEnabled),
+        MeshStatusBadge(
+          label: languageCode?.toUpperCase() ?? 'LANG',
+          color: tokens.primary,
+          active: languageCode != null,
+          fillColor: languageCode != null
+              ? tokens.primary.withValues(alpha: 0.2)
+              : null,
+          onTap: onLanguageTap,
+        ),
+        MeshStatusBadge(
+          label: timeLabel,
+          color: isUnread ? tokens.primary : neutral,
+          active: true,
+          fillColor: (isUnread ? tokens.primary : neutral).withValues(
+            alpha: 0.2,
+          ),
+        ),
+      ],
+    );
+    if (!showTrailingIcons) return badges;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Expanded(
-          child: Wrap(
-            spacing: tokens.spacingXxs,
-            runSpacing: tokens.spacingXxs,
-            children: [
-              MeshStatusBadge(
-                label: 'GPS',
-                color: tokens.primary,
-                active: hasLocation,
-                fillColor: hasLocation
-                    ? tokens.primary.withValues(alpha: 0.2)
-                    : null,
-                onTap: hasLocation ? onGpsTap : null,
-              ),
-              MeshStatusBadge(
-                label: routeLabel ?? context.l10n.contacts_routeUnknown,
-                color: tokens.routeActive,
-                active: routeLabel != null,
-                fillColor: routeLabel != null
-                    ? tokens.routeActive.withValues(alpha: 0.2)
-                    : null,
-                onTap: routeLabel != null ? onRouteTap : null,
-              ),
-              MeshStatusBadge(
-                label: 'Smaz',
-                color: neutral,
-                active: isSmazEnabled,
-              ),
-              MeshStatusBadge(
-                label: languageCode?.toUpperCase() ?? 'LANG',
-                color: tokens.primary,
-                active: languageCode != null,
-                fillColor: languageCode != null
-                    ? tokens.primary.withValues(alpha: 0.2)
-                    : null,
-                onTap: onLanguageTap,
-              ),
-              MeshStatusBadge(
-                label: timeLabel,
-                color: isUnread ? tokens.primary : neutral,
-                active: true,
-                fillColor: (isUnread ? tokens.primary : neutral).withValues(
-                  alpha: 0.2,
-                ),
-              ),
-            ],
-          ),
-        ),
+        Expanded(child: badges),
         SizedBox(width: tokens.spacingXxs),
         GestureDetector(
           onTap: onMuteTap,
