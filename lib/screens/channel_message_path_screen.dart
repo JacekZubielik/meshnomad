@@ -1280,13 +1280,7 @@ class _ChannelMessagePathMapScreenState
                   color: MeshTokens.of(context).mapMarkerOutline,
                   width: 2,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: MeshTokens.of(context).mapMarkerShadow,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                boxShadow: MeshTokens.of(context).mapMarkerShadowBox,
               ),
               alignment: Alignment.center,
               child: Text(
@@ -1337,13 +1331,7 @@ class _ChannelMessagePathMapScreenState
                 color: MeshTokens.of(context).mapMarkerOutline,
                 width: 2,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: MeshTokens.of(context).mapMarkerShadow,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              boxShadow: MeshTokens.of(context).mapMarkerShadowBox,
             ),
             alignment: Alignment.center,
             child: Text(
@@ -1427,13 +1415,7 @@ class _ChannelMessagePathMapScreenState
                       color: MeshTokens.of(context).mapMarkerOutline,
                       width: shared ? 2.5 : 2,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: MeshTokens.of(context).mapMarkerShadow,
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    boxShadow: MeshTokens.of(context).mapMarkerShadowBox,
                   ),
                   alignment: Alignment.center,
                   child: Text(

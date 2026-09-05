@@ -216,10 +216,13 @@ Color _liveLosColor(MeshTokens tokens, String key) => switch (key) {
   _ => throw ArgumentError('Not a live-default LOS key: $key'),
 };
 
+// Order mirrors CustomStyleOverrides.editableFontSizeKeys; the fallbacks
+// are the resolved defaults of mesh_theme.dart (bodyMedium 13, bodySmall
+// 11, titleSmall 10, labelSmall 10, labelMedium 15).
 final List<_FontFieldSpec> _fontFields = [
   _FontFieldSpec(
     'bodyMedium',
-    MeshTheme.light().textTheme.bodyMedium?.fontSize ?? 12,
+    MeshTheme.light().textTheme.bodyMedium?.fontSize ?? 13,
   ),
   _FontFieldSpec(
     'bodySmall',
@@ -227,7 +230,7 @@ final List<_FontFieldSpec> _fontFields = [
   ),
   _FontFieldSpec(
     'titleSmall',
-    MeshTheme.light().textTheme.titleSmall?.fontSize ?? 13,
+    MeshTheme.light().textTheme.titleSmall?.fontSize ?? 10,
   ),
   _FontFieldSpec(
     'labelSmall',
@@ -237,6 +240,8 @@ final List<_FontFieldSpec> _fontFields = [
     'labelMedium',
     MeshTheme.light().textTheme.labelMedium?.fontSize ?? 15,
   ),
+  _FontFieldSpec('bodySize', MeshTokens.defaultTokens.bodySize),
+  _FontFieldSpec('microLabelSize', MeshTokens.defaultTokens.microLabelSize),
   _FontFieldSpec('monoCaptionSize', MeshTokens.defaultTokens.monoCaptionSize),
   _FontFieldSpec('monoBodySize', MeshTokens.defaultTokens.monoBodySize),
 ];
@@ -269,6 +274,19 @@ final List<_SpacingFieldSpec> _radiusFields = [
   // while the slider itself stays on the same usable 0-40 scale as the
   // other radius fields.
   _SpacingFieldSpec('pill', MeshTokens.defaultTokens.pill, 0, 40),
+  // Chat bubble corners (2026-09-05): big corners + the "tail" corner.
+  _SpacingFieldSpec(
+    'bubbleRadius',
+    MeshTokens.defaultTokens.bubbleRadius,
+    0,
+    32,
+  ),
+  _SpacingFieldSpec(
+    'bubbleTailRadius',
+    MeshTokens.defaultTokens.bubbleTailRadius,
+    0,
+    16,
+  ),
 ];
 
 /// Buttons-only radius (2026-08-21) — its own section, not part of
@@ -539,6 +557,16 @@ final _SpacingFieldSpec _buttonRadiusField = _SpacingFieldSpec(
         l10n.styleEditor_radiusPill_label,
         l10n.styleEditor_radiusPill_subtitle,
       );
+    case 'bubbleRadius':
+      return (
+        l10n.styleEditor_radiusBubble_label,
+        l10n.styleEditor_radiusBubble_subtitle,
+      );
+    case 'bubbleTailRadius':
+      return (
+        l10n.styleEditor_radiusBubbleTail_label,
+        l10n.styleEditor_radiusBubbleTail_subtitle,
+      );
     default:
       throw ArgumentError('Unknown radius field key: $key');
   }
@@ -556,6 +584,10 @@ String _fontFieldLabel(AppLocalizations l10n, String key) {
       return l10n.styleEditor_labelSmall_label;
     case 'labelMedium':
       return l10n.styleEditor_labelMedium_label;
+    case 'bodySize':
+      return l10n.styleEditor_bodySize_label;
+    case 'microLabelSize':
+      return l10n.styleEditor_microLabelSize_label;
     case 'monoCaptionSize':
       return l10n.styleEditor_monoCaptionSize_label;
     case 'monoBodySize':
@@ -577,6 +609,10 @@ String _fontFieldSubtitle(AppLocalizations l10n, String key) {
       return l10n.styleEditor_labelSmall_subtitle;
     case 'labelMedium':
       return l10n.styleEditor_labelMedium_subtitle;
+    case 'bodySize':
+      return l10n.styleEditor_bodySize_subtitle;
+    case 'microLabelSize':
+      return l10n.styleEditor_microLabelSize_subtitle;
     case 'monoCaptionSize':
       return l10n.styleEditor_monoCaptionSize_subtitle;
     case 'monoBodySize':

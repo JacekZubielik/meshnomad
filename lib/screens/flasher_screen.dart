@@ -1116,13 +1116,9 @@ class _SuccessBanner extends StatelessWidget {
                   color: signal.withValues(alpha: 0.16),
                   border: Border.all(color: signal),
                   borderRadius: BorderRadius.circular(t.md),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x59000000),
-                      blurRadius: 18,
-                      offset: Offset(0, 6),
-                    ),
-                  ],
+                  // Hero-sized mark → the shared large-mark shadow, gated
+                  // by the style's shadow toggle like everything else.
+                  boxShadow: t.logoShadow,
                 ),
                 child: Row(
                   children: [

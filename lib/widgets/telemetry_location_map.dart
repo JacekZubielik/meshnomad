@@ -387,13 +387,7 @@ class _MarkerBubble extends StatelessWidget {
         color: color,
         shape: BoxShape.circle,
         border: Border.all(color: tokens.mapMarkerOutline, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: tokens.mapMarkerShadow,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: tokens.mapMarkerShadowBox,
       ),
       alignment: Alignment.center,
       child: Icon(icon, color: tokens.mapMarkerInk, size: size),

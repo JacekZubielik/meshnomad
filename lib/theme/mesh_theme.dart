@@ -184,22 +184,27 @@ class MeshFonts {
 /// these increments (B3/B4/C2, 2026-08-04) — matched to today's literal
 /// `fontSize:` values in [MeshTheme._build] at the roles' defaults
 /// (bodyMedium=13, bodySmall=11, titleSmall=10), see `03-roles-chrome.md`.
+/// Resolved defaults below were recomputed 2026-09-05 (they had still
+/// quoted the pre-2026-08-21 bases titleSmall=13 / bodyMedium=12).
 class MeshTypeScale {
   MeshTypeScale._();
 
-  /// `titleMedium` = `titleSmall` + this (default 13+3=16, matches stock M3).
+  /// `titleMedium` = `titleSmall` + this (default 10+3=13).
   static const double titleMediumIncrement = 3;
 
-  /// `titleLarge` = `titleSmall` + this (default 13+9=22, matches stock M3).
+  /// `titleLarge` = `titleSmall` + this (default 10+9=19).
   static const double titleLargeIncrement = 9;
 
-  /// `headlineSmall` = `titleSmall` + this (default 13+11=24, stock M3).
-  static const double headlineSmallIncrement = 11;
+  /// AlertDialog title = `titleSmall` + this (default 10+11=21). Set
+  /// explicitly on `dialogTheme.titleTextStyle` (2026-09-05) — before, the
+  /// same size reached dialogs only through an overridden `headlineSmall`
+  /// role that nothing else in the app read.
+  static const double dialogTitleIncrement = 11;
 
-  /// AppBar title = `titleSmall` + this (default 13+7=20).
+  /// AppBar title = `titleSmall` + this (default 10+7=17).
   static const double appBarTitleIncrement = 7;
 
-  /// Elevated/filled button label = `bodyMedium` + this (default 12+2=14).
+  /// Elevated/filled button label = `bodyMedium` + this (default 13+2=15).
   static const double buttonLabelIncrement = 2;
 
   /// Chip label = `bodySmall` + this (default 11+1.5=12.5).
@@ -209,7 +214,7 @@ class MeshTypeScale {
   static const double navigationLabelIncrement = 0.5;
 
   /// TabBar label (selected + unselected) = `bodyMedium` + this
-  /// (default 12+1.5=13.5).
+  /// (default 13+1.5=14.5).
   static const double tabLabelIncrement = 1.5;
 
   /// Tooltip text = `bodySmall` + this (default 11+1=12).
@@ -329,9 +334,6 @@ class MeshTheme {
       ),
       titleLarge: materialText.titleLarge?.copyWith(
         fontSize: titleSmallSize + MeshTypeScale.titleLargeIncrement,
-      ),
-      headlineSmall: materialText.headlineSmall?.copyWith(
-        fontSize: titleSmallSize + MeshTypeScale.headlineSmallIncrement,
       ),
       labelSmall: materialText.labelSmall?.copyWith(fontSize: 10),
       labelMedium: materialText.labelMedium?.copyWith(fontSize: 15),
@@ -562,6 +564,12 @@ class MeshTheme {
       dialogTheme: DialogThemeData(
         backgroundColor: scheme.surfaceContainerLow,
         surfaceTintColor: Colors.transparent,
+        // Explicit (was Material's default headlineSmall, see
+        // MeshTypeScale.dialogTitleIncrement) — same 21 pt as before.
+        titleTextStyle: materialText.headlineSmall?.copyWith(
+          fontSize: titleSmallSize + MeshTypeScale.dialogTitleIncrement,
+          color: scheme.onSurface,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(MeshRadii.lg),
         ),

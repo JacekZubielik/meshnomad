@@ -5243,7 +5243,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get styleEditor_fontSizesIntro =>
-      'Screen titles, buttons, and tabs scale together with the sizes above.';
+      'Each size names what it drives. Screen and dialog titles, buttons, chips and tabs are derived from these and follow them.';
 
   @override
   String get styleEditor_spacingIntro =>
@@ -5598,20 +5598,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get styleEditor_bodyMedium_subtitle =>
-      'Most text: settings labels, list content';
+      'Settings labels, list content, menu rows; buttons and tabs follow it';
 
   @override
   String get styleEditor_bodySmall_label => 'Secondary text';
 
   @override
-  String get styleEditor_bodySmall_subtitle => 'Subtitles and descriptions';
+  String get styleEditor_bodySmall_subtitle =>
+      'Subtitles and descriptions; chips, bottom bar and tooltips follow it';
 
   @override
-  String get styleEditor_titleSmall_label => 'Section titles';
+  String get styleEditor_titleSmall_label => 'Titles';
 
   @override
   String get styleEditor_titleSmall_subtitle =>
-      'Section headers and dialog titles';
+      'Sheet section headers; screen and dialog titles scale with it';
 
   @override
   String get styleEditor_labelSmall_label => 'Small label';
@@ -5625,7 +5626,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get styleEditor_labelMedium_subtitle =>
-      'List names, bottom bar, repeater section headers';
+      'List names, hub and repeater section headers';
+
+  @override
+  String get styleEditor_bodySize_label => 'Chat messages';
+
+  @override
+  String get styleEditor_bodySize_subtitle =>
+      'Message text and sender names in direct and channel chats';
+
+  @override
+  String get styleEditor_microLabelSize_label => 'Micro label';
+
+  @override
+  String get styleEditor_microLabelSize_subtitle =>
+      'Badge and chip captions on contact and channel cards';
 
   @override
   String get styleEditor_monoCaptionSize_label => 'Mono — captions';
@@ -5705,13 +5720,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get styleEditor_radiusLg_label => 'Large (lg)';
 
   @override
-  String get styleEditor_radiusLg_subtitle => 'Chat bubbles, sheets';
+  String get styleEditor_radiusLg_subtitle => 'Sheets, dialogs';
 
   @override
   String get styleEditor_radiusPill_label => 'Pill';
 
   @override
   String get styleEditor_radiusPill_subtitle => 'Buttons, FAB, chips';
+
+  @override
+  String get styleEditor_radiusBubble_label => 'Chat bubbles';
+
+  @override
+  String get styleEditor_radiusBubble_subtitle =>
+      'The three big corners of every message bubble';
+
+  @override
+  String get styleEditor_radiusBubbleTail_label => 'Chat bubble tail';
+
+  @override
+  String get styleEditor_radiusBubbleTail_subtitle =>
+      'The fourth corner pointing at the sender';
 
   @override
   String get styleEditor_cardSection => 'Card style';

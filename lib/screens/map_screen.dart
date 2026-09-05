@@ -223,15 +223,17 @@ class _MapScreenState extends State<MapScreen> {
       ? BorderSide.none
       : BorderSide(color: _overlayBorderColor);
 
-  List<BoxShadow> _overlayCardShadow({
-    double blurRadius = 8,
-    Offset offset = const Offset(0, 3),
-  }) => _overlayElevated
+  /// Map overlay panels' drop shadow — the app-wide chip/bubble geometry
+  /// (2/2 blur 2, see MeshTokens.labelShadow) in the overlay's own contrast
+  /// color, since panels sit on tiles rather than the page background.
+  /// Callers used to pass their own blur/offset (4..10, 0/1..4); one
+  /// geometry now (2026-09-05 shadow audit).
+  List<BoxShadow> _overlayCardShadow() => _overlayElevated
       ? [
           BoxShadow(
             color: _overlayShadowColor,
-            blurRadius: blurRadius,
-            offset: offset,
+            blurRadius: 2,
+            offset: const Offset(2, 2),
           ),
         ]
       : const [];
@@ -974,15 +976,9 @@ class _MapScreenState extends State<MapScreen> {
                                             ).mapMarkerOutline,
                                             width: 3,
                                           ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: MeshTokens.of(
-                                                context,
-                                              ).mapMarkerShadow,
-                                              blurRadius: 8,
-                                              offset: Offset(0, 3),
-                                            ),
-                                          ],
+                                          boxShadow: MeshTokens.of(
+                                            context,
+                                          ).mapMarkerShadowBox,
                                         ),
                                         child: Icon(
                                           Icons.location_on,
@@ -1051,15 +1047,9 @@ class _MapScreenState extends State<MapScreen> {
                                             ).mapMarkerOutline,
                                             width: 2.5,
                                           ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: MeshTokens.of(
-                                                context,
-                                              ).mapMarkerShadow,
-                                              blurRadius: 8,
-                                              offset: Offset(0, 2),
-                                            ),
-                                          ],
+                                          boxShadow: MeshTokens.of(
+                                            context,
+                                          ).mapMarkerShadowBox,
                                         ),
                                         alignment: Alignment.center,
                                         child: Icon(
@@ -1484,13 +1474,7 @@ class _MapScreenState extends State<MapScreen> {
                   color: guess.highConfidence ? color : _overlayMutedTextColor,
                   width: guess.highConfidence ? 2.5 : 2,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: _overlayShadowColor,
-                    blurRadius: 7,
-                    offset: Offset(0, 2),
-                  ),
-                ],
+                boxShadow: MeshTokens.of(context).mapMarkerShadowBox,
               ),
               alignment: Alignment.center,
               child: Icon(
@@ -1789,13 +1773,7 @@ class _MapScreenState extends State<MapScreen> {
                       color: MeshTokens.of(context).mapMarkerOutline,
                       width: 2,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: MeshTokens.of(context).mapMarkerShadow,
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
+                    boxShadow: MeshTokens.of(context).mapMarkerShadowBox,
                   ),
                 )
               : _buildNodeMarkerWidget(
@@ -1843,13 +1821,7 @@ class _MapScreenState extends State<MapScreen> {
               color: MeshTokens.of(context).mapMarkerOutline,
               width: 3,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: MeshTokens.of(context).mapMarkerShadow,
-                blurRadius: 8,
-                offset: Offset(0, 3),
-              ),
-            ],
+            boxShadow: MeshTokens.of(context).mapMarkerShadowBox,
           ),
           alignment: Alignment.center,
           child: Column(
@@ -1971,10 +1943,7 @@ class _MapScreenState extends State<MapScreen> {
               color: _overlayPanelColor,
               borderRadius: BorderRadius.circular(MeshTokens.of(context).xs),
               border: _overlayCardBorder,
-              boxShadow: _overlayCardShadow(
-                blurRadius: 4,
-                offset: Offset(0, 1),
-              ),
+              boxShadow: _overlayCardShadow(),
             ),
             child: Text(
               label,
@@ -2080,15 +2049,10 @@ class _MapScreenState extends State<MapScreen> {
               width: selected ? 3 : 2.5,
             ),
             boxShadow: [
-              // Reuses the same "elevated" toggle as MeshCard
-              // (styleEditor_cardSection) so shadows across the app turn
-              // on/off together instead of the map having its own switch.
-              if (MeshTokens.of(context).cardElevated)
-                BoxShadow(
-                  color: MeshTokens.of(context).mapMarkerShadow,
-                  blurRadius: 8,
-                  offset: Offset(0, 3),
-                ),
+              // Shared marker shadow (follows the MeshCard "elevated"
+              // toggle, see MeshTokens.mapMarkerShadowBox) + the selection
+              // glow, which is a highlight rather than a shadow.
+              ...?MeshTokens.of(context).mapMarkerShadowBox,
               if (selected)
                 BoxShadow(
                   color: MeshTokens.of(
@@ -2378,14 +2342,8 @@ class _MapScreenState extends State<MapScreen> {
       decoration: BoxDecoration(
         color: _overlayPanelColor,
         borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
-        border: Border.all(color: _overlayBorderColor),
-        boxShadow: [
-          BoxShadow(
-            color: _overlayShadowColor,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: _overlayCardBorder,
+        boxShadow: _overlayCardShadow(),
       ),
       child: results.isEmpty
           ? Padding(
@@ -2518,10 +2476,7 @@ class _MapScreenState extends State<MapScreen> {
         color: _overlayPanelColor,
         borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
         border: _overlayCardBorder,
-        boxShadow: _overlayCardShadow(
-          blurRadius: 10,
-          offset: const Offset(0, 4),
-        ),
+        boxShadow: _overlayCardShadow(),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3018,13 +2973,7 @@ class _MapScreenState extends State<MapScreen> {
                   color: MeshTokens.of(context).mapMarkerOutline,
                   width: 2.5,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: MeshTokens.of(context).mapMarkerShadow,
-                    blurRadius: 8,
-                    offset: Offset(0, 3),
-                  ),
-                ],
+                boxShadow: MeshTokens.of(context).mapMarkerShadowBox,
               ),
               alignment: Alignment.center,
               child: Icon(
@@ -4028,14 +3977,8 @@ class _MapScreenState extends State<MapScreen> {
         decoration: BoxDecoration(
           color: _overlayPanelColor,
           borderRadius: BorderRadius.circular(MeshTokens.of(context).md),
-          border: Border.all(color: _overlayBorderColor),
-          boxShadow: [
-            BoxShadow(
-              color: _overlayShadowColor,
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: _overlayCardBorder,
+          boxShadow: _overlayCardShadow(),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(MeshTokens.of(context).md),

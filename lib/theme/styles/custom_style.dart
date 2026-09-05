@@ -172,9 +172,6 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       titleLarge: base.titleLarge?.copyWith(
         fontSize: titleSmallSize + MeshTypeScale.titleLargeIncrement,
       ),
-      headlineSmall: base.headlineSmall?.copyWith(
-        fontSize: titleSmallSize + MeshTypeScale.headlineSmallIncrement,
-      ),
       labelSmall: sizeFor('labelSmall') != null
           ? base.labelSmall?.copyWith(fontSize: sizeFor('labelSmall'))
           : null,
@@ -188,6 +185,10 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       overrides.fontSizeOverrides['monoCaptionSize'] ?? base.monoCaptionSize;
   double monoBodySizeFor(MeshTokens base) =>
       overrides.fontSizeOverrides['monoBodySize'] ?? base.monoBodySize;
+  double bodySizeFor(MeshTokens base) =>
+      overrides.fontSizeOverrides['bodySize'] ?? base.bodySize;
+  double microLabelSizeFor(MeshTokens base) =>
+      overrides.fontSizeOverrides['microLabelSize'] ?? base.microLabelSize;
 
   double spacingFor(String key, double base) =>
       overrides.spacingOverrides[key] ?? base;
@@ -354,6 +355,12 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
         subtitleTextStyle: withFontSize(
           base.listTileTheme.subtitleTextStyle,
           bodySmallSize,
+        ),
+      ),
+      dialogTheme: base.dialogTheme.copyWith(
+        titleTextStyle: withFontSize(
+          base.dialogTheme.titleTextStyle,
+          titleSmallSize + MeshTypeScale.dialogTitleIncrement,
         ),
       ),
       appBarTheme: base.appBarTheme.copyWith(
@@ -614,6 +621,9 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
       // live 2026-08-10: navy popups with a gray chart on a custom gray bg).
       dialogTheme: base.dialogTheme.copyWith(
         backgroundColor: scheme.surfaceContainerLow,
+        titleTextStyle: base.dialogTheme.titleTextStyle?.copyWith(
+          color: scheme.onSurface,
+        ),
       ),
       bottomSheetTheme: base.bottomSheetTheme.copyWith(
         backgroundColor: scheme.surfaceContainerLow,
@@ -837,6 +847,8 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
   final tokens = applyColorOverrides(baseTokens).copyWith(
     monoCaptionSize: monoCaptionSizeFor(baseTokens),
     monoBodySize: monoBodySizeFor(baseTokens),
+    bodySize: bodySizeFor(baseTokens),
+    microLabelSize: microLabelSizeFor(baseTokens),
     spacingXxs: spacingFor('spacingXxs', baseTokens.spacingXxs),
     spacingXs: spacingFor('spacingXs', baseTokens.spacingXs),
     spacingSm: spacingFor('spacingSm', baseTokens.spacingSm),
@@ -849,6 +861,11 @@ MeshStyle buildCustomStyle(CustomStyleOverrides overrides) {
     lg: radiusFor('lg', baseTokens.lg),
     pill: radiusFor('pill', baseTokens.pill),
     buttonRadius: radiusFor('buttonRadius', baseTokens.buttonRadius),
+    bubbleRadius: radiusFor('bubbleRadius', baseTokens.bubbleRadius),
+    bubbleTailRadius: radiusFor(
+      'bubbleTailRadius',
+      baseTokens.bubbleTailRadius,
+    ),
     cardElevated: overrides.cardElevated ?? true,
     innerShadowEnabled: overrides.innerShadowEnabled ?? true,
     // Independent override wins; otherwise borders show exactly when the

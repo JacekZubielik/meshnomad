@@ -91,15 +91,7 @@ class QrCodeDisplay extends StatelessWidget {
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: BorderRadius.circular(tokens.lg),
-              boxShadow: isDark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+              boxShadow: isDark ? null : tokens.labelShadow,
             ),
             child: embeddedImage != null
                 ? _buildQrWithEmbeddedImage(context, fgColor, bgColor)

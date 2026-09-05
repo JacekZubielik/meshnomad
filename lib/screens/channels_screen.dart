@@ -21,6 +21,7 @@ import '../models/community.dart';
 import '../models/translation_support.dart';
 import '../storage/community_store.dart';
 import '../theme/mesh_tokens.dart';
+import '../utils/channel_dialogs.dart';
 import '../utils/dialog_utils.dart';
 import '../utils/disconnect_navigation_mixin.dart';
 import '../utils/last_seen_label.dart';
@@ -624,11 +625,13 @@ class _ChannelsScreenState extends State<ChannelsScreen>
       child: MeshCard(
         key: ValueKey('channel_${channel.index}'),
         padding: EdgeInsets.all(t.spacingMd),
-        onTap: () {
+        onTap: () async {
           HapticFeedback.selectionClick();
           final unread = connector.getUnreadCountForChannelIndex(channel.index);
           connector.markChannelRead(channel.index);
-          Navigator.push(
+          // The chat pops `true` when the channel was deleted from its ⋮
+          // menu — the toast belongs here, on the screen the user lands on.
+          final deleted = await Navigator.push<bool>(
             context,
             MaterialPageRoute(
               builder: (context) => ChannelChatScreen(
@@ -637,6 +640,7 @@ class _ChannelsScreenState extends State<ChannelsScreen>
               ),
             ),
           );
+          if (deleted == true) _toastChannelDeleted(channel);
         },
         onLongPress: () => _showChannelActions(
           this.context,
@@ -807,6 +811,16 @@ class _ChannelsScreenState extends State<ChannelsScreen>
     );
   }
 
+  void _toastChannelDeleted(Channel channel) {
+    if (!mounted) return;
+    _pushToast(
+      WindaMessage(
+        text: context.l10n.channels_channelDeleted(channel.name),
+        tone: WindaMessageTone.success,
+      ),
+    );
+  }
+
   void _showChannelActions(
     BuildContext context,
     MeshCoreConnector connector,
@@ -830,7 +844,12 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 Navigator.pop(sheetContext);
                 await Future.delayed(const Duration(milliseconds: 100));
                 if (parentContext.mounted) {
-                  _showEditChannelDialog(parentContext, connector, channel);
+                  showEditChannelSheet(
+                    parentContext,
+                    connector: connector,
+                    channel: channel,
+                    pushToast: _pushToast,
+                  );
                 }
               },
             ),
@@ -869,12 +888,14 @@ class _ChannelsScreenState extends State<ChannelsScreen>
                 Navigator.pop(sheetContext);
                 await Future.delayed(const Duration(milliseconds: 100));
                 if (parentContext.mounted) {
-                  _confirmDeleteChannel(
+                  final deleted = await confirmDeleteChannel(
                     parentContext,
-                    connector,
-                    channelMessageStore,
-                    channel,
+                    connector: connector,
+                    channelMessageStore: channelMessageStore,
+                    channel: channel,
+                    pushToast: _pushToast,
                   );
+                  if (deleted) _toastChannelDeleted(channel);
                 }
               },
             ),
@@ -1826,287 +1847,6 @@ class _ChannelsScreenState extends State<ChannelsScreen>
             ),
           );
         },
-      ),
-    );
-  }
-
-  void _showEditChannelDialog(
-    BuildContext context,
-    MeshCoreConnector connector,
-    Channel channel,
-  ) {
-    final appSettingsService = Provider.of<AppSettingsService>(
-      context,
-      listen: false,
-    );
-    final nameController = TextEditingController(text: channel.name);
-    final pskController = TextEditingController(text: channel.pskHex);
-    bool smazEnabled = connector.isChannelSmazEnabled(channel.index);
-    bool cyr2latEnabled = connector.isChannelCyr2LatEnabled(channel.index);
-    String? selectedCyr2LatProfileId = connector.getChannelCyr2LatProfileId(
-      channel.index,
-    );
-
-    showMeshSheet(
-      context,
-      builder: (sheetContext) => StatefulBuilder(
-        // Winda template (2026-08-29): content-hugging height instead of the
-        // old fixed DraggableScrollableSheet(initialChildSize: 0.65) that
-        // left dead space below short content, and a SafeArea'd footer so
-        // Cancel/Save never land under the Android system bars.
-        builder: (sheetContext, setSheetState) => SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              BottomSheetHeader(
-                title: sheetContext.l10n.channels_editChannelTitle(
-                  channel.index,
-                ),
-              ),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: MeshTokens.of(sheetContext).spacingMd,
-                  ),
-                  children: [
-                    SizedBox(height: MeshTokens.of(sheetContext).spacingXs),
-                    TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        labelText: sheetContext.l10n.channels_channelName,
-                        border: const OutlineInputBorder(),
-                      ),
-                      maxLength: 31,
-                    ),
-                    SizedBox(height: MeshTokens.of(sheetContext).spacingMd),
-                    TextField(
-                      controller: pskController,
-                      decoration: InputDecoration(
-                        labelText: sheetContext.l10n.channels_pskHex,
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.casino),
-                          tooltip: sheetContext.l10n.channels_generateRandomPsk,
-                          onPressed: () {
-                            final bytes = randomBytes(16);
-                            pskController.text = Channel.formatPskHex(bytes);
-                          },
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: MeshTokens.of(sheetContext).spacingMd),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(sheetContext.l10n.channels_smazCompression),
-                      value: smazEnabled,
-                      onChanged: (value) => setSheetState(() {
-                        smazEnabled = value;
-                        if (smazEnabled) {
-                          cyr2latEnabled = false;
-                        }
-                      }),
-                    ),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        sheetContext.l10n.channels_cyr2latCompression,
-                      ),
-                      subtitle: Text(
-                        sheetContext.l10n.channels_cyr2latCompressionDscr,
-                      ),
-                      value: cyr2latEnabled,
-                      onChanged: (value) => setSheetState(() {
-                        cyr2latEnabled = value;
-                        if (cyr2latEnabled) {
-                          smazEnabled = false;
-                        }
-                      }),
-                    ),
-                    if (cyr2latEnabled) ...[
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          0,
-                          MeshTokens.of(sheetContext).spacingXs,
-                          0,
-                          MeshTokens.of(sheetContext).spacingXs,
-                        ),
-                        child: DropdownButtonFormField<String>(
-                          initialValue: selectedCyr2LatProfileId,
-                          decoration: InputDecoration(
-                            labelText: sheetContext
-                                .l10n
-                                .channels_cyr2latSettingsSubheading,
-                            border: const OutlineInputBorder(),
-                          ),
-                          items: appSettingsService.settings.cyr2latProfiles
-                              .map((profile) {
-                                return DropdownMenuItem(
-                                  value: profile.id,
-                                  child: Text(profile.name),
-                                );
-                              })
-                              .toList(),
-                          onChanged: (value) => setSheetState(() {
-                            selectedCyr2LatProfileId = value;
-                          }),
-                        ),
-                      ),
-                    ],
-                    SizedBox(height: MeshTokens.of(sheetContext).spacingLg),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  MeshTokens.of(sheetContext).spacingMd,
-                  MeshTokens.of(sheetContext).spacingXs,
-                  MeshTokens.of(sheetContext).spacingMd,
-                  MeshTokens.of(sheetContext).spacingMd,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      // Winda template: Cancel is a bare text button — no
-                      // fill, no border (2026-08-29 user spec).
-                      child: TextButton(
-                        onPressed: () => Navigator.pop(sheetContext),
-                        child: Text(sheetContext.l10n.common_cancel),
-                      ),
-                    ),
-                    SizedBox(width: MeshTokens.of(sheetContext).spacingSm),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () async {
-                          final name = nameController.text.trim();
-                          final pskHex = pskController.text.trim();
-
-                          Uint8List psk;
-                          try {
-                            psk = Channel.parsePskHex(pskHex);
-                          } on FormatException {
-                            _pushToast(
-                              WindaMessage(
-                                text: sheetContext.l10n.channels_pskMustBe32Hex,
-                                tone: WindaMessageTone.warning,
-                              ),
-                            );
-                            return;
-                          }
-
-                          Navigator.pop(sheetContext);
-                          try {
-                            await connector.setChannel(
-                              channel.index,
-                              name,
-                              psk,
-                            );
-                            await connector.setChannelSmazEnabled(
-                              channel.index,
-                              smazEnabled,
-                            );
-                            await connector.setChannelCyr2LatEnabled(
-                              channel.index,
-                              cyr2latEnabled,
-                            );
-                            await connector.setChannelCyr2LatProfileId(
-                              channel.index,
-                              selectedCyr2LatProfileId,
-                            );
-                            if (!context.mounted) return;
-                            _pushToast(
-                              WindaMessage(
-                                text: context.l10n.channels_channelUpdated(
-                                  name,
-                                ),
-                                tone: WindaMessageTone.success,
-                              ),
-                            );
-                          } catch (e, st) {
-                            debugPrint(st.toString());
-                            if (!context.mounted) return;
-                            _pushToast(
-                              WindaMessage(
-                                text: context.l10n.channels_channelUpdateFailed(
-                                  '$e',
-                                ),
-                                tone: WindaMessageTone.error,
-                              ),
-                            );
-                          }
-                        },
-                        child: Text(sheetContext.l10n.common_save),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _confirmDeleteChannel(
-    BuildContext context,
-    MeshCoreConnector connector,
-    ChannelMessageStore channelMessageStore,
-    Channel channel,
-  ) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(dialogContext.l10n.channels_deleteChannel),
-        content: Text(
-          dialogContext.l10n.channels_deleteChannelConfirm(channel.name),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(dialogContext.l10n.common_cancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              try {
-                await connector.deleteChannel(channel.index);
-
-                await channelMessageStore.clearChannelMessages(channel.index);
-
-                if (!context.mounted) return;
-
-                _pushToast(
-                  WindaMessage(
-                    text: context.l10n.channels_channelDeleted(channel.name),
-                    tone: WindaMessageTone.success,
-                  ),
-                );
-              } catch (e, st) {
-                if (!context.mounted) return;
-
-                _pushToast(
-                  WindaMessage(
-                    text: context.l10n.channels_channelDeleteFailed(
-                      channel.name,
-                    ),
-                    tone: WindaMessageTone.error,
-                  ),
-                );
-
-                // Preserve existing logging (if it was there)
-                debugPrint('Failed to delete channel: $e\n$st');
-              }
-            },
-            child: Text(
-              dialogContext.l10n.common_delete,
-              style: TextStyle(
-                color: Theme.of(dialogContext).colorScheme.error,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

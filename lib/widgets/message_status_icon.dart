@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../l10n/l10n.dart';
 import '../theme/mesh_tokens.dart';
@@ -98,16 +97,16 @@ class _MessageStatusIconState extends State<MessageStatusIcon>
         ? MeshTokens.of(context).signal.withValues(alpha: 0.9)
         : baseColor;
 
+    // Both ticks from the Material icon font (2026-09-05: the double tick
+    // used to be a bundled SVG, assets/icons/done_all.svg) — same glyph
+    // family as the single tick, same tint as before.
     return Semantics(
       label: label,
-      child: delivered
-          ? SvgPicture.asset(
-              'assets/icons/done_all.svg',
-              width: size,
-              height: size,
-              colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-            )
-          : Icon(Icons.done, size: size, color: color),
+      child: Icon(
+        delivered ? Icons.done_all : Icons.done,
+        size: size,
+        color: color,
+      ),
     );
   }
 }

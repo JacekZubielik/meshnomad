@@ -26,6 +26,7 @@ import '../models/translation_support.dart';
 import '../services/app_settings_service.dart';
 import '../services/ui_view_state_service.dart';
 import '../theme/mesh_tokens.dart';
+import '../utils/contact_actions.dart';
 import '../utils/contact_search.dart';
 import '../storage/contact_group_store.dart';
 import '../utils/dialog_utils.dart';
@@ -1680,22 +1681,10 @@ class _ContactsScreenState extends State<ContactsScreen>
                   title: Text(context.l10n.contacts_chatTraceRoute),
                   onTap: () {
                     Navigator.pop(sheetContext);
-                    final hw = context
-                        .read<MeshCoreConnector>()
-                        .pathHashByteWidth;
-                    Navigator.push(
+                    showContactPathTrace(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => PathTraceMapScreen(
-                          title: context.l10n.contacts_pathTraceTo(
-                            contact.name,
-                          ),
-                          path: contact.pathBytesForDisplay,
-                          flipPathAround: true,
-                          targetContact: contact,
-                          pathHashByteWidth: hw,
-                        ),
-                      ),
+                      connector: connector,
+                      contact: contact,
                     );
                   },
                 ),
@@ -1703,34 +1692,13 @@ class _ContactsScreenState extends State<ContactsScreen>
             ListTile(
               leading: const Icon(Icons.route_outlined),
               title: Text(context.l10n.contacts_showAdvertPath),
-              onTap: () async {
+              onTap: () {
                 Navigator.pop(sheetContext);
-                final result = await connector.getAdvertPath(contact);
-                if (!context.mounted) return;
-                if (result == null) {
-                  _pushToast(
-                    WindaMessage(
-                      text: context.l10n.contacts_advertPathNotFound,
-                      tone: WindaMessageTone.warning,
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                  return;
-                }
-                final hw = connector.pathHashByteWidth;
-                Navigator.push(
+                showContactAdvertPath(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => PathTraceMapScreen(
-                      title: context.l10n.contacts_advertPathTraceTo(
-                        contact.name,
-                      ),
-                      path: result.pathHash,
-                      flipPathAround: true,
-                      targetContact: contact,
-                      pathHashByteWidth: hw,
-                    ),
-                  ),
+                  connector: connector,
+                  contact: contact,
+                  pushToast: _pushToast,
                 );
               },
             ),
@@ -1779,7 +1747,11 @@ class _ContactsScreenState extends State<ContactsScreen>
               ),
               onTap: () {
                 Navigator.pop(sheetContext);
-                _confirmDelete(context, connector, contact);
+                confirmDeleteContact(
+                  context,
+                  connector: connector,
+                  contact: contact,
+                );
               },
             ),
             SizedBox(height: t.spacingXs),
@@ -1797,36 +1769,6 @@ class _ContactsScreenState extends State<ContactsScreen>
         .clamp(1, contact.publicKey.length)
         .toInt();
     return Uint8List.fromList(contact.publicKey.sublist(0, width));
-  }
-
-  void _confirmDelete(
-    BuildContext context,
-    MeshCoreConnector connector,
-    Contact contact,
-  ) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(context.l10n.contacts_deleteContact),
-        content: Text(context.l10n.contacts_removeConfirm(contact.name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(context.l10n.common_cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              connector.removeContact(contact);
-            },
-            child: Text(
-              context.l10n.common_delete,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

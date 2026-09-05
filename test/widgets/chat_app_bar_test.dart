@@ -26,7 +26,8 @@ Widget _wrap(Widget home) {
 
 class _Host extends StatelessWidget {
   final VoidCallback? onBack;
-  const _Host({this.onBack});
+  final bool showBottomDivider;
+  const _Host({this.onBack, this.showBottomDivider = true});
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +40,7 @@ class _Host extends StatelessWidget {
           meshMenuActionItem(icon: Icons.delete, label: 'Item A', onTap: () {}),
         ],
         onBack: onBack,
+        showBottomDivider: showBottomDivider,
       ),
       body: const Column(
         children: [
@@ -51,6 +53,21 @@ class _Host extends StatelessWidget {
 }
 
 void main() {
+  testWidgets('keeps the theme bottom border by default', (tester) async {
+    await tester.pumpWidget(_wrap(const _Host()));
+    await tester.pump();
+    expect(tester.widget<AppBar>(find.byType(AppBar)).shape, isNull);
+  });
+
+  testWidgets('showBottomDivider: false drops the theme bottom border '
+      '(for a caller drawing its own accent divider below)', (tester) async {
+    await tester.pumpWidget(_wrap(const _Host(showBottomDivider: false)));
+    await tester.pump();
+    final shape = tester.widget<AppBar>(find.byType(AppBar)).shape;
+    expect(shape, isA<Border>());
+    expect((shape! as Border).bottom.width, 0);
+  });
+
   testWidgets('back arrow is accent-colored and inside a 48x48 box', (
     tester,
   ) async {

@@ -30,8 +30,11 @@ class MeshcoreUsbFunctions(
         const val usbRecipientInterface = 0x01
     }
 
-    private val usbMethodChannelName = "meshcore_open/android_usb_serial"
-    private val usbEventChannelName = "meshcore_open/android_usb_serial_events"
+    // Must match lib/services/usb_serial_service_native.dart (guarded by
+    // test/services/usb_channel_names_test.dart). Carried the pre-rebrand
+    // fork name until 2026-09-05.
+    private val usbMethodChannelName = "meshnomad/android_usb_serial"
+    private val usbEventChannelName = "meshnomad/android_usb_serial_events"
     private val usbPermissionAction = "com.meshnomad.app.USB_PERMISSION"
 
     private val usbManager by lazy {

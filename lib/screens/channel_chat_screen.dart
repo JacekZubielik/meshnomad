@@ -5,7 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart' hide TextDirection;
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:provider/provider.dart';
 
 import '../connector/meshcore_connector.dart';
@@ -33,8 +33,12 @@ import '../widgets/mesh_screen_scaffold.dart';
 import '../widgets/quick_style_picker_dialog.dart';
 import '../widgets/winda_message.dart';
 import '../widgets/winda_overlay.dart';
+import '../storage/channel_message_store.dart';
+import '../utils/channel_dialogs.dart';
 import '../utils/dialog_utils.dart';
 import '../utils/last_seen_label.dart';
+import '../utils/message_time.dart';
+import '../widgets/chat_bubble_layout.dart';
 import 'package:meshnomad/screens/about_screen.dart';
 import 'settings_screen.dart';
 import '../widgets/emoji_picker.dart';
@@ -99,10 +103,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
   DateTime? _lastChannelSendAt;
   bool _channelSkipNextBottomSnap = false;
   String? _unreadDividerMessageId;
-
-  String? _cachedFormatLocale;
-  late DateFormat _hmFormat;
-  late DateFormat _mdFormat;
 
   @override
   void initState() {
@@ -252,7 +252,45 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
     // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
     // above the Navigator) so "select all" can't sweep in text from other,
     // offstage routes still mounted via maintainState:true.
-    return SelectionArea(child: _screenBody(context));
+    // No SelectionArea: only the message body is selectable, and it selects
+    // on its own (SelectableLinkify, see LinkHandler.buildLinkifyText).
+    // A tap anywhere else in the body, or Esc, leaves selection mode — see
+    // _clearTextSelection.
+    return Focus(
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.escape &&
+            _clearTextSelection()) {
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: _clearTextSelection,
+        child: _screenBody(context),
+      ),
+    );
+  }
+
+  /// Bumped to recreate every message body (new subtree key) — the only
+  /// way to drop a SelectableText's highlight: losing focus hides the
+  /// toolbar and handles but keeps the selection painted (EditableText
+  /// `_handleFocusChanged`, verified in the SDK 2026-09-05).
+  int _selectionEpoch = 0;
+
+  /// Leaves text-selection mode if a message body currently has it.
+  /// Returns whether there was one, so Esc is only swallowed then.
+  bool _clearTextSelection() {
+    final focus = FocusManager.instance.primaryFocus;
+    final context = focus?.context;
+    if (context == null ||
+        context.findAncestorWidgetOfExactType<SelectableLinkify>() == null) {
+      return false;
+    }
+    focus!.unfocus();
+    setState(() => _selectionEpoch++);
+    return true;
   }
 
   Widget _screenBody(BuildContext context) {
@@ -273,6 +311,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
         : null;
     final unreadCount = connector.getUnreadCountForChannelIndex(idx);
     final theme = Theme.of(context);
+    // Watched, so the ⋮ menu's mute row flips after a toggle.
+    final settings = context.watch<AppSettingsService>();
+    final isMuted = settings.isChannelMuted(channel.name);
 
     // First-layout measurement (SizeChangedLayoutNotifier below only fires
     // on later changes) — matters when a sync is already running as the
@@ -287,6 +328,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
       appBar: meshChatAppBar(
         context,
         menuTooltip: context.l10n.contacts_moreOptions,
+        // This screen draws its own accent dashed divider directly below —
+        // suppress the theme's default bottom line so it doesn't peek
+        // through in the divider's own left/right padding.
+        showBottomDivider: false,
         title: ChatAppBarTitle(
           name: label,
           onTap: () => openRegionSelectDialog(channel),
@@ -300,12 +345,41 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
             label: menuContext.l10n.channels_regionSelect_Title,
             onTap: () => openRegionSelectDialog(channel),
           ),
+          // Same channel actions as the Channels card's long-press winda
+          // (edit / mute / delete), reachable without leaving the chat.
+          meshMenuActionItem(
+            icon: Icons.edit_outlined,
+            label: menuContext.l10n.channels_editChannel,
+            onTap: () => showEditChannelSheet(
+              context,
+              connector: connector,
+              channel: channel,
+              pushToast: pushToast,
+            ),
+          ),
+          meshMenuActionItem(
+            icon: isMuted
+                ? Icons.notifications_outlined
+                : Icons.notifications_off_outlined,
+            label: isMuted
+                ? menuContext.l10n.channels_unmuteChannel
+                : menuContext.l10n.channels_muteChannel,
+            onTap: () => isMuted
+                ? settings.unmuteChannel(channel.name)
+                : settings.muteChannel(channel.name),
+          ),
           meshMenuDivider(menuContext),
           meshMenuActionItem(
             icon: Icons.delete,
             iconColor: theme.colorScheme.error,
             label: menuContext.l10n.contact_clearChat,
             onTap: _confirmClearChat,
+          ),
+          meshMenuActionItem(
+            icon: Icons.delete_outline,
+            iconColor: theme.colorScheme.error,
+            label: menuContext.l10n.channels_deleteChannel,
+            onTap: _deleteChannel,
           ),
           meshMenuDivider(menuContext),
           meshMenuActionItem(
@@ -348,25 +422,32 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
               KeyedSubtree(
                 key: _badgeBarKey,
                 child: SizeChangedLayoutNotifier(
-                  child: ChatBadgeBar(
-                    badges: ChannelBadgeRow(
-                      alignment: WrapAlignment.center,
-                      showTrailingIcons: false,
-                      channelIndex: idx,
-                      region: connector.hasChannelRegion(idx)
-                          ? connector.getChannelRegion(idx)
-                          : null,
-                      isSmazEnabled: connector.isChannelSmazEnabled(idx),
-                      languageCode: connector.getChannelTranslationLanguage(
-                        idx,
+                  child: Column(
+                    children: [
+                      // Accent dashed rule under the app bar's bottom edge,
+                      // full width (2026-09-04).
+                      const MeshDashedDivider(),
+                      ChatBadgeBar(
+                        badges: ChannelBadgeRow(
+                          alignment: WrapAlignment.center,
+                          showTrailingIcons: false,
+                          channelIndex: idx,
+                          region: connector.hasChannelRegion(idx)
+                              ? connector.getChannelRegion(idx)
+                              : null,
+                          isSmazEnabled: connector.isChannelSmazEnabled(idx),
+                          languageCode: connector.getChannelTranslationLanguage(
+                            idx,
+                          ),
+                          timeLabel: lastTime != null
+                              ? formatLastSeenLabel(context, lastTime)
+                              : null,
+                          isUnread: unreadCount > 0,
+                          onRegionTap: () => openRegionSelectDialog(channel),
+                          onLanguageTap: _showTranslationOptions,
+                        ),
                       ),
-                      timeLabel: lastTime != null
-                          ? formatLastSeenLabel(context, lastTime)
-                          : null,
-                      isUnread: unreadCount > 0,
-                      onRegionTap: () => openRegionSelectDialog(channel),
-                      onLanguageTap: _showTranslationOptions,
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -484,9 +565,15 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                                               ChatTextScaleService,
                                               double
                                             >((service) => service.scale);
-                                        final bubble = _buildMessageBubble(
-                                          message,
-                                          textScale,
+                                        // Keyed by the selection epoch so a
+                                        // tap outside / Esc recreates the
+                                        // body and drops its highlight.
+                                        final bubble = KeyedSubtree(
+                                          key: ValueKey('sel$_selectionEpoch'),
+                                          child: _buildMessageBubble(
+                                            message,
+                                            textScale,
+                                          ),
                                         );
                                         if (isUnreadAnchor) {
                                           return Column(
@@ -574,10 +661,16 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
       message.pathLength,
     );
 
-    // Bubble colors — outgoing uses MeshTokens.me / meBorder / meInk.
+    // Bubble surface follows the style-wide shadow toggle exactly like
+    // MeshCard (Contacts/Channels cards): shadow on → no outline, incoming
+    // fill bumped one surface level up + drop shadow; shadow off → flat
+    // fill with the 1 px outline (2026-09-04: bubbles were always outlined
+    // and never shadowed, the one surface in the app ignoring the toggle).
+    final elevated = MeshTokens.of(context).cardElevated;
+    // Outgoing uses MeshTokens.me / meBorder / meInk.
     final bubbleColor = isOutgoing
         ? MeshTokens.of(context).me
-        : scheme.surfaceContainerLow;
+        : (elevated ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow);
     final bubbleBorder = isOutgoing
         ? MeshTokens.of(context).meBorder
         : scheme.outlineVariant;
@@ -591,8 +684,9 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
     final timeRow = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SelectableText(
-          _formatTime(context, message.timestamp),
+        // Plain Text: only the message body is selectable (2026-09-05).
+        Text(
+          _formatTime(message.timestamp),
           style: MeshTokens.of(context)
               .monoCaption(color: metaColor)
               .copyWith(
@@ -608,7 +702,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
           SizedBox(width: MeshTokens.of(context).spacingXs),
           Icon(Icons.repeat, size: 11 * textScale, color: metaColor),
           const SizedBox(width: 2),
-          SelectableText(
+          Text(
             '${message.repeatCount}',
             style: MeshTokens.of(context)
                 .monoCaption(color: metaColor)
@@ -638,18 +732,22 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
     );
 
     // Asymmetric radius matching chat_screen bubbles.
+    // Own tokens (editor: "Chat bubbles" / "Chat bubble tail"), no longer
+    // the general lg/xs ladder (2026-09-05).
+    final big = Radius.circular(MeshTokens.of(context).bubbleRadius);
+    final tail = Radius.circular(MeshTokens.of(context).bubbleTailRadius);
     final borderRadius = isOutgoing
         ? BorderRadius.only(
-            topLeft: Radius.circular(MeshTokens.of(context).lg),
-            topRight: Radius.circular(MeshTokens.of(context).lg),
-            bottomLeft: Radius.circular(MeshTokens.of(context).lg),
-            bottomRight: Radius.circular(MeshTokens.of(context).xs),
+            topLeft: big,
+            topRight: big,
+            bottomLeft: big,
+            bottomRight: tail,
           )
         : BorderRadius.only(
-            topLeft: Radius.circular(MeshTokens.of(context).xs),
-            topRight: Radius.circular(MeshTokens.of(context).lg),
-            bottomLeft: Radius.circular(MeshTokens.of(context).lg),
-            bottomRight: Radius.circular(MeshTokens.of(context).lg),
+            topLeft: tail,
+            topRight: big,
+            bottomLeft: big,
+            bottomRight: big,
           );
 
     const maxSwipeOffset = 64.0;
@@ -666,10 +764,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                 : MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!isOutgoing) ...[
-                _buildAvatar(message.senderName, textScale),
-                SizedBox(width: MeshTokens.of(context).spacingXs),
-              ],
               Flexible(
                 child: GestureDetector(
                   onLongPress: () => _showMessageActions(message),
@@ -679,17 +773,27 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                   child: Container(
                     padding: gifId != null
                         ? EdgeInsets.all(MeshTokens.of(context).spacingXxs)
-                        : EdgeInsets.symmetric(
-                            horizontal: MeshTokens.of(context).spacingSm,
-                            vertical: MeshTokens.of(context).spacingXs,
-                          ),
+                        // Same inset on every side as the contact/channel
+                        // cards (2026-09-05: was sm/xs, visibly taller
+                        // than wide, and different from every card).
+                        : EdgeInsets.all(MeshTokens.of(context).spacingMd),
+                    // 0.85 of the list width for both directions (was 0.72,
+                    // and incoming lost the outside avatar's width on top —
+                    // 2026-09-05 decision, mockup chat-bubble-layout.html).
                     constraints: BoxConstraints(
-                      maxWidth: constraints.maxWidth * 0.72,
+                      maxWidth:
+                          constraints.maxWidth * ChatBubbleLayout.widthFraction,
                     ),
                     decoration: BoxDecoration(
                       color: bubbleColor,
                       borderRadius: borderRadius,
-                      border: Border.all(color: bubbleBorder, width: 1),
+                      border: elevated
+                          ? null
+                          : Border.all(color: bubbleBorder, width: 1),
+                      // Single-layer chip shadow, not the two-layer card
+                      // one: bubbles sit far denser than cards and read
+                      // heavier with it (2026-09-05).
+                      boxShadow: MeshTokens.of(context).labelShadow,
                     ),
                     // IntrinsicWidth lets the dotted separator stretch to the
                     // bubble's natural width without inflating the bubble.
@@ -706,29 +810,44 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                                       bottom: MeshTokens.of(context).spacingXxs,
                                     )
                                   : EdgeInsets.zero,
-                              child: SelectableText(
-                                message.senderName,
-                                style:
-                                    (Theme.of(context).textTheme.titleSmall ??
-                                            const TextStyle())
-                                        .copyWith(
-                                          fontSize:
-                                              (Theme.of(context)
-                                                      .textTheme
-                                                      .titleSmall
-                                                      ?.fontSize ??
-                                                  13) *
-                                              textScale,
-                                          fontWeight: FontWeight.w700,
-                                          color: textColor,
-                                        ),
+                              // Header like the contact card's (avatar,
+                              // gap, name — vertically centred): the avatar
+                              // moved inside the bubble 2026-09-05, it used
+                              // to sit outside, left of it. Name at the
+                              // message text size, bold.
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  _buildAvatar(message.senderName, textScale),
+                                  const SizedBox(
+                                    width: ChatBubbleLayout.headerGap,
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                      message.senderName,
+                                      style: TextStyle(
+                                        fontSize:
+                                            MeshTokens.of(context).bodySize *
+                                            textScale,
+                                        fontWeight: FontWeight.w700,
+                                        color: textColor,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            if (gifId == null) const SizedBox(height: 2),
+                            if (gifId == null &&
+                                message.replyToMessageId == null)
+                              const SizedBox(height: 2),
                           ],
                           if (message.replyToMessageId != null) ...[
+                            // Same gap above and below the quote (was 2 above
+                            // from the header, spacingXs below).
+                            if (!isOutgoing)
+                              const SizedBox(height: ChatBubbleLayout.quoteGap),
                             _buildReplyPreview(message, textScale),
-                            SizedBox(height: MeshTokens.of(context).spacingXs),
+                            const SizedBox(height: ChatBubbleLayout.quoteGap),
                           ],
                           if (poi != null)
                             _buildPoiMessage(
@@ -786,7 +905,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                               ],
                             ),
                           if (enableTracing && displayPath.isNotEmpty) ...[
-                            SizedBox(height: MeshTokens.of(context).spacingXs),
+                            SizedBox(height: MeshTokens.of(context).spacingXxs),
                             // Delicate rule cutting the technical footer off
                             // the message content at a glance.
                             Padding(
@@ -866,7 +985,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                             // No technical block (tracing off or no path):
                             // a short rule the width of the time row still
                             // cuts the footer off the content.
-                            SizedBox(height: MeshTokens.of(context).spacingXs),
+                            SizedBox(height: MeshTokens.of(context).spacingXxs),
                             Padding(
                               padding: gifId != null
                                   ? EdgeInsets.only(
@@ -900,12 +1019,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
           ),
           if (message.reactions.isNotEmpty) ...[
             SizedBox(height: MeshTokens.of(context).spacingXxs),
-            Padding(
-              // 42 = avatar width (32) + gap (6) + fine alignment (4);
-              // not a spacing token — tied to avatar geometry.
-              padding: EdgeInsets.only(left: isOutgoing ? 0 : 42),
-              child: _buildReactionsDisplay(message),
-            ),
+            _buildReactionsDisplay(message),
           ],
         ],
       ),
@@ -1077,10 +1191,15 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
             horizontal: MeshTokens.of(context).spacingXs,
             vertical: MeshTokens.of(context).spacingXxs,
           ),
+          // Same shadow-toggle rule as the bubbles: label-sized chip shadow
+          // (t.labelShadow, null when shadows are off) instead of an outline.
           decoration: BoxDecoration(
             color: scheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(MeshTokens.of(context).pill),
-            border: Border.all(color: scheme.outlineVariant, width: 1),
+            border: MeshTokens.of(context).cardElevated
+                ? null
+                : Border.all(color: scheme.outlineVariant, width: 1),
+            boxShadow: MeshTokens.of(context).labelShadow,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -1210,7 +1329,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
   Widget _buildAvatar(String senderName, double textScale) {
     return AvatarCircle(
       name: senderName,
-      size: (32 * textScale).clamp(28.0, 56.0),
+      size: (ChatBubbleLayout.avatarSize * textScale).clamp(
+        ChatBubbleLayout.avatarSize,
+        36.0,
+      ),
     );
   }
 
@@ -1592,23 +1714,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
     );
   }
 
-  String _formatTime(BuildContext context, DateTime time) {
-    final now = DateTime.now();
-    final diff = now.difference(time);
-    final locale = Localizations.localeOf(context).toString();
-    if (locale != _cachedFormatLocale) {
-      _cachedFormatLocale = locale;
-      _hmFormat = DateFormat.Hm(locale);
-      _mdFormat = DateFormat.Md(locale);
-    }
-    final hm = _hmFormat.format(time);
-
-    if (diff.inDays > 0) {
-      return '${_mdFormat.format(time)} $hm';
-    } else {
-      return hm;
-    }
-  }
+  // Region-based (device locale), shared with the direct chat — was the
+  // app's en/pl UI locale, which gave a Polish phone the US date order.
+  String _formatTime(DateTime time) =>
+      formatMessageTimestamp(time, locale: deviceLocaleTag());
 
   void _showMessagePathInfo(ChannelMessage message) {
     // The route map opens as a popup with the pattern's equal edge insets,
@@ -1798,6 +1907,21 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
         widget.channel.index,
       );
     }
+  }
+
+  /// Delete the whole channel (⋮ menu). On success the conversation no
+  /// longer exists, so leave the chat and hand `true` to the screen below
+  /// (Channels), which shows the "deleted" toast — one pushed here would
+  /// die with this screen.
+  Future<void> _deleteChannel() async {
+    final deleted = await confirmDeleteChannel(
+      context,
+      connector: context.read<MeshCoreConnector>(),
+      channelMessageStore: ChannelMessageStore(),
+      channel: widget.channel,
+      pushToast: pushToast,
+    );
+    if (deleted && mounted) Navigator.of(context).pop(true);
   }
 
   Future<void> _deleteMessage(ChannelMessage message) async {

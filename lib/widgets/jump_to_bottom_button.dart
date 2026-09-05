@@ -11,6 +11,7 @@ class JumpToBottomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
     return ValueListenableBuilder<bool>(
       valueListenable: scrollController.showJumpToBottom,
       builder: (context, show, _) {
@@ -29,14 +30,12 @@ class JumpToBottomButton extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: scheme.surfaceContainerHigh.withValues(alpha: 0.92),
-                  border: Border.all(color: scheme.outlineVariant, width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.18),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  // MeshCard rule: outline only when the style-wide shadow
+                  // is off; shadow is the shared chip one (2026-09-05).
+                  border: t.cardElevated
+                      ? null
+                      : Border.all(color: scheme.outlineVariant, width: 1),
+                  boxShadow: t.labelShadow,
                 ),
                 child: Icon(
                   Icons.keyboard_arrow_down,

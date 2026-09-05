@@ -16,6 +16,18 @@ AppBar meshChatAppBar(
   required List<PopupMenuEntry<dynamic>> Function(BuildContext) menuItemBuilder,
   String? menuTooltip,
   VoidCallback? onBack,
+
+  /// The app-wide `AppBarTheme.shape` (mesh_theme.dart) draws a full-width,
+  /// uninset 1px `outlineVariant` line under EVERY app bar. A caller that
+  /// draws its own accent divider directly below (e.g. the channel chat's
+  /// inset dashed rule, 2026-09-04) must set this false, or that theme line
+  /// still peeks through in the divider's own left/right padding — where a
+  /// uniform background is expected, it shows a faint solid line-thickness
+  /// artifact instead (caught on-device: "jaśniejszy odcinek grubości
+  /// linii" in exactly the padded gap). `Border()` (all sides width 0) is
+  /// an explicit "no border" override — `null` would fall back to the
+  /// theme's shape instead of suppressing it.
+  bool showBottomDivider = true,
 }) {
   final scheme = Theme.of(context).colorScheme;
   return AppBar(
@@ -29,6 +41,7 @@ AppBar meshChatAppBar(
     title: title,
     centerTitle: true,
     titleSpacing: 0,
+    shape: showBottomDivider ? null : const Border(),
     actions: [
       // AppBarTheme.actionsPadding (right: 4) + this 4 + the 48-box's own
       // (48-32)/2 = 8 centering gap → the circle's visible right edge sits

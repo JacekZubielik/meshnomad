@@ -281,7 +281,9 @@ class CachedTileInventory {
 
 class MapTileCacheService extends ChangeNotifier {
   static const String cacheKey = 'map_tile_cache';
-  static const String userAgentPackageName = 'com.meshcore.open';
+  // Identifies the app to tile servers (OSM usage policy); the real
+  // application id since the rebrand (carried the fork's id until 2026-09-05).
+  static const String userAgentPackageName = 'com.meshnomad.app';
   static const int defaultMinZoom = 10;
   static const int defaultMaxZoom = 15;
 

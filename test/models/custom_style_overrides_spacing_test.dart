@@ -45,9 +45,10 @@ void main() {
     expect(decoded.radiusOverrides, {'md': 20.0});
   });
 
-  test('editableRadiusKeys lists 6 editable steps, including pill and the '
-      'buttons-only radius (2026-08-21) — xl removed 2026-08-23, confirmed '
-      'unused anywhere in lib/ by corner-radius-audit.md', () {
+  test('editableRadiusKeys lists 8 editable steps: the ladder, pill, the '
+      'buttons-only radius (2026-08-21) and the two chat bubble corners '
+      '(2026-09-05) — xl removed 2026-08-23, confirmed unused anywhere in '
+      'lib/ by corner-radius-audit.md', () {
     expect(CustomStyleOverrides.editableRadiusKeys, [
       'xs',
       'sm',
@@ -55,6 +56,8 @@ void main() {
       'lg',
       'pill',
       'buttonRadius',
+      'bubbleRadius',
+      'bubbleTailRadius',
     ]);
   });
 }

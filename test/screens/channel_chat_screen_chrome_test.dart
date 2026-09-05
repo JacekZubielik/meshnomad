@@ -1,6 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:meshnomad/connector/meshcore_connector.dart';
 import 'package:meshnomad/l10n/app_localizations.dart';
 import 'package:meshnomad/models/channel.dart';
+import 'package:meshnomad/models/channel_message.dart';
 import 'package:meshnomad/screens/channel_chat_screen.dart';
 import 'package:meshnomad/services/app_settings_service.dart';
 import 'package:meshnomad/services/chat_text_scale_service.dart';
@@ -18,13 +19,21 @@ import 'package:meshnomad/theme/mesh_theme.dart';
 import 'package:meshnomad/theme/mesh_tokens.dart';
 import 'package:meshnomad/widgets/app_bar.dart';
 import 'package:meshnomad/widgets/chat_app_bar.dart';
+import 'package:meshnomad/widgets/dotted_separator.dart';
+import 'package:meshnomad/widgets/mesh_dashed_divider.dart';
 import 'package:meshnomad/widgets/mesh_ui.dart';
 import 'package:meshnomad/widgets/radio_stats_entry.dart';
+import 'package:meshnomad/widgets/translated_message_content.dart';
 import 'package:meshnomad/widgets/winda_host_overlay.dart';
 import 'package:meshnomad/widgets/winda_overlay.dart';
 
 class _FakeConnector extends MeshCoreConnector {
   bool syncingChannels = false;
+  final List<int> deletedChannelIndices = [];
+  List<ChannelMessage> messages = [];
+
+  @override
+  List<ChannelMessage> getChannelMessages(Channel channel) => messages;
 
   @override
   bool get isConnected => true;
@@ -34,18 +43,64 @@ class _FakeConnector extends MeshCoreConnector {
 
   @override
   int get channelSyncProgress => syncingChannels ? 40 : 0;
+
+  @override
+  Future<void> deleteChannel(int index) async {
+    deletedChannelIndices.add(index);
+  }
 }
 
 final _channel = Channel(index: 1, name: '#test', psk: Uint8List(16));
 
+const _openChatLabel = 'open chat';
+
+/// Home route that pushes the chat on tap — for tests that need the chat to
+/// be a popped-off route (delete channel leaves the chat).
+class _Launcher extends StatelessWidget {
+  const _Launcher();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: TextButton(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => ChannelChatScreen(channel: _channel),
+          ),
+        ),
+        child: const Text(_openChatLabel),
+      ),
+    );
+  }
+}
+
+final _incoming = ChannelMessage(
+  senderName: 'Bob',
+  text: 'hello from bob',
+  timestamp: DateTime(2026, 9, 4, 12),
+  isOutgoing: false,
+  reactions: {'👍': 2},
+);
+final _outgoing = ChannelMessage(
+  senderName: 'Me',
+  text: 'hi bob',
+  timestamp: DateTime(2026, 9, 4, 12, 1),
+  isOutgoing: true,
+);
+
 Future<({_FakeConnector connector, AppSettingsService settings})> _pump(
   WidgetTester tester, {
   bool syncingChannels = false,
+  bool pushed = false,
+  List<ChannelMessage> messages = const [],
+  MeshTokens tokens = MeshTokens.defaultTokens,
 }) async {
   SharedPreferences.setMockInitialValues({});
   PrefsManager.reset();
   await PrefsManager.initialize();
-  final connector = _FakeConnector()..syncingChannels = syncingChannels;
+  final connector = _FakeConnector()
+    ..syncingChannels = syncingChannels
+    ..messages = messages;
   final settings = AppSettingsService();
   await settings.loadSettings();
   final translation = TranslationService(settings);
@@ -65,9 +120,7 @@ Future<({_FakeConnector connector, AppSettingsService settings})> _pump(
         ),
       ],
       child: MaterialApp(
-        theme: MeshTheme.light().copyWith(
-          extensions: const [MeshTokens.defaultTokens],
-        ),
+        theme: MeshTheme.light().copyWith(extensions: [tokens]),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         navigatorObservers: [windaRouteObserver],
@@ -77,13 +130,22 @@ Future<({_FakeConnector connector, AppSettingsService settings})> _pump(
             const WindaHostOverlay(),
           ],
         ),
-        home: ChannelChatScreen(channel: _channel),
+        home: pushed ? const _Launcher() : ChannelChatScreen(channel: _channel),
       ),
     ),
   );
   await tester.pump();
   await tester.pump();
+  if (pushed) {
+    await tester.tap(find.text(_openChatLabel));
+    await tester.pumpAndSettle();
+  }
   return (connector: connector, settings: settings);
+}
+
+Future<void> _openMenu(WidgetTester tester) async {
+  await tester.tap(find.byType(PopupMenuButton<dynamic>));
+  await tester.pumpAndSettle();
 }
 
 AppLocalizations _l10n(WidgetTester tester) =>
@@ -126,6 +188,33 @@ void main() {
     },
   );
 
+  testWidgets('accent dashed rule sits under the app bar, full width', (
+    tester,
+  ) async {
+    final env = await _pump(tester);
+
+    final divider = find.byType(MeshDashedDivider);
+    expect(divider, findsOneWidget);
+    final t = MeshTokens.of(tester.element(divider));
+    final widget = tester.widget<MeshDashedDivider>(divider);
+    expect(widget.indent, 0);
+    expect(widget.endIndent, 0);
+    expect(
+      tester.getSize(divider).width,
+      tester.getSize(find.byType(MaterialApp)).width,
+    );
+
+    // Directly under the app bar (top of body), not just anywhere.
+    expect(tester.getTopLeft(divider).dy, closeTo(kToolbarHeight, 0.5));
+
+    final dottedLine = find.descendant(
+      of: divider,
+      matching: find.byType(DottedSeparator),
+    );
+    expect(tester.widget<DottedSeparator>(dottedLine).color, t.secondary);
+    await _finish(tester, env.connector);
+  });
+
   testWidgets('header: card badges, no avatar, no privacy word', (
     tester,
   ) async {
@@ -156,33 +245,362 @@ void main() {
     await _finish(tester, env.connector);
   });
 
-  testWidgets('menu: region on top, clear chat, then the app-wide group', (
+  testWidgets(
+    'menu: region, edit, mute; clear chat, delete channel; app-wide group',
+    (tester) async {
+      final env = await _pump(tester);
+      final l10n = _l10n(tester);
+
+      await _openMenu(tester);
+
+      final ordered = [
+        l10n.channels_regionSelect_Title,
+        l10n.channels_editChannel,
+        l10n.channels_muteChannel,
+        l10n.contact_clearChat,
+        l10n.channels_deleteChannel,
+        l10n.settings_title,
+        l10n.appSettings_quickStyleMenuItem,
+        l10n.common_disconnect,
+        l10n.settings_about,
+      ].map(find.text).toList();
+      for (final f in ordered) {
+        expect(f, findsOneWidget);
+      }
+      double y(Finder f) => tester.getTopLeft(f).dy;
+      for (var i = 1; i < ordered.length; i++) {
+        expect(y(ordered[i - 1]), lessThan(y(ordered[i])));
+      }
+      expect(find.byType(MeshMenuActionRow), findsNWidgets(9));
+      expect(find.text(l10n.channels_unmuteChannel), findsNothing);
+
+      // Delete channel is destructive → error-tinted icon, like Clear chat.
+      final deleteRow = tester.widget<MeshMenuActionRow>(
+        find.ancestor(
+          of: find.text(l10n.channels_deleteChannel),
+          matching: find.byType(MeshMenuActionRow),
+        ),
+      );
+      final scheme = Theme.of(
+        tester.element(find.byType(ChannelChatScreen)),
+      ).colorScheme;
+      expect(deleteRow.iconColor, scheme.error);
+
+      await tester.tapAt(Offset.zero);
+      await tester.pumpAndSettle();
+      await _finish(tester, env.connector);
+    },
+  );
+
+  testWidgets('menu: mute toggles the channel and flips to unmute', (
     tester,
   ) async {
     final env = await _pump(tester);
     final l10n = _l10n(tester);
 
-    await tester.tap(find.byType(PopupMenuButton<dynamic>));
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.channels_muteChannel));
+    await tester.pumpAndSettle();
+    expect(env.settings.isChannelMuted('#test'), isTrue);
+
+    await _openMenu(tester);
+    expect(find.text(l10n.channels_unmuteChannel), findsOneWidget);
+    expect(find.text(l10n.channels_muteChannel), findsNothing);
+    await tester.tap(find.text(l10n.channels_unmuteChannel));
+    await tester.pumpAndSettle();
+    expect(env.settings.isChannelMuted('#test'), isFalse);
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('menu: edit channel opens the edit sheet', (tester) async {
+    final env = await _pump(tester);
+    final l10n = _l10n(tester);
+
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.channels_editChannel));
     await tester.pumpAndSettle();
 
-    final region = find.text(l10n.channels_regionSelect_Title);
-    final clear = find.text(l10n.contact_clearChat);
-    final settings = find.text(l10n.settings_title);
-    final quickStyle = find.text(l10n.appSettings_quickStyleMenuItem);
-    final disconnect = find.text(l10n.common_disconnect);
-    final about = find.text(l10n.settings_about);
-    for (final f in [region, clear, settings, quickStyle, disconnect, about]) {
-      expect(f, findsOneWidget);
-    }
-    double y(Finder f) => tester.getTopLeft(f).dy;
-    expect(y(region), lessThan(y(clear)));
-    expect(y(clear), lessThan(y(settings)));
-    expect(y(settings), lessThan(y(quickStyle)));
-    expect(y(quickStyle), lessThan(y(disconnect)));
-    expect(y(disconnect), lessThan(y(about)));
-    expect(find.byType(MeshMenuActionRow), findsNWidgets(6));
-    await tester.tapAt(Offset.zero);
+    expect(find.text(l10n.channels_editChannelTitle(1)), findsOneWidget);
+    expect(find.text(l10n.common_save), findsOneWidget);
+
+    await tester.tap(find.text(l10n.common_cancel));
     await tester.pumpAndSettle();
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('menu: delete channel confirms, deletes and leaves the chat', (
+    tester,
+  ) async {
+    final env = await _pump(tester, pushed: true);
+    final l10n = _l10n(tester);
+
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.channels_deleteChannel));
+    await tester.pumpAndSettle();
+
+    // Confirmation first — nothing deleted yet.
+    expect(
+      find.text(l10n.channels_deleteChannelConfirm('#test')),
+      findsOneWidget,
+    );
+    expect(env.connector.deletedChannelIndices, isEmpty);
+
+    await tester.tap(find.text(l10n.common_delete));
+    await tester.pumpAndSettle();
+
+    expect(env.connector.deletedChannelIndices, [1]);
+    expect(find.byType(ChannelChatScreen), findsNothing);
+    expect(find.text(_openChatLabel), findsOneWidget);
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('menu: cancelling delete keeps the chat open', (tester) async {
+    final env = await _pump(tester, pushed: true);
+    final l10n = _l10n(tester);
+
+    await _openMenu(tester);
+    await tester.tap(find.text(l10n.channels_deleteChannel));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.common_cancel));
+    await tester.pumpAndSettle();
+
+    expect(env.connector.deletedChannelIndices, isEmpty);
+    expect(find.byType(ChannelChatScreen), findsOneWidget);
+    await _finish(tester, env.connector);
+  });
+
+  /// The bubble is the first Container above the message text that carries
+  /// a BoxDecoration with a border radius (the text's own wrappers don't).
+  Container bubbleContainer(WidgetTester tester, String text) {
+    final containers = find.ancestor(
+      of: find.text(text),
+      matching: find.byType(Container),
+    );
+    for (final element in containers.evaluate()) {
+      final container = element.widget as Container;
+      final decoration = container.decoration;
+      if (decoration is BoxDecoration && decoration.borderRadius != null) {
+        return container;
+      }
+    }
+    throw StateError('no bubble around "$text"');
+  }
+
+  BoxDecoration bubbleDecoration(WidgetTester tester, String text) =>
+      bubbleContainer(tester, text).decoration! as BoxDecoration;
+
+  testWidgets('bubbles: card inset on every side, own corner tokens', (
+    tester,
+  ) async {
+    final env = await _pump(
+      tester,
+      messages: [_incoming, _outgoing],
+      tokens: MeshTokens.defaultTokens.copyWith(
+        bubbleRadius: 21,
+        bubbleTailRadius: 3,
+      ),
+    );
+    final t = MeshTokens.of(tester.element(find.byType(ChannelChatScreen)));
+    for (final text in ['hello from bob', 'hi bob']) {
+      // Same inset as the contact/channel cards (spacingMd).
+      expect(
+        bubbleContainer(tester, text).padding,
+        EdgeInsets.all(t.spacingMd),
+        reason: text,
+      );
+    }
+    // Three big corners on the bubble slider, the "tail" corner on its own
+    // (incoming: top-left, outgoing: bottom-right).
+    final incoming = bubbleDecoration(tester, 'hello from bob').borderRadius!;
+    expect(incoming, isA<BorderRadius>());
+    final inc = incoming as BorderRadius;
+    expect(inc.topLeft.x, 3);
+    expect(inc.topRight.x, 21);
+    expect(inc.bottomLeft.x, 21);
+    expect(inc.bottomRight.x, 21);
+    final out =
+        bubbleDecoration(tester, 'hi bob').borderRadius! as BorderRadius;
+    expect(out.bottomRight.x, 3);
+    expect(out.topLeft.x, 21);
+    expect(out.topRight.x, 21);
+    expect(out.bottomLeft.x, 21);
+    await _finish(tester, env.connector);
+  });
+
+  BoxDecoration reactionChipDecoration(WidgetTester tester) =>
+      bubbleDecoration(tester, '👍');
+
+  testWidgets(
+    'bubbles: shadow on → drop shadow, no outline, fill bumped like MeshCard',
+    (tester) async {
+      final env = await _pump(tester, messages: [_incoming, _outgoing]);
+      final context = tester.element(find.byType(ChannelChatScreen));
+      final scheme = Theme.of(context).colorScheme;
+      final t = MeshTokens.of(context);
+      expect(t.cardElevated, isTrue);
+
+      // Single-layer chip shadow (2/2 blur 2), not the two-layer card one
+      // — bubbles are dense and read heavier than cards (2026-09-05).
+      final incoming = bubbleDecoration(tester, 'hello from bob');
+      expect(incoming.border, isNull);
+      expect(incoming.boxShadow, t.labelShadow);
+      expect(incoming.color, scheme.surfaceContainerHigh);
+
+      final outgoing = bubbleDecoration(tester, 'hi bob');
+      expect(outgoing.border, isNull);
+      expect(outgoing.boxShadow, t.labelShadow);
+      expect(outgoing.color, t.me);
+
+      final chip = reactionChipDecoration(tester);
+      expect(chip.border, isNull);
+      expect(chip.boxShadow, t.labelShadow);
+      await _finish(tester, env.connector);
+    },
+  );
+
+  testWidgets(
+    'bubbles: sender name and text share the Chat messages size, name bold',
+    (tester) async {
+      final env = await _pump(
+        tester,
+        messages: [_incoming],
+        tokens: MeshTokens.defaultTokens.copyWith(bodySize: 17),
+      );
+      final t = MeshTokens.of(tester.element(find.byType(ChannelChatScreen)));
+
+      final name = tester.widget<Text>(find.text('Bob'));
+      expect(name.style?.fontSize, t.bodySize);
+      expect(name.style?.fontWeight, FontWeight.w700);
+
+      // Rendered through SelectableLinkify (tests run on desktop); its
+      // `style` is what the screen passed, before Linkify's own span merge.
+      final body = tester.widget<SelectableLinkify>(
+        find.byWidgetPredicate(
+          (w) => w is SelectableLinkify && w.text == 'hello from bob',
+        ),
+      );
+      expect(body.style?.fontSize, t.bodySize);
+      await _finish(tester, env.connector);
+    },
+  );
+
+  testWidgets('only the message body is selectable', (tester) async {
+    final env = await _pump(tester, messages: [_incoming]);
+    // Body: SelectableLinkify (selects on its own long press, deeper than
+    // the bubble's actions long press) WITH a context menu — the package
+    // defaults contextMenuBuilder to null, which selects but shows no
+    // Copy / Select all toolbar (on-device bug 2026-09-05).
+    final body = find.byWidgetPredicate(
+      (w) => w is SelectableLinkify && w.text == 'hello from bob',
+    );
+    expect(body, findsOneWidget);
+    expect(
+      tester.widget<SelectableLinkify>(body).contextMenuBuilder,
+      isNotNull,
+    );
+    // Sender name and time are plain Text, and there is no SelectionArea:
+    // the only selection surfaces are the SelectableLinkify bodies (which
+    // are SelectableText underneath — count them to prove nothing else is).
+    expect(tester.widget(find.text('Bob')), isA<Text>());
+    expect(find.byType(SelectionArea), findsNothing);
+    final selectable = find.byType(SelectableText).evaluate().length;
+    final inBodies = find
+        .descendant(
+          of: find.byType(SelectableLinkify),
+          matching: find.byType(SelectableText),
+        )
+        .evaluate()
+        .length;
+    expect(selectable, inBodies);
+    expect(inBodies, greaterThan(0));
+    await _finish(tester, env.connector);
+  });
+
+  Finder body(String text) =>
+      find.byWidgetPredicate((w) => w is SelectableLinkify && w.text == text);
+
+  /// Long-press the body to select a word; returns the EditableText element
+  /// so a later identity check proves the body was recreated.
+  Future<Element> select(WidgetTester tester, String text) async {
+    await tester.longPress(body(text));
+    await tester.pumpAndSettle();
+    final editable = find.descendant(
+      of: body(text),
+      matching: find.byType(EditableText),
+    );
+    expect(
+      tester.widget<EditableText>(editable).controller.selection.isCollapsed,
+      isFalse,
+      reason: 'long press should have selected a word',
+    );
+    return editable.evaluate().single;
+  }
+
+  void expectCleared(WidgetTester tester, String text, Element before) {
+    final editable = find.descendant(
+      of: body(text),
+      matching: find.byType(EditableText),
+    );
+    expect(editable.evaluate().single, isNot(same(before)));
+    expect(
+      tester.widget<EditableText>(editable).controller.selection.isCollapsed,
+      isTrue,
+    );
+    final focus = FocusManager.instance.primaryFocus?.context;
+    expect(focus?.findAncestorWidgetOfExactType<SelectableLinkify>(), isNull);
+  }
+
+  testWidgets('a tap outside the message body leaves selection mode', (
+    tester,
+  ) async {
+    final env = await _pump(tester, messages: [_incoming]);
+    final before = await select(tester, 'hello from bob');
+    // Empty list background, well away from the bubble.
+    await tester.tapAt(
+      tester.getBottomRight(find.byType(ChatBadgeBar)) + const Offset(-20, 200),
+    );
+    // ChatZoomWrapper listens for double taps, so a single tap is only
+    // recognised after the double-tap deadline — advance past it.
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    expectCleared(tester, 'hello from bob', before);
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('Esc leaves selection mode', (tester) async {
+    final env = await _pump(tester, messages: [_incoming]);
+    final before = await select(tester, 'hello from bob');
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expectCleared(tester, 'hello from bob', before);
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('bubbles: shadow off → outline, no shadow, flat fill', (
+    tester,
+  ) async {
+    final env = await _pump(
+      tester,
+      messages: [_incoming, _outgoing],
+      tokens: MeshTokens.defaultTokens.copyWith(cardElevated: false),
+    );
+    final context = tester.element(find.byType(ChannelChatScreen));
+    final scheme = Theme.of(context).colorScheme;
+    final t = MeshTokens.of(context);
+
+    final incoming = bubbleDecoration(tester, 'hello from bob');
+    expect(incoming.boxShadow, isNull);
+    expect((incoming.border! as Border).top.color, scheme.outlineVariant);
+    expect(incoming.color, scheme.surfaceContainerLow);
+
+    final outgoing = bubbleDecoration(tester, 'hi bob');
+    expect(outgoing.boxShadow, isNull);
+    expect((outgoing.border! as Border).top.color, t.meBorder);
+    expect(outgoing.color, t.me);
+
+    final chip = reactionChipDecoration(tester);
+    expect(chip.boxShadow, isNull);
+    expect((chip.border! as Border).top.color, scheme.outlineVariant);
     await _finish(tester, env.connector);
   });
 
@@ -199,6 +617,119 @@ void main() {
   testWidgets('no progress winda when idle', (tester) async {
     final env = await _pump(tester);
     expect(find.byType(WindaProgress), findsNothing);
+    await _finish(tester, env.connector);
+  });
+
+  // ---- bubble layout (2026-09-05 decision, .mockups/theme/default/
+  // chat-bubble-layout.html): avatar inside the bubble header, 85% width,
+  // symmetric quote gap, region-based timestamp.
+
+  testWidgets(
+    'bubble: sender avatar sits inside the bubble, centred on the name',
+    (tester) async {
+      final env = await _pump(tester, messages: [_incoming]);
+      final bubble = find.byWidget(bubbleContainer(tester, 'hello from bob'));
+      final avatar = find.descendant(
+        of: bubble,
+        matching: find.byType(AvatarCircle),
+      );
+      expect(avatar, findsOneWidget);
+      expect(tester.widget<AvatarCircle>(avatar).size, 18);
+      final name = find.descendant(of: bubble, matching: find.text('Bob'));
+      expect(
+        tester.getCenter(avatar).dy,
+        closeTo(tester.getCenter(name).dy, 0.5),
+      );
+      // Nothing left of the bubble any more: the avatar is the only one.
+      expect(find.byType(AvatarCircle), findsOneWidget);
+      await _finish(tester, env.connector);
+    },
+  );
+
+  testWidgets('bubble: quoted reply keeps the same 10dp gap above and below', (
+    tester,
+  ) async {
+    final quoted = ChannelMessage(
+      senderName: 'Bob',
+      text: 'hello from bob',
+      timestamp: DateTime(2026, 9, 4, 12),
+      isOutgoing: false,
+      replyToMessageId: 'm1',
+      replyToSenderName: 'Me',
+      replyToText: 'hi bob',
+    );
+    final env = await _pump(tester, messages: [quoted]);
+    final l10n = _l10n(tester);
+    final quote = find
+        .ancestor(
+          of: find.text(l10n.chat_replyTo('Me')),
+          matching: find.byWidgetPredicate((w) {
+            if (w is! Container) return false;
+            final border = (w.decoration as BoxDecoration?)?.border;
+            return border is Border && border.left.width == 3;
+          }),
+        )
+        .first;
+    final header = find
+        .ancestor(of: find.text('Bob'), matching: find.byType(Row))
+        .first;
+    expect(
+      tester.getTopLeft(quote).dy - tester.getBottomLeft(header).dy,
+      closeTo(10, 0.5),
+    );
+    final body = find.byType(TranslatedMessageContent);
+    expect(
+      tester.getTopLeft(body).dy - tester.getBottomLeft(quote).dy,
+      closeTo(10, 0.5),
+    );
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('bubble: long text stretches to 85% of the list width', (
+    tester,
+  ) async {
+    const longIn =
+        'a long incoming message that keeps going and going '
+        'until it has to wrap onto several lines inside the bubble';
+    const longOut =
+        'a long outgoing message that keeps going and going '
+        'until it has to wrap onto several lines inside the bubble';
+    final env = await _pump(
+      tester,
+      messages: [
+        ChannelMessage(
+          senderName: 'Bob',
+          text: longIn,
+          timestamp: DateTime(2026, 9, 4, 12),
+          isOutgoing: false,
+        ),
+        ChannelMessage(
+          senderName: 'Me',
+          text: longOut,
+          timestamp: DateTime(2026, 9, 4, 12, 1),
+          isOutgoing: true,
+        ),
+      ],
+    );
+    final t = MeshTokens.of(tester.element(find.byType(ChannelChatScreen)));
+    final listWidth =
+        tester.getSize(find.byType(ChannelChatScreen)).width - 2 * t.spacingXs;
+    for (final text in [longIn, longOut]) {
+      expect(
+        tester.getSize(find.byWidget(bubbleContainer(tester, text))).width,
+        closeTo(0.85 * listWidth, 1),
+        reason: text,
+      );
+    }
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('meta row: older message carries the region date and clock', (
+    tester,
+  ) async {
+    // Test host locale is en_US: month-first date, 12-hour clock.
+    final env = await _pump(tester, messages: [_incoming]);
+    expect(find.text('9/4 12:00 PM'), findsOneWidget);
     await _finish(tester, env.connector);
   });
 }

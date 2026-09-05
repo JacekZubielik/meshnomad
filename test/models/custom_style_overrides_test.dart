@@ -2,6 +2,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:meshnomad/models/custom_style_overrides.dart';
 
 void main() {
+  test('editable font keys cover chat text and micro labels (2026-09-05)', () {
+    expect(
+      CustomStyleOverrides.editableFontSizeKeys,
+      containsAll(['bodySize', 'microLabelSize']),
+    );
+  });
+
+  test('editable radius keys cover the two chat bubble corners', () {
+    expect(
+      CustomStyleOverrides.editableRadiusKeys,
+      containsAll(['bubbleRadius', 'bubbleTailRadius']),
+    );
+  });
+
   group('CustomStyleOverrides JSON round-trip (v3, single palette)', () {
     test('round-trips colors and font sizes', () {
       const original = CustomStyleOverrides(
