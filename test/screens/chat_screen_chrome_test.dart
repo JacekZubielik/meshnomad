@@ -26,6 +26,7 @@ import 'package:meshnomad/widgets/chat_app_bar.dart';
 import 'package:meshnomad/widgets/dotted_separator.dart';
 import 'package:meshnomad/widgets/mesh_dashed_divider.dart';
 import 'package:meshnomad/widgets/mesh_ui.dart';
+import 'package:meshnomad/widgets/message_status_icon.dart';
 import 'package:meshnomad/widgets/radio_stats_entry.dart';
 import 'package:meshnomad/widgets/winda_host_overlay.dart';
 import 'package:meshnomad/widgets/winda_overlay.dart';
@@ -622,6 +623,120 @@ void main() {
   testWidgets('no progress winda when idle', (tester) async {
     final connector = await _pump(tester);
     expect(find.byType(WindaProgress), findsNothing);
+    await _finish(tester, connector);
+  });
+
+  // ---- bubble layout (2026-09-05 decision, .mockups/theme/default/
+  // chat-bubble-layout.html): avatar inside the bubble header, 85% width,
+  // one-line meta row, region-based timestamp shared with the channel chat.
+
+  testWidgets(
+    'bubble: sender avatar sits inside the bubble, centred on the name',
+    (tester) async {
+      final connector = await _pump(tester, messages: [_incoming]);
+      final bubble = find.byWidget(bubbleContainer(tester, 'hello from alice'));
+      final avatar = find.descendant(
+        of: bubble,
+        matching: find.byType(AvatarCircle),
+      );
+      expect(avatar, findsOneWidget);
+      expect(tester.widget<AvatarCircle>(avatar).size, 18);
+      final name = find.descendant(of: bubble, matching: find.text('Alice'));
+      expect(
+        tester.getCenter(avatar).dy,
+        closeTo(tester.getCenter(name).dy, 0.5),
+      );
+      // Nothing left of the bubble any more.
+      expect(
+        find.descendant(
+          of: find.byType(ListView),
+          matching: find.byType(AvatarCircle),
+        ),
+        findsOneWidget,
+      );
+      await _finish(tester, connector);
+    },
+  );
+
+  testWidgets(
+    'meta row: time and status icon stay on one line for a short text',
+    (tester) async {
+      final short = Message(
+        senderKey: _contact.publicKey,
+        text: 'ok',
+        timestamp: DateTime(2026, 9, 4, 12),
+        isOutgoing: true,
+        status: MessageStatus.delivered,
+      );
+      final connector = await _pump(tester, messages: [short]);
+      final bubble = find.byWidget(bubbleContainer(tester, 'ok'));
+      final time = find.descendant(
+        of: bubble,
+        matching: find.byWidgetPredicate(
+          (w) => w is Text && (w.data?.contains('12:00') ?? false),
+        ),
+      );
+      final icon = find.descendant(
+        of: bubble,
+        matching: find.byType(MessageStatusIcon),
+      );
+      expect(time, findsOneWidget);
+      expect(icon, findsOneWidget);
+      expect(
+        tester.getCenter(icon).dy,
+        closeTo(tester.getCenter(time).dy, 1),
+        reason: 'status icon wrapped onto a second line',
+      );
+      await _finish(tester, connector);
+    },
+  );
+
+  testWidgets('bubble: long text stretches to 85% of the list width', (
+    tester,
+  ) async {
+    const longIn =
+        'a long incoming message that keeps going and going '
+        'until it has to wrap onto several lines inside the bubble';
+    const longOut =
+        'a long outgoing message that keeps going and going '
+        'until it has to wrap onto several lines inside the bubble';
+    final connector = await _pump(
+      tester,
+      messages: [
+        Message(
+          senderKey: _contact.publicKey,
+          text: longIn,
+          timestamp: DateTime(2026, 9, 4, 12),
+          isOutgoing: false,
+        ),
+        Message(
+          senderKey: _contact.publicKey,
+          text: longOut,
+          timestamp: DateTime(2026, 9, 4, 12, 1),
+          isOutgoing: true,
+        ),
+      ],
+    );
+    final t = MeshTokens.of(tester.element(find.byType(ChatScreen)));
+    final listWidth =
+        tester.getSize(find.byType(ChatScreen)).width - 2 * t.spacingXs;
+    for (final text in [longIn, longOut]) {
+      expect(
+        tester.getSize(find.byWidget(bubbleContainer(tester, text))).width,
+        closeTo(0.85 * listWidth, 1),
+        reason: text,
+      );
+    }
+    await _finish(tester, connector);
+  });
+
+  testWidgets('meta row: older message carries the region date and clock', (
+    tester,
+  ) async {
+    // Test host locale is en_US: month-first date, 12-hour clock — the
+    // direct chat used to show the bare clock for any age (2026-09-05).
+    final connector = await _pump(tester, messages: [_incoming]);
+    expect(find.text('9/4 12:00 PM'), findsOneWidget);
     await _finish(tester, connector);
   });
 }

@@ -23,6 +23,7 @@ import 'package:meshnomad/widgets/dotted_separator.dart';
 import 'package:meshnomad/widgets/mesh_dashed_divider.dart';
 import 'package:meshnomad/widgets/mesh_ui.dart';
 import 'package:meshnomad/widgets/radio_stats_entry.dart';
+import 'package:meshnomad/widgets/translated_message_content.dart';
 import 'package:meshnomad/widgets/winda_host_overlay.dart';
 import 'package:meshnomad/widgets/winda_overlay.dart';
 
@@ -616,6 +617,119 @@ void main() {
   testWidgets('no progress winda when idle', (tester) async {
     final env = await _pump(tester);
     expect(find.byType(WindaProgress), findsNothing);
+    await _finish(tester, env.connector);
+  });
+
+  // ---- bubble layout (2026-09-05 decision, .mockups/theme/default/
+  // chat-bubble-layout.html): avatar inside the bubble header, 85% width,
+  // symmetric quote gap, region-based timestamp.
+
+  testWidgets(
+    'bubble: sender avatar sits inside the bubble, centred on the name',
+    (tester) async {
+      final env = await _pump(tester, messages: [_incoming]);
+      final bubble = find.byWidget(bubbleContainer(tester, 'hello from bob'));
+      final avatar = find.descendant(
+        of: bubble,
+        matching: find.byType(AvatarCircle),
+      );
+      expect(avatar, findsOneWidget);
+      expect(tester.widget<AvatarCircle>(avatar).size, 18);
+      final name = find.descendant(of: bubble, matching: find.text('Bob'));
+      expect(
+        tester.getCenter(avatar).dy,
+        closeTo(tester.getCenter(name).dy, 0.5),
+      );
+      // Nothing left of the bubble any more: the avatar is the only one.
+      expect(find.byType(AvatarCircle), findsOneWidget);
+      await _finish(tester, env.connector);
+    },
+  );
+
+  testWidgets('bubble: quoted reply keeps the same 10dp gap above and below', (
+    tester,
+  ) async {
+    final quoted = ChannelMessage(
+      senderName: 'Bob',
+      text: 'hello from bob',
+      timestamp: DateTime(2026, 9, 4, 12),
+      isOutgoing: false,
+      replyToMessageId: 'm1',
+      replyToSenderName: 'Me',
+      replyToText: 'hi bob',
+    );
+    final env = await _pump(tester, messages: [quoted]);
+    final l10n = _l10n(tester);
+    final quote = find
+        .ancestor(
+          of: find.text(l10n.chat_replyTo('Me')),
+          matching: find.byWidgetPredicate((w) {
+            if (w is! Container) return false;
+            final border = (w.decoration as BoxDecoration?)?.border;
+            return border is Border && border.left.width == 3;
+          }),
+        )
+        .first;
+    final header = find
+        .ancestor(of: find.text('Bob'), matching: find.byType(Row))
+        .first;
+    expect(
+      tester.getTopLeft(quote).dy - tester.getBottomLeft(header).dy,
+      closeTo(10, 0.5),
+    );
+    final body = find.byType(TranslatedMessageContent);
+    expect(
+      tester.getTopLeft(body).dy - tester.getBottomLeft(quote).dy,
+      closeTo(10, 0.5),
+    );
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('bubble: long text stretches to 85% of the list width', (
+    tester,
+  ) async {
+    const longIn =
+        'a long incoming message that keeps going and going '
+        'until it has to wrap onto several lines inside the bubble';
+    const longOut =
+        'a long outgoing message that keeps going and going '
+        'until it has to wrap onto several lines inside the bubble';
+    final env = await _pump(
+      tester,
+      messages: [
+        ChannelMessage(
+          senderName: 'Bob',
+          text: longIn,
+          timestamp: DateTime(2026, 9, 4, 12),
+          isOutgoing: false,
+        ),
+        ChannelMessage(
+          senderName: 'Me',
+          text: longOut,
+          timestamp: DateTime(2026, 9, 4, 12, 1),
+          isOutgoing: true,
+        ),
+      ],
+    );
+    final t = MeshTokens.of(tester.element(find.byType(ChannelChatScreen)));
+    final listWidth =
+        tester.getSize(find.byType(ChannelChatScreen)).width - 2 * t.spacingXs;
+    for (final text in [longIn, longOut]) {
+      expect(
+        tester.getSize(find.byWidget(bubbleContainer(tester, text))).width,
+        closeTo(0.85 * listWidth, 1),
+        reason: text,
+      );
+    }
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('meta row: older message carries the region date and clock', (
+    tester,
+  ) async {
+    // Test host locale is en_US: month-first date, 12-hour clock.
+    final env = await _pump(tester, messages: [_incoming]);
+    expect(find.text('9/4 12:00 PM'), findsOneWidget);
     await _finish(tester, env.connector);
   });
 }

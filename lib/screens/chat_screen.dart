@@ -26,6 +26,8 @@ import '../widgets/winda_overlay.dart';
 import '../utils/contact_actions.dart';
 import '../utils/dialog_utils.dart';
 import '../utils/last_seen_label.dart';
+import '../utils/message_time.dart';
+import '../widgets/chat_bubble_layout.dart';
 import 'package:meshnomad/screens/about_screen.dart';
 import 'settings_screen.dart';
 import '../helpers/chat_scroll_controller.dart';
@@ -1580,12 +1582,7 @@ class _MessageBubble extends StatelessWidget {
                 mainAxisAlignment: isOutgoing
                     ? MainAxisAlignment.end
                     : MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  if (!isOutgoing) ...[
-                    _buildAvatar(senderName),
-                    SizedBox(width: t.spacingXs),
-                  ],
                   Flexible(
                     child: Container(
                       padding: gifId != null
@@ -1593,8 +1590,12 @@ class _MessageBubble extends StatelessWidget {
                           // Same inset on every side as the contact/channel
                           // cards and the channel chat.
                           : EdgeInsets.all(t.spacingMd),
+                      // Same fraction as the channel chat (was 0.72, and the
+                      // outside avatar ate into it — 2026-09-05 decision).
                       constraints: BoxConstraints(
-                        maxWidth: constraints.maxWidth * 0.72,
+                        maxWidth:
+                            constraints.maxWidth *
+                            ChatBubbleLayout.widthFraction,
                       ),
                       // Same shadow-toggle rule as the channel chat / MeshCard:
                       // shadow on → no outline + chip shadow; off → outline.
@@ -1622,19 +1623,31 @@ class _MessageBubble extends StatelessWidget {
                                         bottom: t.spacingXxs,
                                       )
                                     : EdgeInsets.zero,
-                                // Room author line, same as the channel chat's
-                                // sender name (2026-09-05 parity): Chat
-                                // messages size, bold, bubble text color — was
-                                // monoCaption in a per-name hash color.
-                                child: Text(
-                                  senderName,
-                                  style: TextStyle(
-                                    fontSize:
-                                        MeshTokens.of(context).bodySize *
-                                        textScale,
-                                    fontWeight: FontWeight.w700,
-                                    color: textColor,
-                                  ),
+                                // Header like the contact card's (avatar,
+                                // gap, name — vertically centred), same as
+                                // the channel chat: the avatar moved inside
+                                // the bubble 2026-09-05. Name at the message
+                                // text size, bold.
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    _buildAvatar(senderName),
+                                    const SizedBox(
+                                      width: ChatBubbleLayout.headerGap,
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                        senderName,
+                                        style: TextStyle(
+                                          fontSize:
+                                              MeshTokens.of(context).bodySize *
+                                              textScale,
+                                          fontWeight: FontWeight.w700,
+                                          color: textColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                               if (gifId == null) const SizedBox(height: 2),
@@ -1749,10 +1762,15 @@ class _MessageBubble extends StatelessWidget {
                                   children: [
                                     DottedSeparator(color: textColor),
                                     SizedBox(height: t.spacingXxs),
-                                    Wrap(
-                                      spacing: t.spacingXxs,
+                                    // Row, not Wrap: Wrap's intrinsic width
+                                    // ignores its spacing, so inside the
+                                    // bubble's IntrinsicWidth a short text
+                                    // left the row too narrow and the icons
+                                    // dropped to a second line (2026-09-05).
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment:
-                                          WrapCrossAlignment.center,
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Text(
                                           _formatTime(message.timestamp),
@@ -1766,7 +1784,7 @@ class _MessageBubble extends StatelessWidget {
                                           ),
                                         ),
                                         if (isOutgoing) ...[
-                                          const SizedBox(width: 2),
+                                          SizedBox(width: t.spacingXxs),
                                           MessageStatusIcon(
                                             size: 12 * textScale,
                                             onColor: metaColor,
@@ -1785,7 +1803,7 @@ class _MessageBubble extends StatelessWidget {
                                             message.tripTimeMs != null &&
                                             message.status ==
                                                 MessageStatus.delivered) ...[
-                                          const SizedBox(width: 2),
+                                          SizedBox(width: t.spacingXxs),
                                           Icon(
                                             Icons.speed,
                                             size: 10 * textScale,
@@ -1824,10 +1842,7 @@ class _MessageBubble extends StatelessWidget {
           ),
           if (message.reactions.isNotEmpty) ...[
             SizedBox(height: t.spacingXxs),
-            Padding(
-              padding: EdgeInsets.only(left: isOutgoing ? 0 : 42),
-              child: _buildReactionsDisplay(context, message, scheme),
-            ),
+            _buildReactionsDisplay(context, message, scheme),
           ],
         ],
       ),
@@ -2002,14 +2017,19 @@ class _MessageBubble extends StatelessWidget {
   }
 
   Widget _buildAvatar(String senderName) {
-    return AvatarCircle(name: senderName, size: 32);
+    return AvatarCircle(
+      name: senderName,
+      size: (ChatBubbleLayout.avatarSize * textScale).clamp(
+        ChatBubbleLayout.avatarSize,
+        36.0,
+      ),
+    );
   }
 
-  String _formatTime(DateTime time) {
-    final hour = time.hour.toString().padLeft(2, '0');
-    final minute = time.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
-  }
+  // Region-based date + clock shared with the channel chat — used to be a
+  // bare HH:mm whatever the message's age (2026-09-05).
+  String _formatTime(DateTime time) =>
+      formatMessageTimestamp(time, locale: deviceLocaleTag());
 }
 
 /// Deterministic name-to-hue mapping consistent with [AvatarCircle].

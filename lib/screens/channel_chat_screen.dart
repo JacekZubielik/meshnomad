@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
-import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 
 import '../connector/meshcore_connector.dart';
@@ -38,6 +37,8 @@ import '../storage/channel_message_store.dart';
 import '../utils/channel_dialogs.dart';
 import '../utils/dialog_utils.dart';
 import '../utils/last_seen_label.dart';
+import '../utils/message_time.dart';
+import '../widgets/chat_bubble_layout.dart';
 import 'package:meshnomad/screens/about_screen.dart';
 import 'settings_screen.dart';
 import '../widgets/emoji_picker.dart';
@@ -102,10 +103,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
   DateTime? _lastChannelSendAt;
   bool _channelSkipNextBottomSnap = false;
   String? _unreadDividerMessageId;
-
-  String? _cachedFormatLocale;
-  late DateFormat _hmFormat;
-  late DateFormat _mdFormat;
 
   @override
   void initState() {
@@ -689,7 +686,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
       children: [
         // Plain Text: only the message body is selectable (2026-09-05).
         Text(
-          _formatTime(context, message.timestamp),
+          _formatTime(message.timestamp),
           style: MeshTokens.of(context)
               .monoCaption(color: metaColor)
               .copyWith(
@@ -767,10 +764,6 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                 : MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!isOutgoing) ...[
-                _buildAvatar(message.senderName, textScale),
-                SizedBox(width: MeshTokens.of(context).spacingXs),
-              ],
               Flexible(
                 child: GestureDetector(
                   onLongPress: () => _showMessageActions(message),
@@ -784,8 +777,12 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                         // cards (2026-09-05: was sm/xs, visibly taller
                         // than wide, and different from every card).
                         : EdgeInsets.all(MeshTokens.of(context).spacingMd),
+                    // 0.85 of the list width for both directions (was 0.72,
+                    // and incoming lost the outside avatar's width on top —
+                    // 2026-09-05 decision, mockup chat-bubble-layout.html).
                     constraints: BoxConstraints(
-                      maxWidth: constraints.maxWidth * 0.72,
+                      maxWidth:
+                          constraints.maxWidth * ChatBubbleLayout.widthFraction,
                     ),
                     decoration: BoxDecoration(
                       color: bubbleColor,
@@ -813,26 +810,44 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                                       bottom: MeshTokens.of(context).spacingXxs,
                                     )
                                   : EdgeInsets.zero,
-                              // Same size as the message text (the editor's
-                              // "Chat messages" slider), bold to read as
-                              // the bubble's header — was titleSmall (10),
-                              // smaller than the text it headed (2026-09-05).
-                              child: Text(
-                                message.senderName,
-                                style: TextStyle(
-                                  fontSize:
-                                      MeshTokens.of(context).bodySize *
-                                      textScale,
-                                  fontWeight: FontWeight.w700,
-                                  color: textColor,
-                                ),
+                              // Header like the contact card's (avatar,
+                              // gap, name — vertically centred): the avatar
+                              // moved inside the bubble 2026-09-05, it used
+                              // to sit outside, left of it. Name at the
+                              // message text size, bold.
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  _buildAvatar(message.senderName, textScale),
+                                  const SizedBox(
+                                    width: ChatBubbleLayout.headerGap,
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                      message.senderName,
+                                      style: TextStyle(
+                                        fontSize:
+                                            MeshTokens.of(context).bodySize *
+                                            textScale,
+                                        fontWeight: FontWeight.w700,
+                                        color: textColor,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            if (gifId == null) const SizedBox(height: 2),
+                            if (gifId == null &&
+                                message.replyToMessageId == null)
+                              const SizedBox(height: 2),
                           ],
                           if (message.replyToMessageId != null) ...[
+                            // Same gap above and below the quote (was 2 above
+                            // from the header, spacingXs below).
+                            if (!isOutgoing)
+                              const SizedBox(height: ChatBubbleLayout.quoteGap),
                             _buildReplyPreview(message, textScale),
-                            SizedBox(height: MeshTokens.of(context).spacingXs),
+                            const SizedBox(height: ChatBubbleLayout.quoteGap),
                           ],
                           if (poi != null)
                             _buildPoiMessage(
@@ -1004,12 +1019,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
           ),
           if (message.reactions.isNotEmpty) ...[
             SizedBox(height: MeshTokens.of(context).spacingXxs),
-            Padding(
-              // 42 = avatar width (32) + gap (6) + fine alignment (4);
-              // not a spacing token — tied to avatar geometry.
-              padding: EdgeInsets.only(left: isOutgoing ? 0 : 42),
-              child: _buildReactionsDisplay(message),
-            ),
+            _buildReactionsDisplay(message),
           ],
         ],
       ),
@@ -1319,7 +1329,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
   Widget _buildAvatar(String senderName, double textScale) {
     return AvatarCircle(
       name: senderName,
-      size: (32 * textScale).clamp(28.0, 56.0),
+      size: (ChatBubbleLayout.avatarSize * textScale).clamp(
+        ChatBubbleLayout.avatarSize,
+        36.0,
+      ),
     );
   }
 
@@ -1701,23 +1714,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
     );
   }
 
-  String _formatTime(BuildContext context, DateTime time) {
-    final now = DateTime.now();
-    final diff = now.difference(time);
-    final locale = Localizations.localeOf(context).toString();
-    if (locale != _cachedFormatLocale) {
-      _cachedFormatLocale = locale;
-      _hmFormat = DateFormat.Hm(locale);
-      _mdFormat = DateFormat.Md(locale);
-    }
-    final hm = _hmFormat.format(time);
-
-    if (diff.inDays > 0) {
-      return '${_mdFormat.format(time)} $hm';
-    } else {
-      return hm;
-    }
-  }
+  // Region-based (device locale), shared with the direct chat — was the
+  // app's en/pl UI locale, which gave a Polish phone the US date order.
+  String _formatTime(DateTime time) =>
+      formatMessageTimestamp(time, locale: deviceLocaleTag());
 
   void _showMessagePathInfo(ChannelMessage message) {
     // The route map opens as a popup with the pattern's equal edge insets,

@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_skill/flutter_skill.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -49,6 +50,10 @@ void main() async {
 
   // Initialize SharedPreferences cache
   await PrefsManager.initialize();
+  // Date symbols for every locale: chat timestamps follow the device
+  // region (utils/message_time.dart), which the en/pl-only app locale
+  // loader does not cover.
+  await initializeDateFormatting();
 
   // Initialize services
   final storage = StorageService();
