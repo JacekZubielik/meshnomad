@@ -16,11 +16,18 @@ import 'usb_serial_frame_codec.dart';
 class UsbSerialService {
   UsbSerialService();
 
+  /// Platform channel names — must match `MeshcoreUsbFunctions.kt`
+  /// (guarded by test/services/usb_channel_names_test.dart). Carried the
+  /// pre-rebrand fork name until 2026-09-05.
+  static const String androidMethodChannelName = 'meshnomad/android_usb_serial';
+  static const String androidEventChannelName =
+      'meshnomad/android_usb_serial_events';
+
   static const MethodChannel _androidMethodChannel = MethodChannel(
-    'meshcore_open/android_usb_serial',
+    androidMethodChannelName,
   );
   static const EventChannel _androidEventChannel = EventChannel(
-    'meshcore_open/android_usb_serial_events',
+    androidEventChannelName,
   );
   final StreamController<Uint8List> _frameController =
       StreamController<Uint8List>.broadcast();

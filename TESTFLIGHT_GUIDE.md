@@ -50,7 +50,7 @@ export PATH="/opt/homebrew/lib/ruby/gems/4.0.0/bin:$PATH"
 ../flutter/bin/flutter build ipa
 ```
 
-The IPA will be created at: `build/ios/ipa/meshcore_open.ipa`
+The IPA will be created at: `build/ios/ipa/meshnomad.ipa`
 
 ## Step 4: Upload to App Store Connect via Transporter
 
@@ -59,7 +59,7 @@ The IPA will be created at: `build/ios/ipa/meshcore_open.ipa`
    - Sign in with your Apple ID
 
 2. **Upload the IPA**
-   - Drag and drop `build/ios/ipa/meshcore_open.ipa` into Transporter
+   - Drag and drop `build/ios/ipa/meshnomad.ipa` into Transporter
    - Click **"Deliver"**
    - Wait for upload to complete (usually 1-5 minutes)
 
@@ -196,7 +196,7 @@ To build for macOS:
 export PATH="/opt/homebrew/lib/ruby/gems/4.0.0/bin:$PATH"
 ../flutter/bin/flutter build macos --release
 cd build/macos/Build/Products/Release
-zip -r meshcore_open-macos.zip meshcore_open.app
+zip -r meshnomad-macos.zip MeshNomad.app
 ```
 
 Distribution:
@@ -223,8 +223,8 @@ Distribution:
 
 ## Important Files
 
-- **iOS IPA**: `build/ios/ipa/meshcore_open.ipa`
-- **macOS App**: `build/macos/Build/Products/Release/meshcore_open.app`
+- **iOS IPA**: `build/ios/ipa/meshnomad.ipa`
+- **macOS App**: `build/macos/Build/Products/Release/MeshNomad.app`
 - **Bundle ID Config**: `ios/Runner.xcodeproj/project.pbxproj`
 - **Version Info**: `pubspec.yaml`
 
