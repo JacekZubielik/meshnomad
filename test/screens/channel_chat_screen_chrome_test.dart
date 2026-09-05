@@ -1,6 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -370,19 +370,61 @@ void main() {
 
   /// The bubble is the first Container above the message text that carries
   /// a BoxDecoration with a border radius (the text's own wrappers don't).
-  BoxDecoration bubbleDecoration(WidgetTester tester, String text) {
+  Container bubbleContainer(WidgetTester tester, String text) {
     final containers = find.ancestor(
       of: find.text(text),
       matching: find.byType(Container),
     );
     for (final element in containers.evaluate()) {
-      final decoration = (element.widget as Container).decoration;
+      final container = element.widget as Container;
+      final decoration = container.decoration;
       if (decoration is BoxDecoration && decoration.borderRadius != null) {
-        return decoration;
+        return container;
       }
     }
     throw StateError('no bubble around "$text"');
   }
+
+  BoxDecoration bubbleDecoration(WidgetTester tester, String text) =>
+      bubbleContainer(tester, text).decoration! as BoxDecoration;
+
+  testWidgets('bubbles: card inset on every side, own corner tokens', (
+    tester,
+  ) async {
+    final env = await _pump(
+      tester,
+      messages: [_incoming, _outgoing],
+      tokens: MeshTokens.defaultTokens.copyWith(
+        bubbleRadius: 21,
+        bubbleTailRadius: 3,
+      ),
+    );
+    final t = MeshTokens.of(tester.element(find.byType(ChannelChatScreen)));
+    for (final text in ['hello from bob', 'hi bob']) {
+      // Same inset as the contact/channel cards (spacingMd).
+      expect(
+        bubbleContainer(tester, text).padding,
+        EdgeInsets.all(t.spacingMd),
+        reason: text,
+      );
+    }
+    // Three big corners on the bubble slider, the "tail" corner on its own
+    // (incoming: top-left, outgoing: bottom-right).
+    final incoming = bubbleDecoration(tester, 'hello from bob').borderRadius!;
+    expect(incoming, isA<BorderRadius>());
+    final inc = incoming as BorderRadius;
+    expect(inc.topLeft.x, 3);
+    expect(inc.topRight.x, 21);
+    expect(inc.bottomLeft.x, 21);
+    expect(inc.bottomRight.x, 21);
+    final out =
+        bubbleDecoration(tester, 'hi bob').borderRadius! as BorderRadius;
+    expect(out.bottomRight.x, 3);
+    expect(out.topLeft.x, 21);
+    expect(out.topRight.x, 21);
+    expect(out.bottomLeft.x, 21);
+    await _finish(tester, env.connector);
+  });
 
   BoxDecoration reactionChipDecoration(WidgetTester tester) =>
       bubbleDecoration(tester, '👍');
@@ -396,14 +438,16 @@ void main() {
       final t = MeshTokens.of(context);
       expect(t.cardElevated, isTrue);
 
+      // Single-layer chip shadow (2/2 blur 2), not the two-layer card one
+      // — bubbles are dense and read heavier than cards (2026-09-05).
       final incoming = bubbleDecoration(tester, 'hello from bob');
       expect(incoming.border, isNull);
-      expect(incoming.boxShadow, MeshCard.dropShadow(context));
+      expect(incoming.boxShadow, t.labelShadow);
       expect(incoming.color, scheme.surfaceContainerHigh);
 
       final outgoing = bubbleDecoration(tester, 'hi bob');
       expect(outgoing.border, isNull);
-      expect(outgoing.boxShadow, MeshCard.dropShadow(context));
+      expect(outgoing.boxShadow, t.labelShadow);
       expect(outgoing.color, t.me);
 
       final chip = reactionChipDecoration(tester);
@@ -412,6 +456,124 @@ void main() {
       await _finish(tester, env.connector);
     },
   );
+
+  testWidgets(
+    'bubbles: sender name and text share the Chat messages size, name bold',
+    (tester) async {
+      final env = await _pump(
+        tester,
+        messages: [_incoming],
+        tokens: MeshTokens.defaultTokens.copyWith(bodySize: 17),
+      );
+      final t = MeshTokens.of(tester.element(find.byType(ChannelChatScreen)));
+
+      final name = tester.widget<Text>(find.text('Bob'));
+      expect(name.style?.fontSize, t.bodySize);
+      expect(name.style?.fontWeight, FontWeight.w700);
+
+      // Rendered through SelectableLinkify (tests run on desktop); its
+      // `style` is what the screen passed, before Linkify's own span merge.
+      final body = tester.widget<SelectableLinkify>(
+        find.byWidgetPredicate(
+          (w) => w is SelectableLinkify && w.text == 'hello from bob',
+        ),
+      );
+      expect(body.style?.fontSize, t.bodySize);
+      await _finish(tester, env.connector);
+    },
+  );
+
+  testWidgets('only the message body is selectable', (tester) async {
+    final env = await _pump(tester, messages: [_incoming]);
+    // Body: SelectableLinkify (selects on its own long press, deeper than
+    // the bubble's actions long press) WITH a context menu — the package
+    // defaults contextMenuBuilder to null, which selects but shows no
+    // Copy / Select all toolbar (on-device bug 2026-09-05).
+    final body = find.byWidgetPredicate(
+      (w) => w is SelectableLinkify && w.text == 'hello from bob',
+    );
+    expect(body, findsOneWidget);
+    expect(
+      tester.widget<SelectableLinkify>(body).contextMenuBuilder,
+      isNotNull,
+    );
+    // Sender name and time are plain Text, and there is no SelectionArea:
+    // the only selection surfaces are the SelectableLinkify bodies (which
+    // are SelectableText underneath — count them to prove nothing else is).
+    expect(tester.widget(find.text('Bob')), isA<Text>());
+    expect(find.byType(SelectionArea), findsNothing);
+    final selectable = find.byType(SelectableText).evaluate().length;
+    final inBodies = find
+        .descendant(
+          of: find.byType(SelectableLinkify),
+          matching: find.byType(SelectableText),
+        )
+        .evaluate()
+        .length;
+    expect(selectable, inBodies);
+    expect(inBodies, greaterThan(0));
+    await _finish(tester, env.connector);
+  });
+
+  Finder body(String text) =>
+      find.byWidgetPredicate((w) => w is SelectableLinkify && w.text == text);
+
+  /// Long-press the body to select a word; returns the EditableText element
+  /// so a later identity check proves the body was recreated.
+  Future<Element> select(WidgetTester tester, String text) async {
+    await tester.longPress(body(text));
+    await tester.pumpAndSettle();
+    final editable = find.descendant(
+      of: body(text),
+      matching: find.byType(EditableText),
+    );
+    expect(
+      tester.widget<EditableText>(editable).controller.selection.isCollapsed,
+      isFalse,
+      reason: 'long press should have selected a word',
+    );
+    return editable.evaluate().single;
+  }
+
+  void expectCleared(WidgetTester tester, String text, Element before) {
+    final editable = find.descendant(
+      of: body(text),
+      matching: find.byType(EditableText),
+    );
+    expect(editable.evaluate().single, isNot(same(before)));
+    expect(
+      tester.widget<EditableText>(editable).controller.selection.isCollapsed,
+      isTrue,
+    );
+    final focus = FocusManager.instance.primaryFocus?.context;
+    expect(focus?.findAncestorWidgetOfExactType<SelectableLinkify>(), isNull);
+  }
+
+  testWidgets('a tap outside the message body leaves selection mode', (
+    tester,
+  ) async {
+    final env = await _pump(tester, messages: [_incoming]);
+    final before = await select(tester, 'hello from bob');
+    // Empty list background, well away from the bubble.
+    await tester.tapAt(
+      tester.getBottomRight(find.byType(ChatBadgeBar)) + const Offset(-20, 200),
+    );
+    // ChatZoomWrapper listens for double taps, so a single tap is only
+    // recognised after the double-tap deadline — advance past it.
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    expectCleared(tester, 'hello from bob', before);
+    await _finish(tester, env.connector);
+  });
+
+  testWidgets('Esc leaves selection mode', (tester) async {
+    final env = await _pump(tester, messages: [_incoming]);
+    final before = await select(tester, 'hello from bob');
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expectCleared(tester, 'hello from bob', before);
+    await _finish(tester, env.connector);
+  });
 
   testWidgets('bubbles: shadow off → outline, no shadow, flat fill', (
     tester,

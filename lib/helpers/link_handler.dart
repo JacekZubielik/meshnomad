@@ -15,7 +15,12 @@ class LinkHandler {
     return base.copyWith(color: orange, decoration: TextDecoration.underline);
   }
 
-  /// Returns a [SelectableLinkify] on desktop or a [Linkify] on mobile.
+  /// Returns a [SelectableLinkify] on every platform (2026-09-05): message
+  /// text is the one thing in a chat bubble that must be selectable, and a
+  /// plain [Linkify] under the bubble's long-press GestureDetector never was
+  /// on mobile — the bubble's own recognizer won the long press, so only
+  /// the (SelectableText) sender name and time ever selected. A
+  /// SelectableText handles its own long press, deeper than the bubble's.
   static Widget buildLinkifyText({
     required BuildContext context,
     required String text,
@@ -28,31 +33,29 @@ class LinkHandler {
     const linkifiers = [UrlLinkifier(), EmailLinkifier()];
     void onOpen(LinkableElement link) => handleLinkTap(context, link.url);
 
-    if (PlatformInfo.isDesktop) {
-      final linkify = SelectableLinkify(
-        text: text,
-        style: style,
-        linkStyle: effectiveLinkStyle,
-        options: options,
-        linkifiers: linkifiers,
-        onOpen: onOpen,
-      );
-      if (onSecondaryTap == null) return linkify;
-      return Listener(
-        onPointerDown: (event) {
-          if (event.buttons & kSecondaryMouseButton != 0) onSecondaryTap();
-        },
-        behavior: HitTestBehavior.translucent,
-        child: linkify,
-      );
-    }
-    return Linkify(
+    final linkify = SelectableLinkify(
       text: text,
       style: style,
       linkStyle: effectiveLinkStyle,
       options: options,
       linkifiers: linkifiers,
       onOpen: onOpen,
+      // SelectableLinkify defaults this to null and hands it straight to
+      // SelectableText.rich, which then shows NO toolbar at all (text
+      // selects, but no Copy / Select all — found on-device 2026-09-05).
+      // Plain SelectableText defaults to exactly this builder.
+      contextMenuBuilder: (context, editableTextState) =>
+          AdaptiveTextSelectionToolbar.editableText(
+            editableTextState: editableTextState,
+          ),
+    );
+    if (onSecondaryTap == null || !PlatformInfo.isDesktop) return linkify;
+    return Listener(
+      onPointerDown: (event) {
+        if (event.buttons & kSecondaryMouseButton != 0) onSecondaryTap();
+      },
+      behavior: HitTestBehavior.translucent,
+      child: linkify,
     );
   }
 

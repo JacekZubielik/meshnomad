@@ -84,6 +84,53 @@ void main() {
       expect(lightTokens.monoBodySize, 16.0);
     });
 
+    test('chat text / micro label size overrides apply to the tokens, '
+        'in both brightness resolutions', () {
+      for (final colors in [
+        const <String, int>{},
+        const {'bg': 0xFFF0EDE8},
+      ]) {
+        final resolved = buildCustomStyle(
+          CustomStyleOverrides(
+            colorOverrides: colors,
+            fontSizeOverrides: const {'bodySize': 17.0, 'microLabelSize': 7.5},
+          ),
+        );
+        final tokens = resolved.theme.extension<MeshTokens>()!;
+        expect(tokens.bodySize, 17.0);
+        expect(tokens.microLabelSize, 7.5);
+      }
+    });
+
+    test('every editable font key changes something in the resolved style', () {
+      // A key listed as editable must land somewhere the app reads from —
+      // an unhandled key here throws, so the switch stays in sync with
+      // CustomStyleOverrides.editableFontSizeKeys.
+      double sizeOf(ThemeData theme, String key) {
+        final text = theme.textTheme;
+        final tokens = theme.extension<MeshTokens>()!;
+        return switch (key) {
+          'bodyMedium' => text.bodyMedium!.fontSize!,
+          'bodySmall' => text.bodySmall!.fontSize!,
+          'titleSmall' => text.titleSmall!.fontSize!,
+          'labelSmall' => text.labelSmall!.fontSize!,
+          'labelMedium' => text.labelMedium!.fontSize!,
+          'monoCaptionSize' => tokens.monoCaptionSize,
+          'monoBodySize' => tokens.monoBodySize,
+          'bodySize' => tokens.bodySize,
+          'microLabelSize' => tokens.microLabelSize,
+          _ => throw StateError('no reader for editable font key $key'),
+        };
+      }
+
+      for (final key in CustomStyleOverrides.editableFontSizeKeys) {
+        final resolved = buildCustomStyle(
+          CustomStyleOverrides(fontSizeOverrides: {key: 23.0}),
+        );
+        expect(sizeOf(resolved.theme, key), 23.0, reason: key);
+      }
+    });
+
     test('an unknown key is silently ignored, never throws', () {
       expect(
         () => buildCustomStyle(
@@ -282,6 +329,21 @@ void main() {
         style.theme.extension<MeshTokens>()!.spacingMd,
         MeshTokens.defaultTokens.spacingMd,
       );
+    });
+
+    test('chat bubble corner overrides apply to their own tokens '
+        '(2026-09-05: two sliders, independent of lg/xs)', () {
+      final style = buildCustomStyle(
+        const CustomStyleOverrides(
+          radiusOverrides: {'bubbleRadius': 21.0, 'bubbleTailRadius': 3.0},
+        ),
+      );
+      final tokens = style.theme.extension<MeshTokens>()!;
+      expect(tokens.bubbleRadius, 21.0);
+      expect(tokens.bubbleTailRadius, 3.0);
+      // The general ladder is untouched by them.
+      expect(tokens.lg, MeshTokens.defaultTokens.lg);
+      expect(tokens.xs, MeshTokens.defaultTokens.xs);
     });
 
     test('a radius override wins over the default and reshapes chrome', () {

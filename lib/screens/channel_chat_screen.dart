@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 
@@ -254,7 +255,45 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
     // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
     // above the Navigator) so "select all" can't sweep in text from other,
     // offstage routes still mounted via maintainState:true.
-    return SelectionArea(child: _screenBody(context));
+    // No SelectionArea: only the message body is selectable, and it selects
+    // on its own (SelectableLinkify, see LinkHandler.buildLinkifyText).
+    // A tap anywhere else in the body, or Esc, leaves selection mode — see
+    // _clearTextSelection.
+    return Focus(
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.escape &&
+            _clearTextSelection()) {
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: _clearTextSelection,
+        child: _screenBody(context),
+      ),
+    );
+  }
+
+  /// Bumped to recreate every message body (new subtree key) — the only
+  /// way to drop a SelectableText's highlight: losing focus hides the
+  /// toolbar and handles but keeps the selection painted (EditableText
+  /// `_handleFocusChanged`, verified in the SDK 2026-09-05).
+  int _selectionEpoch = 0;
+
+  /// Leaves text-selection mode if a message body currently has it.
+  /// Returns whether there was one, so Esc is only swallowed then.
+  bool _clearTextSelection() {
+    final focus = FocusManager.instance.primaryFocus;
+    final context = focus?.context;
+    if (context == null ||
+        context.findAncestorWidgetOfExactType<SelectableLinkify>() == null) {
+      return false;
+    }
+    focus!.unfocus();
+    setState(() => _selectionEpoch++);
+    return true;
   }
 
   Widget _screenBody(BuildContext context) {
@@ -529,9 +568,15 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                                               ChatTextScaleService,
                                               double
                                             >((service) => service.scale);
-                                        final bubble = _buildMessageBubble(
-                                          message,
-                                          textScale,
+                                        // Keyed by the selection epoch so a
+                                        // tap outside / Esc recreates the
+                                        // body and drops its highlight.
+                                        final bubble = KeyedSubtree(
+                                          key: ValueKey('sel$_selectionEpoch'),
+                                          child: _buildMessageBubble(
+                                            message,
+                                            textScale,
+                                          ),
                                         );
                                         if (isUnreadAnchor) {
                                           return Column(
@@ -642,7 +687,8 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
     final timeRow = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SelectableText(
+        // Plain Text: only the message body is selectable (2026-09-05).
+        Text(
           _formatTime(context, message.timestamp),
           style: MeshTokens.of(context)
               .monoCaption(color: metaColor)
@@ -659,7 +705,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
           SizedBox(width: MeshTokens.of(context).spacingXs),
           Icon(Icons.repeat, size: 11 * textScale, color: metaColor),
           const SizedBox(width: 2),
-          SelectableText(
+          Text(
             '${message.repeatCount}',
             style: MeshTokens.of(context)
                 .monoCaption(color: metaColor)
@@ -689,18 +735,22 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
     );
 
     // Asymmetric radius matching chat_screen bubbles.
+    // Own tokens (editor: "Chat bubbles" / "Chat bubble tail"), no longer
+    // the general lg/xs ladder (2026-09-05).
+    final big = Radius.circular(MeshTokens.of(context).bubbleRadius);
+    final tail = Radius.circular(MeshTokens.of(context).bubbleTailRadius);
     final borderRadius = isOutgoing
         ? BorderRadius.only(
-            topLeft: Radius.circular(MeshTokens.of(context).lg),
-            topRight: Radius.circular(MeshTokens.of(context).lg),
-            bottomLeft: Radius.circular(MeshTokens.of(context).lg),
-            bottomRight: Radius.circular(MeshTokens.of(context).xs),
+            topLeft: big,
+            topRight: big,
+            bottomLeft: big,
+            bottomRight: tail,
           )
         : BorderRadius.only(
-            topLeft: Radius.circular(MeshTokens.of(context).xs),
-            topRight: Radius.circular(MeshTokens.of(context).lg),
-            bottomLeft: Radius.circular(MeshTokens.of(context).lg),
-            bottomRight: Radius.circular(MeshTokens.of(context).lg),
+            topLeft: tail,
+            topRight: big,
+            bottomLeft: big,
+            bottomRight: big,
           );
 
     const maxSwipeOffset = 64.0;
@@ -730,10 +780,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                   child: Container(
                     padding: gifId != null
                         ? EdgeInsets.all(MeshTokens.of(context).spacingXxs)
-                        : EdgeInsets.symmetric(
-                            horizontal: MeshTokens.of(context).spacingSm,
-                            vertical: MeshTokens.of(context).spacingXs,
-                          ),
+                        // Same inset on every side as the contact/channel
+                        // cards (2026-09-05: was sm/xs, visibly taller
+                        // than wide, and different from every card).
+                        : EdgeInsets.all(MeshTokens.of(context).spacingMd),
                     constraints: BoxConstraints(
                       maxWidth: constraints.maxWidth * 0.72,
                     ),
@@ -743,7 +793,10 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                       border: elevated
                           ? null
                           : Border.all(color: bubbleBorder, width: 1),
-                      boxShadow: elevated ? MeshCard.dropShadow(context) : null,
+                      // Single-layer chip shadow, not the two-layer card
+                      // one: bubbles sit far denser than cards and read
+                      // heavier with it (2026-09-05).
+                      boxShadow: MeshTokens.of(context).labelShadow,
                     ),
                     // IntrinsicWidth lets the dotted separator stretch to the
                     // bubble's natural width without inflating the bubble.
@@ -760,22 +813,19 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                                       bottom: MeshTokens.of(context).spacingXxs,
                                     )
                                   : EdgeInsets.zero,
-                              child: SelectableText(
+                              // Same size as the message text (the editor's
+                              // "Chat messages" slider), bold to read as
+                              // the bubble's header — was titleSmall (10),
+                              // smaller than the text it headed (2026-09-05).
+                              child: Text(
                                 message.senderName,
-                                style:
-                                    (Theme.of(context).textTheme.titleSmall ??
-                                            const TextStyle())
-                                        .copyWith(
-                                          fontSize:
-                                              (Theme.of(context)
-                                                      .textTheme
-                                                      .titleSmall
-                                                      ?.fontSize ??
-                                                  13) *
-                                              textScale,
-                                          fontWeight: FontWeight.w700,
-                                          color: textColor,
-                                        ),
+                                style: TextStyle(
+                                  fontSize:
+                                      MeshTokens.of(context).bodySize *
+                                      textScale,
+                                  fontWeight: FontWeight.w700,
+                                  color: textColor,
+                                ),
                               ),
                             ),
                             if (gifId == null) const SizedBox(height: 2),
@@ -840,7 +890,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                               ],
                             ),
                           if (enableTracing && displayPath.isNotEmpty) ...[
-                            SizedBox(height: MeshTokens.of(context).spacingXs),
+                            SizedBox(height: MeshTokens.of(context).spacingXxs),
                             // Delicate rule cutting the technical footer off
                             // the message content at a glance.
                             Padding(
@@ -920,7 +970,7 @@ class _ChannelChatScreenState extends State<ChannelChatScreen>
                             // No technical block (tracing off or no path):
                             // a short rule the width of the time row still
                             // cuts the footer off the content.
-                            SizedBox(height: MeshTokens.of(context).spacingXs),
+                            SizedBox(height: MeshTokens.of(context).spacingXxs),
                             Padding(
                               padding: gifId != null
                                   ? EdgeInsets.only(

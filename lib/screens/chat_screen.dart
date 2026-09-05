@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:provider/provider.dart';
 
 import '../utils/platform_info.dart';
@@ -16,6 +17,7 @@ import '../helpers/path_helper.dart';
 import '../helpers/reaction_helper.dart';
 import '../widgets/message_status_icon.dart';
 import '../widgets/chat_app_bar.dart';
+import '../widgets/dotted_separator.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/mesh_screen_scaffold.dart';
 import '../widgets/quick_style_picker_dialog.dart';
@@ -201,7 +203,45 @@ class _ChatScreenState extends State<ChatScreen> with WindaToastQueue {
     // 07-selection-bugs.md: SelectionArea scoped per-screen (not globally
     // above the Navigator) so "select all" can't sweep in text from other,
     // offstage routes still mounted via maintainState:true.
-    return SelectionArea(child: _screenBody(context));
+    // No SelectionArea: only the message body is selectable, and it selects
+    // on its own (SelectableLinkify, see LinkHandler.buildLinkifyText).
+    // A tap anywhere else in the body, or Esc, leaves selection mode — see
+    // _clearTextSelection.
+    return Focus(
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.escape &&
+            _clearTextSelection()) {
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: _clearTextSelection,
+        child: _screenBody(context),
+      ),
+    );
+  }
+
+  /// Bumped to recreate every message body (new subtree key) — the only
+  /// way to drop a SelectableText's highlight: losing focus hides the
+  /// toolbar and handles but keeps the selection painted (EditableText
+  /// `_handleFocusChanged`, verified in the SDK 2026-09-05).
+  int _selectionEpoch = 0;
+
+  /// Leaves text-selection mode if a message body currently has it.
+  /// Returns whether there was one, so Esc is only swallowed then.
+  bool _clearTextSelection() {
+    final focus = FocusManager.instance.primaryFocus;
+    final context = focus?.context;
+    if (context == null ||
+        context.findAncestorWidgetOfExactType<SelectableLinkify>() == null) {
+      return false;
+    }
+    focus!.unfocus();
+    setState(() => _selectionEpoch++);
+    return true;
   }
 
   Widget _screenBody(BuildContext context) {
@@ -507,18 +547,23 @@ class _ChatScreenState extends State<ChatScreen> with WindaToastQueue {
               final textScale = context.select<ChatTextScaleService, double>(
                 (service) => service.scale,
               );
-              final bubble = _MessageBubble(
-                message: message,
-                senderName: isRoom
-                    ? (roomAuthor != null
-                          ? "${roomAuthor.name} [$fourByteHex]"
-                          : "[$fourByteHex]")
-                    : contact.name,
-                sourceId: widget.contact.publicKeyHex,
-                textScale: textScale,
-                onLongPress: () => _showMessageActions(message, contact),
-                onRetryReaction: (msg, emoji) =>
-                    _sendReaction(msg, contact, emoji),
+              // Keyed by the selection epoch so a tap outside / Esc
+              // recreates the body and drops its highlight.
+              final bubble = KeyedSubtree(
+                key: ValueKey('sel$_selectionEpoch'),
+                child: _MessageBubble(
+                  message: message,
+                  senderName: isRoom
+                      ? (roomAuthor != null
+                            ? "${roomAuthor.name} [$fourByteHex]"
+                            : "[$fourByteHex]")
+                      : contact.name,
+                  sourceId: widget.contact.publicKeyHex,
+                  textScale: textScale,
+                  onLongPress: () => _showMessageActions(message, contact),
+                  onRetryReaction: (msg, emoji) =>
+                      _sendReaction(msg, contact, emoji),
+                ),
               );
               final isUnreadAnchor =
                   _unreadDividerMessageId != null &&
@@ -1464,11 +1509,15 @@ class _MessageBubble extends StatelessWidget {
     final isFailed = message.status == MessageStatus.failed;
 
     // Bubble colors — outgoing uses MeshTokens.me / meBorder / meInk.
+    // Incoming fill bumps one surface level when shadows are on, like
+    // MeshCard and the channel chat (2026-09-05 parity).
     final bubbleColor = isFailed
         ? scheme.errorContainer
         : isOutgoing
         ? MeshTokens.of(context).me
-        : scheme.surfaceContainerLow;
+        : (MeshTokens.of(context).cardElevated
+              ? scheme.surfaceContainerHigh
+              : scheme.surfaceContainerLow);
     final bubbleBorder = isFailed
         ? scheme.error
         : isOutgoing
@@ -1482,18 +1531,22 @@ class _MessageBubble extends StatelessWidget {
     final metaColor = textColor.withValues(alpha: 0.65);
 
     // Asymmetric radius: outgoing — top-left large, others also large; outgoing bottom-right tight.
+    // Own tokens (editor: "Chat bubbles" / "Chat bubble tail"), no longer
+    // the general lg/xs ladder (2026-09-05).
+    final big = Radius.circular(MeshTokens.of(context).bubbleRadius);
+    final tail = Radius.circular(MeshTokens.of(context).bubbleTailRadius);
     final borderRadius = isOutgoing
         ? BorderRadius.only(
-            topLeft: Radius.circular(MeshTokens.of(context).lg),
-            topRight: Radius.circular(MeshTokens.of(context).lg),
-            bottomLeft: Radius.circular(MeshTokens.of(context).lg),
-            bottomRight: Radius.circular(MeshTokens.of(context).xs),
+            topLeft: big,
+            topRight: big,
+            bottomLeft: big,
+            bottomRight: tail,
           )
         : BorderRadius.only(
-            topLeft: Radius.circular(MeshTokens.of(context).xs),
-            topRight: Radius.circular(MeshTokens.of(context).lg),
-            bottomLeft: Radius.circular(MeshTokens.of(context).lg),
-            bottomRight: Radius.circular(MeshTokens.of(context).lg),
+            topLeft: tail,
+            topRight: big,
+            bottomLeft: big,
+            bottomRight: big,
           );
 
     // Do not strip room-server author bytes here: the parser stores them in
@@ -1537,163 +1590,136 @@ class _MessageBubble extends StatelessWidget {
                     child: Container(
                       padding: gifId != null
                           ? EdgeInsets.all(t.spacingXxs)
-                          : EdgeInsets.symmetric(
-                              horizontal: t.spacingSm,
-                              vertical: t.spacingXs,
-                            ),
+                          // Same inset on every side as the contact/channel
+                          // cards and the channel chat.
+                          : EdgeInsets.all(t.spacingMd),
                       constraints: BoxConstraints(
                         maxWidth: constraints.maxWidth * 0.72,
                       ),
+                      // Same shadow-toggle rule as the channel chat / MeshCard:
+                      // shadow on → no outline + chip shadow; off → outline.
                       decoration: BoxDecoration(
                         color: bubbleColor,
                         borderRadius: borderRadius,
-                        border: Border.all(color: bubbleBorder, width: 1),
+                        border: t.cardElevated && !isFailed
+                            ? null
+                            : Border.all(color: bubbleBorder, width: 1),
+                        boxShadow: t.labelShadow,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (!isOutgoing) ...[
-                            Padding(
-                              padding: gifId != null
-                                  ? EdgeInsets.only(
-                                      left: t.spacingXs,
-                                      top: t.spacingXxs,
-                                      bottom: t.spacingXxs,
-                                    )
-                                  : EdgeInsets.zero,
-                              child: Text(
-                                senderName,
-                                style: MeshTokens.of(context)
-                                    .monoCaption(
-                                      color: _colorForName(context, senderName),
-                                    )
-                                    .copyWith(fontWeight: FontWeight.w700),
-                              ),
-                            ),
-                            if (gifId == null) const SizedBox(height: 2),
-                          ],
-                          if (poi != null)
-                            _buildPoiMessage(
-                              context,
-                              poi,
-                              textColor,
-                              metaColor,
-                              textScale,
-                              senderName,
-                            )
-                          else if (gifId != null)
-                            Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(
-                                    MeshTokens.of(context).md,
+                      // IntrinsicWidth lets the footer's dotted rule stretch
+                      // to the bubble's natural width without inflating it
+                      // (channel chat pattern).
+                      child: IntrinsicWidth(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (!isOutgoing) ...[
+                              Padding(
+                                padding: gifId != null
+                                    ? EdgeInsets.only(
+                                        left: t.spacingXs,
+                                        top: t.spacingXxs,
+                                        bottom: t.spacingXxs,
+                                      )
+                                    : EdgeInsets.zero,
+                                // Room author line, same as the channel chat's
+                                // sender name (2026-09-05 parity): Chat
+                                // messages size, bold, bubble text color — was
+                                // monoCaption in a per-name hash color.
+                                child: Text(
+                                  senderName,
+                                  style: TextStyle(
+                                    fontSize:
+                                        MeshTokens.of(context).bodySize *
+                                        textScale,
+                                    fontWeight: FontWeight.w700,
+                                    color: textColor,
                                   ),
-                                  child: GifMessage(
-                                    url:
-                                        'https://media.giphy.com/media/$gifId/giphy.gif',
-                                    backgroundColor: Colors.transparent,
-                                    fallbackTextColor: textColor.withValues(
-                                      alpha: 0.7,
+                                ),
+                              ),
+                              if (gifId == null) const SizedBox(height: 2),
+                            ],
+                            if (poi != null)
+                              _buildPoiMessage(
+                                context,
+                                poi,
+                                textColor,
+                                metaColor,
+                                textScale,
+                                senderName,
+                              )
+                            else if (gifId != null)
+                              Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                      MeshTokens.of(context).md,
+                                    ),
+                                    child: GifMessage(
+                                      url:
+                                          'https://media.giphy.com/media/$gifId/giphy.gif',
+                                      backgroundColor: Colors.transparent,
+                                      fallbackTextColor: textColor.withValues(
+                                        alpha: 0.7,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            )
-                          else
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Flexible(
-                                  child: TranslatedMessageContent(
-                                    displayText: translatedDisplayText,
-                                    originalText: originalDisplayText,
-                                    style:
-                                        (Theme.of(
-                                                  context,
-                                                ).textTheme.titleSmall ??
-                                                const TextStyle())
-                                            .copyWith(
-                                              color: textColor,
-                                              fontSize:
-                                                  (Theme.of(context)
-                                                          .textTheme
-                                                          .titleSmall
-                                                          ?.fontSize ??
-                                                      MeshTokens.of(
-                                                        context,
-                                                      ).bodySize) *
-                                                  textScale,
-                                            ),
-                                    originalStyle:
-                                        (Theme.of(
-                                                  context,
-                                                ).textTheme.titleSmall ??
-                                                const TextStyle())
-                                            .copyWith(
-                                              color: textColor.withValues(
-                                                alpha: 0.72,
-                                              ),
-                                              fontSize:
-                                                  (Theme.of(context)
-                                                          .textTheme
-                                                          .titleSmall
-                                                          ?.fontSize ??
-                                                      MeshTokens.of(
-                                                        context,
-                                                      ).bodySize) *
-                                                  textScale,
-                                            ),
-                                    onSecondaryTap: PlatformInfo.isDesktop
-                                        ? onLongPress
-                                        : null,
+                                ],
+                              )
+                            else
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Flexible(
+                                    child: TranslatedMessageContent(
+                                      displayText: translatedDisplayText,
+                                      originalText: originalDisplayText,
+                                      // Chat-message size token, same as the
+                                      // channel chat — was titleSmall (10),
+                                      // the editor's "Titles" role, so the
+                                      // two chats rendered text 4 pt apart
+                                      // (2026-09-05 font audit).
+                                      style: TextStyle(
+                                        color: textColor,
+                                        fontSize:
+                                            MeshTokens.of(context).bodySize *
+                                            textScale,
+                                      ),
+                                      originalStyle: TextStyle(
+                                        color: textColor.withValues(
+                                          alpha: 0.72,
+                                        ),
+                                        fontStyle: FontStyle.italic,
+                                        fontSize:
+                                            MeshTokens.of(context).bodySize *
+                                            textScale,
+                                      ),
+                                      onSecondaryTap: PlatformInfo.isDesktop
+                                          ? onLongPress
+                                          : null,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          if (enableTracing &&
-                              isOutgoing &&
-                              message.retryCount > 0) ...[
-                            SizedBox(height: t.spacingXxs),
-                            Padding(
-                              padding: gifId != null
-                                  ? EdgeInsets.symmetric(
-                                      horizontal: t.spacingXs,
-                                    )
-                                  : EdgeInsets.zero,
-                              child: Text(
-                                context.l10n.chat_retryCount(
-                                  message.retryCount,
-                                  context
-                                      .read<AppSettingsService>()
-                                      .settings
-                                      .maxMessageRetries,
-                                ),
-                                style: MeshTokens.of(context).mono(
-                                  fontSize:
-                                      MeshTokens.of(context).monoCaptionSize *
-                                      textScale,
-                                  color: metaColor,
-                                ),
+                                ],
                               ),
-                            ),
-                          ],
-                          SizedBox(height: t.spacingXxs),
-                          // Meta row: timestamp + status icon + optional tracing
-                          Padding(
-                            padding: gifId != null
-                                ? EdgeInsets.only(
-                                    left: t.spacingXs,
-                                    right: t.spacingXs,
-                                    bottom: t.spacingXxs,
-                                  )
-                                : EdgeInsets.zero,
-                            child: Wrap(
-                              spacing: t.spacingXxs,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                Text(
-                                  _formatTime(message.timestamp),
+                            if (enableTracing &&
+                                isOutgoing &&
+                                message.retryCount > 0) ...[
+                              SizedBox(height: t.spacingXxs),
+                              Padding(
+                                padding: gifId != null
+                                    ? EdgeInsets.symmetric(
+                                        horizontal: t.spacingXs,
+                                      )
+                                    : EdgeInsets.zero,
+                                child: Text(
+                                  context.l10n.chat_retryCount(
+                                    message.retryCount,
+                                    context
+                                        .read<AppSettingsService>()
+                                        .settings
+                                        .maxMessageRetries,
+                                  ),
                                   style: MeshTokens.of(context).mono(
                                     fontSize:
                                         MeshTokens.of(context).monoCaptionSize *
@@ -1701,50 +1727,94 @@ class _MessageBubble extends StatelessWidget {
                                     color: metaColor,
                                   ),
                                 ),
-                                if (isOutgoing) ...[
-                                  const SizedBox(width: 2),
-                                  MessageStatusIcon(
-                                    size: 12 * textScale,
-                                    onColor: metaColor,
-                                    isAcked:
-                                        message.status ==
-                                        MessageStatus.delivered,
-                                    isPending:
-                                        message.status == MessageStatus.pending,
-                                    isFailed:
-                                        message.status == MessageStatus.failed,
-                                  ),
-                                ],
-                                if (enableTracing &&
-                                    message.tripTimeMs != null &&
-                                    message.status ==
-                                        MessageStatus.delivered) ...[
-                                  const SizedBox(width: 2),
-                                  Icon(
-                                    Icons.speed,
-                                    size: 10 * textScale,
-                                    color: isOutgoing
-                                        ? metaColor
-                                        : scheme.tertiary,
-                                  ),
-                                  Text(
-                                    '${(message.tripTimeMs! / 1000).toStringAsFixed(1)}s',
-                                    style: MeshTokens.of(context).mono(
-                                      fontSize:
-                                          MeshTokens.of(
-                                            context,
-                                          ).monoCaptionSize *
-                                          textScale,
-                                      color: isOutgoing
-                                          ? metaColor
-                                          : scheme.tertiary,
+                              ),
+                            ],
+                            SizedBox(height: t.spacingXxs),
+                            // Meta row: timestamp + status icon + optional tracing
+                            Padding(
+                              padding: gifId != null
+                                  ? EdgeInsets.only(
+                                      left: t.spacingXs,
+                                      right: t.spacingXs,
+                                      bottom: t.spacingXxs,
+                                    )
+                                  : EdgeInsets.zero,
+                              // Channel chat footer pattern: a short dotted
+                              // rule the width of the meta row cuts the footer
+                              // off the content (2026-09-05 parity).
+                              child: IntrinsicWidth(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    DottedSeparator(color: textColor),
+                                    SizedBox(height: t.spacingXxs),
+                                    Wrap(
+                                      spacing: t.spacingXxs,
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      children: [
+                                        Text(
+                                          _formatTime(message.timestamp),
+                                          style: MeshTokens.of(context).mono(
+                                            fontSize:
+                                                MeshTokens.of(
+                                                  context,
+                                                ).monoCaptionSize *
+                                                textScale,
+                                            color: metaColor,
+                                          ),
+                                        ),
+                                        if (isOutgoing) ...[
+                                          const SizedBox(width: 2),
+                                          MessageStatusIcon(
+                                            size: 12 * textScale,
+                                            onColor: metaColor,
+                                            isAcked:
+                                                message.status ==
+                                                MessageStatus.delivered,
+                                            isPending:
+                                                message.status ==
+                                                MessageStatus.pending,
+                                            isFailed:
+                                                message.status ==
+                                                MessageStatus.failed,
+                                          ),
+                                        ],
+                                        if (enableTracing &&
+                                            message.tripTimeMs != null &&
+                                            message.status ==
+                                                MessageStatus.delivered) ...[
+                                          const SizedBox(width: 2),
+                                          Icon(
+                                            Icons.speed,
+                                            size: 10 * textScale,
+                                            color: isOutgoing
+                                                ? metaColor
+                                                : scheme.tertiary,
+                                          ),
+                                          Text(
+                                            '${(message.tripTimeMs! / 1000).toStringAsFixed(1)}s',
+                                            style: MeshTokens.of(context).mono(
+                                              fontSize:
+                                                  MeshTokens.of(
+                                                    context,
+                                                  ).monoCaptionSize *
+                                                  textScale,
+                                              color: isOutgoing
+                                                  ? metaColor
+                                                  : scheme.tertiary,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
-                                  ),
-                                ],
-                              ],
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -1812,19 +1882,11 @@ class _MessageBubble extends StatelessWidget {
             children: [
               Text(
                 context.l10n.chat_poiShared,
-                style:
-                    (Theme.of(context).textTheme.titleSmall ??
-                            const TextStyle())
-                        .copyWith(
-                          color: textColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize:
-                              (Theme.of(
-                                    context,
-                                  ).textTheme.titleSmall?.fontSize ??
-                                  14) *
-                              textScale,
-                        ),
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: MeshTokens.of(context).bodySize * textScale,
+                ),
               ),
               if (poi.label.isNotEmpty)
                 Text(
@@ -1878,6 +1940,7 @@ class _MessageBubble extends StatelessWidget {
                 horizontal: t.spacingXs,
                 vertical: t.spacingXxs,
               ),
+              // Same shadow-toggle rule as the bubbles / channel chat chips.
               decoration: BoxDecoration(
                 color: isFailed
                     ? scheme.errorContainer
@@ -1885,10 +1948,13 @@ class _MessageBubble extends StatelessWidget {
                 borderRadius: BorderRadius.circular(
                   MeshTokens.of(context).pill,
                 ),
-                border: Border.all(
-                  color: isFailed ? scheme.error : scheme.outlineVariant,
-                  width: 1,
-                ),
+                border: MeshTokens.of(context).cardElevated && !isFailed
+                    ? null
+                    : Border.all(
+                        color: isFailed ? scheme.error : scheme.outlineVariant,
+                        width: 1,
+                      ),
+                boxShadow: MeshTokens.of(context).labelShadow,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1947,11 +2013,3 @@ class _MessageBubble extends StatelessWidget {
 }
 
 /// Deterministic name-to-hue mapping consistent with [AvatarCircle].
-Color _colorForName(BuildContext context, String name) {
-  final hues = avatarTintPalette(MeshTokens.of(context));
-  var h = 0;
-  for (final c in name.codeUnits) {
-    h = (h * 31 + c) & 0x7fffffff;
-  }
-  return hues[h % hues.length];
-}

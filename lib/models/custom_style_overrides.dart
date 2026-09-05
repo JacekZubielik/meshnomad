@@ -73,6 +73,10 @@ class CustomStyleOverrides {
     'titleSmall',
     'labelSmall',
     'labelMedium',
+    // MeshTokens sizes the TextTheme roles don't cover (2026-09-05 audit):
+    // chat message text and the badge/chip micro labels.
+    'bodySize',
+    'microLabelSize',
     'monoCaptionSize',
     'monoBodySize',
   ];
@@ -100,6 +104,10 @@ class CustomStyleOverrides {
     'lg',
     'pill',
     'buttonRadius',
+    // Chat bubble corners (2026-09-05): the three big corners and the
+    // "tail" corner, each on its own slider.
+    'bubbleRadius',
+    'bubbleTailRadius',
   ];
 
   final Map<String, int> colorOverrides; // key -> Color.value (ARGB int)

@@ -58,13 +58,7 @@ class ContactLocationMapScreen extends StatelessWidget {
                         color: tokens.mapMarkerOutline,
                         width: 3,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: tokens.mapMarkerShadow,
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
+                      boxShadow: tokens.mapMarkerShadowBox,
                     ),
                     child: Icon(
                       Icons.location_on,

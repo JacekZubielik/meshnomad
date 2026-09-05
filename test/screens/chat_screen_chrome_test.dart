@@ -1,6 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +9,7 @@ import 'package:meshnomad/connector/meshcore_connector.dart';
 import 'package:meshnomad/connector/meshcore_protocol.dart';
 import 'package:meshnomad/l10n/app_localizations.dart';
 import 'package:meshnomad/models/contact.dart';
+import 'package:meshnomad/models/message.dart';
 import 'package:meshnomad/models/path_history.dart';
 import 'package:meshnomad/screens/chat_screen.dart';
 import 'package:meshnomad/services/app_settings_service.dart';
@@ -44,7 +45,11 @@ class _FakeStorageService extends StorageService {
 
 class _FakeConnector extends MeshCoreConnector {
   bool loadingContacts = false;
+  List<Message> messages = [];
   final List<Uint8List> sentFrames = [];
+
+  @override
+  List<Message> getMessages(Contact contact) => messages;
   final List<Contact> removedContacts = [];
   final List<bool?> favoriteFlags = [];
 
@@ -115,15 +120,26 @@ class _Launcher extends StatelessWidget {
   }
 }
 
+final _incoming = Message(
+  senderKey: _contact.publicKey,
+  text: 'hello from alice',
+  timestamp: DateTime(2026, 9, 4, 12),
+  isOutgoing: false,
+);
+
 Future<_FakeConnector> _pump(
   WidgetTester tester, {
   bool loadingContacts = false,
   bool pushed = false,
+  List<Message> messages = const [],
+  MeshTokens tokens = MeshTokens.defaultTokens,
 }) async {
   SharedPreferences.setMockInitialValues({});
   PrefsManager.reset();
   await PrefsManager.initialize();
-  final connector = _FakeConnector()..loadingContacts = loadingContacts;
+  final connector = _FakeConnector()
+    ..loadingContacts = loadingContacts
+    ..messages = messages;
   final settings = AppSettingsService();
   await settings.loadSettings();
   final translation = TranslationService(settings);
@@ -146,9 +162,7 @@ Future<_FakeConnector> _pump(
         ),
       ],
       child: MaterialApp(
-        theme: MeshTheme.light().copyWith(
-          extensions: const [MeshTokens.defaultTokens],
-        ),
+        theme: MeshTheme.light().copyWith(extensions: [tokens]),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         navigatorObservers: [windaRouteObserver],
@@ -399,6 +413,199 @@ void main() {
 
     expect(connector.removedContacts, isEmpty);
     expect(find.byType(ChatScreen), findsOneWidget);
+    await _finish(tester, connector);
+  });
+
+  testWidgets('bubble text uses the Chat messages size, same as channels', (
+    tester,
+  ) async {
+    final connector = await _pump(
+      tester,
+      messages: [_incoming],
+      tokens: MeshTokens.defaultTokens.copyWith(bodySize: 17),
+    );
+    // Was textTheme.titleSmall (10) while the channel chat used bodySize
+    // (14) — the same message rendered 4 pt apart between the two chats.
+    // Rendered through SelectableLinkify (tests run on desktop); its
+    // `style` is what the screen passed, before Linkify's own span merge.
+    final linkify = tester.widget<SelectableLinkify>(
+      find.byWidgetPredicate(
+        (w) => w is SelectableLinkify && w.text == 'hello from alice',
+      ),
+    );
+    expect(linkify.style?.fontSize, 17);
+    await _finish(tester, connector);
+  });
+
+  /// The bubble is the first Container above the message text that carries
+  /// a BoxDecoration with a border radius (the text's own wrappers don't).
+  Container bubbleContainer(WidgetTester tester, String text) {
+    final containers = find.ancestor(
+      of: find.text(text),
+      matching: find.byType(Container),
+    );
+    for (final element in containers.evaluate()) {
+      final container = element.widget as Container;
+      final decoration = container.decoration;
+      if (decoration is BoxDecoration && decoration.borderRadius != null) {
+        return container;
+      }
+    }
+    throw StateError('no bubble around "$text"');
+  }
+
+  testWidgets('bubble: same inset on every side, channel-chat shadow rule', (
+    tester,
+  ) async {
+    final connector = await _pump(
+      tester,
+      messages: [_incoming],
+      tokens: MeshTokens.defaultTokens.copyWith(
+        bubbleRadius: 21,
+        bubbleTailRadius: 3,
+      ),
+    );
+    final context = tester.element(find.byType(ChatScreen));
+    final t = MeshTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    expect(t.cardElevated, isTrue);
+
+    final bubble = bubbleContainer(tester, 'hello from alice');
+    // Same inset as the contact/channel cards (spacingMd).
+    expect(bubble.padding, EdgeInsets.all(t.spacingMd));
+    final decoration = bubble.decoration! as BoxDecoration;
+    expect(decoration.border, isNull);
+    expect(decoration.boxShadow, t.labelShadow);
+    expect(decoration.color, scheme.surfaceContainerHigh);
+    // Incoming: tail corner top-left, the other three on the bubble slider.
+    final radius = decoration.borderRadius! as BorderRadius;
+    expect(radius.topLeft.x, 3);
+    expect(radius.topRight.x, 21);
+    expect(radius.bottomLeft.x, 21);
+    expect(radius.bottomRight.x, 21);
+    await _finish(tester, connector);
+  });
+
+  testWidgets('bubble: dotted rule above the meta row, like the channel chat', (
+    tester,
+  ) async {
+    final connector = await _pump(tester, messages: [_incoming]);
+    final scheme = Theme.of(
+      tester.element(find.byType(ChatScreen)),
+    ).colorScheme;
+    final rule = find.descendant(
+      of: find.byWidget(bubbleContainer(tester, 'hello from alice')),
+      matching: find.byType(DottedSeparator),
+    );
+    expect(rule, findsOneWidget);
+    expect(tester.widget<DottedSeparator>(rule).color, scheme.onSurface);
+    await _finish(tester, connector);
+  });
+
+  testWidgets('only the message body is selectable', (tester) async {
+    final connector = await _pump(tester, messages: [_incoming]);
+    final body = find.byWidgetPredicate(
+      (w) => w is SelectableLinkify && w.text == 'hello from alice',
+    );
+    expect(body, findsOneWidget);
+    // With a toolbar (Copy / Select all) — see the channel chat test.
+    expect(
+      tester.widget<SelectableLinkify>(body).contextMenuBuilder,
+      isNotNull,
+    );
+    expect(find.byType(SelectionArea), findsNothing);
+    // Inside the bubble the only SelectableText is the SelectableLinkify
+    // body itself — name/time/meta are plain Text.
+    final bubble = find.byWidget(bubbleContainer(tester, 'hello from alice'));
+    final selectable = find
+        .descendant(of: bubble, matching: find.byType(SelectableText))
+        .evaluate()
+        .length;
+    final inBody = find
+        .descendant(
+          of: find.byType(SelectableLinkify),
+          matching: find.byType(SelectableText),
+        )
+        .evaluate()
+        .length;
+    expect(selectable, inBody);
+    expect(inBody, greaterThan(0));
+    await _finish(tester, connector);
+  });
+
+  Finder body(String text) =>
+      find.byWidgetPredicate((w) => w is SelectableLinkify && w.text == text);
+
+  Future<Element> select(WidgetTester tester, String text) async {
+    await tester.longPress(body(text));
+    await tester.pumpAndSettle();
+    final editable = find.descendant(
+      of: body(text),
+      matching: find.byType(EditableText),
+    );
+    expect(
+      tester.widget<EditableText>(editable).controller.selection.isCollapsed,
+      isFalse,
+      reason: 'long press should have selected a word',
+    );
+    return editable.evaluate().single;
+  }
+
+  void expectCleared(WidgetTester tester, String text, Element before) {
+    final editable = find.descendant(
+      of: body(text),
+      matching: find.byType(EditableText),
+    );
+    expect(editable.evaluate().single, isNot(same(before)));
+    expect(
+      tester.widget<EditableText>(editable).controller.selection.isCollapsed,
+      isTrue,
+    );
+    final focus = FocusManager.instance.primaryFocus?.context;
+    expect(focus?.findAncestorWidgetOfExactType<SelectableLinkify>(), isNull);
+  }
+
+  testWidgets('a tap outside the message body leaves selection mode', (
+    tester,
+  ) async {
+    final connector = await _pump(tester, messages: [_incoming]);
+    final before = await select(tester, 'hello from alice');
+    await tester.tapAt(
+      tester.getBottomRight(find.byType(ChatBadgeBar)) + const Offset(-20, 200),
+    );
+    // ChatZoomWrapper listens for double taps, so a single tap is only
+    // recognised after the double-tap deadline — advance past it.
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    expectCleared(tester, 'hello from alice', before);
+    await _finish(tester, connector);
+  });
+
+  testWidgets('Esc leaves selection mode', (tester) async {
+    final connector = await _pump(tester, messages: [_incoming]);
+    final before = await select(tester, 'hello from alice');
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expectCleared(tester, 'hello from alice', before);
+    await _finish(tester, connector);
+  });
+
+  testWidgets('bubble: shadow off → outline, no shadow, flat fill', (
+    tester,
+  ) async {
+    final connector = await _pump(
+      tester,
+      messages: [_incoming],
+      tokens: MeshTokens.defaultTokens.copyWith(cardElevated: false),
+    );
+    final context = tester.element(find.byType(ChatScreen));
+    final scheme = Theme.of(context).colorScheme;
+    final decoration =
+        bubbleContainer(tester, 'hello from alice').decoration!
+            as BoxDecoration;
+    expect(decoration.boxShadow, isNull);
+    expect((decoration.border! as Border).top.color, scheme.outlineVariant);
+    expect(decoration.color, scheme.surfaceContainerLow);
     await _finish(tester, connector);
   });
 

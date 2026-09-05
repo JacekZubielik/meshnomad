@@ -91,14 +91,14 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     required this.monoCaptionSize,
     required this.monoBodySize,
     required this.microLabelSize,
-    required this.labelSize,
     required this.bodySize,
-    required this.titleSize,
     required this.cardElevated,
     required this.innerShadowEnabled,
     required this.cardShadow,
     required this.bordersVisible,
     required this.buttonRadius,
+    required this.bubbleRadius,
+    required this.bubbleTailRadius,
     required this.avatarTint5,
     required this.avatarTint6,
   });
@@ -228,15 +228,10 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   /// of the general (non-mono) type scale.
   final double microLabelSize;
 
-  /// Sans-serif small-label/subtitle size — general (non-mono) type scale.
-  final double labelSize;
-
-  /// Sans-serif body-text size — general (non-mono) type scale.
+  /// Sans-serif chat message text size (direct + channel bubbles, POI
+  /// rows) — the one body size the `TextTheme` roles don't cover. Editable
+  /// in the Custom Style editor as "Chat messages" (2026-09-05).
   final double bodySize;
-
-  /// Sans-serif title size (AppBar/dialog titles) — general (non-mono) type
-  /// scale.
-  final double titleSize;
 
   /// Whether MeshCard draws its floating shadow by default (issue #23).
   final bool cardElevated;
@@ -268,6 +263,16 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
   /// editor's Buttons section (2026-08-21).
   final double buttonRadius;
 
+  /// Chat bubble corner radius — the three "big" corners of every message
+  /// bubble in both chats. Its own slider in the Custom Style editor
+  /// (2026-09-05); used to ride on [lg], which also shapes sheets/dialogs.
+  final double bubbleRadius;
+
+  /// The bubble's fourth, "tail" corner (top-left on incoming, bottom-right
+  /// on outgoing) — the one that points at the sender. Own slider; used to
+  /// ride on [xs].
+  final double bubbleTailRadius;
+
   /// Shared drop shadow for label chips (_ContactBadge, ContactTypeBadge,
   /// RouteChip, …) — THE single place that defines it. Follows the
   /// style-wide shadow switch ([cardElevated], the Custom Style "Card
@@ -288,9 +293,32 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
         ]
       : null;
 
+  /// Drop shadow for markers drawn over map tiles (node/hop/self/cluster
+  /// markers, telemetry pin, contact-location pin). Same 2/2 blur 2
+  /// geometry as [labelShadow] in the map palette's shadow color, and the
+  /// same [cardElevated] switch — the map never had its own shadow toggle
+  /// (the node marker already said so). Replaced nine hand-written
+  /// `blurRadius: 4..8, offset (0,2..3)` literals (2026-09-05 audit).
+  List<BoxShadow>? get mapMarkerShadowBox => cardElevated
+      ? [
+          BoxShadow(
+            color: mapMarkerShadow,
+            blurRadius: 2,
+            offset: const Offset(2, 2),
+          ),
+        ]
+      : null;
+
+  /// [mapMarkerShadowBox] for the line-of-sight screen's endpoint/profile
+  /// markers, in the LOS palette's shadow color.
+  List<BoxShadow>? get losMarkerShadowBox => cardElevated
+      ? [BoxShadow(color: losShadow, blurRadius: 2, offset: const Offset(2, 2))]
+      : null;
+
   /// Shared drop shadow for larger standalone marks (About screen's app
-  /// lockup icon+wordmark). Same [cardElevated] switch as [labelShadow],
-  /// scaled up for a ~64dp element instead of a 16dp chip.
+  /// lockup icon+wordmark, the Flasher hero card). Same [cardElevated]
+  /// switch as [labelShadow], scaled up for a ~64dp element instead of a
+  /// 16dp chip.
   ///
   /// Bottom+right only (2026-09-02) — same reasoning as [labelShadow].
   List<BoxShadow>? get logoShadow => cardElevated
@@ -399,14 +427,14 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     monoCaptionSize: 11,
     monoBodySize: 11,
     microLabelSize: 9,
-    labelSize: 12,
     bodySize: 14,
-    titleSize: 16,
     cardElevated: true,
     innerShadowEnabled: true,
     cardShadow: Color(0xFF000000),
     bordersVisible: false,
     buttonRadius: MeshRadii.pill,
+    bubbleRadius: MeshRadii.lg,
+    bubbleTailRadius: MeshRadii.xs,
     avatarTint5: Color(0xFF8FA8F0),
     avatarTint6: Color(0xFF6FD9CE),
   );
@@ -502,14 +530,14 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     monoCaptionSize: 11,
     monoBodySize: 11,
     microLabelSize: 9,
-    labelSize: 12,
     bodySize: 14,
-    titleSize: 16,
     cardElevated: true,
     innerShadowEnabled: true,
     cardShadow: Color(0xFF000000),
     bordersVisible: false,
     buttonRadius: MeshRadii.pill,
+    bubbleRadius: MeshRadii.lg,
+    bubbleTailRadius: MeshRadii.xs,
     avatarTint5: Color(0xFF8FA8F0),
     avatarTint6: Color(0xFF6FD9CE),
   );
@@ -700,14 +728,14 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
     double? monoCaptionSize,
     double? monoBodySize,
     double? microLabelSize,
-    double? labelSize,
     double? bodySize,
-    double? titleSize,
     bool? cardElevated,
     bool? innerShadowEnabled,
     Color? cardShadow,
     bool? bordersVisible,
     double? buttonRadius,
+    double? bubbleRadius,
+    double? bubbleTailRadius,
     Color? avatarTint5,
     Color? avatarTint6,
   }) {
@@ -795,14 +823,14 @@ class MeshTokens extends ThemeExtension<MeshTokens> {
       monoCaptionSize: monoCaptionSize ?? this.monoCaptionSize,
       monoBodySize: monoBodySize ?? this.monoBodySize,
       microLabelSize: microLabelSize ?? this.microLabelSize,
-      labelSize: labelSize ?? this.labelSize,
       bodySize: bodySize ?? this.bodySize,
-      titleSize: titleSize ?? this.titleSize,
       cardElevated: cardElevated ?? this.cardElevated,
       innerShadowEnabled: innerShadowEnabled ?? this.innerShadowEnabled,
       cardShadow: cardShadow ?? this.cardShadow,
       bordersVisible: bordersVisible ?? this.bordersVisible,
       buttonRadius: buttonRadius ?? this.buttonRadius,
+      bubbleRadius: bubbleRadius ?? this.bubbleRadius,
+      bubbleTailRadius: bubbleTailRadius ?? this.bubbleTailRadius,
       avatarTint5: avatarTint5 ?? this.avatarTint5,
       avatarTint6: avatarTint6 ?? this.avatarTint6,
     );

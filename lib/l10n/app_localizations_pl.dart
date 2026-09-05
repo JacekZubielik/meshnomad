@@ -5350,7 +5350,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get styleEditor_fontSizesIntro =>
-      'Tytuły ekranów, przyciski i zakładki skalują się razem z powyższymi rozmiarami.';
+      'Każdy rozmiar opisuje, czym steruje. Tytuły ekranów i dialogów, przyciski, chipy i zakładki są pochodnymi i skalują się z nimi.';
 
   @override
   String get styleEditor_spacingIntro =>
@@ -5706,21 +5706,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get styleEditor_bodyMedium_subtitle =>
-      'Większość tekstów: etykiety ustawień, treści list';
+      'Etykiety ustawień, treści list, wiersze menu; przyciski i zakładki skalują się z nim';
 
   @override
   String get styleEditor_bodySmall_label => 'Tekst pomocniczy';
 
   @override
   String get styleEditor_bodySmall_subtitle =>
-      'Podtytuły i opisy pod etykietami';
+      'Podtytuły i opisy; chipy, dolny pasek i podpowiedzi skalują się z nim';
 
   @override
-  String get styleEditor_titleSmall_label => 'Tytuły sekcji';
+  String get styleEditor_titleSmall_label => 'Tytuły';
 
   @override
   String get styleEditor_titleSmall_subtitle =>
-      'Nagłówki sekcji i tytuły w oknach dialogowych';
+      'Nagłówki sekcji w arkuszach; tytuły ekranów i dialogów skalują się z nim';
 
   @override
   String get styleEditor_labelSmall_label => 'Etykieta mała';
@@ -5734,7 +5734,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get styleEditor_labelMedium_subtitle =>
-      'Nazwy na listach, dolny pasek, nagłówki sekcji przekaźnika';
+      'Nazwy na listach, nagłówki sekcji huba i przekaźnika';
+
+  @override
+  String get styleEditor_bodySize_label => 'Wiadomości czatu';
+
+  @override
+  String get styleEditor_bodySize_subtitle =>
+      'Treść wiadomości i nazwy nadawców w czacie bezpośrednim i kanałowym';
+
+  @override
+  String get styleEditor_microLabelSize_label => 'Mikroetykieta';
+
+  @override
+  String get styleEditor_microLabelSize_subtitle =>
+      'Podpisy badge\'y i chipów na kartach kontaktów i kanałów';
 
   @override
   String get styleEditor_monoCaptionSize_label => 'Mono — podpisy';
@@ -5815,13 +5829,27 @@ class AppLocalizationsPl extends AppLocalizations {
   String get styleEditor_radiusLg_label => 'Duże (lg)';
 
   @override
-  String get styleEditor_radiusLg_subtitle => 'Dymki czatu, arkusze';
+  String get styleEditor_radiusLg_subtitle => 'Arkusze, dialogi';
 
   @override
   String get styleEditor_radiusPill_label => 'Kapsuła';
 
   @override
   String get styleEditor_radiusPill_subtitle => 'Buttony, FAB, chipy';
+
+  @override
+  String get styleEditor_radiusBubble_label => 'Dymki czatu';
+
+  @override
+  String get styleEditor_radiusBubble_subtitle =>
+      'Trzy duże narożniki każdego dymka wiadomości';
+
+  @override
+  String get styleEditor_radiusBubbleTail_label => 'Ogonek dymka';
+
+  @override
+  String get styleEditor_radiusBubbleTail_subtitle =>
+      'Czwarty narożnik wskazujący nadawcę';
 
   @override
   String get styleEditor_cardSection => 'Styl karty';

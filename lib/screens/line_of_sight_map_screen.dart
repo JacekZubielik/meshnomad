@@ -1474,12 +1474,9 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                                     : MeshTokens.of(context).losChartBackground,
                                 width: isSelected ? 2 : 1.5,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: MeshTokens.of(context).losShadow,
-                                  blurRadius: 4,
-                                ),
-                              ],
+                              boxShadow: MeshTokens.of(
+                                context,
+                              ).losMarkerShadowBox,
                             ),
                           ),
                         ),
@@ -1550,13 +1547,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                         ? 4
                         : 3,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: MeshTokens.of(context).losShadow,
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
+                  boxShadow: MeshTokens.of(context).losMarkerShadowBox,
                 ),
               ),
             ),
@@ -1581,13 +1572,7 @@ class _LineOfSightMapScreenState extends State<LineOfSightMapScreen> {
                       : endpoint.color.withValues(alpha: 0.75),
                   width: (endpoint == _start || endpoint == _end) ? 2.5 : 1.5,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: MeshTokens.of(context).losShadow,
-                    blurRadius: 7,
-                    offset: Offset(0, 2),
-                  ),
-                ],
+                boxShadow: MeshTokens.of(context).losMarkerShadowBox,
               ),
               child: Stack(
                 children: [

@@ -9107,7 +9107,7 @@ abstract class AppLocalizations {
   /// No description provided for @styleEditor_fontSizesIntro.
   ///
   /// In en, this message translates to:
-  /// **'Screen titles, buttons, and tabs scale together with the sizes above.'**
+  /// **'Each size names what it drives. Screen and dialog titles, buttons, chips and tabs are derived from these and follow them.'**
   String get styleEditor_fontSizesIntro;
 
   /// No description provided for @styleEditor_spacingIntro.
@@ -9761,7 +9761,7 @@ abstract class AppLocalizations {
   /// No description provided for @styleEditor_bodyMedium_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Most text: settings labels, list content'**
+  /// **'Settings labels, list content, menu rows; buttons and tabs follow it'**
   String get styleEditor_bodyMedium_subtitle;
 
   /// No description provided for @styleEditor_bodySmall_label.
@@ -9773,19 +9773,19 @@ abstract class AppLocalizations {
   /// No description provided for @styleEditor_bodySmall_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Subtitles and descriptions'**
+  /// **'Subtitles and descriptions; chips, bottom bar and tooltips follow it'**
   String get styleEditor_bodySmall_subtitle;
 
   /// No description provided for @styleEditor_titleSmall_label.
   ///
   /// In en, this message translates to:
-  /// **'Section titles'**
+  /// **'Titles'**
   String get styleEditor_titleSmall_label;
 
   /// No description provided for @styleEditor_titleSmall_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Section headers and dialog titles'**
+  /// **'Sheet section headers; screen and dialog titles scale with it'**
   String get styleEditor_titleSmall_subtitle;
 
   /// No description provided for @styleEditor_labelSmall_label.
@@ -9809,8 +9809,32 @@ abstract class AppLocalizations {
   /// No description provided for @styleEditor_labelMedium_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'List names, bottom bar, repeater section headers'**
+  /// **'List names, hub and repeater section headers'**
   String get styleEditor_labelMedium_subtitle;
+
+  /// No description provided for @styleEditor_bodySize_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat messages'**
+  String get styleEditor_bodySize_label;
+
+  /// No description provided for @styleEditor_bodySize_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Message text and sender names in direct and channel chats'**
+  String get styleEditor_bodySize_subtitle;
+
+  /// No description provided for @styleEditor_microLabelSize_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Micro label'**
+  String get styleEditor_microLabelSize_label;
+
+  /// No description provided for @styleEditor_microLabelSize_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge and chip captions on contact and channel cards'**
+  String get styleEditor_microLabelSize_subtitle;
 
   /// No description provided for @styleEditor_monoCaptionSize_label.
   ///
@@ -9965,7 +9989,7 @@ abstract class AppLocalizations {
   /// No description provided for @styleEditor_radiusLg_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Chat bubbles, sheets'**
+  /// **'Sheets, dialogs'**
   String get styleEditor_radiusLg_subtitle;
 
   /// No description provided for @styleEditor_radiusPill_label.
@@ -9979,6 +10003,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Buttons, FAB, chips'**
   String get styleEditor_radiusPill_subtitle;
+
+  /// No description provided for @styleEditor_radiusBubble_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat bubbles'**
+  String get styleEditor_radiusBubble_label;
+
+  /// No description provided for @styleEditor_radiusBubble_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The three big corners of every message bubble'**
+  String get styleEditor_radiusBubble_subtitle;
+
+  /// No description provided for @styleEditor_radiusBubbleTail_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat bubble tail'**
+  String get styleEditor_radiusBubbleTail_label;
+
+  /// No description provided for @styleEditor_radiusBubbleTail_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The fourth corner pointing at the sender'**
+  String get styleEditor_radiusBubbleTail_subtitle;
 
   /// No description provided for @styleEditor_cardSection.
   ///
